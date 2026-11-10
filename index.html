@@ -559,6 +559,136 @@
       box-shadow: 0 0 12px var(--accent-glow);
     }
 
+    /* Franchise Watch Order & Relations Sequence */
+    .relations-section {
+      margin-top: 1.5rem;
+      background: #101017;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .relations-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .relations-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .relations-grid {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.75rem;
+      scroll-behavior: smooth;
+    }
+    .relations-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+    .relations-grid::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 9999px;
+    }
+    .relation-card {
+      flex: 0 0 160px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .relation-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    }
+    .relation-thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/10;
+      background: #09090b;
+      overflow: hidden;
+    }
+    .relation-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .relation-type-tag {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .tag-sequel { background: #e50914; color: #fff; }
+    .tag-prequel { background: #3b82f6; color: #fff; }
+    .tag-movie { background: #8b5cf6; color: #fff; }
+    .tag-side { background: #f59e0b; color: #000; }
+    .relation-body {
+      padding: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
+    }
+    .relation-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .relation-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Release Badges for Simulcast Drops */
+    .release-ep-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+    }
+    .release-time-tag {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(4px);
+      color: #a7f3d0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
     /* Catalog Sections */
     .catalog-section {
       margin-bottom: 3rem;
@@ -1436,6 +1566,22 @@
           <!-- Populated by JS -->
         </div>
       </div>
+
+      <!-- Franchise Watch Order & Relations Sequence -->
+      <div id="relationsSection" class="relations-section" style="display: none;">
+        <div class="relations-header">
+          <div class="relations-title">
+            <span>🔗 Franchise Watch Order & Sequels</span>
+            <span id="relationsCount" class="badge badge-subdub" style="font-size: 0.72rem; padding: 2px 8px;">0 Parts</span>
+          </div>
+          <div style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">
+            Chronological storyline & spin-offs
+          </div>
+        </div>
+        <div id="relationsGrid" class="relations-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
     </section>
 
     <!-- Hero Spotlight Section -->
@@ -1573,6 +1719,23 @@
       </div>
       <div id="seriesLoadMoreBox" class="load-more-container" style="display: none;">
         <button id="seriesLoadMoreBtn" class="load-more-btn" onclick="loadMoreSeries()">See More TV Shows ↓</button>
+      </div>
+    </section>
+
+    <!-- ⚡ Newly Released Episodes (Simulcast Live Drops) -->
+    <section id="latestReleasesSection" class="catalog-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #10b981;"></div>
+          <span>⚡ Newly Released Episodes</span>
+          <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color:#10b981; border: 1px solid rgba(16,185,129,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE SIMULCAST</span>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Updated in real-time as episodes air in Japan</span>
+      </div>
+      <div id="latestReleasesGrid" class="anime-cards-grid">
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Fetching today's freshly aired episodes...
+        </div>
       </div>
     </section>
 
@@ -2030,6 +2193,7 @@
     let trendingList = [...ANIME_CATALOG];
     let seasonalList = [];
     let topRatedList = [...LEGENDARY_CATALOG];
+    let latestReleasesList = [];
     let currentMoviesList = [];
     let currentSeriesList = [];
     let searchDebounceTimer = null;
@@ -2210,13 +2374,65 @@
       `;
     }
 
-    function selectAnimeById(id, autoPlay) {
+    async function selectAnimeById(id, autoPlay, targetEp = 1) {
       const strId = String(id);
       let match = ANIME_CACHE.get(strId);
       if (!match) {
-        match = [...trendingList, ...seasonalList, ...topRatedList, ...ANIME_CATALOG, ...LEGENDARY_CATALOG].find(a => String(a.id) === strId);
+        match = [...(latestReleasesList || []), ...trendingList, ...seasonalList, ...topRatedList, ...ANIME_CATALOG, ...LEGENDARY_CATALOG].find(a => String(a.id) === strId);
       }
-      if (match) selectAnime(match, autoPlay);
+      if (!match) {
+        try {
+          const q = `
+            query($id: Int) {
+              Media(id: $id, type: ANIME) {
+                id
+                idMal
+                title { english romaji }
+                coverImage { large }
+                bannerImage
+                episodes
+                averageScore
+                format
+                description
+                startDate { year }
+              }
+            }
+          `;
+          const res = await fetch('https://graphql.anilist.co', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q, variables: { id: parseInt(id, 10) } })
+          });
+          const json = await res.json();
+          const m = json.data?.Media;
+          if (m) {
+            match = {
+              id: String(m.id),
+              idMal: m.idMal ? String(m.idMal) : null,
+              tmdbId: String(m.id),
+              title: m.title.english || m.title.romaji || 'Anime',
+              romaji: m.title.romaji || '',
+              rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
+              year: m.startDate?.year ? String(m.startDate.year) : '',
+              episodes: m.episodes || (m.format === 'MOVIE' ? 1 : 12),
+              poster: m.coverImage?.large || '',
+              backdrop: m.bannerImage || m.coverImage?.large || '',
+              synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'No synopsis available.',
+              type: m.format === 'MOVIE' ? 'movie' : 'tv'
+            };
+            ANIME_CACHE.set(strId, match);
+          }
+        } catch (err) {
+          console.error('Fetch anime by id error:', err);
+        }
+      }
+
+      if (match) {
+        selectAnime(match, autoPlay);
+        if (targetEp && targetEp > 1) {
+          setEpisode(targetEp);
+        }
+      }
     }
 
     function selectAnime(anime, autoPlay) {
@@ -2244,8 +2460,121 @@
         renderEpisodeGrid(anime.episodes || 12);
       }
 
+      fetchRelations(anime.id);
+
       if (autoPlay) {
         openTheater();
+      }
+    }
+
+    async function fetchRelations(aniId) {
+      const container = document.getElementById('relationsSection');
+      const grid = document.getElementById('relationsGrid');
+      const countBadge = document.getElementById('relationsCount');
+      if (!container || !grid) return;
+
+      const numId = parseInt(aniId, 10);
+      if (isNaN(numId)) {
+        container.style.display = 'none';
+        return;
+      }
+
+      try {
+        const q = `
+          query($id: Int) {
+            Media(id: $id) {
+              id
+              relations {
+                edges {
+                  relationType
+                  node {
+                    id
+                    type
+                    format
+                    status
+                    episodes
+                    title { english romaji }
+                    coverImage { large }
+                    startDate { year }
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const res = await fetch('https://graphql.anilist.co', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ query: q, variables: { id: numId } })
+        });
+        const json = await res.json();
+        const rawRelations = json.data?.Media?.relations?.edges || [];
+        const animeRelations = rawRelations.filter(e => e.node && e.node.type === 'ANIME');
+
+        if (!animeRelations.length) {
+          container.style.display = 'none';
+          return;
+        }
+
+        container.style.display = 'block';
+        if (countBadge) countBadge.innerText = `${animeRelations.length} Parts`;
+
+        const orderWeight = {
+          PREQUEL: 1,
+          PARENT: 2,
+          SEQUEL: 3,
+          SIDE_STORY: 4,
+          SUMMARY: 5,
+          ALTERNATIVE: 6,
+          SPIN_OFF: 7,
+          OTHER: 8
+        };
+
+        animeRelations.sort((a, b) => (orderWeight[a.relationType] || 10) - (orderWeight[b.relationType] || 10));
+
+        grid.innerHTML = animeRelations.map(rel => {
+          const node = rel.node;
+          const title = node.title.english || node.title.romaji || 'Anime';
+          const year = node.startDate?.year || '';
+          const type = rel.relationType;
+          let badgeClass = 'tag-side';
+          let badgeLabel = type.replace('_', ' ');
+
+          if (type === 'PREQUEL') {
+            badgeClass = 'tag-prequel';
+            badgeLabel = '⏪ PREQUEL';
+          } else if (type === 'SEQUEL') {
+            badgeClass = 'tag-sequel';
+            badgeLabel = '⏩ SEQUEL';
+          } else if (node.format === 'MOVIE' || type === 'SUMMARY') {
+            badgeClass = 'tag-movie';
+            badgeLabel = '🎬 MOVIE';
+          } else if (type === 'SIDE_STORY') {
+            badgeClass = 'tag-side';
+            badgeLabel = '📖 SIDE STORY';
+          }
+
+          const epLabel = node.format === 'MOVIE' ? 'Movie' : `${node.episodes || '?'} eps`;
+
+          return `
+            <div class="relation-card" onclick="selectAnimeById('${node.id}', true)">
+              <div class="relation-thumb-wrap">
+                <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
+                <img class="relation-thumb" src="${node.coverImage?.large || 'https://media.kitsu.app/anime/poster_image/default.jpg'}" alt="${title}" loading="lazy">
+              </div>
+              <div class="relation-body">
+                <div class="relation-title" title="${title}">${title}</div>
+                <div class="relation-meta">
+                  <span>${year ? year + ' • ' : ''}${epLabel}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Failed to load relations:', err);
+        container.style.display = 'none';
       }
     }
 
@@ -2894,8 +3223,120 @@
       saveStoredAddons(addons);
     }
 
+    // --- Live Simulcast & Newly Released Episodes Feed (AniList Engine) ---
+    async function loadLatestReleases() {
+      const grid = document.getElementById('latestReleasesGrid');
+      if (!grid) return;
+
+      const q = `
+        query {
+          Page(page: 1, perPage: 14) {
+            airingSchedules(notYetAired: false, sort: TIME_DESC) {
+              id
+              airingAt
+              episode
+              media {
+                id
+                idMal
+                title {
+                  romaji
+                  english
+                }
+                coverImage {
+                  large
+                }
+                bannerImage
+                episodes
+                averageScore
+                format
+                status
+                genres
+                description
+                startDate {
+                  year
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      try {
+        const res = await fetch('https://graphql.anilist.co', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ query: q })
+        });
+        const json = await res.json();
+        const schedules = json.data?.Page?.airingSchedules || [];
+
+        if (!schedules.length) {
+          grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No new episode releases detected in the past 24 hours.</div>';
+          return;
+        }
+
+        latestReleasesList = schedules.map(s => {
+          const m = s.media;
+          const title = m.title.english || m.title.romaji || 'Anime';
+          const timeDiff = Math.floor((Date.now() / 1000) - s.airingAt);
+          let timeAgo = '';
+          if (timeDiff < 3600) timeAgo = `${Math.max(1, Math.floor(timeDiff / 60))}m ago`;
+          else if (timeDiff < 86400) timeAgo = `${Math.floor(timeDiff / 3600)}h ago`;
+          else timeAgo = `${Math.floor(timeDiff / 86400)}d ago`;
+
+          const normalized = {
+            id: String(m.id),
+            idMal: m.idMal ? String(m.idMal) : null,
+            tmdbId: String(m.id),
+            title,
+            romaji: m.title.romaji || '',
+            rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
+            year: m.startDate?.year ? String(m.startDate.year) : '2026',
+            episodes: m.episodes || s.episode,
+            poster: m.coverImage?.large || '',
+            backdrop: m.bannerImage || m.coverImage?.large || '',
+            synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'Newly released episode.',
+            type: m.format === 'MOVIE' ? 'movie' : 'tv',
+            latestEpisode: s.episode,
+            timeAgo
+          };
+
+          ANIME_CACHE.set(String(m.id), normalized);
+          return normalized;
+        });
+
+        grid.innerHTML = latestReleasesList.map(item => {
+          const fav = isFavorited(item.id);
+          return `
+            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${item.latestEpisode})">
+              <div class="card-poster-wrapper">
+                <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                  ${fav ? '❤️' : '🤍'}
+                </button>
+                <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+                <div class="release-ep-badge">EP ${item.latestEpisode}</div>
+                <div class="release-time-tag">⚡ ${item.timeAgo}</div>
+              </div>
+              <div class="card-info">
+                <div class="card-title" title="${item.title}">${item.title}</div>
+                <div class="card-meta">
+                  <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
+                  <span style="color: #3b82f6; font-weight: 700;">Simulcast</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Failed to load latest releases:', err);
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Live release feed temporarily unavailable.</div>';
+      }
+    }
+
     // --- Dynamic Catalog Initialization (High-Speed Kitsu Core) ---
     async function loadDynamicCatalog() {
+      loadLatestReleases();
       try {
         const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
           fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
@@ -3370,6 +3811,7 @@
       const historySection = document.getElementById('historySection');
       const watchlistSection = document.getElementById('watchlistSection');
       const searchSection = document.getElementById('searchSection');
+      const latestReleasesSection = document.getElementById('latestReleasesSection');
       const seasonalSection = document.getElementById('seasonalSection');
       const trendingSection = document.getElementById('trendingSection');
       const legendarySection = document.getElementById('legendarySection');
@@ -3381,6 +3823,7 @@
       if (historySection) historySection.style.display = 'none';
       if (watchlistSection) watchlistSection.style.display = 'none';
       if (searchSection) searchSection.style.display = 'none';
+      if (latestReleasesSection) latestReleasesSection.style.display = 'none';
       if (seasonalSection) seasonalSection.style.display = 'none';
       if (trendingSection) trendingSection.style.display = 'none';
       if (legendarySection) legendarySection.style.display = 'none';
@@ -3390,6 +3833,7 @@
 
       if (tab === 'all') {
         renderHistory();
+        if (latestReleasesSection) latestReleasesSection.style.display = 'block';
         if (seasonalSection) seasonalSection.style.display = 'block';
         if (trendingSection) trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';

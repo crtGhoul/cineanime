@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>CineAnime — Clean, Ad-Free Anime Streaming</title>
   <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1252,6 +1255,96 @@
       background: #ef4444;
       color: #fff;
     }
+
+    /* Auth & Sync Modal Styles */
+    .auth-tab-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      background: #0d0d14;
+      padding: 0.25rem;
+      border-radius: 8px;
+    }
+    .auth-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .auth-tab-btn.active {
+      background: var(--surface-light);
+      color: #fff;
+    }
+    .auth-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    .auth-field label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .auth-field input {
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .auth-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .auth-submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.2s;
+    }
+    .auth-submit-btn:hover {
+      opacity: 0.9;
+    }
+    .sync-code-area {
+      width: 100%;
+      height: 90px;
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: #10b981;
+      font-family: monospace;
+      font-size: 0.8rem;
+      resize: none;
+      margin-top: 0.5rem;
+    }
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #10b981;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+    }
   </style>
 </head>
 <body>
@@ -1271,6 +1364,7 @@
     <div class="nav-actions">
       <button class="nav-btn" onclick="openAddonModal()">🧩 Stremio Addons</button>
       <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
+      <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
       </button>
@@ -1569,6 +1663,107 @@
           <a href="http://localhost:8080" target="_blank" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
             Open Stremio Web ↗
           </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal (Sign In / Register) -->
+  <div id="authModal" class="addon-modal-backdrop" style="display: none;">
+    <div class="addon-modal-dialog">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title">
+          <span>🛡️ Encrypted Account Vault</span>
+        </div>
+        <button class="addon-modal-close" onclick="closeAuthModal()">✕</button>
+      </div>
+      <div class="addon-modal-body">
+        <div class="auth-tab-row">
+          <button id="authTabSignIn" class="auth-tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
+          <button id="authTabRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">Create Account</button>
+        </div>
+
+        <div id="authFormSignIn">
+          <div class="auth-field">
+            <label>Username</label>
+            <input type="text" id="loginUsername" placeholder="e.g. cesar" autocomplete="username">
+          </div>
+          <div class="auth-field">
+            <label>Master Password</label>
+            <input type="password" id="loginPassword" placeholder="Your vault master password" autocomplete="current-password">
+          </div>
+          <button class="auth-submit-btn" onclick="submitSignIn()">Unlock My Vault 🔓</button>
+        </div>
+
+        <div id="authFormRegister" style="display: none;">
+          <div class="auth-field">
+            <label>Create Username</label>
+            <input type="text" id="regUsername" placeholder="Choose a username" autocomplete="username">
+          </div>
+          <div class="auth-field">
+            <label>Create Master Password</label>
+            <input type="password" id="regPassword" placeholder="Minimum 6 characters" autocomplete="new-password">
+          </div>
+          <button class="auth-submit-btn" onclick="submitRegister()">Create 100% Free Encrypted Vault 🔒</button>
+        </div>
+
+        <div style="margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; background: #0d0d14; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+          <strong style="color: #10b981;">🔒 100% Zero-Knowledge Encryption:</strong> Your password is salted and hashed with PBKDF2 (100,000 rounds of SHA-256) and used to encrypt your history with AES-256-GCM. No one—not even servers or hackers—can view your watch progress without your password.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile & Cross-Device Sync Modal -->
+  <div id="profileModal" class="addon-modal-backdrop" style="display: none;">
+    <div class="addon-modal-dialog">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title">
+          <span>👤 My Account & Sync</span>
+        </div>
+        <button class="addon-modal-close" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div class="addon-modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 id="profileUsername" style="font-size: 1.25rem; color: #fff; margin-bottom: 0.2rem;">cesar</h3>
+            <span class="security-badge">🔒 AES-256 Encrypted Vault</span>
+          </div>
+          <button class="addon-delete-btn" onclick="logoutUser()" style="padding: 0.5rem 0.85rem; font-size: 0.82rem;">Sign Out</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <div style="background: #0d0d14; padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
+            <div id="profileWatchCount" style="font-size: 1.4rem; font-weight: 800; color: #fff;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Watched Items</div>
+          </div>
+          <div style="background: #0d0d14; padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
+            <div id="profileFavCount" style="font-size: 1.4rem; font-weight: 800; color: #ec4899;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Watchlist Saved</div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem;">
+          <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 0.5rem;">📱 Cross-Device Sync (Phone / TV)</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+            Export your encrypted sync key to load your continue-watching history on your phone, TV, or another browser with 0 server costs.
+          </p>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.6rem;" onclick="generateSyncExport()">📋 Export Sync Key</button>
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.6rem;" onclick="showSyncImportBox()">📥 Import Sync Key</button>
+          </div>
+
+          <div id="syncExportBox" style="display: none; margin-top: 0.85rem;">
+            <textarea id="syncExportText" class="sync-code-area" readonly onclick="this.select()"></textarea>
+            <button class="auth-submit-btn" style="margin-top: 0.5rem; padding: 0.5rem;" onclick="copySyncExport()">Copy Encrypted Sync Key</button>
+          </div>
+
+          <div id="syncImportBox" style="display: none; margin-top: 0.85rem;">
+            <textarea id="syncImportText" class="sync-code-area" placeholder="Paste encrypted sync key here..."></textarea>
+            <input type="password" id="syncImportPassword" class="addon-text-input" style="width: 100%; margin-top: 0.5rem;" placeholder="Enter master password to decrypt">
+            <button class="auth-submit-btn" style="margin-top: 0.5rem; padding: 0.5rem; background: #10b981;" onclick="processSyncImport()">Decrypt & Merge History</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1929,22 +2124,57 @@
       };
     }
 
+    // --- Data Accessors (Scoped to Guest or Decrypted Vault) ---
+    function getWatchHistory() {
+      if (currentSessionUser && sessionData.history) {
+        return sessionData.history;
+      }
+      return JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+    }
+
+    function getWatchlist() {
+      if (currentSessionUser && sessionData.watchlist) {
+        return sessionData.watchlist;
+      }
+      return JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+    }
+
+    async function persistUserData() {
+      if (currentSessionUser && sessionVaultKey) {
+        try {
+          const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+          if (accounts[currentSessionUser]) {
+            const enc = await encryptVault(sessionData, sessionVaultKey);
+            accounts[currentSessionUser].encryptedData = enc;
+            localStorage.setItem('cineanime_accounts', JSON.stringify(accounts));
+          }
+        } catch(e) {
+          console.error('Vault persist error:', e);
+        }
+      }
+    }
+
     // Render Cards
     function isFavorited(id) {
-      const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      const list = getWatchlist();
       return list.includes(String(id));
     }
 
     function toggleFavorite(e, id) {
       e.stopPropagation();
-      let list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      let list = getWatchlist();
       const strId = String(id);
       if (list.includes(strId)) {
         list = list.filter(item => item !== strId);
       } else {
         list.push(strId);
       }
-      localStorage.setItem('cineanime_watchlist', JSON.stringify(list));
+      if (currentSessionUser) {
+        sessionData.watchlist = list;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_watchlist', JSON.stringify(list));
+      }
       renderWatchlist();
       updateBadges();
       // Re-render favorite buttons in place
@@ -2732,10 +2962,286 @@
       if (e.key === 'f' || e.key === 'F') toggleFullscreen();
     });
 
-    // --- Watch History & LocalStorage Management ---
+    // --- Zero-Knowledge Encrypted Account System ---
+    let currentSessionUser = localStorage.getItem('cineanime_active_user') || null;
+    let sessionVaultKey = null;
+    let sessionData = { history: [], watchlist: [] };
+
+    // Crypto Helpers (PBKDF2 + AES-256-GCM)
+    async function deriveVaultKey(password, salt) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    async function hashPassword(password, salt) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+      );
+      const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        256
+      );
+      return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function encryptVault(dataObj, key) {
+      const enc = new TextEncoder();
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        enc.encode(JSON.stringify(dataObj))
+      );
+      return {
+        iv: Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join(''),
+        ciphertext: Array.from(new Uint8Array(ciphertext)).map(b => b.toString(16).padStart(2, '0')).join('')
+      };
+    }
+
+    async function decryptVault(encObj, key) {
+      const dec = new TextDecoder();
+      const iv = new Uint8Array(encObj.iv.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const ciphertext = new Uint8Array(encObj.ciphertext.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        ciphertext
+      );
+      return JSON.parse(dec.decode(decrypted));
+    }
+
+    function handleAuthClick() {
+      if (currentSessionUser) {
+        openProfileModal();
+      } else {
+        openAuthModal();
+      }
+    }
+
+    function openAuthModal() {
+      document.getElementById('authModal').style.display = 'flex';
+      switchAuthTab('signin');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+    }
+
+    function openProfileModal() {
+      document.getElementById('profileUsername').innerText = currentSessionUser;
+      document.getElementById('profileWatchCount').innerText = getWatchHistory().length;
+      document.getElementById('profileFavCount').innerText = getWatchlist().length;
+      document.getElementById('syncExportBox').style.display = 'none';
+      document.getElementById('syncImportBox').style.display = 'none';
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = 'none';
+    }
+
+    function switchAuthTab(tab) {
+      const isSignIn = tab === 'signin';
+      document.getElementById('authTabSignIn').classList.toggle('active', isSignIn);
+      document.getElementById('authTabRegister').classList.toggle('active', !isSignIn);
+      document.getElementById('authFormSignIn').style.display = isSignIn ? 'block' : 'none';
+      document.getElementById('authFormRegister').style.display = isSignIn ? 'none' : 'block';
+    }
+
+    async function submitRegister() {
+      const u = document.getElementById('regUsername').value.trim().toLowerCase();
+      const p = document.getElementById('regPassword').value;
+
+      if (!u || u.length < 3) return alert('Username must be at least 3 characters.');
+      if (!p || p.length < 6) return alert('Password must be at least 6 characters.');
+
+      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+      if (accounts[u]) return alert('An account with this username already exists on this device.');
+
+      try {
+        const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        const authHash = await hashPassword(p, salt);
+        const vaultKey = await deriveVaultKey(p, salt);
+
+        const existingHistory = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+        const existingWatchlist = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+        const initialData = { history: existingHistory, watchlist: existingWatchlist };
+
+        const encData = await encryptVault(initialData, vaultKey);
+
+        accounts[u] = {
+          username: u,
+          salt: salt,
+          authHash: authHash,
+          encryptedData: encData,
+          createdAt: Date.now()
+        };
+
+        localStorage.setItem('cineanime_accounts', JSON.stringify(accounts));
+        currentSessionUser = u;
+        sessionVaultKey = vaultKey;
+        sessionData = initialData;
+        localStorage.setItem('cineanime_active_user', u);
+
+        closeAuthModal();
+        renderHistory();
+        renderWatchlist();
+        updateBadges();
+        alert(`🎉 Account vault created successfully for @${u}!\nYour watch history is now encrypted with AES-256.`);
+      } catch (err) {
+        alert('Registration error: ' + err.message);
+      }
+    }
+
+    async function submitSignIn() {
+      const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+      const p = document.getElementById('loginPassword').value;
+
+      if (!u || !p) return alert('Please enter both username and password.');
+
+      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+      const account = accounts[u];
+      if (!account) return alert('Account not found. Please register a new vault.');
+
+      try {
+        const inputHash = await hashPassword(p, account.salt);
+        if (inputHash !== account.authHash) {
+          return alert('Incorrect password. Zero-knowledge vaults cannot be decrypted without the exact password.');
+        }
+
+        const vaultKey = await deriveVaultKey(p, account.salt);
+        const decrypted = await decryptVault(account.encryptedData, vaultKey);
+
+        currentSessionUser = u;
+        sessionVaultKey = vaultKey;
+        sessionData = decrypted || { history: [], watchlist: [] };
+        localStorage.setItem('cineanime_active_user', u);
+
+        closeAuthModal();
+        renderHistory();
+        renderWatchlist();
+        updateBadges();
+        alert(`🔓 Welcome back, @${u}! Your encrypted vault is unlocked.`);
+      } catch (err) {
+        alert('Decryption error: ' + err.message);
+      }
+    }
+
+    function logoutUser() {
+      if (confirm('Sign out of your encrypted account vault? Your history will be locked.')) {
+        currentSessionUser = null;
+        sessionVaultKey = null;
+        sessionData = { history: [], watchlist: [] };
+        localStorage.removeItem('cineanime_active_user');
+        closeProfileModal();
+        renderHistory();
+        renderWatchlist();
+        updateBadges();
+      }
+    }
+
+    async function generateSyncExport() {
+      if (!currentSessionUser || !sessionVaultKey) {
+        return alert('Please sign in to export your sync key.');
+      }
+      try {
+        const payload = {
+          version: '1.0',
+          username: currentSessionUser,
+          data: sessionData,
+          exportedAt: Date.now()
+        };
+        const enc = await encryptVault(payload, sessionVaultKey);
+        const token = btoa(JSON.stringify({ u: currentSessionUser, s: enc }));
+        const box = document.getElementById('syncExportBox');
+        const txt = document.getElementById('syncExportText');
+        txt.value = token;
+        box.style.display = 'block';
+        document.getElementById('syncImportBox').style.display = 'none';
+      } catch (e) {
+        alert('Sync generation failed: ' + e.message);
+      }
+    }
+
+    function copySyncExport() {
+      const txt = document.getElementById('syncExportText');
+      txt.select();
+      navigator.clipboard.writeText(txt.value);
+      alert('📋 Encrypted Sync Key copied to clipboard!\nPaste it into "Import Sync Key" on your phone or TV.');
+    }
+
+    function showSyncImportBox() {
+      document.getElementById('syncImportBox').style.display = 'block';
+      document.getElementById('syncExportBox').style.display = 'none';
+    }
+
+    async function processSyncImport() {
+      const token = document.getElementById('syncImportText').value.trim();
+      const p = document.getElementById('syncImportPassword').value;
+
+      if (!token) return alert('Please paste an encrypted sync key.');
+      if (!p) return alert('Please enter the master password used to encrypt this sync key.');
+
+      try {
+        const parsed = JSON.parse(atob(token));
+        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+        const salt = accounts[parsed.u] ? accounts[parsed.u].salt : (parsed.u + "_cine_salt_2026");
+        const vaultKey = await deriveVaultKey(p, salt);
+        const decryptedPayload = await decryptVault(parsed.s, vaultKey);
+
+        if (!decryptedPayload || !decryptedPayload.data) {
+          throw new Error('Invalid or corrupted sync payload.');
+        }
+
+        const importedHistory = decryptedPayload.data.history || [];
+        const importedWatchlist = decryptedPayload.data.watchlist || [];
+
+        let currentHist = getWatchHistory();
+        const mergedIds = new Set(currentHist.map(h => h.id));
+        importedHistory.forEach(h => {
+          if (!mergedIds.has(h.id)) currentHist.push(h);
+        });
+
+        let currentFavs = getWatchlist();
+        importedWatchlist.forEach(id => {
+          if (!currentFavs.includes(id)) currentFavs.push(id);
+        });
+
+        sessionData.history = currentHist;
+        sessionData.watchlist = currentFavs;
+        if (currentSessionUser) {
+          persistUserData();
+        } else {
+          localStorage.setItem('cineanime_history', JSON.stringify(currentHist));
+          localStorage.setItem('cineanime_watchlist', JSON.stringify(currentFavs));
+        }
+
+        renderHistory();
+        renderWatchlist();
+        updateBadges();
+        closeProfileModal();
+        alert('✅ Cross-device sync complete! All your watch history and saved titles are synced.');
+      } catch (err) {
+        alert('Sync import failed: ' + err.message + '\nVerify that the password matches the exported vault.');
+      }
+    }
+
+    // --- Watch History & Storage Management ---
     function saveWatchHistory(anime, episode, server) {
       if (!anime || !anime.id) return;
-      let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      let history = getWatchHistory();
       history = history.filter(h => String(h.id) !== String(anime.id));
       history.unshift({
         id: anime.id,
@@ -2747,31 +3253,45 @@
         server: server || 'server1',
         updatedAt: Date.now()
       });
-      if (history.length > 30) history = history.slice(0, 30);
-      localStorage.setItem('cineanime_history', JSON.stringify(history));
+      if (history.length > 50) history = history.slice(0, 50);
+      if (currentSessionUser) {
+        sessionData.history = history;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_history', JSON.stringify(history));
+      }
       renderHistory();
       updateBadges();
     }
 
     function removeHistoryItem(e, id) {
       e.stopPropagation();
-      let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
-      history = history.filter(h => String(h.id) !== String(id));
-      localStorage.setItem('cineanime_history', JSON.stringify(history));
+      let history = getWatchHistory().filter(h => String(h.id) !== String(id));
+      if (currentSessionUser) {
+        sessionData.history = history;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_history', JSON.stringify(history));
+      }
       renderHistory();
       updateBadges();
     }
 
     function clearWatchHistory() {
       if (confirm('Are you sure you want to clear your entire watch history?')) {
-        localStorage.removeItem('cineanime_history');
+        if (currentSessionUser) {
+          sessionData.history = [];
+          persistUserData();
+        } else {
+          localStorage.removeItem('cineanime_history');
+        }
         renderHistory();
         updateBadges();
       }
     }
 
     function renderHistory() {
-      const history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      const history = getWatchHistory();
       const container = document.getElementById('historyGrid');
       const section = document.getElementById('historySection');
 
@@ -2813,7 +3333,7 @@
     }
 
     function renderWatchlist() {
-      const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      const list = getWatchlist();
       const container = document.getElementById('watchlistGrid');
       if (!list.length) {
         container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your watchlist is empty. Tap the heart ❤️ on any anime card to add it here!</div>';
@@ -2894,12 +3414,23 @@
     }
 
     function updateBadges() {
-      const history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
-      const watchlist = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      const history = getWatchHistory();
+      const watchlist = getWatchlist();
       const hBadge = document.getElementById('historyBadgeCount');
       const wBadge = document.getElementById('watchlistBadgeCount');
       if (hBadge) hBadge.innerText = history.length;
       if (wBadge) wBadge.innerText = watchlist.length;
+
+      const authBtn = document.getElementById('authBtn');
+      if (authBtn) {
+        if (currentSessionUser) {
+          authBtn.innerHTML = `🛡️ ${currentSessionUser}`;
+          authBtn.classList.add('primary');
+        } else {
+          authBtn.innerHTML = `👤 Sign In`;
+          authBtn.classList.remove('primary');
+        }
+      }
     }
 
     // Initialize

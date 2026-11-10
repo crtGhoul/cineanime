@@ -946,6 +946,126 @@
       color: #ff3344;
       background: rgba(0, 0, 0, 0.85);
     }
+
+    /* Genre Pills Bar (Animex & AnimeNexus Style) */
+    .genre-pills-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+    }
+
+    .genre-pills-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .genre-pills-bar::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 9999px;
+    }
+
+    .genre-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .genre-pill:hover {
+      background: var(--surface-light);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .genre-pill.active {
+      background: linear-gradient(135deg, var(--accent), #ff3344);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    /* Track Sub/Dub Buttons */
+    .sub-dub-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-left: 0.5rem;
+    }
+
+    .track-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #9ca3af;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .track-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .track-btn.active {
+      background: #10b981;
+      border-color: #10b981;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Episode Range Tabs */
+    .ep-range-tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+
+    .ep-range-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .ep-range-btn:hover {
+      color: #fff;
+      background: var(--surface-light);
+    }
+
+    .ep-range-btn.active {
+      background: var(--surface-light);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
   </style>
 </head>
 <body>
@@ -977,16 +1097,20 @@
     <section id="theaterSection" class="theater-section">
       <div class="theater-header">
         <div class="theater-title-group">
-          <span class="shield-pill">⚡ Direct Streaming</span>
+          <span class="shield-pill">⚡ Anime Nexus Core</span>
           <span id="playerTitle" class="theater-title">Solo Leveling • Season 1: Episode 1</span>
+          <div class="sub-dub-toggle">
+            <button id="trackSubBtn" class="track-btn active" onclick="switchTrack('sub')">🇯🇵 SUB</button>
+            <button id="trackDubBtn" class="track-btn" onclick="switchTrack('dub')">🇺🇸 DUB</button>
+          </div>
         </div>
 
         <div class="server-switcher" id="serverSwitcher">
-          <button class="server-btn active" data-server="vidsrc">VidSrc</button>
+          <button class="server-btn active" data-server="animeembed">AnimeEmbed (HD)</button>
+          <button class="server-btn" data-server="vidsrc">VidSrc</button>
           <button class="server-btn" data-server="twoembed">2Embed</button>
           <button class="server-btn" data-server="multiembed">MultiEmbed</button>
           <button class="server-btn" data-server="vidlink">VidLink</button>
-          <button class="server-btn" data-server="autoembed">AutoEmbed</button>
           <a id="externalStreamBtn" href="#" target="_blank" class="server-btn" style="text-decoration:none; display:inline-flex; align-items:center;" title="Open player directly in new tab">↗ New Tab</a>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
@@ -1024,9 +1148,10 @@
             <span id="epTotalCount" class="ep-count">(12 Episodes)</span>
           </div>
           <div style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
-            ● Japanese SUB & English DUB
+            ● Japanese SUB & English DUB • Auto-Skip Intro
           </div>
         </div>
+        <div id="epRangeTabs" class="ep-range-tabs"></div>
         <div id="episodeGrid" class="episode-grid">
           <!-- Populated by JS -->
         </div>
@@ -1062,7 +1187,7 @@
     <!-- Catalog Filter Bar -->
     <div class="filter-tabs-bar">
       <button class="filter-tab active" data-tab="all" onclick="switchTab('all')">
-        🔥 All Catalogs
+        🔥 All Anime
       </button>
       <button class="filter-tab" data-tab="history" id="historyTabBtn" onclick="switchTab('history')">
         🕒 Continue Watching <span id="historyBadgeCount" class="tab-badge">0</span>
@@ -1070,6 +1195,24 @@
       <button class="filter-tab" data-tab="watchlist" id="watchlistTabBtn" onclick="switchTab('watchlist')">
         ⭐ My Watchlist <span id="watchlistBadgeCount" class="tab-badge">0</span>
       </button>
+    </div>
+
+    <!-- Genre Filter Pills (Animex & AnimeNexus Style) -->
+    <div class="genre-pills-bar" id="genrePillsBar">
+      <button class="genre-pill active" onclick="filterByGenre('ALL')">All Genres</button>
+      <button class="genre-pill" onclick="filterByGenre('Action')">Action</button>
+      <button class="genre-pill" onclick="filterByGenre('Adventure')">Adventure</button>
+      <button class="genre-pill" onclick="filterByGenre('Comedy')">Comedy</button>
+      <button class="genre-pill" onclick="filterByGenre('Fantasy')">Fantasy</button>
+      <button class="genre-pill" onclick="filterByGenre('Romance')">Romance</button>
+      <button class="genre-pill" onclick="filterByGenre('Sci-Fi')">Sci-Fi</button>
+      <button class="genre-pill" onclick="filterByGenre('Supernatural')">Supernatural</button>
+      <button class="genre-pill" onclick="filterByGenre('Mystery')">Mystery</button>
+      <button class="genre-pill" onclick="filterByGenre('Slice of Life')">Slice of Life</button>
+      <button class="genre-pill" onclick="filterByGenre('Psychological')">Psychological</button>
+      <button class="genre-pill" onclick="filterByGenre('Sports')">Sports</button>
+      <button class="genre-pill" onclick="filterByGenre('Horror')">Horror</button>
+      <button class="genre-pill" onclick="filterByGenre('Mecha')">Mecha</button>
     </div>
 
     <!-- Continue Watching Section -->
@@ -1099,25 +1242,55 @@
       </div>
     </section>
 
+    <!-- Live Search Results Section -->
+    <section id="searchSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #a855f7;"></div>
+          <span id="searchSectionTitle">🔍 Search Results</span>
+        </div>
+      </div>
+      <div id="searchGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Live Seasonal Top Airing (Winter 2026 / Current Season) -->
+    <section id="seasonalSection" class="catalog-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #3b82f6;"></div>
+          ❄️ Top Airing This Season
+        </div>
+      </div>
+      <div id="seasonalGrid" class="anime-cards-grid">
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Loading seasonal catalog from AniList...
+        </div>
+      </div>
+    </section>
+
     <!-- Trending Anime Catalog -->
     <section id="trendingSection" class="catalog-section">
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip"></div>
-          🔥 Trending Anime (Crunchyroll & Seasonal)
+          <span id="trendingSectionTitle">🔥 Trending Anime</span>
         </div>
       </div>
       <div id="trendingGrid" class="anime-cards-grid">
-        <!-- Rendered by JS -->
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Loading trending anime from AniList...
+        </div>
       </div>
     </section>
 
     <!-- Legendary Classics Catalog -->
-    <section class="catalog-section">
+    <section id="legendarySection" class="catalog-section">
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip" style="background: #f59e0b;"></div>
-          ⭐ Masterpiece & Legendary Anime
+          ⭐ Masterpiece & All-Time Popular
         </div>
       </div>
       <div id="legendaryGrid" class="anime-cards-grid">
@@ -1351,14 +1524,32 @@
   }
 ];
 
-    // State
+    // --- AniList Dynamic Core & State ---
+    const ANILIST_API = 'https://graphql.anilist.co';
+    const ANIME_CACHE = new Map();
+
+    // Cache initial offline fallback
+    ANIME_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
+    LEGENDARY_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
+
     let currentAnime = ANIME_CATALOG[0];
     let currentHeroAnime = ANIME_CATALOG[0];
     let currentSeason = 1;
     let currentEpisode = 1;
-    let activeServer = 'vidsrc';
+    let currentTrack = 'sub'; // 'sub' or 'dub'
+    let activeServer = 'animeembed';
+    let activeEpisodeRange = 0;
+    let currentSelectedGenre = 'ALL';
+    let trendingList = [...ANIME_CATALOG];
+    let seasonalList = [];
+    let topRatedList = [...LEGENDARY_CATALOG];
+    let searchDebounceTimer = null;
 
     const SERVERS = {
+      animeembed: (item, s, e) => {
+        const aniId = item.id;
+        return `https://animeembed.com/embed/ani/${aniId}/${e}?autoSkip=1&track=${currentTrack}&accent=e50914`;
+      },
       vidsrc: (item, s, e) => {
         const id = item.tmdbId || item.id;
         return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
@@ -1374,31 +1565,79 @@
       vidlink: (item, s, e) => {
         const id = item.tmdbId || item.id;
         return `https://vidlink.pro/tv/${id}/${s}/${e}`;
-      },
-      autoembed: (item, s, e) => {
-        const id = item.tmdbId || item.id;
-        return `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`;
       }
     };
+
+    function normalizeAniList(m) {
+      const title = m.title?.english || m.title?.romaji || m.title?.native || 'Anime';
+      const romaji = m.title?.romaji || '';
+      const year = m.seasonYear || (m.startDate?.year ? m.startDate.year : '');
+      const episodes = m.episodes || 12;
+      const rating = m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5';
+      const poster = m.coverImage?.extraLarge || m.coverImage?.large || '';
+      const backdrop = m.bannerImage || poster;
+      const synopsis = (m.description || 'No description available.').replace(/<[^>]*>/g, '');
+      const genres = m.genres || [];
+
+      return {
+        id: m.id,
+        idMal: m.idMal,
+        tmdbId: m.id,
+        title,
+        romaji,
+        rating,
+        year,
+        episodes,
+        poster,
+        backdrop,
+        synopsis,
+        genres
+      };
+    }
+
+    async function queryAniList(query, variables = {}) {
+      try {
+        const res = await fetch(ANILIST_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ query, variables })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.data;
+      } catch (e) {
+        console.warn('AniList API error:', e);
+        return null;
+      }
+    }
 
     // Render Cards
     function isFavorited(id) {
       const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
-      return list.includes(id);
+      return list.includes(String(id));
     }
 
     function toggleFavorite(e, id) {
       e.stopPropagation();
       let list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
-      if (list.includes(id)) {
-        list = list.filter(item => item !== id);
+      const strId = String(id);
+      if (list.includes(strId)) {
+        list = list.filter(item => item !== strId);
       } else {
-        list.push(id);
+        list.push(strId);
       }
       localStorage.setItem('cineanime_watchlist', JSON.stringify(list));
-      initCatalog();
       renderWatchlist();
       updateBadges();
+      // Re-render favorite buttons in place
+      document.querySelectorAll(`.card-fav-btn[data-id="${strId}"]`).forEach(btn => {
+        const fav = list.includes(strId);
+        btn.classList.toggle('favorited', fav);
+        btn.innerHTML = fav ? '❤️' : '🤍';
+      });
     }
 
     function renderCard(item) {
@@ -1406,10 +1645,10 @@
       return `
         <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
-            <button class="card-fav-btn ${fav ? 'favorited' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+            <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
-            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy">
+            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
             <div class="card-rating">★ ${item.rating}</div>
             <div class="card-ep-badge">${item.episodes} EPS</div>
           </div>
@@ -1424,29 +1663,28 @@
       `;
     }
 
-    function initCatalog() {
-      document.getElementById('trendingGrid').innerHTML = ANIME_CATALOG.map(renderCard).join('');
-      document.getElementById('legendaryGrid').innerHTML = LEGENDARY_CATALOG.map(renderCard).join('');
-    }
-
     function selectAnimeById(id, autoPlay) {
-      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
-      const match = all.find(a => a.id === id);
+      const strId = String(id);
+      let match = ANIME_CACHE.get(strId);
+      if (!match) {
+        match = [...trendingList, ...seasonalList, ...topRatedList, ...ANIME_CATALOG, ...LEGENDARY_CATALOG].find(a => String(a.id) === strId);
+      }
       if (match) selectAnime(match, autoPlay);
     }
 
     function selectAnime(anime, autoPlay) {
       currentAnime = anime;
       currentEpisode = 1;
+      activeEpisodeRange = 0;
+      ANIME_CACHE.set(String(anime.id), anime);
 
-      // Update Hero
-      document.getElementById('heroBg').src = anime.backdrop;
+      // Update Hero banner
+      document.getElementById('heroBg').src = anime.backdrop || anime.poster;
       document.getElementById('heroTitle').innerText = anime.title;
       document.getElementById('heroSynopsis').innerText = anime.synopsis;
       document.getElementById('heroRating').innerText = '★ ' + anime.rating;
       document.getElementById('heroEpisodes').innerText = anime.episodes + ' EPISODES';
 
-      // Render Episode Grid
       renderEpisodeGrid(anime.episodes);
 
       if (autoPlay) {
@@ -1460,19 +1698,50 @@
 
     function renderEpisodeGrid(count) {
       const grid = document.getElementById('episodeGrid');
+      const tabs = document.getElementById('epRangeTabs');
       document.getElementById('epTotalCount').innerText = `(${count} Episodes)`;
+
+      // Build range tabs if count > 50 (e.g. One Piece, Naruto)
+      if (count > 50) {
+        tabs.style.display = 'flex';
+        let tabsHtml = '';
+        const rangesCount = Math.ceil(count / 50);
+        for (let r = 0; r < rangesCount; r++) {
+          const start = r * 50 + 1;
+          const end = Math.min((r + 1) * 50, count);
+          tabsHtml += `<button class="ep-range-btn ${r === activeEpisodeRange ? 'active' : ''}" onclick="setEpisodeRange(${r})">${start} - ${end}</button>`;
+        }
+        tabs.innerHTML = tabsHtml;
+      } else {
+        tabs.style.display = 'none';
+        tabs.innerHTML = '';
+        activeEpisodeRange = 0;
+      }
+
+      // Render episode buttons for active range
+      const startEp = activeEpisodeRange * 50 + 1;
+      const endEp = Math.min((activeEpisodeRange + 1) * 50, count);
       let html = '';
-      const total = Math.min(count, 100);
-      for (let i = 1; i <= total; i++) {
+      for (let i = startEp; i <= endEp; i++) {
         html += `<button class="ep-card ${i === currentEpisode ? 'active' : ''}" onclick="setEpisode(${i})">${i < 10 ? '0' + i : i}</button>`;
       }
       grid.innerHTML = html;
     }
 
+    function setEpisodeRange(rangeIdx) {
+      activeEpisodeRange = rangeIdx;
+      renderEpisodeGrid(currentAnime.episodes);
+    }
+
     function setEpisode(ep) {
       currentEpisode = ep;
+      const neededRange = Math.floor((ep - 1) / 50);
+      if (neededRange !== activeEpisodeRange) {
+        activeEpisodeRange = neededRange;
+      }
       updatePlayerUrl();
       renderEpisodeGrid(currentAnime.episodes);
+      saveWatchHistory(currentAnime, ep, activeServer);
     }
 
     function changeEpisode(delta) {
@@ -1482,8 +1751,15 @@
       }
     }
 
+    function switchTrack(track) {
+      currentTrack = track;
+      document.getElementById('trackSubBtn').classList.toggle('active', track === 'sub');
+      document.getElementById('trackDubBtn').classList.toggle('active', track === 'dub');
+      updatePlayerUrl();
+    }
+
     function updatePlayerUrl() {
-      const getUrl = SERVERS[activeServer] || SERVERS.vidsrc;
+      const getUrl = SERVERS[activeServer] || SERVERS.animeembed;
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
       iframe.src = url;
@@ -1491,7 +1767,8 @@
       const extBtn = document.getElementById('externalStreamBtn');
       if (extBtn) extBtn.href = url;
 
-      document.getElementById('playerTitle').innerText = `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}`;
+      const trackLabel = currentTrack.toUpperCase();
+      document.getElementById('playerTitle').innerText = `${currentAnime.title} • Ep ${currentEpisode} [${trackLabel}]`;
       document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
       document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
       document.getElementById('nextEpBtn').disabled = currentEpisode >= currentAnime.episodes;
@@ -1515,7 +1792,6 @@
     }
 
     function skipIntro() {
-      // Sends keyboard event / postMessage to player iframe if supported
       alert('Skipped opening intro (+85s)');
     }
 
@@ -1543,20 +1819,214 @@
       });
     });
 
-    // Instant Search
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase().trim();
-      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
+    // --- Dynamic Live Search (AniList Global Search) ---
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      clearTimeout(searchDebounceTimer);
       if (!q) {
-        initCatalog();
+        document.getElementById('searchSection').style.display = 'none';
         return;
       }
-      const filtered = all.filter(a => a.title.toLowerCase().includes(q) || a.romaji.toLowerCase().includes(q) || a.synopsis.toLowerCase().includes(q));
-      document.getElementById('trendingGrid').innerHTML = filtered.map(renderCard).join('');
-      document.getElementById('legendaryGrid').innerHTML = '';
+
+      searchDebounceTimer = setTimeout(() => {
+        executeGlobalSearch(q);
+      }, 350);
     });
 
-    // Keyboard Shortcuts for TV / Chromecast Remote
+    async function executeGlobalSearch(q) {
+      const searchSection = document.getElementById('searchSection');
+      const searchGrid = document.getElementById('searchGrid');
+      const searchTitle = document.getElementById('searchSectionTitle');
+
+      searchSection.style.display = 'block';
+      searchTitle.innerText = `🔍 Searching AniList for "${q}"...`;
+      searchGrid.innerHTML = `
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Searching global anime database...
+        </div>
+      `;
+      searchSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      const searchQuery = `
+        query ($search: String) {
+          Page(page: 1, perPage: 28) {
+            media(type: ANIME, search: $search, sort: SEARCH_MATCH) {
+              id
+              idMal
+              title { english romaji native }
+              coverImage { extraLarge large }
+              bannerImage
+              episodes
+              averageScore
+              genres
+              seasonYear
+              description
+            }
+          }
+        }
+      `;
+
+      const data = await queryAniList(searchQuery, { search: q });
+      if (!data || !data.Page || !data.Page.media || !data.Page.media.length) {
+        searchTitle.innerText = `🔍 No results found for "${q}"`;
+        searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime found. Try another title or check spelling!</div>';
+        return;
+      }
+
+      const results = data.Page.media.map(normalizeAniList);
+      results.forEach(item => ANIME_CACHE.set(String(item.id), item));
+      searchTitle.innerText = `🔍 Search Results for "${q}" (${results.length} found)`;
+      searchGrid.innerHTML = results.map(renderCard).join('');
+    }
+
+    // --- Genre Filtering (Animex / AnimeNexus Style) ---
+    async function filterByGenre(genre) {
+      currentSelectedGenre = genre;
+      document.querySelectorAll('.genre-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.includes(genre) || (genre === 'ALL' && btn.innerText.includes('All')));
+      });
+
+      const trendingSectionTitle = document.getElementById('trendingSectionTitle');
+      const trendingGrid = document.getElementById('trendingGrid');
+
+      if (genre === 'ALL') {
+        trendingSectionTitle.innerText = '🔥 Trending Anime';
+        trendingGrid.innerHTML = trendingList.map(renderCard).join('');
+        return;
+      }
+
+      trendingSectionTitle.innerText = `🔥 Top ${genre} Anime`;
+      trendingGrid.innerHTML = `
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Loading ${genre} anime from AniList...
+        </div>
+      `;
+
+      const genreQuery = `
+        query ($genre: String) {
+          Page(page: 1, perPage: 24) {
+            media(type: ANIME, genre: $genre, sort: POPULARITY_DESC) {
+              id
+              idMal
+              title { english romaji native }
+              coverImage { extraLarge large }
+              bannerImage
+              episodes
+              averageScore
+              genres
+              seasonYear
+              description
+            }
+          }
+        }
+      `;
+
+      const data = await queryAniList(genreQuery, { genre });
+      if (data && data.Page && data.Page.media) {
+        const list = data.Page.media.map(normalizeAniList);
+        list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        trendingGrid.innerHTML = list.map(renderCard).join('');
+      } else {
+        trendingGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load genre at this time.</div>';
+      }
+    }
+
+    // --- Dynamic Catalog Initialization (AniList Single Trip) ---
+    async function loadDynamicCatalog() {
+      const combinedQuery = `
+        query {
+          trending: Page(page: 1, perPage: 24) {
+            media(type: ANIME, sort: TRENDING_DESC) {
+              id
+              idMal
+              title { english romaji native }
+              coverImage { extraLarge large }
+              bannerImage
+              episodes
+              averageScore
+              genres
+              seasonYear
+              description
+            }
+          }
+          seasonal: Page(page: 1, perPage: 24) {
+            media(type: ANIME, sort: POPULARITY_DESC, season: WINTER, seasonYear: 2026) {
+              id
+              idMal
+              title { english romaji native }
+              coverImage { extraLarge large }
+              bannerImage
+              episodes
+              averageScore
+              genres
+              seasonYear
+              description
+            }
+          }
+          topRated: Page(page: 1, perPage: 24) {
+            media(type: ANIME, sort: SCORE_DESC) {
+              id
+              idMal
+              title { english romaji native }
+              coverImage { extraLarge large }
+              bannerImage
+              episodes
+              averageScore
+              genres
+              seasonYear
+              description
+            }
+          }
+        }
+      `;
+
+      try {
+        const data = await queryAniList(combinedQuery);
+        if (data) {
+          if (data.trending && data.trending.media.length) {
+            trendingList = data.trending.media.map(normalizeAniList);
+            trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+            document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
+
+            // Set hero banner to #1 Trending Anime
+            currentHeroAnime = trendingList[0];
+            currentAnime = trendingList[0];
+            document.getElementById('heroBg').src = currentHeroAnime.backdrop || currentHeroAnime.poster;
+            document.getElementById('heroTitle').innerText = currentHeroAnime.title;
+            document.getElementById('heroSynopsis').innerText = currentHeroAnime.synopsis;
+            document.getElementById('heroRating').innerText = '★ ' + currentHeroAnime.rating;
+            document.getElementById('heroEpisodes').innerText = currentHeroAnime.episodes + ' EPISODES';
+            renderEpisodeGrid(currentHeroAnime.episodes);
+          }
+
+          if (data.seasonal && data.seasonal.media.length) {
+            seasonalList = data.seasonal.media.map(normalizeAniList);
+            seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+            document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
+          }
+
+          if (data.topRated && data.topRated.media.length) {
+            topRatedList = data.topRated.media.map(normalizeAniList);
+            topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+            document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
+          }
+        } else {
+          fallbackOfflineCatalog();
+        }
+      } catch (err) {
+        console.warn('AniList dynamic load error, falling back:', err);
+        fallbackOfflineCatalog();
+      }
+    }
+
+    function fallbackOfflineCatalog() {
+      document.getElementById('trendingGrid').innerHTML = ANIME_CATALOG.map(renderCard).join('');
+      document.getElementById('seasonalGrid').innerHTML = ANIME_CATALOG.slice(0, 6).map(renderCard).join('');
+      document.getElementById('legendaryGrid').innerHTML = LEGENDARY_CATALOG.map(renderCard).join('');
+    }
+
+    // Keyboard Shortcuts for TV / Remote
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT') return;
       if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
@@ -1569,9 +2039,7 @@
     function saveWatchHistory(anime, episode, server) {
       if (!anime || !anime.id) return;
       let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
-      // Remove existing entry for same anime
-      history = history.filter(h => h.id !== anime.id);
-      // Prepend current watch event
+      history = history.filter(h => String(h.id) !== String(anime.id));
       history.unshift({
         id: anime.id,
         title: anime.title,
@@ -1579,11 +2047,10 @@
         backdrop: anime.backdrop || anime.poster,
         episode: episode,
         totalEpisodes: anime.episodes,
-        server: server || 'vidlink',
+        server: server || 'animeembed',
         updatedAt: Date.now()
       });
-      // Keep up to 25 items
-      if (history.length > 25) history = history.slice(0, 25);
+      if (history.length > 30) history = history.slice(0, 30);
       localStorage.setItem('cineanime_history', JSON.stringify(history));
       renderHistory();
       updateBadges();
@@ -1592,7 +2059,7 @@
     function removeHistoryItem(e, id) {
       e.stopPropagation();
       let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
-      history = history.filter(h => h.id !== id);
+      history = history.filter(h => String(h.id) !== String(id));
       localStorage.setItem('cineanime_history', JSON.stringify(history));
       renderHistory();
       updateBadges();
@@ -1650,27 +2117,29 @@
 
     function renderWatchlist() {
       const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
-      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
-      const items = all.filter(a => list.includes(a.id));
       const container = document.getElementById('watchlistGrid');
-      if (!items.length) {
+      if (!list.length) {
         container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your watchlist is empty. Tap the heart ❤️ on any anime card to add it here!</div>';
+        return;
+      }
+      const items = list.map(id => ANIME_CACHE.get(String(id))).filter(Boolean);
+      if (!items.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your saved anime will load automatically.</div>';
         return;
       }
       container.innerHTML = items.map(renderCard).join('');
     }
 
     function resumeAnime(id, episode, server) {
-      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
-      const match = all.find(a => a.id === id);
-      if (match) {
-        currentAnime = match;
-        currentEpisode = episode;
-        if (server) activeServer = server;
-        renderEpisodeGrid(match.episodes);
-        openTheater();
-        saveWatchHistory(match, episode, activeServer);
+      selectAnimeById(id, false);
+      setEpisode(episode);
+      if (server) {
+        activeServer = server;
+        document.querySelectorAll('.server-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.server === server);
+        });
       }
+      openTheater();
     }
 
     // Tab Switching
@@ -1683,25 +2152,36 @@
 
       const historySection = document.getElementById('historySection');
       const watchlistSection = document.getElementById('watchlistSection');
+      const searchSection = document.getElementById('searchSection');
+      const seasonalSection = document.getElementById('seasonalSection');
       const trendingSection = document.getElementById('trendingSection');
-      const legendarySection = document.querySelectorAll('.catalog-section')[2]; // legendary
+      const legendarySection = document.getElementById('legendarySection');
+      const genrePillsBar = document.getElementById('genrePillsBar');
 
       if (tab === 'all') {
-        renderHistory(); // shows if has items
+        renderHistory();
         watchlistSection.style.display = 'none';
+        if (seasonalSection) seasonalSection.style.display = 'block';
         trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';
+        if (genrePillsBar) genrePillsBar.style.display = 'flex';
       } else if (tab === 'history') {
         historySection.style.display = 'block';
         watchlistSection.style.display = 'none';
+        if (searchSection) searchSection.style.display = 'none';
+        if (seasonalSection) seasonalSection.style.display = 'none';
         trendingSection.style.display = 'none';
         if (legendarySection) legendarySection.style.display = 'none';
+        if (genrePillsBar) genrePillsBar.style.display = 'none';
         renderHistory();
       } else if (tab === 'watchlist') {
         historySection.style.display = 'none';
         watchlistSection.style.display = 'block';
+        if (searchSection) searchSection.style.display = 'none';
+        if (seasonalSection) seasonalSection.style.display = 'none';
         trendingSection.style.display = 'none';
         if (legendarySection) legendarySection.style.display = 'none';
+        if (genrePillsBar) genrePillsBar.style.display = 'none';
         renderWatchlist();
       }
     }
@@ -1715,19 +2195,13 @@
       if (wBadge) wBadge.innerText = watchlist.length;
     }
 
-    // Hook into setEpisode to auto-save history
-    const originalSetEpisode = setEpisode;
-    setEpisode = function(ep) {
-      originalSetEpisode(ep);
-      saveWatchHistory(currentAnime, ep, activeServer);
-    };
-
     // Initialize
-    initCatalog();
+    fallbackOfflineCatalog();
     renderEpisodeGrid(currentAnime.episodes);
     renderHistory();
     renderWatchlist();
     updateBadges();
+    loadDynamicCatalog();
   </script>
 </body>
 </html>

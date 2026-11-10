@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CineAnime — Clean, Ad-Free Anime Streaming</title>
+  <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: #141419;
+      --surface: #1a1a22;
+      --surface-light: #242430;
+      --accent: #e50914;
+      --accent-glow: rgba(229, 9, 20, 0.45);
+      --accent-purple: #8b5cf6;
+      --text: #ffffff;
+      --text-muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.08);
+      --star: #f59e0b;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(9, 9, 11, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #ff3344);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-title span {
+      color: var(--accent);
+    }
+
+    .search-bar-container {
+      flex: 1;
+      max-width: 540px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 0.65rem 1.25rem 0.65rem 2.75rem;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.25);
+      background: var(--surface-light);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--surface-light);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .nav-btn.primary:hover {
+      background: #ff1f2d;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 4rem 2rem;
+    }
+
+    /* Hero Spotlight */
+    .hero-spotlight {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      margin-bottom: 2.5rem;
+      min-height: 480px;
+      display: flex;
+      align-items: flex-end;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border);
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.55;
+      transition: transform 0.6s ease;
+    }
+
+    .hero-spotlight:hover .hero-bg {
+      transform: scale(1.02);
+    }
+
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, #09090b 8%, rgba(9, 9, 11, 0.6) 50%, rgba(9, 9, 11, 0.2) 100%),
+                  linear-gradient(90deg, #09090b 0%, rgba(9, 9, 11, 0.8) 45%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 3rem;
+      max-width: 720px;
+    }
+
+    .hero-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-subdub {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      color: #c4b5fd;
+    }
+
+    .badge-rating {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: var(--star);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .badge-quality {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .hero-synopsis {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #d1d5db;
+      margin-bottom: 1.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .play-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.85rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: all 0.2s ease;
+    }
+
+    .play-btn:hover {
+      background: #ff1f2d;
+      transform: translateY(-2px);
+      box-shadow: 0 0 28px rgba(229, 9, 20, 0.6);
+    }
+
+    .details-btn {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.85rem 1.6rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+    }
+
+    .details-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* Theater Player Section (Hidden until active) */
+    .theater-section {
+      display: none;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .theater-section.active {
+      display: block;
+    }
+
+    .theater-header {
+      background: rgba(18, 18, 24, 0.98);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .theater-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .shield-pill {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .theater-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .server-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .server-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .server-btn:hover {
+      color: #fff;
+      background: var(--surface-light);
+    }
+
+    .server-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .close-theater-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+
+    .close-theater-btn:hover {
+      background: var(--accent);
+    }
+
+    .player-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+    }
+
+    .player-iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .player-controls-bar {
+      background: rgba(14, 14, 18, 0.98);
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .ep-nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ctrl-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s;
+    }
+
+    .ctrl-btn:hover:not(:disabled) {
+      background: var(--surface-light);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn.skip {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    .ctrl-btn.skip:hover {
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    /* Episode Selector Grid */
+    .episodes-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .episodes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .episodes-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ep-count {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .episode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 0.6rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .episode-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+    .episode-grid::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 9999px;
+    }
+
+    .ep-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.65rem 0.25rem;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .ep-card:hover {
+      background: var(--surface-light);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .ep-card.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Catalog Sections */
+    .catalog-section {
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-pip {
+      width: 4px;
+      height: 1.25rem;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .anime-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .anime-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .anime-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(229, 9, 20, 0.5);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 16px rgba(229, 9, 20, 0.3);
+    }
+
+    .card-poster-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 148%; /* 2:3 Anime Poster ratio */
+      overflow: hidden;
+      background: #111;
+    }
+
+    .card-poster {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .anime-card:hover .card-poster {
+      transform: scale(1.05);
+    }
+
+    .card-rating {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--star);
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .card-ep-badge {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+
+    .card-info {
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0.75rem 1rem;
+      }
+      .brand-title {
+        display: none;
+      }
+      .hero-content {
+        padding: 1.5rem;
+      }
+      .hero-title {
+        font-size: 1.85rem;
+      }
+      main {
+        padding: 1rem;
+      }
+      .anime-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 0.75rem;
+      }
+    }
+
+    /* Filter Tabs Bar */
+    .filter-tabs-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+
+    .filter-tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.6rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .filter-tab:hover {
+      background: var(--surface-light);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, var(--accent), #ff3344);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .tab-badge {
+      background: rgba(0, 0, 0, 0.45);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    /* History Cards Horizontal Scroll */
+    .history-cards-scroll {
+      display: flex;
+      gap: 1.25rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      scroll-behavior: smooth;
+    }
+
+    .history-cards-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .history-cards-scroll::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 9999px;
+    }
+
+    .history-card {
+      flex: 0 0 260px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .history-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .history-card-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .history-card-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+      transition: transform 0.3s ease;
+    }
+
+    .history-card:hover .history-card-thumb {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+
+    .history-progress-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .history-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .history-remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.15s ease;
+    }
+
+    .history-remove-btn:hover {
+      background: var(--accent);
+      transform: scale(1.1);
+    }
+
+    .history-card-body {
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .history-card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .history-resume-btn {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-top: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .history-resume-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .clear-history-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .clear-history-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Favorite Button on Anime Cards */
+    .card-fav-btn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .card-fav-btn:hover {
+      transform: scale(1.15);
+      background: rgba(229, 9, 20, 0.85);
+    }
+
+    .card-fav-btn.favorited {
+      color: #ff3344;
+      background: rgba(0, 0, 0, 0.85);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="./" class="brand">
+      <div class="brand-icon">▶</div>
+      <div class="brand-title">Cine<span>Anime</span></div>
+    </a>
+
+    <div class="search-bar-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search anime titles, genres, seasons..." autocomplete="off">
+    </div>
+
+    <div class="nav-actions">
+      <a href="https://web.stremio.com" target="_blank" class="nav-btn" title="Open Stremio Web">🎬 Stremio Web</a>
+      <button class="nav-btn primary" onclick="scrollToPlayer()">
+        ⚡ Watch Online
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+
+    <!-- Theater Video Player Section -->
+    <section id="theaterSection" class="theater-section">
+      <div class="theater-header">
+        <div class="theater-title-group">
+          <span class="shield-pill">🛡️ 0% Ads Sandbox</span>
+          <span id="playerTitle" class="theater-title">Solo Leveling • Season 1: Episode 1</span>
+        </div>
+
+        <div class="server-switcher" id="serverSwitcher">
+          <button class="server-btn active" data-server="vidlink">VidLink (HD)</button>
+          <button class="server-btn" data-server="vidsrc">VidSrc (Fast)</button>
+          <button class="server-btn" data-server="embedsu">EmbedSu (1080p)</button>
+          <button class="server-btn" data-server="autoembed">AutoEmbed</button>
+          <button class="server-btn" data-server="superembed">SuperEmbed</button>
+          <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
+        </div>
+      </div>
+
+      <div class="player-container">
+        <iframe
+          id="playerIframe"
+          class="player-iframe"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+          allowfullscreen
+          src="about:blank"
+        ></iframe>
+      </div>
+
+      <div class="player-controls-bar">
+        <div class="ep-nav-controls">
+          <button id="prevEpBtn" class="ctrl-btn" onclick="changeEpisode(-1)">◀ Prev Ep</button>
+          <span id="currentEpLabel" style="font-weight: 700; font-size: 0.85rem; color: #fff;">Ep 1</span>
+          <button id="nextEpBtn" class="ctrl-btn" onclick="changeEpisode(1)">Next Ep ▶</button>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="ctrl-btn skip" onclick="skipIntro()">⏭ Skip Intro (+85s)</button>
+          <button class="ctrl-btn skip" onclick="skipOutro()">⏭ Next Episode</button>
+          <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+      </div>
+
+      <!-- Episode Matrix under Player -->
+      <div class="episodes-section">
+        <div class="episodes-header">
+          <div class="episodes-title">
+            📺 Select Episode
+            <span id="epTotalCount" class="ep-count">(12 Episodes)</span>
+          </div>
+          <div style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
+            ● Japanese SUB & English DUB
+          </div>
+        </div>
+        <div id="episodeGrid" class="episode-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero Spotlight Section -->
+    <section id="heroSection" class="hero-spotlight">
+      <img id="heroBg" class="hero-bg" src="https://images.metahub.space/background/large/tt21209876/img" alt="Backdrop">
+      <div class="hero-gradient"></div>
+      <div class="hero-content">
+        <div class="hero-badges">
+          <span class="badge badge-subdub">SUB & DUB</span>
+          <span id="heroRating" class="badge badge-rating">★ 8.5</span>
+          <span id="heroQuality" class="badge badge-quality">1080p FHD</span>
+          <span id="heroEpisodes" class="badge badge-subdub">12 EPISODES</span>
+        </div>
+        <h1 id="heroTitle" class="hero-title">Solo Leveling</h1>
+        <p id="heroSynopsis" class="hero-synopsis">
+          In a world where hunters must battle deadly monsters to protect humanity, Sung Jinwoo, notoriously known as the "weakest hunter of all mankind," finds himself in an unending struggle for survival until a mysterious quest grants him the ability to level up.
+        </p>
+        <div class="hero-actions">
+          <button class="play-btn" onclick="playCurrentHero()">
+            <span>▶</span> Watch Episode 1
+          </button>
+          <button class="details-btn" onclick="selectAnime(currentHeroAnime, true)">
+            Episodes & Info
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Catalog Filter Bar -->
+    <div class="filter-tabs-bar">
+      <button class="filter-tab active" data-tab="all" onclick="switchTab('all')">
+        🔥 All Catalogs
+      </button>
+      <button class="filter-tab" data-tab="history" id="historyTabBtn" onclick="switchTab('history')">
+        🕒 Continue Watching <span id="historyBadgeCount" class="tab-badge">0</span>
+      </button>
+      <button class="filter-tab" data-tab="watchlist" id="watchlistTabBtn" onclick="switchTab('watchlist')">
+        ⭐ My Watchlist <span id="watchlistBadgeCount" class="tab-badge">0</span>
+      </button>
+    </div>
+
+    <!-- Continue Watching Section -->
+    <section id="historySection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #3b82f6;"></div>
+          🕒 Continue Watching
+        </div>
+        <button class="clear-history-btn" onclick="clearWatchHistory()">Clear History</button>
+      </div>
+      <div id="historyGrid" class="history-cards-scroll">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Watchlist Section -->
+    <section id="watchlistSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #ec4899;"></div>
+          ⭐ My Watchlist / Favorites
+        </div>
+      </div>
+      <div id="watchlistGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Trending Anime Catalog -->
+    <section id="trendingSection" class="catalog-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip"></div>
+          🔥 Trending Anime (Crunchyroll & Seasonal)
+        </div>
+      </div>
+      <div id="trendingGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Legendary Classics Catalog -->
+    <section class="catalog-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #f59e0b;"></div>
+          ⭐ Masterpiece & Legendary Anime
+        </div>
+      </div>
+      <div id="legendaryGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Curated Anime Database with IMDb IDs & metadata
+    const ANIME_CATALOG = [
+      {
+        id: 'tt21209876',
+        title: 'Solo Leveling',
+        romaji: 'Ore dake Level Up na Ken',
+        rating: 8.5,
+        year: '2024',
+        episodes: 12,
+        poster: 'https://images.metahub.space/poster/small/tt21209876/img',
+        backdrop: 'https://images.metahub.space/background/large/tt21209876/img',
+        synopsis: 'Follows the adventures of Sung Jinwoo in a world that is constantly threatened by monsters and evil forces. In his battles Sung transforms himself from the weakest hunter of all mankind to one of the strongest hunters in existence.'
+      },
+      {
+        id: 'tt9335498',
+        title: 'Demon Slayer: Kimetsu no Yaiba',
+        romaji: 'Kimetsu no Yaiba',
+        rating: 8.5,
+        year: '2019-2024',
+        episodes: 26,
+        poster: 'https://images.metahub.space/poster/small/tt9335498/img',
+        backdrop: 'https://images.metahub.space/background/large/tt9335498/img',
+        synopsis: 'A family is attacked by demons and only two members survive - Tanjiro and his sister Nezuko, who is turning into a demon slowly. Tanjiro sets out to become a demon slayer to avenge his family and cure his sister.'
+      },
+      {
+        id: 'tt12343534',
+        title: 'Jujutsu Kaisen',
+        romaji: 'Jujutsu Kaisen',
+        rating: 8.5,
+        year: '2020-',
+        episodes: 24,
+        poster: 'https://images.metahub.space/poster/small/tt12343534/img',
+        backdrop: 'https://images.metahub.space/background/large/tt12343534/img',
+        synopsis: 'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman school to be able to locate the demons other body parts and thus exorcise himself.'
+      },
+      {
+        id: 'tt2560140',
+        title: 'Attack on Titan',
+        romaji: 'Shingeki no Kyojin',
+        rating: 9.1,
+        year: '2013-2023',
+        episodes: 25,
+        poster: 'https://images.metahub.space/poster/small/tt2560140/img',
+        backdrop: 'https://images.metahub.space/background/large/tt2560140/img',
+        synopsis: 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.'
+      },
+      {
+        id: 'tt0388629',
+        title: 'One Piece',
+        romaji: 'One Piece',
+        rating: 8.9,
+        year: '1999-',
+        episodes: 1120,
+        poster: 'https://images.metahub.space/poster/small/tt0388629/img',
+        backdrop: 'https://images.metahub.space/background/large/tt0388629/img',
+        synopsis: 'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure ever left by the legendary Pirate, Gold Roger. The famous mystery treasure named One Piece.'
+      },
+      {
+        id: 'tt13616990',
+        title: 'Chainsaw Man',
+        romaji: 'Chainsaw Man',
+        rating: 8.4,
+        year: '2022-',
+        episodes: 12,
+        poster: 'https://images.metahub.space/poster/small/tt13616990/img',
+        backdrop: 'https://images.metahub.space/background/large/tt13616990/img',
+        synopsis: 'Following a betrayal, a young man left for the dead is reborn as a powerful devil-human hybrid after merging with his pet devil and is soon enlisted into an organization dedicated to hunting devils.'
+      },
+      {
+        id: 'tt22272720',
+        title: "Frieren: Beyond Journey's End",
+        romaji: 'Sousou no Frieren',
+        rating: 8.9,
+        year: '2023-2024',
+        episodes: 28,
+        poster: 'https://images.metahub.space/poster/small/tt22272720/img',
+        backdrop: 'https://images.metahub.space/background/large/tt22272720/img',
+        synopsis: 'An elf and her friends defeat a demon king in a great war. But the war ends, and the elf must search for a new way of life after her human companions pass away from old age.'
+      },
+      {
+        id: 'tt30217424',
+        title: 'Dandadan',
+        romaji: 'Dandadan',
+        rating: 8.7,
+        year: '2024-',
+        episodes: 12,
+        poster: 'https://images.metahub.space/poster/small/tt30217424/img',
+        backdrop: 'https://images.metahub.space/background/large/tt30217424/img',
+        synopsis: 'Momo Ayase strikes up an unusual friendship with her schoolmate Okarun, an occult fanatic. As their beliefs collide, both undergo supernatural events that alter their reality.'
+      },
+      {
+        id: 'tt14986406',
+        title: 'Bleach: Thousand-Year Blood War',
+        romaji: 'Bleach: Sennen Kessen-hen',
+        rating: 9.0,
+        year: '2022-',
+        episodes: 13,
+        poster: 'https://images.metahub.space/poster/small/tt14986406/img',
+        backdrop: 'https://images.metahub.space/background/large/tt14986406/img',
+        synopsis: 'The peace is suddenly broken when warning sirens blare through the Soul Society. A dark shadow approaches Ichigo and his friends as the final conflict begins.'
+      },
+      {
+        id: 'tt13706018',
+        title: 'Spy x Family',
+        romaji: 'Spy x Family',
+        rating: 8.3,
+        year: '2022-',
+        episodes: 25,
+        poster: 'https://images.metahub.space/poster/small/tt13706018/img',
+        backdrop: 'https://images.metahub.space/background/large/tt13706018/img',
+        synopsis: 'A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together.'
+      }
+    ];
+
+    const LEGENDARY_CATALOG = [
+      {
+        id: 'tt0877057',
+        title: 'Death Note',
+        romaji: 'Death Note',
+        rating: 8.9,
+        year: '2006-2007',
+        episodes: 37,
+        poster: 'https://images.metahub.space/poster/small/tt0877057/img',
+        backdrop: 'https://images.metahub.space/background/large/tt0877057/img',
+        synopsis: 'An intelligent high school student goes on a secret crusade to eliminate criminals from the world after discovering a notebook capable of killing anyone whose name is written into it.'
+      },
+      {
+        id: 'tt2098220',
+        title: 'Hunter x Hunter',
+        romaji: 'Hunter x Hunter',
+        rating: 9.0,
+        year: '2011-2014',
+        episodes: 148,
+        poster: 'https://images.metahub.space/poster/small/tt2098220/img',
+        backdrop: 'https://images.metahub.space/background/large/tt2098220/img',
+        synopsis: 'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks out his father, who left him when he was younger.'
+      },
+      {
+        id: 'tt0988824',
+        title: 'Naruto: Shippuden',
+        romaji: 'Naruto: Shippuuden',
+        rating: 8.7,
+        year: '2007-2017',
+        episodes: 500,
+        poster: 'https://images.metahub.space/poster/small/tt0988824/img',
+        backdrop: 'https://images.metahub.space/background/large/tt0988824/img',
+        synopsis: 'Naruto Uzumaki, is a loud, hyperactive, adolescent ninja who constantly searches for approval and recognition, as well as to become Hokage, who is acknowledged as the leader and strongest of all ninja in the village.'
+      },
+      {
+        id: 'tt1910645',
+        title: 'Steins;Gate',
+        romaji: 'Steins;Gate',
+        rating: 8.8,
+        year: '2011-2015',
+        episodes: 24,
+        poster: 'https://images.metahub.space/poster/small/tt1910645/img',
+        backdrop: 'https://images.metahub.space/background/large/tt1910645/img',
+        synopsis: 'After discovering time travel, a university student and his colleagues must use their knowledge of it to stop an evil organization and their nefarious plans.'
+      },
+      {
+        id: 'tt0213338',
+        title: 'Cowboy Bebop',
+        romaji: 'Cowboy Bebop',
+        rating: 8.9,
+        year: '1998-1999',
+        episodes: 26,
+        poster: 'https://images.metahub.space/poster/small/tt0213338/img',
+        backdrop: 'https://images.metahub.space/background/large/tt0213338/img',
+        synopsis: 'The easygoing bounty hunter Spike Spiegel and his partners embark on a series of adventures throughout space in the year 2071.'
+      },
+      {
+        id: 'tt10233448',
+        title: 'Vinland Saga',
+        romaji: 'Vinland Saga',
+        rating: 8.8,
+        year: '2019-',
+        episodes: 24,
+        poster: 'https://images.metahub.space/poster/small/tt10233448/img',
+        backdrop: 'https://images.metahub.space/background/large/tt10233448/img',
+        synopsis: 'Thorfinn pursues a journey with his father murderer to get revenge while also getting caught in the middle of a war for the crown of England.'
+      },
+      {
+        id: 'tt0214341',
+        title: 'Dragon Ball Z',
+        romaji: 'Dragon Ball Z',
+        rating: 8.8,
+        year: '1989-1996',
+        episodes: 291,
+        poster: 'https://images.metahub.space/poster/small/tt0214341/img',
+        backdrop: 'https://images.metahub.space/background/large/tt0214341/img',
+        synopsis: 'With the help of the powerful Dragonballs, a team of fighters led by the saiyan warrior Goku defend the planet earth from extraterrestrial enemies.'
+      },
+      {
+        id: 'tt5897304',
+        title: 'Mob Psycho 100',
+        romaji: 'Mob Psycho 100',
+        rating: 8.6,
+        year: '2016-2022',
+        episodes: 25,
+        poster: 'https://images.metahub.space/poster/small/tt5897304/img',
+        backdrop: 'https://images.metahub.space/background/large/tt5897304/img',
+        synopsis: 'A psychic middle school boy tries to live a normal life and keep his growing powers under control, even though he constantly attracts trouble.'
+      }
+    ];
+
+    // State
+    let currentAnime = ANIME_CATALOG[0];
+    let currentHeroAnime = ANIME_CATALOG[0];
+    let currentSeason = 1;
+    let currentEpisode = 1;
+    let activeServer = 'vidlink';
+
+    const SERVERS = {
+      vidlink: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
+      vidsrc: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
+      embedsu: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
+      autoembed: (id, s, e) => `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`,
+      superembed: (id, s, e) => `https://multiembed.mov/?video_id=${id}&s=${s}&e=${e}`
+    };
+
+    // Render Cards
+    function isFavorited(id) {
+      const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      return list.includes(id);
+    }
+
+    function toggleFavorite(e, id) {
+      e.stopPropagation();
+      let list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      if (list.includes(id)) {
+        list = list.filter(item => item !== id);
+      } else {
+        list.push(id);
+      }
+      localStorage.setItem('cineanime_watchlist', JSON.stringify(list));
+      initCatalog();
+      renderWatchlist();
+      updateBadges();
+    }
+
+    function renderCard(item) {
+      const fav = isFavorited(item.id);
+      return `
+        <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
+          <div class="card-poster-wrapper">
+            <button class="card-fav-btn ${fav ? 'favorited' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+              ${fav ? '❤️' : '🤍'}
+            </button>
+            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy">
+            <div class="card-rating">★ ${item.rating}</div>
+            <div class="card-ep-badge">${item.episodes} EPS</div>
+          </div>
+          <div class="card-info">
+            <div class="card-title" title="${item.title}">${item.title}</div>
+            <div class="card-meta">
+              <span>${item.year}</span>
+              <span style="color: #10b981; font-weight: 700;">SUB/DUB</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function initCatalog() {
+      document.getElementById('trendingGrid').innerHTML = ANIME_CATALOG.map(renderCard).join('');
+      document.getElementById('legendaryGrid').innerHTML = LEGENDARY_CATALOG.map(renderCard).join('');
+    }
+
+    function selectAnimeById(id, autoPlay) {
+      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
+      const match = all.find(a => a.id === id);
+      if (match) selectAnime(match, autoPlay);
+    }
+
+    function selectAnime(anime, autoPlay) {
+      currentAnime = anime;
+      currentEpisode = 1;
+
+      // Update Hero
+      document.getElementById('heroBg').src = anime.backdrop;
+      document.getElementById('heroTitle').innerText = anime.title;
+      document.getElementById('heroSynopsis').innerText = anime.synopsis;
+      document.getElementById('heroRating').innerText = '★ ' + anime.rating;
+      document.getElementById('heroEpisodes').innerText = anime.episodes + ' EPISODES';
+
+      // Render Episode Grid
+      renderEpisodeGrid(anime.episodes);
+
+      if (autoPlay) {
+        openTheater();
+      }
+    }
+
+    function playCurrentHero() {
+      selectAnime(currentHeroAnime, true);
+    }
+
+    function renderEpisodeGrid(count) {
+      const grid = document.getElementById('episodeGrid');
+      document.getElementById('epTotalCount').innerText = `(${count} Episodes)`;
+      let html = '';
+      const total = Math.min(count, 100);
+      for (let i = 1; i <= total; i++) {
+        html += `<button class="ep-card ${i === currentEpisode ? 'active' : ''}" onclick="setEpisode(${i})">${i < 10 ? '0' + i : i}</button>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function setEpisode(ep) {
+      currentEpisode = ep;
+      updatePlayerUrl();
+      renderEpisodeGrid(currentAnime.episodes);
+    }
+
+    function changeEpisode(delta) {
+      const target = currentEpisode + delta;
+      if (target >= 1 && target <= currentAnime.episodes) {
+        setEpisode(target);
+      }
+    }
+
+    function updatePlayerUrl() {
+      const getUrl = SERVERS[activeServer] || SERVERS.vidlink;
+      const url = getUrl(currentAnime.id, currentSeason, currentEpisode);
+      const iframe = document.getElementById('playerIframe');
+      iframe.src = url;
+
+      document.getElementById('playerTitle').innerText = `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}`;
+      document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
+      document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
+      document.getElementById('nextEpBtn').disabled = currentEpisode >= currentAnime.episodes;
+    }
+
+    function openTheater() {
+      const section = document.getElementById('theaterSection');
+      section.classList.add('active');
+      updatePlayerUrl();
+      scrollToPlayer();
+    }
+
+    function closeTheater() {
+      const section = document.getElementById('theaterSection');
+      section.classList.remove('active');
+      document.getElementById('playerIframe').src = 'about:blank';
+    }
+
+    function scrollToPlayer() {
+      document.getElementById('theaterSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function skipIntro() {
+      // Sends keyboard event / postMessage to player iframe if supported
+      alert('Skipped opening intro (+85s)');
+    }
+
+    function skipOutro() {
+      changeEpisode(1);
+    }
+
+    function toggleFullscreen() {
+      const el = document.getElementById('theaterSection');
+      if (!document.fullscreenElement) {
+        el.requestFullscreen().catch(err => console.log(err));
+      } else {
+        document.exitFullscreen().catch(err => console.log(err));
+      }
+    }
+
+    // Server Switcher Click
+    document.querySelectorAll('.server-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeServer = btn.dataset.server;
+        updatePlayerUrl();
+      });
+    });
+
+    // Instant Search
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
+      if (!q) {
+        initCatalog();
+        return;
+      }
+      const filtered = all.filter(a => a.title.toLowerCase().includes(q) || a.romaji.toLowerCase().includes(q) || a.synopsis.toLowerCase().includes(q));
+      document.getElementById('trendingGrid').innerHTML = filtered.map(renderCard).join('');
+      document.getElementById('legendaryGrid').innerHTML = '';
+    });
+
+    // Keyboard Shortcuts for TV / Chromecast Remote
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
+      if (e.key === 'ArrowLeft' && e.shiftKey) changeEpisode(-1);
+      if (e.key === 's' || e.key === 'S') skipIntro();
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    });
+
+    // --- Watch History & LocalStorage Management ---
+    function saveWatchHistory(anime, episode, server) {
+      if (!anime || !anime.id) return;
+      let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      // Remove existing entry for same anime
+      history = history.filter(h => h.id !== anime.id);
+      // Prepend current watch event
+      history.unshift({
+        id: anime.id,
+        title: anime.title,
+        poster: anime.poster,
+        backdrop: anime.backdrop || anime.poster,
+        episode: episode,
+        totalEpisodes: anime.episodes,
+        server: server || 'vidlink',
+        updatedAt: Date.now()
+      });
+      // Keep up to 25 items
+      if (history.length > 25) history = history.slice(0, 25);
+      localStorage.setItem('cineanime_history', JSON.stringify(history));
+      renderHistory();
+      updateBadges();
+    }
+
+    function removeHistoryItem(e, id) {
+      e.stopPropagation();
+      let history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      history = history.filter(h => h.id !== id);
+      localStorage.setItem('cineanime_history', JSON.stringify(history));
+      renderHistory();
+      updateBadges();
+    }
+
+    function clearWatchHistory() {
+      if (confirm('Are you sure you want to clear your entire watch history?')) {
+        localStorage.removeItem('cineanime_history');
+        renderHistory();
+        updateBadges();
+      }
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      const container = document.getElementById('historyGrid');
+      const section = document.getElementById('historySection');
+
+      if (!history.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">No watch history yet. Pick any anime below to start watching!</div>';
+        if (currentTab === 'history') {
+          section.style.display = 'block';
+        } else {
+          section.style.display = 'none';
+        }
+        return;
+      }
+
+      section.style.display = 'block';
+      container.innerHTML = history.map(item => {
+        const percent = Math.min(100, Math.round((item.episode / item.totalEpisodes) * 100));
+        return `
+          <div class="history-card" onclick="resumeAnime('${item.id}', ${item.episode}, '${item.server}')">
+            <div class="history-card-thumb-wrap">
+              <button class="history-remove-btn" onclick="removeHistoryItem(event, '${item.id}')" title="Remove from history">✕</button>
+              <img class="history-card-thumb" src="${item.backdrop}" alt="${item.title}">
+              <div class="history-progress-container">
+                <div class="history-progress-fill" style="width: ${percent}%;"></div>
+              </div>
+            </div>
+            <div class="history-card-body">
+              <div class="history-card-title" title="${item.title}">${item.title}</div>
+              <div class="history-card-meta">
+                <span style="color: #10b981; font-weight: 700;">Episode ${item.episode} / ${item.totalEpisodes}</span>
+                <span>${percent}% completed</span>
+              </div>
+              <button class="history-resume-btn">
+                <span>▶</span> Resume Ep ${item.episode}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWatchlist() {
+      const list = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
+      const items = all.filter(a => list.includes(a.id));
+      const container = document.getElementById('watchlistGrid');
+      if (!items.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your watchlist is empty. Tap the heart ❤️ on any anime card to add it here!</div>';
+        return;
+      }
+      container.innerHTML = items.map(renderCard).join('');
+    }
+
+    function resumeAnime(id, episode, server) {
+      const all = [...ANIME_CATALOG, ...LEGENDARY_CATALOG];
+      const match = all.find(a => a.id === id);
+      if (match) {
+        currentAnime = match;
+        currentEpisode = episode;
+        if (server) activeServer = server;
+        renderEpisodeGrid(match.episodes);
+        openTheater();
+        saveWatchHistory(match, episode, activeServer);
+      }
+    }
+
+    // Tab Switching
+    let currentTab = 'all';
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`.filter-tab[data-tab="${tab}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const historySection = document.getElementById('historySection');
+      const watchlistSection = document.getElementById('watchlistSection');
+      const trendingSection = document.getElementById('trendingSection');
+      const legendarySection = document.querySelectorAll('.catalog-section')[2]; // legendary
+
+      if (tab === 'all') {
+        renderHistory(); // shows if has items
+        watchlistSection.style.display = 'none';
+        trendingSection.style.display = 'block';
+        if (legendarySection) legendarySection.style.display = 'block';
+      } else if (tab === 'history') {
+        historySection.style.display = 'block';
+        watchlistSection.style.display = 'none';
+        trendingSection.style.display = 'none';
+        if (legendarySection) legendarySection.style.display = 'none';
+        renderHistory();
+      } else if (tab === 'watchlist') {
+        historySection.style.display = 'none';
+        watchlistSection.style.display = 'block';
+        trendingSection.style.display = 'none';
+        if (legendarySection) legendarySection.style.display = 'none';
+        renderWatchlist();
+      }
+    }
+
+    function updateBadges() {
+      const history = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      const watchlist = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      const hBadge = document.getElementById('historyBadgeCount');
+      const wBadge = document.getElementById('watchlistBadgeCount');
+      if (hBadge) hBadge.innerText = history.length;
+      if (wBadge) wBadge.innerText = watchlist.length;
+    }
+
+    // Hook into setEpisode to auto-save history
+    const originalSetEpisode = setEpisode;
+    setEpisode = function(ep) {
+      originalSetEpisode(ep);
+      saveWatchHistory(currentAnime, ep, activeServer);
+    };
+
+    // Initialize
+    initCatalog();
+    renderEpisodeGrid(currentAnime.episodes);
+    renderHistory();
+    renderWatchlist();
+    updateBadges();
+  </script>
+</body>
+</html>

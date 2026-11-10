@@ -1568,21 +1568,35 @@
       }
     };
 
-    function normalizeAniList(m) {
-      const title = m.title?.english || m.title?.romaji || m.title?.native || 'Anime';
-      const romaji = m.title?.romaji || '';
-      const year = m.seasonYear || (m.startDate?.year ? m.startDate.year : '');
-      const episodes = m.episodes || 12;
-      const rating = m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5';
-      const poster = m.coverImage?.extraLarge || m.coverImage?.large || '';
-      const backdrop = m.bannerImage || poster;
-      const synopsis = (m.description || 'No description available.').replace(/<[^>]*>/g, '');
-      const genres = m.genres || [];
+    // Anti-Popup Shield: prevent child frames from popping new tabs or rogue windows
+    window.open = function(url, target, features) {
+      console.warn('Blocked popup window:', url);
+      return null;
+    };
+
+    function normalizeKitsuMedia(d, included = []) {
+      const attrs = d.attributes || {};
+      const mappings = included || [];
+      const mapRefIds = d.relationships?.mappings?.data?.map(m => m.id) || [];
+      const aniMap = mappings.find(m => mapRefIds.includes(m.id) && m.attributes?.externalSite === 'anilist/anime');
+      const malMap = mappings.find(m => mapRefIds.includes(m.id) && m.attributes?.externalSite === 'myanimelist/anime');
+      const id = aniMap ? aniMap.attributes.externalId : d.id;
+
+      const title = attrs.canonicalTitle || attrs.titles?.en || attrs.titles?.en_jp || 'Anime';
+      const romaji = attrs.titles?.en_jp || attrs.canonicalTitle || '';
+      const year = attrs.startDate ? attrs.startDate.split('-')[0] : '';
+      const episodes = attrs.episodeCount || 12;
+      const rawRating = parseFloat(attrs.averageRating);
+      const rating = !isNaN(rawRating) ? (rawRating / 10).toFixed(1) : '8.5';
+      const poster = attrs.posterImage?.small || attrs.posterImage?.original || '';
+      const backdrop = attrs.coverImage?.large || attrs.coverImage?.original || poster;
+      const synopsis = attrs.synopsis || 'No synopsis available.';
 
       return {
-        id: m.id,
-        idMal: m.idMal,
-        tmdbId: m.id,
+        id: String(id),
+        kitsuId: d.id,
+        idMal: malMap ? malMap.attributes.externalId : null,
+        tmdbId: String(id),
         title,
         romaji,
         rating,
@@ -1590,28 +1604,8 @@
         episodes,
         poster,
         backdrop,
-        synopsis,
-        genres
+        synopsis
       };
-    }
-
-    async function queryAniList(query, variables = {}) {
-      try {
-        const res = await fetch(ANILIST_API, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ query, variables })
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.data;
-      } catch (e) {
-        console.warn('AniList API error:', e);
-        return null;
-      }
     }
 
     // Render Cards
@@ -1840,7 +1834,7 @@
       const searchTitle = document.getElementById('searchSectionTitle');
 
       searchSection.style.display = 'block';
-      searchTitle.innerText = `🔍 Searching AniList for "${q}"...`;
+      searchTitle.innerText = `🔍 Searching for "${q}"...`;
       searchGrid.innerHTML = `
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Searching global anime database...
@@ -1848,36 +1842,24 @@
       `;
       searchSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-      const searchQuery = `
-        query ($search: String) {
-          Page(page: 1, perPage: 28) {
-            media(type: ANIME, search: $search, sort: SEARCH_MATCH) {
-              id
-              idMal
-              title { english romaji native }
-              coverImage { extraLarge large }
-              bannerImage
-              episodes
-              averageScore
-              genres
-              seasonYear
-              description
-            }
-          }
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=24&include=mappings`);
+        const json = await res.json();
+        if (!json || !json.data || !json.data.length) {
+          searchTitle.innerText = `🔍 No results found for "${q}"`;
+          searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime found. Try another title or check spelling!</div>';
+          return;
         }
-      `;
 
-      const data = await queryAniList(searchQuery, { search: q });
-      if (!data || !data.Page || !data.Page.media || !data.Page.media.length) {
-        searchTitle.innerText = `🔍 No results found for "${q}"`;
-        searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime found. Try another title or check spelling!</div>';
-        return;
+        const results = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+        results.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        searchTitle.innerText = `🔍 Search Results for "${q}" (${results.length} found)`;
+        searchGrid.innerHTML = results.map(renderCard).join('');
+      } catch (err) {
+        console.error('Search error:', err);
+        searchTitle.innerText = `🔍 Search Error`;
+        searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to complete search at this time.</div>';
       }
-
-      const results = data.Page.media.map(normalizeAniList);
-      results.forEach(item => ANIME_CACHE.set(String(item.id), item));
-      searchTitle.innerText = `🔍 Search Results for "${q}" (${results.length} found)`;
-      searchGrid.innerHTML = results.map(renderCard).join('');
     }
 
     // --- Genre Filtering (Animex / AnimeNexus Style) ---
@@ -1899,123 +1881,70 @@
       trendingSectionTitle.innerText = `🔥 Top ${genre} Anime`;
       trendingGrid.innerHTML = `
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
-          <div class="loading-spinner"></div> Loading ${genre} anime from AniList...
+          <div class="loading-spinner"></div> Loading ${genre} anime...
         </div>
       `;
 
-      const genreQuery = `
-        query ($genre: String) {
-          Page(page: 1, perPage: 24) {
-            media(type: ANIME, genre: $genre, sort: POPULARITY_DESC) {
-              id
-              idMal
-              title { english romaji native }
-              coverImage { extraLarge large }
-              bannerImage
-              episodes
-              averageScore
-              genres
-              seasonYear
-              description
-            }
-          }
+      try {
+        const cat = genre.toLowerCase().replace(/\s+/g, '-');
+        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[categories]=${encodeURIComponent(cat)}&sort=-userCount&page[limit]=24&include=mappings`);
+        const json = await res.json();
+        if (json && json.data && json.data.length) {
+          const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          trendingGrid.innerHTML = list.map(renderCard).join('');
+        } else {
+          trendingGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No anime found in this genre.</div>';
         }
-      `;
-
-      const data = await queryAniList(genreQuery, { genre });
-      if (data && data.Page && data.Page.media) {
-        const list = data.Page.media.map(normalizeAniList);
-        list.forEach(item => ANIME_CACHE.set(String(item.id), item));
-        trendingGrid.innerHTML = list.map(renderCard).join('');
-      } else {
+      } catch (err) {
+        console.error(err);
         trendingGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load genre at this time.</div>';
       }
     }
 
-    // --- Dynamic Catalog Initialization (AniList Single Trip) ---
+    // --- Dynamic Catalog Initialization (High-Speed Kitsu Core) ---
     async function loadDynamicCatalog() {
-      const combinedQuery = `
-        query {
-          trending: Page(page: 1, perPage: 24) {
-            media(type: ANIME, sort: TRENDING_DESC) {
-              id
-              idMal
-              title { english romaji native }
-              coverImage { extraLarge large }
-              bannerImage
-              episodes
-              averageScore
-              genres
-              seasonYear
-              description
-            }
-          }
-          seasonal: Page(page: 1, perPage: 24) {
-            media(type: ANIME, sort: POPULARITY_DESC, season: WINTER, seasonYear: 2026) {
-              id
-              idMal
-              title { english romaji native }
-              coverImage { extraLarge large }
-              bannerImage
-              episodes
-              averageScore
-              genres
-              seasonYear
-              description
-            }
-          }
-          topRated: Page(page: 1, perPage: 24) {
-            media(type: ANIME, sort: SCORE_DESC) {
-              id
-              idMal
-              title { english romaji native }
-              coverImage { extraLarge large }
-              bannerImage
-              episodes
-              averageScore
-              genres
-              seasonYear
-              description
-            }
-          }
-        }
-      `;
-
       try {
-        const data = await queryAniList(combinedQuery);
-        if (data) {
-          if (data.trending && data.trending.media.length) {
-            trendingList = data.trending.media.map(normalizeAniList);
-            trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-            document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
+        const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
+          fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
+          fetch('https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=24&include=mappings'),
+          fetch('https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=24&include=mappings')
+        ]);
 
-            // Set hero banner to #1 Trending Anime
-            currentHeroAnime = trendingList[0];
-            currentAnime = trendingList[0];
-            document.getElementById('heroBg').src = currentHeroAnime.backdrop || currentHeroAnime.poster;
-            document.getElementById('heroTitle').innerText = currentHeroAnime.title;
-            document.getElementById('heroSynopsis').innerText = currentHeroAnime.synopsis;
-            document.getElementById('heroRating').innerText = '★ ' + currentHeroAnime.rating;
-            document.getElementById('heroEpisodes').innerText = currentHeroAnime.episodes + ' EPISODES';
-            renderEpisodeGrid(currentHeroAnime.episodes);
-          }
+        const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([
+          trendingRes.json(),
+          seasonalRes.json(),
+          topRatedRes.json()
+        ]);
 
-          if (data.seasonal && data.seasonal.media.length) {
-            seasonalList = data.seasonal.media.map(normalizeAniList);
-            seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-            document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
-          }
+        if (trendingJson && trendingJson.data && trendingJson.data.length) {
+          trendingList = trendingJson.data.map(item => normalizeKitsuMedia(item, trendingJson.included || []));
+          trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
 
-          if (data.topRated && data.topRated.media.length) {
-            topRatedList = data.topRated.media.map(normalizeAniList);
-            topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-            document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
-          }
-        } else {
-          fallbackOfflineCatalog();
+          currentHeroAnime = trendingList[0];
+          currentAnime = trendingList[0];
+          document.getElementById('heroBg').src = currentHeroAnime.backdrop || currentHeroAnime.poster;
+          document.getElementById('heroTitle').innerText = currentHeroAnime.title;
+          document.getElementById('heroSynopsis').innerText = currentHeroAnime.synopsis;
+          document.getElementById('heroRating').innerText = '★ ' + currentHeroAnime.rating;
+          document.getElementById('heroEpisodes').innerText = currentHeroAnime.episodes + ' EPISODES';
+          renderEpisodeGrid(currentHeroAnime.episodes);
+        }
+
+        if (seasonalJson && seasonalJson.data && seasonalJson.data.length) {
+          seasonalList = seasonalJson.data.map(item => normalizeKitsuMedia(item, seasonalJson.included || []));
+          seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
+        }
+
+        if (topRatedJson && topRatedJson.data && topRatedJson.data.length) {
+          topRatedList = topRatedJson.data.map(item => normalizeKitsuMedia(item, topRatedJson.included || []));
+          topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
         }
       } catch (err) {
-        console.warn('AniList dynamic load error, falling back:', err);
+        console.warn('Dynamic load error, fallback active:', err);
         fallbackOfflineCatalog();
       }
     }

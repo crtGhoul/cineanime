@@ -1284,9 +1284,9 @@
     <section id="theaterSection" class="theater-section">
       <div class="theater-header">
         <div class="theater-title-group">
-          <span class="shield-pill">⚡ Anime Nexus Core</span>
+          <span id="playerCoreBadge" class="shield-pill">⚡ 100% Ad-Free Anime Core</span>
           <span id="playerTitle" class="theater-title">Solo Leveling • Season 1: Episode 1</span>
-          <div class="sub-dub-toggle">
+          <div id="subDubToggleBox" class="sub-dub-toggle">
             <button id="trackSubBtn" class="track-btn active" onclick="switchTrack('sub')">🇯🇵 SUB</button>
             <button id="trackDubBtn" class="track-btn" onclick="switchTrack('dub')">🇺🇸 DUB</button>
           </div>
@@ -2000,9 +2000,19 @@
       document.getElementById('heroTitle').innerText = anime.title;
       document.getElementById('heroSynopsis').innerText = anime.synopsis;
       document.getElementById('heroRating').innerText = '★ ' + anime.rating;
-      document.getElementById('heroEpisodes').innerText = anime.episodes + ' EPISODES';
 
-      renderEpisodeGrid(anime.episodes);
+      const epSec = document.querySelector('.episodes-section');
+      const epNav = document.querySelector('.ep-nav-controls');
+      if (anime.type === 'movie') {
+        document.getElementById('heroEpisodes').innerText = 'FEATURE FILM';
+        if (epSec) epSec.style.display = 'none';
+        if (epNav) epNav.style.display = 'none';
+      } else {
+        document.getElementById('heroEpisodes').innerText = (anime.episodes || 12) + ' EPISODES';
+        if (epSec) epSec.style.display = 'block';
+        if (epNav) epNav.style.display = 'flex';
+        renderEpisodeGrid(anime.episodes || 12);
+      }
 
       if (autoPlay) {
         openTheater();
@@ -2084,11 +2094,28 @@
       const extBtn = document.getElementById('externalStreamBtn');
       if (extBtn) extBtn.href = url;
 
-      const trackLabel = currentTrack.toUpperCase();
-      document.getElementById('playerTitle').innerText = `${currentAnime.title} • Ep ${currentEpisode} [${trackLabel}]`;
-      document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
-      document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
-      document.getElementById('nextEpBtn').disabled = currentEpisode >= currentAnime.episodes;
+      const badge = document.getElementById('playerCoreBadge');
+      const toggle = document.getElementById('subDubToggleBox');
+
+      if (currentAnime.type === 'movie' || currentAnime.isMovieOrSeries) {
+        if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
+        if (toggle) toggle.style.display = 'none';
+        const titleText = currentAnime.type === 'movie'
+          ? `${currentAnime.title} (${currentAnime.year || 'Movie'})`
+          : `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}`;
+        document.getElementById('playerTitle').innerText = titleText;
+        document.getElementById('currentEpLabel').innerText = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
+        document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
+        document.getElementById('nextEpBtn').disabled = currentEpisode >= (currentAnime.episodes || 1);
+      } else {
+        if (badge) badge.innerText = '⚡ 100% Ad-Free Anime Core';
+        if (toggle) toggle.style.display = 'flex';
+        const trackLabel = currentTrack.toUpperCase();
+        document.getElementById('playerTitle').innerText = `${currentAnime.title} • Ep ${currentEpisode} [${trackLabel}]`;
+        document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
+        document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
+        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
+      }
     }
 
     function openTheater() {

@@ -1066,6 +1066,192 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
+
+    /* Load More / See More Buttons */
+    .load-more-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 1.5rem 0 2.5rem 0;
+      width: 100%;
+    }
+
+    .load-more-btn {
+      background: rgba(229, 9, 20, 0.12);
+      border: 1px solid rgba(229, 9, 20, 0.35);
+      color: #fff;
+      padding: 0.75rem 2.25rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .load-more-btn:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    }
+
+    .load-more-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Stremio Addon Modal */
+    .addon-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .addon-modal-dialog {
+      background: #14141c;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .addon-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #1b1b26;
+    }
+
+    .addon-modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .addon-modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+    .addon-modal-close:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .addon-modal-body {
+      padding: 1.5rem;
+    }
+
+    .addon-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .addon-text-input {
+      flex: 1;
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+    .addon-text-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .addon-add-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .addon-add-btn:hover {
+      opacity: 0.9;
+    }
+
+    .installed-addons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+
+    .addon-item-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+    }
+
+    .addon-item-info h5 {
+      font-size: 0.92rem;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .addon-item-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .addon-delete-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .addon-delete-btn:hover {
+      background: #ef4444;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -1079,11 +1265,12 @@
 
     <div class="search-bar-container">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search anime titles, genres, seasons..." autocomplete="off">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search anime, movies, TV shows..." autocomplete="off">
     </div>
 
     <div class="nav-actions">
-      <button class="nav-btn" onclick="switchTab('all'); window.scrollTo({top: 400, behavior: 'smooth'})">⛩️ Anime Catalog</button>
+      <button class="nav-btn" onclick="openAddonModal()">🧩 Stremio Addons</button>
+      <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
       </button>
@@ -1188,6 +1375,12 @@
       <button class="filter-tab active" data-tab="all" onclick="switchTab('all')">
         🔥 All Anime
       </button>
+      <button class="filter-tab" data-tab="movies" id="moviesTabBtn" onclick="switchTab('movies')">
+        🎬 Movies (Stremio)
+      </button>
+      <button class="filter-tab" data-tab="series" id="seriesTabBtn" onclick="switchTab('series')">
+        📺 TV Shows (Stremio)
+      </button>
       <button class="filter-tab" data-tab="history" id="historyTabBtn" onclick="switchTab('history')">
         🕒 Continue Watching <span id="historyBadgeCount" class="tab-badge">0</span>
       </button>
@@ -1252,6 +1445,41 @@
       <div id="searchGrid" class="anime-cards-grid">
         <!-- Rendered by JS -->
       </div>
+      <div id="searchLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="searchLoadMoreBtn" class="load-more-btn" onclick="loadMoreSearchResults()">See More Anime ↓</button>
+      </div>
+    </section>
+
+    <!-- Movies Section (Stremio/Cinemeta Protocol) -->
+    <section id="moviesSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #10b981;"></div>
+          <span id="moviesSectionTitle">🎬 Popular Movies (Stremio Core)</span>
+        </div>
+      </div>
+      <div id="moviesGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <div id="moviesLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="moviesLoadMoreBtn" class="load-more-btn" onclick="loadMoreMovies()">See More Movies ↓</button>
+      </div>
+    </section>
+
+    <!-- TV Series Section (Stremio/Cinemeta Protocol) -->
+    <section id="seriesSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #8b5cf6;"></div>
+          <span id="seriesSectionTitle">📺 Popular TV Shows (Stremio Core)</span>
+        </div>
+      </div>
+      <div id="seriesGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <div id="seriesLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="seriesLoadMoreBtn" class="load-more-btn" onclick="loadMoreSeries()">See More TV Shows ↓</button>
+      </div>
     </section>
 
     <!-- Live Seasonal Top Airing (Winter 2026 / Current Season) -->
@@ -1266,6 +1494,9 @@
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Loading seasonal catalog from AniList...
         </div>
+      </div>
+      <div id="seasonalLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="seasonalLoadMoreBtn" class="load-more-btn" onclick="loadMoreSeasonal()">See More Airing Anime ↓</button>
       </div>
     </section>
 
@@ -1282,6 +1513,9 @@
           <div class="loading-spinner"></div> Loading trending anime from AniList...
         </div>
       </div>
+      <div id="trendingLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="trendingLoadMoreBtn" class="load-more-btn" onclick="loadMoreTrending()">See More Anime ↓</button>
+      </div>
     </section>
 
     <!-- Legendary Classics Catalog -->
@@ -1295,9 +1529,50 @@
       <div id="legendaryGrid" class="anime-cards-grid">
         <!-- Rendered by JS -->
       </div>
+      <div id="legendaryLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="legendaryLoadMoreBtn" class="load-more-btn" onclick="loadMoreLegendary()">See More Masterpieces ↓</button>
+      </div>
     </section>
 
   </main>
+
+  <!-- Stremio Addon Manager Modal -->
+  <div id="addonModal" class="addon-modal-backdrop" style="display: none;">
+    <div class="addon-modal-dialog">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title">
+          <span>🧩 Stremio Addon Protocol Hub</span>
+        </div>
+        <button class="addon-modal-close" onclick="closeAddonModal()">✕</button>
+      </div>
+      <div class="addon-modal-body">
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+          Connect official or community Stremio Addons by pasting their <code>manifest.json</code> URL. CineAnime automatically integrates their catalogs and stream resolvers.
+        </p>
+
+        <div class="addon-input-group">
+          <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="https://v3-cinemeta.strem.io/manifest.json">
+          <button class="addon-add-btn" onclick="installAddonFromInput()">+ Add Addon</button>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff;">Installed Addons</h4>
+          <div id="installedAddonsList" class="installed-addons-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size: 0.82rem; color: var(--text-muted);">
+            Local Stremio Engine (<code>127.0.0.1:11470</code>)
+          </div>
+          <a href="http://localhost:8080" target="_blank" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+            Open Stremio Web ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Curated Anime Database with AniList & TMDB IDs
@@ -1560,14 +1835,36 @@
     let trendingList = [...ANIME_CATALOG];
     let seasonalList = [];
     let topRatedList = [...LEGENDARY_CATALOG];
+    let currentMoviesList = [];
+    let currentSeriesList = [];
     let searchDebounceTimer = null;
+
+    // Pagination State
+    let searchOffset = 0;
+    let currentSearchTerm = '';
+    let genreOffset = 0;
+    let trendingOffset = 0;
+    let seasonalOffset = 0;
+    let legendaryOffset = 0;
+    let moviesOffset = 0;
+    let seriesOffset = 0;
 
     const SERVERS = {
       server1: (item, s, e) => {
+        if (item.type === 'movie' || item.isMovieOrSeries) {
+          return item.type === 'movie'
+            ? `https://vidsrc.me/embed/movie?imdb=${item.id}`
+            : `https://vidsrc.me/embed/tv?imdb=${item.id}&season=${s}&episode=${e}`;
+        }
         const aniId = item.id;
         return `https://animeembed.com/embed/ani/${aniId}/${e}?server=1&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       },
       server2: (item, s, e) => {
+        if (item.type === 'movie' || item.isMovieOrSeries) {
+          return item.type === 'movie'
+            ? `https://vidsrc.to/embed/movie/${item.id}`
+            : `https://vidsrc.to/embed/tv/${item.id}/${s}/${e}`;
+        }
         const aniId = item.id;
         return `https://animeembed.com/embed/ani/${aniId}/${e}?server=2&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       },
@@ -1577,7 +1874,9 @@
       },
       vidsrc: (item, s, e) => {
         const id = item.tmdbId || item.id;
-        return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
+        return item.type === 'movie'
+          ? `https://vidsrc.me/embed/movie?imdb=${id}`
+          : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
       }
     };
 
@@ -1658,6 +1957,8 @@
 
     function renderCard(item) {
       const fav = isFavorited(item.id);
+      const epBadge = item.type === 'movie' ? 'MOVIE' : `${item.episodes} EPS`;
+      const audioBadge = item.isMovieOrSeries ? 'HD' : 'SUB/DUB';
       return `
         <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
@@ -1666,13 +1967,13 @@
             </button>
             <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
             <div class="card-rating">★ ${item.rating}</div>
-            <div class="card-ep-badge">${item.episodes} EPS</div>
+            <div class="card-ep-badge">${epBadge}</div>
           </div>
           <div class="card-info">
             <div class="card-title" title="${item.title}">${item.title}</div>
             <div class="card-meta">
               <span>${item.year}</span>
-              <span style="color: #10b981; font-weight: 700;">SUB/DUB</span>
+              <span style="color: #10b981; font-weight: 700;">${audioBadge}</span>
             </div>
           </div>
         </div>
@@ -1851,52 +2152,126 @@
     });
 
     async function executeGlobalSearch(q) {
+      currentSearchTerm = q;
+      searchOffset = 0;
       const searchSection = document.getElementById('searchSection');
       const searchGrid = document.getElementById('searchGrid');
       const searchTitle = document.getElementById('searchSectionTitle');
+      const loadMoreBox = document.getElementById('searchLoadMoreBox');
 
       searchSection.style.display = 'block';
       searchTitle.innerText = `🔍 Searching for "${q}"...`;
       searchGrid.innerHTML = `
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
-          <div class="loading-spinner"></div> Searching global anime database...
+          <div class="loading-spinner"></div> Searching global anime & entertainment database...
         </div>
       `;
+      if (loadMoreBox) loadMoreBox.style.display = 'none';
       searchSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
       try {
-        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=20&include=mappings`);
-        const json = await res.json();
-        if (!json || !json.data || !json.data.length) {
+        const [kitsuRes, cinemetaRes] = await Promise.all([
+          fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=20&include=mappings`),
+          fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(q)}.json`).catch(() => null)
+        ]);
+
+        const json = await kitsuRes.json();
+        let cinemetaJson = null;
+        if (cinemetaRes && cinemetaRes.ok) {
+          cinemetaJson = await cinemetaRes.json().catch(() => null);
+        }
+
+        const animeResults = (json && json.data && json.data.length)
+          ? json.data.map(item => normalizeKitsuMedia(item, json.included || []))
+          : [];
+        animeResults.forEach(item => ANIME_CACHE.set(String(item.id), item));
+
+        const movieResults = (cinemetaJson && cinemetaJson.metas && cinemetaJson.metas.length)
+          ? cinemetaJson.metas.slice(0, 8).map(normalizeCinemetaMedia)
+          : [];
+        movieResults.forEach(item => ANIME_CACHE.set(String(item.id), item));
+
+        const combined = [...animeResults, ...movieResults];
+
+        if (!combined.length) {
           searchTitle.innerText = `🔍 No results found for "${q}"`;
-          searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime found. Try another title or check spelling!</div>';
+          searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime or movies found. Try another title or check spelling!</div>';
+          if (loadMoreBox) loadMoreBox.style.display = 'none';
           return;
         }
 
-        const results = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
-        results.forEach(item => ANIME_CACHE.set(String(item.id), item));
-        searchTitle.innerText = `🔍 Search Results for "${q}" (${results.length} found)`;
-        searchGrid.innerHTML = results.map(renderCard).join('');
+        searchTitle.innerText = `🔍 Search Results for "${q}" (${combined.length} found)`;
+        searchGrid.innerHTML = combined.map(renderCard).join('');
+
+        if (loadMoreBox) {
+          loadMoreBox.style.display = animeResults.length >= 20 ? 'flex' : 'none';
+          const btn = document.getElementById('searchLoadMoreBtn');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'See More Anime ↓';
+          }
+        }
       } catch (err) {
         console.error('Search error:', err);
         searchTitle.innerText = `🔍 Search Error`;
         searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to complete search at this time.</div>';
+        if (loadMoreBox) loadMoreBox.style.display = 'none';
+      }
+    }
+
+    async function loadMoreSearchResults() {
+      if (!currentSearchTerm) return;
+      searchOffset += 20;
+      const btn = document.getElementById('searchLoadMoreBtn');
+      const loadMoreBox = document.getElementById('searchLoadMoreBox');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading More Anime...';
+      }
+
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(currentSearchTerm)}&page[limit]=20&page[offset]=${searchOffset}&include=mappings`);
+        const json = await res.json();
+        if (json && json.data && json.data.length) {
+          const results = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+          results.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          const grid = document.getElementById('searchGrid');
+          grid.insertAdjacentHTML('beforeend', results.map(renderCard).join(''));
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'See More Anime ↓';
+          }
+          if (json.data.length < 20 && loadMoreBox) {
+            loadMoreBox.style.display = 'none';
+          }
+        } else if (loadMoreBox) {
+          loadMoreBox.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Pagination search error:', err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'See More Anime ↓';
+        }
       }
     }
 
     // --- Genre Filtering (Animex / AnimeNexus Style) ---
     async function filterByGenre(genre) {
       currentSelectedGenre = genre;
+      genreOffset = 0;
       document.querySelectorAll('.genre-pill').forEach(btn => {
         btn.classList.toggle('active', btn.innerText.includes(genre) || (genre === 'ALL' && btn.innerText.includes('All')));
       });
 
       const trendingSectionTitle = document.getElementById('trendingSectionTitle');
       const trendingGrid = document.getElementById('trendingGrid');
+      const loadMoreBox = document.getElementById('trendingLoadMoreBox');
 
       if (genre === 'ALL') {
         trendingSectionTitle.innerText = '🔥 Trending Anime';
         trendingGrid.innerHTML = trendingList.map(renderCard).join('');
+        if (loadMoreBox) loadMoreBox.style.display = 'flex';
         return;
       }
 
@@ -1906,6 +2281,7 @@
           <div class="loading-spinner"></div> Loading ${genre} anime...
         </div>
       `;
+      if (loadMoreBox) loadMoreBox.style.display = 'none';
 
       try {
         const cat = genre.toLowerCase().replace(/\s+/g, '-');
@@ -1915,13 +2291,350 @@
           const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
           list.forEach(item => ANIME_CACHE.set(String(item.id), item));
           trendingGrid.innerHTML = list.map(renderCard).join('');
+          if (loadMoreBox) {
+            loadMoreBox.style.display = list.length >= 20 ? 'flex' : 'none';
+            const btn = document.getElementById('trendingLoadMoreBtn');
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = `See More ${genre} Anime ↓`;
+            }
+          }
         } else {
           trendingGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No anime found in this genre.</div>';
+          if (loadMoreBox) loadMoreBox.style.display = 'none';
         }
       } catch (err) {
         console.error(err);
         trendingGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load genre at this time.</div>';
+        if (loadMoreBox) loadMoreBox.style.display = 'none';
       }
+    }
+
+    async function loadMoreTrending() {
+      const btn = document.getElementById('trendingLoadMoreBtn');
+      const loadMoreBox = document.getElementById('trendingLoadMoreBox');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading More Anime...';
+      }
+
+      try {
+        let url = '';
+        if (currentSelectedGenre === 'ALL') {
+          trendingOffset += 20;
+          url = `https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=20&page[offset]=${trendingOffset}&include=mappings`;
+        } else {
+          genreOffset += 20;
+          const cat = currentSelectedGenre.toLowerCase().replace(/\s+/g, '-');
+          url = `https://kitsu.io/api/edge/anime?filter[categories]=${encodeURIComponent(cat)}&sort=-userCount&page[limit]=20&page[offset]=${genreOffset}&include=mappings`;
+        }
+
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json && json.data && json.data.length) {
+          const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('trendingGrid').insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = currentSelectedGenre === 'ALL' ? 'See More Anime ↓' : `See More ${currentSelectedGenre} Anime ↓`;
+          }
+          if (json.data.length < 20 && loadMoreBox) {
+            loadMoreBox.style.display = 'none';
+          }
+        } else if (loadMoreBox) {
+          loadMoreBox.style.display = 'none';
+        }
+      } catch (err) {
+        console.error(err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'See More Anime ↓';
+        }
+      }
+    }
+
+    async function loadMoreSeasonal() {
+      seasonalOffset += 20;
+      const btn = document.getElementById('seasonalLoadMoreBtn');
+      const loadMoreBox = document.getElementById('seasonalLoadMoreBox');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+      }
+
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=20&page[offset]=${seasonalOffset}&include=mappings`);
+        const json = await res.json();
+        if (json && json.data && json.data.length) {
+          const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('seasonalGrid').insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'See More Airing Anime ↓';
+          }
+          if (json.data.length < 20 && loadMoreBox) {
+            loadMoreBox.style.display = 'none';
+          }
+        } else if (loadMoreBox) {
+          loadMoreBox.style.display = 'none';
+        }
+      } catch (err) {
+        console.error(err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'See More Airing Anime ↓';
+        }
+      }
+    }
+
+    async function loadMoreLegendary() {
+      legendaryOffset += 20;
+      const btn = document.getElementById('legendaryLoadMoreBtn');
+      const loadMoreBox = document.getElementById('legendaryLoadMoreBox');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+      }
+
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=20&page[offset]=${legendaryOffset}&include=mappings`);
+        const json = await res.json();
+        if (json && json.data && json.data.length) {
+          const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          document.getElementById('legendaryGrid').insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'See More Masterpieces ↓';
+          }
+          if (json.data.length < 20 && loadMoreBox) {
+            loadMoreBox.style.display = 'none';
+          }
+        } else if (loadMoreBox) {
+          loadMoreBox.style.display = 'none';
+        }
+      } catch (err) {
+        console.error(err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'See More Masterpieces ↓';
+        }
+      }
+    }
+
+    // --- Stremio Cinemeta Movies & Series Core ---
+    function normalizeCinemetaMedia(m) {
+      return {
+        id: m.id,
+        tmdbId: m.id,
+        isMovieOrSeries: true,
+        type: m.type || 'movie',
+        title: m.name || 'Title',
+        romaji: m.name || '',
+        rating: m.imdbRating || '8.2',
+        year: m.year || (m.releaseInfo ? m.releaseInfo.slice(0, 4) : ''),
+        episodes: m.type === 'movie' ? 1 : 12,
+        poster: m.poster || '',
+        backdrop: m.background || m.poster || '',
+        synopsis: m.description || 'No description available from Stremio Cinemeta.'
+      };
+    }
+
+    async function loadMoviesCatalog(reset = true) {
+      if (reset) moviesOffset = 0;
+      const grid = document.getElementById('moviesGrid');
+      const loadMoreBox = document.getElementById('moviesLoadMoreBox');
+      const btn = document.getElementById('moviesLoadMoreBtn');
+
+      if (reset) {
+        grid.innerHTML = '<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading popular movies from Stremio Cinemeta...</div>';
+      }
+
+      try {
+        const url = moviesOffset === 0
+          ? 'https://v3-cinemeta.strem.io/catalog/movie/top.json'
+          : `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${moviesOffset}.json`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.metas && data.metas.length) {
+          const list = data.metas.map(normalizeCinemetaMedia);
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          if (reset) {
+            currentMoviesList = list;
+            grid.innerHTML = list.map(renderCard).join('');
+          } else {
+            currentMoviesList.push(...list);
+            grid.insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+          }
+          if (loadMoreBox) {
+            loadMoreBox.style.display = 'flex';
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = 'See More Movies ↓';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Movies error:', err);
+        if (reset) grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load movies at this time.</div>';
+      }
+    }
+
+    async function loadMoreMovies() {
+      moviesOffset += 50;
+      const btn = document.getElementById('moviesLoadMoreBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading More Movies...';
+      }
+      await loadMoviesCatalog(false);
+    }
+
+    async function loadSeriesCatalog(reset = true) {
+      if (reset) seriesOffset = 0;
+      const grid = document.getElementById('seriesGrid');
+      const loadMoreBox = document.getElementById('seriesLoadMoreBox');
+      const btn = document.getElementById('seriesLoadMoreBtn');
+
+      if (reset) {
+        grid.innerHTML = '<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading top TV shows from Stremio Cinemeta...</div>';
+      }
+
+      try {
+        const url = seriesOffset === 0
+          ? 'https://v3-cinemeta.strem.io/catalog/series/top.json'
+          : `https://v3-cinemeta.strem.io/catalog/series/top/skip=${seriesOffset}.json`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.metas && data.metas.length) {
+          const list = data.metas.map(normalizeCinemetaMedia);
+          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+          if (reset) {
+            currentSeriesList = list;
+            grid.innerHTML = list.map(renderCard).join('');
+          } else {
+            currentSeriesList.push(...list);
+            grid.insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+          }
+          if (loadMoreBox) {
+            loadMoreBox.style.display = 'flex';
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = 'See More TV Shows ↓';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Series error:', err);
+        if (reset) grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load TV shows at this time.</div>';
+      }
+    }
+
+    async function loadMoreSeries() {
+      seriesOffset += 50;
+      const btn = document.getElementById('seriesLoadMoreBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading More TV Shows...';
+      }
+      await loadSeriesCatalog(false);
+    }
+
+    // --- Stremio Addon Protocol Manager ---
+    const DEFAULT_ADDONS = [
+      {
+        transportUrl: 'https://v3-cinemeta.strem.io/manifest.json',
+        manifest: {
+          id: 'org.stremio.cinemeta',
+          name: 'Cinemeta (Official)',
+          version: '3.0.12',
+          description: 'Official IMDb movies and TV series metadata and catalogs',
+          types: ['movie', 'series']
+        }
+      }
+    ];
+
+    function getStoredAddons() {
+      try {
+        const raw = localStorage.getItem('cineanime_stremio_addons');
+        return raw ? JSON.parse(raw) : DEFAULT_ADDONS;
+      } catch (e) {
+        return DEFAULT_ADDONS;
+      }
+    }
+
+    function saveStoredAddons(addons) {
+      localStorage.setItem('cineanime_stremio_addons', JSON.stringify(addons));
+      renderAddonsList();
+    }
+
+    function openAddonModal() {
+      renderAddonsList();
+      document.getElementById('addonModal').style.display = 'flex';
+    }
+
+    function closeAddonModal() {
+      document.getElementById('addonModal').style.display = 'none';
+    }
+
+    function renderAddonsList() {
+      const list = getStoredAddons();
+      const container = document.getElementById('installedAddonsList');
+      if (!container) return;
+
+      if (!list.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No custom addons installed.</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(addon => {
+        const m = addon.manifest || {};
+        const isDefault = m.id === 'org.stremio.cinemeta';
+        return `
+          <div class="addon-item-card">
+            <div class="addon-item-info">
+              <h5>📦 ${m.name || 'Unnamed Addon'} <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">v${m.version || '1.0'}</span></h5>
+              <p>${m.description || addon.transportUrl}</p>
+            </div>
+            ${isDefault ? '<span style="font-size:0.75rem; color:var(--text-muted);">Default</span>' : `<button class="addon-delete-btn" onclick="deleteAddon('${m.id}')">Remove</button>`}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function installAddonFromInput() {
+      const input = document.getElementById('addonUrlInput');
+      const url = input.value.trim();
+      if (!url) return;
+
+      try {
+        let manifestUrl = url;
+        if (!manifestUrl.endsWith('manifest.json')) {
+          manifestUrl = manifestUrl.replace(/\/+$/, '') + '/manifest.json';
+        }
+        const res = await fetch(manifestUrl);
+        const manifest = await res.json();
+        if (!manifest.id || !manifest.name) {
+          throw new Error('Invalid Stremio manifest format (id and name required).');
+        }
+
+        let addons = getStoredAddons();
+        addons = addons.filter(a => a.manifest.id !== manifest.id);
+        addons.push({ transportUrl: manifestUrl, manifest });
+        saveStoredAddons(addons);
+        input.value = '';
+        alert(`✅ Successfully installed Stremio Addon: ${manifest.name}`);
+      } catch (err) {
+        alert(`❌ Failed to load addon: ${err.message}\nMake sure the addon URL is reachable and allows CORS.`);
+      }
+    }
+
+    function deleteAddon(id) {
+      let addons = getStoredAddons();
+      addons = addons.filter(a => a.manifest.id !== id);
+      saveStoredAddons(addons);
     }
 
     // --- Dynamic Catalog Initialization (High-Speed Kitsu Core) ---
@@ -1936,13 +2649,15 @@
         const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([
           trendingRes.json(),
           seasonalRes.json(),
-          topRatedRes.json()
+          topRatedJson.json()
         ]);
 
         if (trendingJson && trendingJson.data && trendingJson.data.length) {
           trendingList = trendingJson.data.map(item => normalizeKitsuMedia(item, trendingJson.included || []));
           trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
           document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
+          const tBox = document.getElementById('trendingLoadMoreBox');
+          if (tBox) tBox.style.display = 'flex';
 
           currentHeroAnime = trendingList[0];
           currentAnime = trendingList[0];
@@ -1958,12 +2673,16 @@
           seasonalList = seasonalJson.data.map(item => normalizeKitsuMedia(item, seasonalJson.included || []));
           seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
           document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
+          const sBox = document.getElementById('seasonalLoadMoreBox');
+          if (sBox) sBox.style.display = 'flex';
         }
 
         if (topRatedJson && topRatedJson.data && topRatedJson.data.length) {
           topRatedList = topRatedJson.data.map(item => normalizeKitsuMedia(item, topRatedJson.included || []));
           topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
           document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
+          const lBox = document.getElementById('legendaryLoadMoreBox');
+          if (lBox) lBox.style.display = 'flex';
         }
       } catch (err) {
         console.warn('Dynamic load error, fallback active:', err);
@@ -2107,32 +2826,42 @@
       const seasonalSection = document.getElementById('seasonalSection');
       const trendingSection = document.getElementById('trendingSection');
       const legendarySection = document.getElementById('legendarySection');
+      const moviesSection = document.getElementById('moviesSection');
+      const seriesSection = document.getElementById('seriesSection');
       const genrePillsBar = document.getElementById('genrePillsBar');
+
+      // Hide all by default
+      if (historySection) historySection.style.display = 'none';
+      if (watchlistSection) watchlistSection.style.display = 'none';
+      if (searchSection) searchSection.style.display = 'none';
+      if (seasonalSection) seasonalSection.style.display = 'none';
+      if (trendingSection) trendingSection.style.display = 'none';
+      if (legendarySection) legendarySection.style.display = 'none';
+      if (moviesSection) moviesSection.style.display = 'none';
+      if (seriesSection) seriesSection.style.display = 'none';
+      if (genrePillsBar) genrePillsBar.style.display = 'none';
 
       if (tab === 'all') {
         renderHistory();
-        watchlistSection.style.display = 'none';
         if (seasonalSection) seasonalSection.style.display = 'block';
-        trendingSection.style.display = 'block';
+        if (trendingSection) trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';
         if (genrePillsBar) genrePillsBar.style.display = 'flex';
+      } else if (tab === 'movies') {
+        if (moviesSection) moviesSection.style.display = 'block';
+        if (currentMoviesList.length === 0) {
+          loadMoviesCatalog(true);
+        }
+      } else if (tab === 'series') {
+        if (seriesSection) seriesSection.style.display = 'block';
+        if (currentSeriesList.length === 0) {
+          loadSeriesCatalog(true);
+        }
       } else if (tab === 'history') {
-        historySection.style.display = 'block';
-        watchlistSection.style.display = 'none';
-        if (searchSection) searchSection.style.display = 'none';
-        if (seasonalSection) seasonalSection.style.display = 'none';
-        trendingSection.style.display = 'none';
-        if (legendarySection) legendarySection.style.display = 'none';
-        if (genrePillsBar) genrePillsBar.style.display = 'none';
+        if (historySection) historySection.style.display = 'block';
         renderHistory();
       } else if (tab === 'watchlist') {
-        historySection.style.display = 'none';
-        watchlistSection.style.display = 'block';
-        if (searchSection) searchSection.style.display = 'none';
-        if (seasonalSection) seasonalSection.style.display = 'none';
-        trendingSection.style.display = 'none';
-        if (legendarySection) legendarySection.style.display = 'none';
-        if (genrePillsBar) genrePillsBar.style.display = 'none';
+        if (watchlistSection) watchlistSection.style.display = 'block';
         renderWatchlist();
       }
     }

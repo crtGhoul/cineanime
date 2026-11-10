@@ -1598,7 +1598,16 @@
       const title = attrs.canonicalTitle || attrs.titles?.en || attrs.titles?.en_jp || 'Anime';
       const romaji = attrs.titles?.en_jp || attrs.canonicalTitle || '';
       const year = attrs.startDate ? attrs.startDate.split('-')[0] : '';
-      const episodes = attrs.episodeCount || 12;
+      let episodes = attrs.episodeCount;
+      if (!episodes || episodes <= 0) {
+        const lower = title.toLowerCase();
+        if (lower.includes('one piece')) episodes = 1120;
+        else if (lower.includes('naruto')) episodes = 500;
+        else if (lower.includes('dragon ball')) episodes = 291;
+        else if (lower.includes('bleach')) episodes = 366;
+        else if (lower.includes('detective conan') || lower.includes('case closed')) episodes = 1100;
+        else episodes = attrs.status === 'current' ? 24 : 12;
+      }
       const rawRating = parseFloat(attrs.averageRating);
       const rating = !isNaN(rawRating) ? (rawRating / 10).toFixed(1) : '8.5';
       const poster = attrs.posterImage?.small || attrs.posterImage?.original || '';

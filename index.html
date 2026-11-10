@@ -963,7 +963,7 @@
     </div>
 
     <div class="nav-actions">
-      <a href="https://web.stremio.com" target="_blank" class="nav-btn" title="Open Stremio Web">🎬 Stremio Web</a>
+      <button class="nav-btn" onclick="switchTab('all'); window.scrollTo({top: 400, behavior: 'smooth'})">⛩️ Anime Catalog</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
       </button>
@@ -1130,208 +1130,226 @@
   <script>
     // Curated Anime Database with IMDb IDs & metadata
     const ANIME_CATALOG = [
-      {
-        id: 'tt21209876',
-        title: 'Solo Leveling',
-        romaji: 'Ore dake Level Up na Ken',
-        rating: 8.5,
-        year: '2024',
-        episodes: 12,
-        poster: 'https://images.metahub.space/poster/small/tt21209876/img',
-        backdrop: 'https://images.metahub.space/background/large/tt21209876/img',
-        synopsis: 'Follows the adventures of Sung Jinwoo in a world that is constantly threatened by monsters and evil forces. In his battles Sung transforms himself from the weakest hunter of all mankind to one of the strongest hunters in existence.'
-      },
-      {
-        id: 'tt9335498',
-        title: 'Demon Slayer: Kimetsu no Yaiba',
-        romaji: 'Kimetsu no Yaiba',
-        rating: 8.5,
-        year: '2019-2024',
-        episodes: 26,
-        poster: 'https://images.metahub.space/poster/small/tt9335498/img',
-        backdrop: 'https://images.metahub.space/background/large/tt9335498/img',
-        synopsis: 'A family is attacked by demons and only two members survive - Tanjiro and his sister Nezuko, who is turning into a demon slowly. Tanjiro sets out to become a demon slayer to avenge his family and cure his sister.'
-      },
-      {
-        id: 'tt12343534',
-        title: 'Jujutsu Kaisen',
-        romaji: 'Jujutsu Kaisen',
-        rating: 8.5,
-        year: '2020-',
-        episodes: 24,
-        poster: 'https://images.metahub.space/poster/small/tt12343534/img',
-        backdrop: 'https://images.metahub.space/background/large/tt12343534/img',
-        synopsis: 'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman school to be able to locate the demons other body parts and thus exorcise himself.'
-      },
-      {
-        id: 'tt2560140',
-        title: 'Attack on Titan',
-        romaji: 'Shingeki no Kyojin',
-        rating: 9.1,
-        year: '2013-2023',
-        episodes: 25,
-        poster: 'https://images.metahub.space/poster/small/tt2560140/img',
-        backdrop: 'https://images.metahub.space/background/large/tt2560140/img',
-        synopsis: 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.'
-      },
-      {
-        id: 'tt0388629',
-        title: 'One Piece',
-        romaji: 'One Piece',
-        rating: 8.9,
-        year: '1999-',
-        episodes: 1120,
-        poster: 'https://images.metahub.space/poster/small/tt0388629/img',
-        backdrop: 'https://images.metahub.space/background/large/tt0388629/img',
-        synopsis: 'Follows the adventures of Monkey D. Luffy and his pirate crew in order to find the greatest treasure ever left by the legendary Pirate, Gold Roger. The famous mystery treasure named One Piece.'
-      },
-      {
-        id: 'tt13616990',
-        title: 'Chainsaw Man',
-        romaji: 'Chainsaw Man',
-        rating: 8.4,
-        year: '2022-',
-        episodes: 12,
-        poster: 'https://images.metahub.space/poster/small/tt13616990/img',
-        backdrop: 'https://images.metahub.space/background/large/tt13616990/img',
-        synopsis: 'Following a betrayal, a young man left for the dead is reborn as a powerful devil-human hybrid after merging with his pet devil and is soon enlisted into an organization dedicated to hunting devils.'
-      },
-      {
-        id: 'tt22272720',
-        title: "Frieren: Beyond Journey's End",
-        romaji: 'Sousou no Frieren',
-        rating: 8.9,
-        year: '2023-2024',
-        episodes: 28,
-        poster: 'https://images.metahub.space/poster/small/tt22272720/img',
-        backdrop: 'https://images.metahub.space/background/large/tt22272720/img',
-        synopsis: 'An elf and her friends defeat a demon king in a great war. But the war ends, and the elf must search for a new way of life after her human companions pass away from old age.'
-      },
-      {
-        id: 'tt30217424',
-        title: 'Dandadan',
-        romaji: 'Dandadan',
-        rating: 8.7,
-        year: '2024-',
-        episodes: 12,
-        poster: 'https://images.metahub.space/poster/small/tt30217424/img',
-        backdrop: 'https://images.metahub.space/background/large/tt30217424/img',
-        synopsis: 'Momo Ayase strikes up an unusual friendship with her schoolmate Okarun, an occult fanatic. As their beliefs collide, both undergo supernatural events that alter their reality.'
-      },
-      {
-        id: 'tt14986406',
-        title: 'Bleach: Thousand-Year Blood War',
-        romaji: 'Bleach: Sennen Kessen-hen',
-        rating: 9.0,
-        year: '2022-',
-        episodes: 13,
-        poster: 'https://images.metahub.space/poster/small/tt14986406/img',
-        backdrop: 'https://images.metahub.space/background/large/tt14986406/img',
-        synopsis: 'The peace is suddenly broken when warning sirens blare through the Soul Society. A dark shadow approaches Ichigo and his friends as the final conflict begins.'
-      },
-      {
-        id: 'tt13706018',
-        title: 'Spy x Family',
-        romaji: 'Spy x Family',
-        rating: 8.3,
-        year: '2022-',
-        episodes: 25,
-        poster: 'https://images.metahub.space/poster/small/tt13706018/img',
-        backdrop: 'https://images.metahub.space/background/large/tt13706018/img',
-        synopsis: 'A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together.'
-      }
-    ];
+  {
+    "id": "tt21209876",
+    "tmdbId": "127532",
+    "title": "Solo Leveling",
+    "romaji": "Ore dake Level Up na Ken",
+    "rating": 8.5,
+    "year": "2024",
+    "episodes": 12,
+    "poster": "https://images.metahub.space/poster/small/tt21209876/img",
+    "backdrop": "https://images.metahub.space/background/large/tt21209876/img",
+    "synopsis": "Follows the adventures of Sung Jinwoo in a world that is constantly threatened by monsters and evil forces. In his battles Sung transforms himself from the weakest hunter of all mankind to one of the strongest hunters in existence."
+  },
+  {
+    "id": "tt9335498",
+    "tmdbId": "85937",
+    "title": "Demon Slayer: Kimetsu no Yaiba",
+    "romaji": "Kimetsu no Yaiba",
+    "rating": 8.6,
+    "year": "2019-2024",
+    "episodes": 26,
+    "poster": "https://images.metahub.space/poster/small/tt9335498/img",
+    "backdrop": "https://images.metahub.space/background/large/tt9335498/img",
+    "synopsis": "A family is attacked by demons and only two members survive - Tanjiro and his sister Nezuko, who is turning into a demon. Tanjiro sets out on a dangerous journey to find a cure and avenge his family."
+  },
+  {
+    "id": "tt12343534",
+    "tmdbId": "95479",
+    "title": "Jujutsu Kaisen",
+    "romaji": "Jujutsu Kaisen",
+    "rating": 8.5,
+    "year": "2020-",
+    "episodes": 24,
+    "poster": "https://images.metahub.space/poster/small/tt12343534/img",
+    "backdrop": "https://images.metahub.space/background/large/tt12343534/img",
+    "synopsis": "A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman school to be able to locate the demons other body parts and thus exorcise himself."
+  },
+  {
+    "id": "tt2560140",
+    "tmdbId": "1429",
+    "title": "Attack on Titan",
+    "romaji": "Shingeki no Kyojin",
+    "rating": 9.1,
+    "year": "2013-2023",
+    "episodes": 25,
+    "poster": "https://images.metahub.space/poster/small/tt2560140/img",
+    "backdrop": "https://images.metahub.space/background/large/tt2560140/img",
+    "synopsis": "After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction."
+  },
+  {
+    "id": "tt0388629",
+    "tmdbId": "37854",
+    "title": "One Piece",
+    "romaji": "One Piece",
+    "rating": 9,
+    "year": "1999-",
+    "episodes": 1120,
+    "poster": "https://images.metahub.space/poster/small/tt0388629/img",
+    "backdrop": "https://images.metahub.space/background/large/tt0388629/img",
+    "synopsis": "Monkey D. Luffy sets off on an adventure with his pirate crew in hopes of finding the greatest treasure ever, known as the \"One Piece\", to become the King of the Pirates."
+  },
+  {
+    "id": "tt13616990",
+    "tmdbId": "114410",
+    "title": "Chainsaw Man",
+    "romaji": "Chainsaw Man",
+    "rating": 8.4,
+    "year": "2022-",
+    "episodes": 12,
+    "poster": "https://images.metahub.space/poster/small/tt13616990/img",
+    "backdrop": "https://images.metahub.space/background/large/tt13616990/img",
+    "synopsis": "Following a betrayal, a young man left for the dead is reborn as a powerful devil-human hybrid after merging with his pet devil, and is soon recruited into an organization dedicated to hunting devils."
+  },
+  {
+    "id": "tt22272720",
+    "tmdbId": "209867",
+    "title": "Frieren: Beyond Journey's End",
+    "romaji": "Sousou no Frieren",
+    "rating": 8.9,
+    "year": "2023-2024",
+    "episodes": 28,
+    "poster": "https://media.kitsu.app/anime/46474/poster_image/medium-23e1293e41a0b54b6621eb589c3f0d62.jpeg",
+    "backdrop": "https://media.kitsu.app/anime/46474/cover_image/large-167edf3e01fac59ce6aacfeb47df5634.jpeg",
+    "synopsis": "An elf and her friends defeat a demon king in a great war. But the war ends, and the elf must search for a new way of life after her human companions pass away from old age."
+  },
+  {
+    "id": "tt30217436",
+    "tmdbId": "240411",
+    "title": "Dandadan",
+    "romaji": "Dandadan",
+    "rating": 8.7,
+    "year": "2024-",
+    "episodes": 12,
+    "poster": "https://media.kitsu.app/anime/48269/poster_image/medium-9feb265c75b7016c63b21e122f69a84b.jpeg",
+    "backdrop": "https://media.kitsu.app/anime/48269/cover_image/large-2a78bed2943524035cc0146c6633d1bf.jpeg",
+    "synopsis": "When two high schoolers bet on whether ghosts or aliens are real, they stumble into a wild paranormal world filled with occult battles, cursed artifacts, and supernatural powers."
+  },
+  {
+    "id": "tt14999818",
+    "tmdbId": "211684",
+    "title": "Bleach: Thousand-Year Blood War",
+    "romaji": "Bleach: Sennen Kessen-hen",
+    "rating": 9,
+    "year": "2022-",
+    "episodes": 13,
+    "poster": "https://images.metahub.space/poster/small/tt14999818/img",
+    "backdrop": "https://images.metahub.space/background/large/tt14999818/img",
+    "synopsis": "The peace is suddenly broken when warning sirens echo through the Soul Society. Residents are disappearing without a trace and nobody knows who is behind it."
+  },
+  {
+    "id": "tt13706018",
+    "tmdbId": "120089",
+    "title": "Spy x Family",
+    "romaji": "Spy x Family",
+    "rating": 8.3,
+    "year": "2022-",
+    "episodes": 25,
+    "poster": "https://images.metahub.space/poster/small/tt13706018/img",
+    "backdrop": "https://images.metahub.space/background/large/tt13706018/img",
+    "synopsis": "A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together."
+  }
+];
 
     const LEGENDARY_CATALOG = [
-      {
-        id: 'tt0877057',
-        title: 'Death Note',
-        romaji: 'Death Note',
-        rating: 8.9,
-        year: '2006-2007',
-        episodes: 37,
-        poster: 'https://images.metahub.space/poster/small/tt0877057/img',
-        backdrop: 'https://images.metahub.space/background/large/tt0877057/img',
-        synopsis: 'An intelligent high school student goes on a secret crusade to eliminate criminals from the world after discovering a notebook capable of killing anyone whose name is written into it.'
-      },
-      {
-        id: 'tt2098220',
-        title: 'Hunter x Hunter',
-        romaji: 'Hunter x Hunter',
-        rating: 9.0,
-        year: '2011-2014',
-        episodes: 148,
-        poster: 'https://images.metahub.space/poster/small/tt2098220/img',
-        backdrop: 'https://images.metahub.space/background/large/tt2098220/img',
-        synopsis: 'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks out his father, who left him when he was younger.'
-      },
-      {
-        id: 'tt0988824',
-        title: 'Naruto: Shippuden',
-        romaji: 'Naruto: Shippuuden',
-        rating: 8.7,
-        year: '2007-2017',
-        episodes: 500,
-        poster: 'https://images.metahub.space/poster/small/tt0988824/img',
-        backdrop: 'https://images.metahub.space/background/large/tt0988824/img',
-        synopsis: 'Naruto Uzumaki, is a loud, hyperactive, adolescent ninja who constantly searches for approval and recognition, as well as to become Hokage, who is acknowledged as the leader and strongest of all ninja in the village.'
-      },
-      {
-        id: 'tt1910645',
-        title: 'Steins;Gate',
-        romaji: 'Steins;Gate',
-        rating: 8.8,
-        year: '2011-2015',
-        episodes: 24,
-        poster: 'https://images.metahub.space/poster/small/tt1910645/img',
-        backdrop: 'https://images.metahub.space/background/large/tt1910645/img',
-        synopsis: 'After discovering time travel, a university student and his colleagues must use their knowledge of it to stop an evil organization and their nefarious plans.'
-      },
-      {
-        id: 'tt0213338',
-        title: 'Cowboy Bebop',
-        romaji: 'Cowboy Bebop',
-        rating: 8.9,
-        year: '1998-1999',
-        episodes: 26,
-        poster: 'https://images.metahub.space/poster/small/tt0213338/img',
-        backdrop: 'https://images.metahub.space/background/large/tt0213338/img',
-        synopsis: 'The easygoing bounty hunter Spike Spiegel and his partners embark on a series of adventures throughout space in the year 2071.'
-      },
-      {
-        id: 'tt10233448',
-        title: 'Vinland Saga',
-        romaji: 'Vinland Saga',
-        rating: 8.8,
-        year: '2019-',
-        episodes: 24,
-        poster: 'https://images.metahub.space/poster/small/tt10233448/img',
-        backdrop: 'https://images.metahub.space/background/large/tt10233448/img',
-        synopsis: 'Thorfinn pursues a journey with his father murderer to get revenge while also getting caught in the middle of a war for the crown of England.'
-      },
-      {
-        id: 'tt0214341',
-        title: 'Dragon Ball Z',
-        romaji: 'Dragon Ball Z',
-        rating: 8.8,
-        year: '1989-1996',
-        episodes: 291,
-        poster: 'https://images.metahub.space/poster/small/tt0214341/img',
-        backdrop: 'https://images.metahub.space/background/large/tt0214341/img',
-        synopsis: 'With the help of the powerful Dragonballs, a team of fighters led by the saiyan warrior Goku defend the planet earth from extraterrestrial enemies.'
-      },
-      {
-        id: 'tt5897304',
-        title: 'Mob Psycho 100',
-        romaji: 'Mob Psycho 100',
-        rating: 8.6,
-        year: '2016-2022',
-        episodes: 25,
-        poster: 'https://images.metahub.space/poster/small/tt5897304/img',
-        backdrop: 'https://images.metahub.space/background/large/tt5897304/img',
-        synopsis: 'A psychic middle school boy tries to live a normal life and keep his growing powers under control, even though he constantly attracts trouble.'
-      }
-    ];
+  {
+    "id": "tt0877057",
+    "tmdbId": "13916",
+    "title": "Death Note",
+    "romaji": "Death Note",
+    "rating": 9,
+    "year": "2006-2007",
+    "episodes": 37,
+    "poster": "https://images.metahub.space/poster/small/tt0877057/img",
+    "backdrop": "https://images.metahub.space/background/large/tt0877057/img",
+    "synopsis": "An intelligent high school student goes on a secret crusade to eliminate criminals from the world after finding a notebook capable of killing anyone whose name is written in it."
+  },
+  {
+    "id": "tt2098220",
+    "tmdbId": "46298",
+    "title": "Hunter x Hunter",
+    "romaji": "Hunter x Hunter",
+    "rating": 9,
+    "year": "2011-2014",
+    "episodes": 148,
+    "poster": "https://images.metahub.space/poster/small/tt2098220/img",
+    "backdrop": "https://images.metahub.space/background/large/tt2098220/img",
+    "synopsis": "Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks out his father, who left him when he was younger."
+  },
+  {
+    "id": "tt0988824",
+    "tmdbId": "31910",
+    "title": "Naruto Shippuden",
+    "romaji": "Naruto: Shippuuden",
+    "rating": 8.7,
+    "year": "2007-2017",
+    "episodes": 500,
+    "poster": "https://images.metahub.space/poster/small/tt0988824/img",
+    "backdrop": "https://images.metahub.space/background/large/tt0988824/img",
+    "synopsis": "Naruto Uzumaki, is a loud, hyperactive, adolescent ninja who constantly searches for approval and recognition, as well as to become Hokage, who is acknowledged as the leader and strongest of all ninja in the village."
+  },
+  {
+    "id": "tt1910272",
+    "tmdbId": "38472",
+    "title": "Steins;Gate",
+    "romaji": "Steins;Gate",
+    "rating": 8.8,
+    "year": "2011-2015",
+    "episodes": 24,
+    "poster": "https://images.metahub.space/poster/small/tt1910272/img",
+    "backdrop": "https://images.metahub.space/background/large/tt1910272/img",
+    "synopsis": "After discovering time travel, a university student and his colleagues must find a way to stop an evil organization and their evil plans."
+  },
+  {
+    "id": "tt0213338",
+    "tmdbId": "2996",
+    "title": "Cowboy Bebop",
+    "romaji": "Cowboy Bebop",
+    "rating": 8.9,
+    "year": "1998-1999",
+    "episodes": 26,
+    "poster": "https://images.metahub.space/poster/small/tt0213338/img",
+    "backdrop": "https://images.metahub.space/background/large/tt0213338/img",
+    "synopsis": "The futuristic misadventures and tragedies of an easygoing bounty hunter and his partners."
+  },
+  {
+    "id": "tt10233448",
+    "tmdbId": "86031",
+    "title": "Vinland Saga",
+    "romaji": "Vinland Saga",
+    "rating": 8.8,
+    "year": "2019-2023",
+    "episodes": 24,
+    "poster": "https://images.metahub.space/poster/small/tt10233448/img",
+    "backdrop": "https://images.metahub.space/background/large/tt10233448/img",
+    "synopsis": "Thorfinn pursues a journey with his fathers killer in order to take revenge and end his life in a duel with honor and paying respect to his father."
+  },
+  {
+    "id": "tt0121220",
+    "tmdbId": "12971",
+    "title": "Dragon Ball Z",
+    "romaji": "Dragon Ball Z",
+    "rating": 8.8,
+    "year": "1989-1996",
+    "episodes": 291,
+    "poster": "https://images.metahub.space/poster/small/tt0121220/img",
+    "backdrop": "https://images.metahub.space/background/large/tt0121220/img",
+    "synopsis": "After learning that he is from another planet, a warrior named Goku and his friends are prompted to defend it from an onslaught of extraterrestrial enemies."
+  },
+  {
+    "id": "tt5897304",
+    "tmdbId": "67070",
+    "title": "Mob Psycho 100",
+    "romaji": "Mob Psycho 100",
+    "rating": 8.6,
+    "year": "2016-2022",
+    "episodes": 25,
+    "poster": "https://images.metahub.space/poster/small/tt5897304/img",
+    "backdrop": "https://images.metahub.space/background/large/tt5897304/img",
+    "synopsis": "A psychic middle school boy tries to live a normal life and keep his growing powers under control, even though he constantly attracts trouble."
+  }
+];
 
     // State
     let currentAnime = ANIME_CATALOG[0];
@@ -1341,11 +1359,26 @@
     let activeServer = 'vidlink';
 
     const SERVERS = {
-      vidlink: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
-      vidsrc: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
-      embedsu: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
-      autoembed: (id, s, e) => `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`,
-      superembed: (id, s, e) => `https://multiembed.mov/?video_id=${id}&s=${s}&e=${e}`
+      vidlink: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://vidlink.pro/tv/${id}/${s}/${e}`;
+      },
+      autoembed: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://player.autoembed.me/embed/tv/${id}/${s}/${e}/`;
+      },
+      embedsu: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://embed.su/embed/tv/${id}/${s}/${e}`;
+      },
+      vidsrc: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://vidsrc.to/embed/tv/${id}/${s}/${e}`;
+      },
+      superembed: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`;
+      }
     };
 
     // Render Cards
@@ -1451,7 +1484,7 @@
 
     function updatePlayerUrl() {
       const getUrl = SERVERS[activeServer] || SERVERS.vidlink;
-      const url = getUrl(currentAnime.id, currentSeason, currentEpisode);
+      const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
       iframe.src = url;
 

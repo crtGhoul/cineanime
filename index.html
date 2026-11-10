@@ -977,16 +977,17 @@
     <section id="theaterSection" class="theater-section">
       <div class="theater-header">
         <div class="theater-title-group">
-          <span class="shield-pill">🛡️ 0% Ads Sandbox</span>
+          <span class="shield-pill">⚡ Direct Streaming</span>
           <span id="playerTitle" class="theater-title">Solo Leveling • Season 1: Episode 1</span>
         </div>
 
         <div class="server-switcher" id="serverSwitcher">
-          <button class="server-btn active" data-server="vidlink">VidLink (HD)</button>
-          <button class="server-btn" data-server="vidsrc">VidSrc (Fast)</button>
-          <button class="server-btn" data-server="embedsu">EmbedSu (1080p)</button>
+          <button class="server-btn active" data-server="vidsrc">VidSrc</button>
+          <button class="server-btn" data-server="twoembed">2Embed</button>
+          <button class="server-btn" data-server="multiembed">MultiEmbed</button>
+          <button class="server-btn" data-server="vidlink">VidLink</button>
           <button class="server-btn" data-server="autoembed">AutoEmbed</button>
-          <button class="server-btn" data-server="superembed">SuperEmbed</button>
+          <a id="externalStreamBtn" href="#" target="_blank" class="server-btn" style="text-decoration:none; display:inline-flex; align-items:center;" title="Open player directly in new tab">↗ New Tab</a>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
       </div>
@@ -995,7 +996,6 @@
         <iframe
           id="playerIframe"
           class="player-iframe"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowfullscreen
           src="about:blank"
@@ -1356,28 +1356,28 @@
     let currentHeroAnime = ANIME_CATALOG[0];
     let currentSeason = 1;
     let currentEpisode = 1;
-    let activeServer = 'vidlink';
+    let activeServer = 'vidsrc';
 
     const SERVERS = {
+      vidsrc: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
+      },
+      twoembed: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`;
+      },
+      multiembed: (item, s, e) => {
+        const id = item.tmdbId || item.id;
+        return `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`;
+      },
       vidlink: (item, s, e) => {
         const id = item.tmdbId || item.id;
         return `https://vidlink.pro/tv/${id}/${s}/${e}`;
       },
       autoembed: (item, s, e) => {
         const id = item.tmdbId || item.id;
-        return `https://player.autoembed.me/embed/tv/${id}/${s}/${e}/`;
-      },
-      embedsu: (item, s, e) => {
-        const id = item.tmdbId || item.id;
-        return `https://embed.su/embed/tv/${id}/${s}/${e}`;
-      },
-      vidsrc: (item, s, e) => {
-        const id = item.tmdbId || item.id;
-        return `https://vidsrc.to/embed/tv/${id}/${s}/${e}`;
-      },
-      superembed: (item, s, e) => {
-        const id = item.tmdbId || item.id;
-        return `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`;
+        return `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`;
       }
     };
 
@@ -1483,10 +1483,13 @@
     }
 
     function updatePlayerUrl() {
-      const getUrl = SERVERS[activeServer] || SERVERS.vidlink;
+      const getUrl = SERVERS[activeServer] || SERVERS.vidsrc;
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
       iframe.src = url;
+
+      const extBtn = document.getElementById('externalStreamBtn');
+      if (extBtn) extBtn.href = url;
 
       document.getElementById('playerTitle').innerText = `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}`;
       document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
@@ -1532,6 +1535,7 @@
     // Server Switcher Click
     document.querySelectorAll('.server-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (!btn.dataset.server) return;
         document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeServer = btn.dataset.server;

@@ -2460,112 +2460,88 @@
         renderEpisodeGrid(anime.episodes || 12);
       }
 
-      fetchRelations(anime.id);
+      fetchRelations(anime);
 
       if (autoPlay) {
         openTheater();
       }
     }
 
-    async function fetchRelations(aniId) {
+    async function fetchRelations(anime) {
       const container = document.getElementById('relationsSection');
       const grid = document.getElementById('relationsGrid');
       const countBadge = document.getElementById('relationsCount');
-      if (!container || !grid) return;
+      if (!container || !grid || !anime) return;
 
-      const numId = parseInt(aniId, 10);
-      if (isNaN(numId)) {
+      const titleQuery = anime.romaji || anime.title || '';
+      const cleanTitle = titleQuery.replace(/[:\-–—].*$/, '').replace(/(season|part|cour|arc)\s*\d+/gi, '').trim();
+
+      if (!cleanTitle) {
         container.style.display = 'none';
         return;
       }
 
       try {
-        const q = `
-          query($id: Int) {
-            Media(id: $id) {
-              id
-              relations {
-                edges {
-                  relationType
-                  node {
-                    id
-                    type
-                    format
-                    status
-                    episodes
-                    title { english romaji }
-                    coverImage { large }
-                    startDate { year }
-                  }
-                }
-              }
-            }
-          }
-        `;
-        const res = await fetch('https://graphql.anilist.co', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ query: q, variables: { id: numId } })
-        });
+        const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(cleanTitle)}&sort=startDate&page[limit]=16&include=mappings`;
+        const res = await fetch(url);
         const json = await res.json();
-        const rawRelations = json.data?.Media?.relations?.edges || [];
-        const animeRelations = rawRelations.filter(e => e.node && e.node.type === 'ANIME');
+        const rawData = json.data || [];
+        const included = json.included || [];
 
-        if (!animeRelations.length) {
+        if (!rawData.length) {
           container.style.display = 'none';
           return;
         }
 
+        const cleanLower = cleanTitle.toLowerCase();
+        let relations = rawData.map(d => normalizeKitsuMedia(d, included)).filter(item => {
+          const tLow = item.title.toLowerCase();
+          const rLow = (item.romaji || '').toLowerCase();
+          return tLow.includes(cleanLower) || rLow.includes(cleanLower) || cleanLower.includes(tLow);
+        });
+
+        if (relations.length <= 1) {
+          container.style.display = 'none';
+          return;
+        }
+
+        // Cache relations
+        relations.forEach(r => ANIME_CACHE.set(String(r.id), r));
+
         container.style.display = 'block';
-        if (countBadge) countBadge.innerText = `${animeRelations.length} Parts`;
+        if (countBadge) countBadge.innerText = `${relations.length} Parts`;
 
-        const orderWeight = {
-          PREQUEL: 1,
-          PARENT: 2,
-          SEQUEL: 3,
-          SIDE_STORY: 4,
-          SUMMARY: 5,
-          ALTERNATIVE: 6,
-          SPIN_OFF: 7,
-          OTHER: 8
-        };
-
-        animeRelations.sort((a, b) => (orderWeight[a.relationType] || 10) - (orderWeight[b.relationType] || 10));
-
-        grid.innerHTML = animeRelations.map(rel => {
-          const node = rel.node;
-          const title = node.title.english || node.title.romaji || 'Anime';
-          const year = node.startDate?.year || '';
-          const type = rel.relationType;
+        grid.innerHTML = relations.map((rel, idx) => {
+          const isCurrent = String(rel.id) === String(anime.id);
           let badgeClass = 'tag-side';
-          let badgeLabel = type.replace('_', ' ');
+          let badgeLabel = `Part ${idx + 1}`;
 
-          if (type === 'PREQUEL') {
-            badgeClass = 'tag-prequel';
-            badgeLabel = '⏪ PREQUEL';
-          } else if (type === 'SEQUEL') {
-            badgeClass = 'tag-sequel';
-            badgeLabel = '⏩ SEQUEL';
-          } else if (node.format === 'MOVIE' || type === 'SUMMARY') {
+          if (isCurrent) {
+            badgeClass = 'tag-current';
+            badgeLabel = '▶ CURRENT';
+          } else if (rel.type === 'movie') {
             badgeClass = 'tag-movie';
             badgeLabel = '🎬 MOVIE';
-          } else if (type === 'SIDE_STORY') {
-            badgeClass = 'tag-side';
-            badgeLabel = '📖 SIDE STORY';
+          } else if (idx === 0) {
+            badgeClass = 'tag-prequel';
+            badgeLabel = '⏪ SEASON 1';
+          } else if (idx > 0 && !isCurrent) {
+            badgeClass = 'tag-sequel';
+            badgeLabel = `⏩ SEQUEL`;
           }
 
-          const epLabel = node.format === 'MOVIE' ? 'Movie' : `${node.episodes || '?'} eps`;
+          const epLabel = rel.type === 'movie' ? 'Movie' : `${rel.episodes || '?'} eps`;
 
           return `
-            <div class="relation-card" onclick="selectAnimeById('${node.id}', true)">
+            <div class="relation-card ${isCurrent ? 'current' : ''}" onclick="selectAnimeById('${rel.id}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-                <img class="relation-thumb" src="${node.coverImage?.large || 'https://media.kitsu.app/anime/poster_image/default.jpg'}" alt="${title}" loading="lazy">
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${rel.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
               </div>
               <div class="relation-body">
-                <div class="relation-title" title="${title}">${title}</div>
+                <div class="relation-title" title="${rel.title}">${rel.title}</div>
                 <div class="relation-meta">
-                  <span>${year ? year + ' • ' : ''}${epLabel}</span>
+                  <span>${rel.year ? rel.year + ' • ' : ''}${epLabel}</span>
                 </div>
               </div>
             </div>
@@ -3223,99 +3199,41 @@
       saveStoredAddons(addons);
     }
 
-    // --- Live Simulcast & Newly Released Episodes Feed (AniList Engine) ---
+    // --- Live Simulcast & Newly Released Episodes Feed (Kitsu High-Speed Core) ---
     async function loadLatestReleases() {
       const grid = document.getElementById('latestReleasesGrid');
       if (!grid) return;
 
-      const q = `
-        query {
-          Page(page: 1, perPage: 14) {
-            airingSchedules(notYetAired: false, sort: TIME_DESC) {
-              id
-              airingAt
-              episode
-              media {
-                id
-                idMal
-                title {
-                  romaji
-                  english
-                }
-                coverImage {
-                  large
-                }
-                bannerImage
-                episodes
-                averageScore
-                format
-                status
-                genres
-                description
-                startDate {
-                  year
-                }
-              }
-            }
-          }
-        }
-      `;
-
       try {
-        const res = await fetch('https://graphql.anilist.co', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ query: q })
-        });
+        const url = 'https://kitsu.io/api/edge/anime?filter[status]=current&sort=-startDate&page[limit]=18&include=mappings';
+        const res = await fetch(url);
         const json = await res.json();
-        const schedules = json.data?.Page?.airingSchedules || [];
+        const rawData = json.data || [];
+        const included = json.included || [];
 
-        if (!schedules.length) {
-          grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No new episode releases detected in the past 24 hours.</div>';
+        if (!rawData.length) {
+          grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No active simulcasts found.</div>';
           return;
         }
 
-        latestReleasesList = schedules.map(s => {
-          const m = s.media;
-          const title = m.title.english || m.title.romaji || 'Anime';
-          const timeDiff = Math.floor((Date.now() / 1000) - s.airingAt);
-          let timeAgo = '';
-          if (timeDiff < 3600) timeAgo = `${Math.max(1, Math.floor(timeDiff / 60))}m ago`;
-          else if (timeDiff < 86400) timeAgo = `${Math.floor(timeDiff / 3600)}h ago`;
-          else timeAgo = `${Math.floor(timeDiff / 86400)}d ago`;
-
-          const normalized = {
-            id: String(m.id),
-            idMal: m.idMal ? String(m.idMal) : null,
-            tmdbId: String(m.id),
-            title,
-            romaji: m.title.romaji || '',
-            rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
-            year: m.startDate?.year ? String(m.startDate.year) : '2026',
-            episodes: m.episodes || s.episode,
-            poster: m.coverImage?.large || '',
-            backdrop: m.bannerImage || m.coverImage?.large || '',
-            synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'Newly released episode.',
-            type: m.format === 'MOVIE' ? 'movie' : 'tv',
-            latestEpisode: s.episode,
-            timeAgo
-          };
-
-          ANIME_CACHE.set(String(m.id), normalized);
-          return normalized;
+        latestReleasesList = rawData.map(d => {
+          const item = normalizeKitsuMedia(d, included);
+          ANIME_CACHE.set(String(item.id), item);
+          return item;
         });
 
         grid.innerHTML = latestReleasesList.map(item => {
           const fav = isFavorited(item.id);
+          const epText = item.episodes ? `EP ${item.episodes}` : 'NEW';
           return `
-            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${item.latestEpisode})">
+            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${item.episodes || 1})">
               <div class="card-poster-wrapper">
                 <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   ${fav ? '❤️' : '🤍'}
                 </button>
                 <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
-                <div class="release-ep-badge">EP ${item.latestEpisode}</div>
-                <div class="release-time-tag">⚡ ${item.timeAgo}</div>
+                <div class="release-ep-badge">${epText}</div>
+                <div class="release-time-tag">⚡ ${item.year || '2026'} Airing</div>
               </div>
               <div class="card-info">
                 <div class="card-title" title="${item.title}">${item.title}</div>
@@ -3347,7 +3265,7 @@
         const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([
           trendingRes.json(),
           seasonalRes.json(),
-          topRatedJson.json()
+          topRatedRes.json()
         ]);
 
         if (trendingJson && trendingJson.data && trendingJson.data.length) {

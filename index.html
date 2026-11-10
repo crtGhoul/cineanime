@@ -1843,7 +1843,7 @@
       searchSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
       try {
-        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=24&include=mappings`);
+        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=20&include=mappings`);
         const json = await res.json();
         if (!json || !json.data || !json.data.length) {
           searchTitle.innerText = `🔍 No results found for "${q}"`;
@@ -1887,7 +1887,7 @@
 
       try {
         const cat = genre.toLowerCase().replace(/\s+/g, '-');
-        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[categories]=${encodeURIComponent(cat)}&sort=-userCount&page[limit]=24&include=mappings`);
+        const res = await fetch(`https://kitsu.io/api/edge/anime?filter[categories]=${encodeURIComponent(cat)}&sort=-userCount&page[limit]=20&include=mappings`);
         const json = await res.json();
         if (json && json.data && json.data.length) {
           const list = json.data.map(item => normalizeKitsuMedia(item, json.included || []));
@@ -1907,8 +1907,8 @@
       try {
         const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
           fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
-          fetch('https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=24&include=mappings'),
-          fetch('https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=24&include=mappings')
+          fetch('https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=20&include=mappings'),
+          fetch('https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=20&include=mappings')
         ]);
 
         const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([

@@ -4985,7 +4985,7 @@
       if (!token) return alert('Please paste an encrypted sync key.');
       try {
         const snap = await decodeTransferToken(token, p);
-        const counts = mergeSyncSnapshot(snap);
+        const counts = mergeSyncSnapshot(snap, { manualImport: true });
         closeProfileModal();
         alert(`✅ Cross-device sync complete!\nMerged ${counts.historyCount} watched, ${counts.watchlistCount} saved, and ${counts.watchedShowsCount} progress checkmarks.`);
       } catch (err) {
@@ -4993,24 +4993,27 @@
       }
     }
 
-    // --- Pure-JS Scannable QR Code SVG Generator (Byte mode, ECC Level M, v1..v16) ---
+    // --- Pure-JS Scannable QR Code SVG Generator (Byte mode, ECC Level M, v1..v22) ---
     const QR_ALIGN_TABLE = [
       null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
       [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50], [6, 30, 54], [6, 32, 58], [6, 34, 62],
-      [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74]
+      [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74], [6, 30, 54, 78], [6, 30, 56, 82],
+      [6, 30, 58, 86], [6, 34, 62, 90], [6, 28, 50, 72, 94], [6, 26, 50, 74, 98]
     ];
     const QR_SPEC_M_TABLE = [
       null,
       [10, 1, 16, 0, 0], [16, 1, 28, 0, 0], [26, 1, 44, 0, 0], [18, 2, 32, 0, 0],
       [24, 2, 43, 0, 0], [16, 4, 27, 0, 0], [18, 4, 31, 0, 0], [22, 2, 38, 2, 39],
       [22, 3, 36, 2, 37], [26, 4, 43, 1, 44], [30, 1, 50, 4, 51], [22, 6, 36, 2, 37],
-      [22, 8, 37, 1, 38], [24, 4, 40, 5, 41], [24, 5, 41, 5, 42], [28, 7, 45, 3, 46]
+      [22, 8, 37, 1, 38], [24, 4, 40, 5, 41], [24, 5, 41, 5, 42], [28, 7, 45, 3, 46],
+      [28, 10, 46, 1, 47], [26, 9, 43, 4, 44], [26, 3, 44, 11, 45], [26, 3, 41, 13, 42],
+      [26, 17, 42, 0, 0], [28, 17, 46, 0, 0]
     ];
 
     function renderQrSvg(text, px = 216) {
       const bytes = new TextEncoder().encode(text);
       let ver = 0;
-      for (let v = 1; v <= 16; v++) {
+      for (let v = 1; v <= 22; v++) {
         const [, g1c, g1d, g2c, g2d] = QR_SPEC_M_TABLE[v];
         if (bytes.length <= (g1c * g1d + g2c * g2d) - (v >= 10 ? 3 : 2)) { ver = v; break; }
       }
@@ -5216,7 +5219,14 @@
       }
       if (scope.watchlist) {
         snap.watchlist = getWatchlist();
-        snap.watchlistMeta = getWatchlistMeta();
+        const histIds = new Set((snap.history || []).map(h => String(h.id)));
+        const rawMeta = getWatchlistMeta();
+        const compactMeta = {};
+        snap.watchlist.forEach(id => {
+          const sid = String(id);
+          if (!histIds.has(sid) && rawMeta[sid]) compactMeta[sid] = rawMeta[sid];
+        });
+        snap.watchlistMeta = compactMeta;
         snap.watchlistTs = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
         snap.deletedWatchlist = pruneTombstones(JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}'));
       }
@@ -5238,7 +5248,7 @@
       return JSON.stringify(snap);
     }
 
-    function mergeSyncSnapshot(remote) {
+    function mergeSyncSnapshot(remote, { manualImport = false } = {}) {
       if (!remote || typeof remote !== 'object') throw new Error('Invalid sync snapshot.');
       const scope = getSyncScopePrefs();
       let historyCount = 0;
@@ -5249,9 +5259,13 @@
       if (scope.history && Array.isArray(remote.history)) {
         const localDel = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
         const mergedDel = pruneTombstones({ ...localDel });
-        Object.entries(remote.deletedHistory || {}).forEach(([k, ts]) => {
-          mergedDel[k] = Math.max(Number(mergedDel[k]) || 0, Number(ts) || 0);
-        });
+        if (manualImport) {
+          remote.history.forEach(item => { if (item?.id) delete mergedDel[String(item.id)]; });
+        } else {
+          Object.entries(remote.deletedHistory || {}).forEach(([k, ts]) => {
+            mergedDel[k] = Math.max(Number(mergedDel[k]) || 0, Number(ts) || 0);
+          });
+        }
         localStorage.setItem('cineanime_deleted_history', JSON.stringify(mergedDel));
 
         const byId = new Map();
@@ -5260,7 +5274,7 @@
             if (!item || !item.id) return;
             const id = String(item.id);
             const itemTs = Number(item.updatedAt) || 0;
-            if ((mergedDel[id] || 0) > itemTs) return;
+            if (!manualImport && (mergedDel[id] || 0) > itemTs) return;
             const prev = byId.get(id);
             if (!prev) {
               byId.set(id, { ...item, id, updatedAt: itemTs });
@@ -5302,12 +5316,20 @@
         });
         const localDelW = JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}');
         const mergedDelW = pruneTombstones({ ...localDelW });
-        Object.entries(remote.deletedWatchlist || {}).forEach(([id, ts]) => {
-          mergedDelW[id] = Math.max(Number(mergedDelW[id]) || 0, Number(ts) || 0);
-        });
+        if (manualImport) {
+          remote.watchlist.forEach(id => { delete mergedDelW[String(id)]; });
+        } else {
+          Object.entries(remote.deletedWatchlist || {}).forEach(([id, ts]) => {
+            mergedDelW[id] = Math.max(Number(mergedDelW[id]) || 0, Number(ts) || 0);
+          });
+        }
 
         const favSet = new Set([...getWatchlist(), ...remote.watchlist].map(String));
         const nextWatchlist = [...favSet].filter(id => {
+          if (manualImport && remote.watchlist.map(String).includes(id)) {
+            if (!mergedTs[id]) mergedTs[id] = Date.now();
+            return true;
+          }
           const addedAt = Number(mergedTs[id]) || 1;
           const delAt = Number(mergedDelW[id]) || 0;
           if (delAt > addedAt) return false;
@@ -5316,6 +5338,13 @@
         });
 
         const mergedMeta = { ...getWatchlistMeta(), ...(remote.watchlistMeta || {}) };
+        (remote.history || []).forEach(h => {
+          const sid = String(h?.id || '');
+          if (sid && favSet.has(sid) && !mergedMeta[sid]) {
+            const stub = toCompactMediaMeta({ ...h, episodes: h.totalEpisodes || 12 });
+            if (stub) mergedMeta[sid] = stub;
+          }
+        });
         watchlistCount = nextWatchlist.length;
         localStorage.setItem('cineanime_watchlist_ts', JSON.stringify(mergedTs));
         localStorage.setItem('cineanime_deleted_watchlist', JSON.stringify(mergedDelW));
@@ -5467,7 +5496,7 @@
       if (!raw.trim()) return alert('Please paste a Sync Key or Phone Transfer URL.');
       try {
         const snap = await decodeTransferToken(raw, pass);
-        const counts = mergeSyncSnapshot(snap);
+        const counts = mergeSyncSnapshot(snap, { manualImport: true });
         closeSyncModal();
         alert(`✅ Sync complete!\nContinue Watching: ${counts.historyCount} • Watchlist: ${counts.watchlistCount} • Tracked Series: ${counts.watchedShowsCount}`);
       } catch (err) {

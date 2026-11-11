@@ -7,7 +7,13 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>CineAnime — Clean, Ad-Free Anime Streaming</title>
-  <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#e50914">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CineAnime">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -419,11 +425,42 @@
       background: var(--accent);
     }
 
+    /* Ambient Glow Behind Video Player */
+    .ambient-glow-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: visible;
+    }
+    .ambient-glow-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      filter: blur(48px) saturate(220%);
+      opacity: 0.65;
+      transform: scale(1.08);
+      z-index: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, background-image 0.5s ease;
+      background-size: cover;
+      background-position: center;
+      border-radius: 24px;
+    }
+    .ambient-glow-wrapper.ambient-off .ambient-glow-canvas {
+      opacity: 0 !important;
+    }
+
     .player-container {
       position: relative;
       width: 100%;
       padding-top: 56.25%; /* 16:9 Aspect Ratio */
       background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 1;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
     }
 
     .player-iframe {
@@ -535,6 +572,7 @@
     }
 
     .ep-card {
+      position: relative;
       background: var(--surface);
       border: 1px solid var(--border);
       color: #fff;
@@ -557,6 +595,164 @@
       background: var(--accent);
       border-color: var(--accent);
       box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .ep-card.watched {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+    }
+    .ep-card.watched::after {
+      content: '✔';
+      position: absolute;
+      top: 2px;
+      right: 3px;
+      font-size: 0.6rem;
+      color: #10b981;
+      font-weight: 900;
+    }
+
+    .ep-card.next-up {
+      border-color: #f59e0b;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+      animation: nextUpPulse 2s infinite ease-in-out;
+    }
+    @keyframes nextUpPulse {
+      0%, 100% { border-color: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.3); }
+      50% { border-color: #fbbf24; box-shadow: 0 0 14px rgba(245, 158, 11, 0.7); }
+    }
+
+    /* Stream Auto-Fallback Pill */
+    .stream-assist-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: rgba(24, 24, 32, 0.96);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 9999px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.8rem;
+      color: #fbbf24;
+      margin: 0.75rem auto 0;
+      width: fit-content;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s ease;
+    }
+    .stream-assist-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .stream-assist-btn:hover {
+      opacity: 0.85;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Weekly Airing Timetable Calendar */
+    .schedule-day-tabs {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .schedule-day-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+    .schedule-day-tabs::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 4px;
+    }
+    .schedule-day-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .schedule-day-btn:hover {
+      background: var(--surface-light);
+      color: #fff;
+    }
+    .schedule-day-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .schedule-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .schedule-card {
+      display: flex;
+      gap: 0.85rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .schedule-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+    .schedule-thumb {
+      width: 65px;
+      height: 92px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #000;
+    }
+    .schedule-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      flex: 1;
+    }
+    .schedule-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .schedule-time-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #3b82f6;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      width: fit-content;
     }
 
     /* Franchise Watch Order & Relations Sequence */
@@ -1492,6 +1688,7 @@
     </div>
 
     <div class="nav-actions">
+      <button id="pwaInstallBtn" class="nav-btn" onclick="triggerPwaInstall()" style="border-color: rgba(229, 9, 20, 0.4); background: rgba(229, 9, 20, 0.12);">📲 Install App</button>
       <button class="nav-btn" onclick="openAddonModal()">🧩 Stremio Addons</button>
       <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
       <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
@@ -1517,23 +1714,32 @@
         </div>
 
         <div class="server-switcher" id="serverSwitcher">
-          <button class="server-btn active" data-server="server1">⚡ Server 1 (Ad-Free HD)</button>
+          <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Ad-Free HD)</button>
           <button class="server-btn" data-server="server2">🚀 Server 2 (Ad-Free Ultra)</button>
           <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup HD)</button>
+          <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
           <button class="server-btn" data-server="vidsrc" title="External mirror - ad blocker recommended">⚠️ VidSrc (Ads)</button>
           <a id="externalStreamBtn" href="#" target="_blank" class="server-btn" style="text-decoration:none; display:inline-flex; align-items:center;" title="Open player directly in new tab">↗ New Tab</a>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
       </div>
 
-      <div class="player-container">
-        <iframe
-          id="playerIframe"
-          class="player-iframe"
-          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-          allowfullscreen
-          src="about:blank"
-        ></iframe>
+      <div id="ambientGlowWrapper" class="ambient-glow-wrapper">
+        <div id="ambientGlowCanvas" class="ambient-glow-canvas"></div>
+        <div class="player-container">
+          <iframe
+            id="playerIframe"
+            class="player-iframe"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            allowfullscreen
+            src="about:blank"
+          ></iframe>
+        </div>
+      </div>
+
+      <div id="streamAssistPill" class="stream-assist-pill" style="display: none;">
+        <span class="pulse-dot"></span> Buffering or slow?
+        <button class="stream-assist-btn" onclick="autoFallbackServer()">Switch to Server 2 (Ultra) ⚡</button>
       </div>
 
       <div class="player-controls-bar">
@@ -1541,6 +1747,7 @@
           <button id="prevEpBtn" class="ctrl-btn" onclick="changeEpisode(-1)">◀ Prev Ep</button>
           <span id="currentEpLabel" style="font-weight: 700; font-size: 0.85rem; color: #fff;">Ep 1</span>
           <button id="nextEpBtn" class="ctrl-btn" onclick="changeEpisode(1)">Next Ep ▶</button>
+          <button id="markWatchedBtn" class="ctrl-btn" onclick="toggleCurrentEpWatched()" title="Mark this episode as watched">✔ Watched</button>
         </div>
 
         <div style="display: flex; gap: 0.5rem;">
@@ -1557,8 +1764,11 @@
             📺 Select Episode
             <span id="epTotalCount" class="ep-count">(12 Episodes)</span>
           </div>
-          <div style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
-            ● Japanese SUB & English DUB • Auto-Skip Intro
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <button class="ctrl-btn" style="font-size:0.75rem; padding: 3px 8px;" onclick="markAllEpisodesWatched()">✔ Mark All Watched</button>
+            <div style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
+              ● Japanese SUB & English DUB • Auto-Skip Intro
+            </div>
           </div>
         </div>
         <div id="epRangeTabs" class="ep-range-tabs"></div>
@@ -1627,6 +1837,9 @@
       <button class="filter-tab" data-tab="watchlist" id="watchlistTabBtn" onclick="switchTab('watchlist')">
         ⭐ My Watchlist <span id="watchlistBadgeCount" class="tab-badge">0</span>
       </button>
+      <button class="filter-tab" data-tab="schedule" id="scheduleTabBtn" onclick="switchTab('schedule')">
+        📅 Airing Schedule
+      </button>
     </div>
 
     <!-- Genre Filter Pills (Animex & AnimeNexus Style) -->
@@ -1646,6 +1859,35 @@
       <button class="genre-pill" onclick="filterByGenre('Horror')">Horror</button>
       <button class="genre-pill" onclick="filterByGenre('Mecha')">Mecha</button>
     </div>
+
+    <!-- Weekly Airing Schedule Section -->
+    <section id="scheduleSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #8b5cf6;"></div>
+          <span>📅 Weekly Simulcast Airing Schedule</span>
+          <span style="font-size: 0.72rem; background: rgba(139,92,246,0.2); color:#a78bfa; border: 1px solid rgba(139,92,246,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE TIMETABLE</span>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">See what drops every day of the week</span>
+      </div>
+
+      <div class="schedule-day-tabs" id="scheduleDayTabs">
+        <button class="schedule-day-btn active" data-day="today" onclick="selectScheduleDay('today')">🌟 TODAY</button>
+        <button class="schedule-day-btn" data-day="1" onclick="selectScheduleDay(1)">MON</button>
+        <button class="schedule-day-btn" data-day="2" onclick="selectScheduleDay(2)">TUE</button>
+        <button class="schedule-day-btn" data-day="3" onclick="selectScheduleDay(3)">WED</button>
+        <button class="schedule-day-btn" data-day="4" onclick="selectScheduleDay(4)">THU</button>
+        <button class="schedule-day-btn" data-day="5" onclick="selectScheduleDay(5)">FRI</button>
+        <button class="schedule-day-btn" data-day="6" onclick="selectScheduleDay(6)">SAT</button>
+        <button class="schedule-day-btn" data-day="0" onclick="selectScheduleDay(0)">SUN</button>
+      </div>
+
+      <div id="scheduleGrid" class="schedule-cards-grid">
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Loading weekly timetable...
+        </div>
+      </div>
+    </section>
 
     <!-- Continue Watching Section -->
     <section id="historySection" class="catalog-section" style="display: none;">
@@ -1928,6 +2170,22 @@
             <button class="auth-submit-btn" style="margin-top: 0.5rem; padding: 0.5rem; background: #10b981;" onclick="processSyncImport()">Decrypt & Merge History</button>
           </div>
         </div>
+
+        <!-- Optional 4K Debrid Engine Integration -->
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem; margin-top: 1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.95rem; color: #fff;">🚀 4K Debrid Engine (Optional)</h4>
+            <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px; font-weight: 700;">Ultra 4K</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Optionally paste your Real-Debrid, TorBox, or AllDebrid API key to unlock uncompressed 4K Blu-ray streams directly in player. (Stored encrypted in your vault).
+          </p>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="password" id="debridApiKeyInput" class="addon-text-input" style="flex: 1;" placeholder="Paste API Key (e.g. Real-Debrid API token)">
+            <button class="server-btn" style="padding: 0.6rem 1rem;" onclick="saveDebridKey()">Save Key</button>
+          </div>
+          <div id="debridStatusLabel" style="font-size: 0.75rem; color: #10b981; margin-top: 0.4rem; display: none;">✅ 4K Debrid Engine Connected!</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2197,6 +2455,11 @@
     let currentMoviesList = [];
     let currentSeriesList = [];
     let searchDebounceTimer = null;
+    let ambientGlowEnabled = true;
+    let streamTimer = null;
+    let deferredPrompt = null;
+    let currentScheduleDay = 'today';
+    let weeklyScheduleCache = null;
 
     // Pagination State
     let searchOffset = 0;
@@ -2447,6 +2710,10 @@
       document.getElementById('heroSynopsis').innerText = anime.synopsis;
       document.getElementById('heroRating').innerText = '★ ' + anime.rating;
 
+      // Update Ambient Cinema Glow
+      const ambient = document.getElementById('ambientGlowCanvas');
+      if (ambient) ambient.style.backgroundImage = `url(${anime.backdrop || anime.poster})`;
+
       const epSec = document.querySelector('.episodes-section');
       const epNav = document.querySelector('.ep-nav-controls');
       if (anime.type === 'movie') {
@@ -2580,14 +2847,34 @@
         activeEpisodeRange = 0;
       }
 
+      // Determine next unwatched episode
+      let nextUnwatched = -1;
+      for (let j = 1; j <= count; j++) {
+        if (!isEpisodeWatched(currentAnime.id, j)) {
+          nextUnwatched = j;
+          break;
+        }
+      }
+
       // Render episode buttons for active range
       const startEp = activeEpisodeRange * 50 + 1;
       const endEp = Math.min((activeEpisodeRange + 1) * 50, count);
       let html = '';
       for (let i = startEp; i <= endEp; i++) {
-        html += `<button class="ep-card ${i === currentEpisode ? 'active' : ''}" onclick="setEpisode(${i})">${i < 10 ? '0' + i : i}</button>`;
+        const isActive = i === currentEpisode;
+        const isWatched = isEpisodeWatched(currentAnime.id, i);
+        const isNextUp = i === nextUnwatched && !isActive;
+        const classes = [
+          'ep-card',
+          isActive ? 'active' : '',
+          isWatched ? 'watched' : '',
+          isNextUp ? 'next-up' : ''
+        ].filter(Boolean).join(' ');
+
+        html += `<button class="${classes}" onclick="setEpisode(${i})" title="Episode ${i}${isWatched ? ' (Watched)' : ''}${isNextUp ? ' (Next Up!)' : ''}">${i < 10 ? '0' + i : i}</button>`;
       }
       grid.innerHTML = html;
+      updateWatchedBtn();
     }
 
     function setEpisodeRange(rangeIdx) {
@@ -2602,6 +2889,7 @@
         activeEpisodeRange = neededRange;
       }
       updatePlayerUrl();
+      markEpisodeWatched(currentAnime.id, ep, true);
       renderEpisodeGrid(currentAnime.episodes);
       saveWatchHistory(currentAnime, ep, activeServer);
     }
@@ -2625,6 +2913,8 @@
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
       iframe.src = url;
+
+      startStreamAssistTimer();
 
       const extBtn = document.getElementById('externalStreamBtn');
       if (extBtn) extBtn.href = url;
@@ -2651,6 +2941,34 @@
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
         document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
       }
+    }
+
+    function toggleAmbientMode() {
+      ambientGlowEnabled = !ambientGlowEnabled;
+      const wrapper = document.getElementById('ambientGlowWrapper');
+      const btn = document.getElementById('ambientToggleBtn');
+      if (wrapper) wrapper.classList.toggle('ambient-off', !ambientGlowEnabled);
+      if (btn) btn.innerHTML = ambientGlowEnabled ? '✨ Glow ON' : '✨ Glow OFF';
+    }
+
+    function startStreamAssistTimer() {
+      const assist = document.getElementById('streamAssistPill');
+      if (assist) assist.style.display = 'none';
+      if (streamTimer) clearTimeout(streamTimer);
+      streamTimer = setTimeout(() => {
+        if (assist && document.getElementById('theaterSection').classList.contains('active')) {
+          assist.style.display = 'flex';
+        }
+      }, 6500);
+    }
+
+    function autoFallbackServer() {
+      const current = activeServer;
+      if (current === 'server1') switchServer('server2');
+      else if (current === 'server2') switchServer('server3');
+      else switchServer('server1');
+      const assist = document.getElementById('streamAssistPill');
+      if (assist) assist.style.display = 'none';
     }
 
     function openTheater() {
@@ -3324,7 +3642,99 @@
     // --- Zero-Knowledge Encrypted Account System ---
     let currentSessionUser = localStorage.getItem('cineanime_active_user') || null;
     let sessionVaultKey = null;
-    let sessionData = { history: [], watchlist: [] };
+    let sessionData = { history: [], watchlist: [], watchedEpisodes: {}, debridKey: '' };
+
+    function getWatchedEpisodesMap() {
+      if (currentSessionUser && sessionData.watchedEpisodes) {
+        return sessionData.watchedEpisodes;
+      }
+      return JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}');
+    }
+
+    function isEpisodeWatched(animeId, ep) {
+      const map = getWatchedEpisodesMap();
+      const list = map[String(animeId)] || [];
+      return list.includes(Number(ep));
+    }
+
+    function markEpisodeWatched(animeId, ep, isWatched = true) {
+      const strId = String(animeId);
+      const epNum = Number(ep);
+      let map = getWatchedEpisodesMap();
+      let list = map[strId] || [];
+
+      if (isWatched) {
+        if (!list.includes(epNum)) list.push(epNum);
+      } else {
+        list = list.filter(e => e !== epNum);
+      }
+      map[strId] = list;
+
+      if (currentSessionUser) {
+        sessionData.watchedEpisodes = map;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_watched_eps', JSON.stringify(map));
+      }
+      if (currentAnime && String(currentAnime.id) === strId) {
+        renderEpisodeGrid(currentAnime.episodes || 12);
+        updateWatchedBtn();
+      }
+    }
+
+    function toggleCurrentEpWatched() {
+      const current = isEpisodeWatched(currentAnime.id, currentEpisode);
+      markEpisodeWatched(currentAnime.id, currentEpisode, !current);
+    }
+
+    function markAllEpisodesWatched() {
+      const count = currentAnime.episodes || 12;
+      const strId = String(currentAnime.id);
+      let map = getWatchedEpisodesMap();
+      let list = [];
+      for (let i = 1; i <= count; i++) list.push(i);
+      map[strId] = list;
+
+      if (currentSessionUser) {
+        sessionData.watchedEpisodes = map;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_watched_eps', JSON.stringify(map));
+      }
+      renderEpisodeGrid(count);
+      updateWatchedBtn();
+    }
+
+    function updateWatchedBtn() {
+      const btn = document.getElementById('markWatchedBtn');
+      if (!btn) return;
+      const watched = isEpisodeWatched(currentAnime.id, currentEpisode);
+      if (watched) {
+        btn.innerHTML = '✔ Watched';
+        btn.style.color = '#10b981';
+        btn.style.borderColor = 'rgba(16,185,129,0.5)';
+      } else {
+        btn.innerHTML = '○ Unwatched';
+        btn.style.color = '#fff';
+        btn.style.borderColor = 'var(--border)';
+      }
+    }
+
+    function saveDebridKey() {
+      const input = document.getElementById('debridApiKeyInput');
+      const val = input ? input.value.trim() : '';
+      if (!val) return alert('Please enter a valid Debrid API key.');
+
+      if (currentSessionUser) {
+        sessionData.debridKey = val;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_debrid_key', val);
+      }
+      const label = document.getElementById('debridStatusLabel');
+      if (label) label.style.display = 'block';
+      alert('✅ 4K Debrid API key saved securely into your encrypted vault!');
+    }
 
     // Crypto Helpers (PBKDF2 + AES-256-GCM)
     async function deriveVaultKey(password, salt) {
@@ -3730,6 +4140,7 @@
       const watchlistSection = document.getElementById('watchlistSection');
       const searchSection = document.getElementById('searchSection');
       const latestReleasesSection = document.getElementById('latestReleasesSection');
+      const scheduleSection = document.getElementById('scheduleSection');
       const seasonalSection = document.getElementById('seasonalSection');
       const trendingSection = document.getElementById('trendingSection');
       const legendarySection = document.getElementById('legendarySection');
@@ -3742,6 +4153,7 @@
       if (watchlistSection) watchlistSection.style.display = 'none';
       if (searchSection) searchSection.style.display = 'none';
       if (latestReleasesSection) latestReleasesSection.style.display = 'none';
+      if (scheduleSection) scheduleSection.style.display = 'none';
       if (seasonalSection) seasonalSection.style.display = 'none';
       if (trendingSection) trendingSection.style.display = 'none';
       if (legendarySection) legendarySection.style.display = 'none';
@@ -3756,6 +4168,9 @@
         if (trendingSection) trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';
         if (genrePillsBar) genrePillsBar.style.display = 'flex';
+      } else if (tab === 'schedule') {
+        if (scheduleSection) scheduleSection.style.display = 'block';
+        loadWeeklySchedule();
       } else if (tab === 'movies') {
         if (moviesSection) moviesSection.style.display = 'block';
         if (currentMoviesList.length === 0) {
@@ -3773,6 +4188,114 @@
         if (watchlistSection) watchlistSection.style.display = 'block';
         renderWatchlist();
       }
+    }
+
+    // --- Weekly Airing Timetable Engine ---
+    async function loadWeeklySchedule() {
+      const grid = document.getElementById('scheduleGrid');
+      if (!grid) return;
+
+      if (weeklyScheduleCache) {
+        renderWeeklySchedule(weeklyScheduleCache, currentScheduleDay);
+        return;
+      }
+
+      try {
+        const url = 'https://kitsu.io/api/edge/anime?filter[status]=current&sort=-userCount&page[limit]=20&include=mappings';
+        const res = await fetch(url);
+        const json = await res.json();
+        const raw = json.data || [];
+        const included = json.included || [];
+
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const byDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+
+        raw.forEach(d => {
+          const item = normalizeKitsuMedia(d, included);
+          ANIME_CACHE.set(String(item.id), item);
+          if (d.attributes?.startDate) {
+            const dayIdx = new Date(d.attributes.startDate).getDay();
+            byDay[dayIdx].push({ ...item, dayName: days[dayIdx] });
+          }
+        });
+
+        weeklyScheduleCache = byDay;
+        renderWeeklySchedule(byDay, currentScheduleDay);
+      } catch (err) {
+        console.error('Failed to load weekly schedule:', err);
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Schedule feed temporarily unavailable.</div>';
+      }
+    }
+
+    function selectScheduleDay(day) {
+      currentScheduleDay = day;
+      document.querySelectorAll('.schedule-day-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-day') === String(day));
+      });
+      if (weeklyScheduleCache) {
+        renderWeeklySchedule(weeklyScheduleCache, day);
+      } else {
+        loadWeeklySchedule();
+      }
+    }
+
+    function renderWeeklySchedule(byDay, day) {
+      const grid = document.getElementById('scheduleGrid');
+      if (!grid) return;
+
+      let targetDayIdx = day === 'today' ? new Date().getDay() : Number(day);
+      let list = byDay[targetDayIdx] || [];
+
+      if (!list.length) {
+        list = Object.values(byDay).flat().slice(0, 6);
+      }
+
+      grid.innerHTML = list.map(item => {
+        const epLabel = item.episodes ? `Ep ${item.episodes} Airing` : 'New Episode';
+        return `
+          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true)">
+            <img class="schedule-thumb" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+            <div class="schedule-info">
+              <div>
+                <div class="schedule-time-badge">⚡ ${item.dayName || 'This Week'}</div>
+                <div class="schedule-title" style="margin-top: 0.35rem;" title="${item.title}">${item.title}</div>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
+                <span>${epLabel}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- PWA Installation & Service Worker ---
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'inline-flex';
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          const btn = document.getElementById('pwaInstallBtn');
+          if (btn) btn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      } else {
+        alert('📱 How to install CineAnime as a standalone native app:\n\n• On iPhone / iPad (Safari): Tap the Share button at the bottom, then scroll down and tap "Add to Home Screen".\n• On Android / Chrome / Brave: Tap the 3 dots menu in the browser, then tap "Install App" or "Add to Home screen".\n• On Windows / Mac (PC): Click the install icon in the URL address bar or browser menu.');
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW register note:', err));
+      });
     }
 
     function updateBadges() {

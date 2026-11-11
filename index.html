@@ -1715,10 +1715,10 @@
 
         <div class="server-switcher" id="serverSwitcher">
           <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e;"></span> 0 Ads • Zero Popups</span>
-          <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Ad-Free HD)</button>
-          <button class="server-btn" data-server="server2">🚀 Server 2 (Ad-Free Ultra)</button>
-          <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup HD)</button>
-          <button class="server-btn" data-server="server4">⚡ Server 4 (Ad-Free Cinema)</button>
+          <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Primary HD)</button>
+          <button class="server-btn" data-server="server2">🚀 Server 2 (AniList Mirror)</button>
+          <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup / HardSub)</button>
+          <button class="server-btn" data-server="server4">⚡ Server 4 (Multi-Embed HD)</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
@@ -1730,7 +1730,7 @@
           <iframe
             id="playerIframe"
             class="player-iframe"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock"
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
             allowfullscreen
             referrerpolicy="no-referrer"
@@ -2193,11 +2193,12 @@
   </div>
 
   <script>
-    // Curated Anime Database with AniList & TMDB IDs
+    // Curated Anime Database with AniList, MAL & TMDB IDs
     const ANIME_CATALOG = [
   {
     "id": "151807",
     "aniId": "151807",
+    "idMal": "52299",
     "tmdbId": "127532",
     "title": "Solo Leveling",
     "romaji": "Ore dake Level Up na Ken",
@@ -2211,6 +2212,7 @@
   {
     "id": "101922",
     "aniId": "101922",
+    "idMal": "38000",
     "tmdbId": "85937",
     "title": "Demon Slayer: Kimetsu no Yaiba",
     "romaji": "Kimetsu no Yaiba",
@@ -2224,6 +2226,7 @@
   {
     "id": "113415",
     "aniId": "113415",
+    "idMal": "40748",
     "tmdbId": "95479",
     "title": "Jujutsu Kaisen",
     "romaji": "Jujutsu Kaisen",
@@ -2237,6 +2240,7 @@
   {
     "id": "16498",
     "aniId": "16498",
+    "idMal": "16498",
     "tmdbId": "1429",
     "title": "Attack on Titan",
     "romaji": "Shingeki no Kyojin",
@@ -2250,6 +2254,7 @@
   {
     "id": "21",
     "aniId": "21",
+    "idMal": "21",
     "tmdbId": "37854",
     "title": "One Piece",
     "romaji": "One Piece",
@@ -2261,8 +2266,9 @@
     "synopsis": "Monkey D. Luffy sets off on an adventure with his pirate crew in hopes of finding the greatest treasure ever, known as the \"One Piece\", to become the King of the Pirates."
   },
   {
-    "id": "114535",
-    "aniId": "114535",
+    "id": "127230",
+    "aniId": "127230",
+    "idMal": "44511",
     "tmdbId": "114410",
     "title": "Chainsaw Man",
     "romaji": "Chainsaw Man",
@@ -2276,6 +2282,7 @@
   {
     "id": "154587",
     "aniId": "154587",
+    "idMal": "52991",
     "tmdbId": "209867",
     "title": "Frieren: Beyond Journey's End",
     "romaji": "Sousou no Frieren",
@@ -2289,6 +2296,7 @@
   {
     "id": "171018",
     "aniId": "171018",
+    "idMal": "57334",
     "tmdbId": "240411",
     "title": "Dandadan",
     "romaji": "Dandadan",
@@ -2300,8 +2308,9 @@
     "synopsis": "When two high schoolers bet on whether ghosts or aliens are real, they stumble into a wild paranormal world filled with occult battles, cursed artifacts, and supernatural powers."
   },
   {
-    "id": "114446",
-    "aniId": "114446",
+    "id": "116674",
+    "aniId": "116674",
+    "idMal": "41467",
     "tmdbId": "211684",
     "title": "Bleach: Thousand-Year Blood War",
     "romaji": "Bleach: Sennen Kessen-hen",
@@ -2315,6 +2324,7 @@
   {
     "id": "140960",
     "aniId": "140960",
+    "idMal": "50265",
     "tmdbId": "120089",
     "title": "Spy x Family",
     "romaji": "Spy x Family",
@@ -2331,6 +2341,7 @@
   {
     "id": "1535",
     "aniId": "1535",
+    "idMal": "1535",
     "tmdbId": "13916",
     "title": "Death Note",
     "romaji": "Death Note",
@@ -2344,6 +2355,7 @@
   {
     "id": "11061",
     "aniId": "11061",
+    "idMal": "11061",
     "tmdbId": "46298",
     "title": "Hunter x Hunter",
     "romaji": "Hunter x Hunter",
@@ -2357,6 +2369,7 @@
   {
     "id": "1735",
     "aniId": "1735",
+    "idMal": "1735",
     "tmdbId": "31910",
     "title": "Naruto Shippuden",
     "romaji": "Naruto: Shippuuden",
@@ -2370,6 +2383,7 @@
   {
     "id": "9253",
     "aniId": "9253",
+    "idMal": "9253",
     "tmdbId": "38472",
     "title": "Steins;Gate",
     "romaji": "Steins;Gate",
@@ -2383,7 +2397,7 @@
   {
     "id": "1",
     "aniId": "1",
-    "tmdbId": "1399",
+    "idMal": "1",
     "title": "Cowboy Bebop",
     "romaji": "Cowboy Bebop",
     "rating": 8.9,
@@ -2396,6 +2410,7 @@
   {
     "id": "101348",
     "aniId": "101348",
+    "idMal": "37521",
     "tmdbId": "86031",
     "title": "Vinland Saga",
     "romaji": "Vinland Saga",
@@ -2407,8 +2422,9 @@
     "synopsis": "Thorfinn pursues a journey with his fathers killer in order to take revenge and end his life in a duel with honor and paying respect to his father."
   },
   {
-    "id": "223",
-    "aniId": "223",
+    "id": "813",
+    "aniId": "813",
+    "idMal": "813",
     "tmdbId": "12971",
     "title": "Dragon Ball Z",
     "romaji": "Dragon Ball Z",
@@ -2422,6 +2438,7 @@
   {
     "id": "21507",
     "aniId": "21507",
+    "idMal": "32182",
     "tmdbId": "67070",
     "title": "Mob Psycho 100",
     "romaji": "Mob Psycho 100",
@@ -2473,53 +2490,66 @@
     let moviesOffset = 0;
     let seriesOffset = 0;
 
+    const ZOKO_QUERY = 'color=e50914&autoplay=1&asi=1&autonext=1';
+
+    function buildZokoUrl(item, ep, trackOverride, preferAni = false) {
+      const aniId = item.aniId || (item.kitsuId && String(item.id) === String(item.kitsuId) ? null : item.id);
+      const malId = item.idMal || null;
+      const track = trackOverride || (currentTrack === 'dub' ? 'dub' : 'sub');
+      const episode = item.type === 'movie' ? 1 : (ep || 1);
+      let path;
+      if (preferAni && aniId) path = `ani/${aniId}`;
+      else if (malId) path = `mal/${malId}`;
+      else path = `ani/${aniId || item.id}`;
+      return `https://zokoanime.video/stream/${path}/${episode}/${track}?${ZOKO_QUERY}`;
+    }
+
+    function buildSmashyUrl(item, s, e) {
+      const hasNumericTmdb = item.tmdbId && /^\d+$/.test(String(item.tmdbId));
+      const refParam = hasNumericTmdb
+        ? `tmdb=${item.tmdbId}`
+        : `imdb=${item.imdbId || item.id}`;
+      return item.type === 'movie'
+        ? `https://embed.smashystream.com/playere.php?${refParam}`
+        : `https://embed.smashystream.com/playere.php?${refParam}&season=${s}&episode=${e}`;
+    }
+
     const SERVERS = {
       server1: (item, s, e) => {
-        if (item.type === 'movie' || item.isMovieOrSeries) {
-          const tmdb = item.tmdbId || item.id;
-          return item.type === 'movie'
-            ? `https://vidlink.pro/movie/${tmdb}`
-            : `https://vidlink.pro/tv/${tmdb}/${s}/${e}`;
-        }
-        const aniId = item.id;
-        return `https://animeembed.com/embed/ani/${aniId}/${e}?server=1&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
+        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
+        return buildZokoUrl(item, e, null, false);
       },
       server2: (item, s, e) => {
-        if (item.type === 'movie' || item.isMovieOrSeries) {
-          const tmdb = item.tmdbId || item.id;
-          return item.type === 'movie'
-            ? `https://embed.su/embed/movie/${tmdb}`
-            : `https://embed.su/embed/tv/${tmdb}/${s}/${e}`;
+        if (item.isMovieOrSeries) {
+          const imdb = item.imdbId || (String(item.id).startsWith('tt') ? item.id : null);
+          if (imdb) {
+            return item.type === 'movie'
+              ? `https://embed.smashystream.com/playere.php?imdb=${imdb}`
+              : `https://embed.smashystream.com/playere.php?imdb=${imdb}&season=${s}&episode=${e}`;
+          }
+          return buildSmashyUrl(item, s, e);
         }
-        const aniId = item.id;
-        return `https://animeembed.com/embed/ani/${aniId}/${e}?server=2&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
+        return buildZokoUrl(item, e, null, true);
       },
       server3: (item, s, e) => {
-        if (item.type === 'movie' || item.isMovieOrSeries) {
-          const tmdb = item.tmdbId || item.id;
-          return item.type === 'movie'
-            ? `https://player.autoembed.cc/embed/movie/${tmdb}`
-            : `https://player.autoembed.cc/embed/tv/${tmdb}/${s}/${e}`;
-        }
-        const id = item.idMal || item.id;
-        return `https://animeembed.com/embed/mal/${id}/${e}?autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
+        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
+        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
+        return buildZokoUrl(item, e, hTrack, false);
       },
       server4: (item, s, e) => {
-        if (item.type === 'movie' || item.isMovieOrSeries) {
-          const tmdb = item.tmdbId || item.id;
-          return item.type === 'movie'
-            ? `https://moviesapi.club/movie/${tmdb}`
-            : `https://moviesapi.club/tv/${tmdb}-${s}-${e}`;
+        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
+        if (item.tmdbId && /^\d+$/.test(String(item.tmdbId))) {
+          return buildSmashyUrl(item, s, e);
         }
-        const aniId = item.id;
-        return `https://animeembed.com/embed/ani/${aniId}/${e}?server=3&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
+        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
+        return buildZokoUrl(item, e, hTrack, true);
       }
     };
 
     // ========================================================
     // FORTRESS AD-BLOCKER, ANTI-POPUP & ANTI-DOWNLOAD SHIELD
     // ========================================================
-    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation';
+    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock';
 
     function ensureSandboxedPlayer(iframe) {
       if (!iframe) return;
@@ -2616,6 +2646,7 @@
       const romaji = attrs.titles?.en_jp || attrs.canonicalTitle || '';
       const year = attrs.startDate ? attrs.startDate.split('-')[0] : '';
       let episodes = attrs.episodeCount;
+      let episodeCountUnknown = false;
       if (!episodes || episodes <= 0) {
         const lower = title.toLowerCase();
         if (lower.includes('one piece')) episodes = 1120;
@@ -2623,7 +2654,12 @@
         else if (lower.includes('dragon ball')) episodes = 291;
         else if (lower.includes('bleach')) episodes = 366;
         else if (lower.includes('detective conan') || lower.includes('case closed')) episodes = 1100;
-        else episodes = attrs.status === 'current' ? 24 : 12;
+        else if (attrs.status === 'current') {
+          episodes = null;
+          episodeCountUnknown = true;
+        } else {
+          episodes = 12;
+        }
       }
       const rawRating = parseFloat(attrs.averageRating);
       const rating = !isNaN(rawRating) ? (rawRating / 10).toFixed(1) : '8.5';
@@ -2633,9 +2669,12 @@
 
       return {
         id: String(id),
-        kitsuId: d.id,
-        idMal: malMap ? malMap.attributes.externalId : null,
-        tmdbId: String(id),
+        aniId: aniMap ? String(aniMap.attributes.externalId) : null,
+        kitsuId: String(d.id),
+        idMal: malMap ? String(malMap.attributes.externalId) : null,
+        tmdbId: null,
+        episodeCountUnknown,
+        type: attrs.subtype === 'movie' ? 'movie' : 'tv',
         title,
         romaji,
         rating,
@@ -2710,7 +2749,7 @@
 
     function renderCard(item) {
       const fav = isFavorited(item.id);
-      const epBadge = item.type === 'movie' ? 'MOVIE' : `${item.episodes} EPS`;
+      const epBadge = item.type === 'movie' ? 'MOVIE' : (item.episodes ? `${item.episodes} EPS` : 'ONGOING');
       const audioBadge = item.isMovieOrSeries ? 'HD' : 'SUB/DUB';
       return `
         <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
@@ -2718,7 +2757,7 @@
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
-            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="card-rating">★ ${item.rating}</div>
             <div class="card-ep-badge">${epBadge}</div>
           </div>
@@ -2733,6 +2772,74 @@
       `;
     }
 
+    async function ensureMediaIds(item) {
+      if (!item) return item;
+      if (item._idsSynced) return item;
+
+      try {
+        if (item.isMovieOrSeries) {
+          const hasNumericTmdb = item.tmdbId && /^\d+$/.test(String(item.tmdbId));
+          const imdb = item.imdbId || (String(item.id).startsWith('tt') ? item.id : null);
+          if ((!hasNumericTmdb || (item.type === 'series' && !item._videosSynced)) && imdb) {
+            const metaType = item.type === 'movie' ? 'movie' : 'series';
+            const res = await fetch(`https://v3-cinemeta.strem.io/meta/${metaType}/${imdb}.json`);
+            if (res.ok) {
+              const json = await res.json();
+              const meta = json?.meta;
+              if (meta?.moviedb_id) {
+                item.tmdbId = String(meta.moviedb_id);
+              }
+              if (metaType === 'series' && Array.isArray(meta?.videos) && meta.videos.length) {
+                const s1Eps = meta.videos.filter(v => Number(v.season) === (currentSeason || 1) && Number(v.episode) > 0);
+                if (s1Eps.length) {
+                  item.episodes = s1Eps.length;
+                  item._videosSynced = true;
+                }
+              }
+            }
+          }
+          item._idsSynced = true;
+          return item;
+        }
+
+        if (!item.idMal || !item.aniId || item.episodeCountUnknown) {
+          const hasAniId = item.aniId || (item.kitsuId ? String(item.id) !== String(item.kitsuId) : /^\d+$/.test(String(item.id)));
+          const variables = hasAniId
+            ? { id: parseInt(item.aniId || item.id, 10) }
+            : { search: item.romaji || item.title };
+          const q = hasAniId
+            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal episodes format nextAiringEpisode { episode airingAt } } }`
+            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal episodes format nextAiringEpisode { episode airingAt } } }`;
+
+          const res = await fetch(ANILIST_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q, variables })
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const m = json.data?.Media;
+            if (m) {
+              if (!item.aniId && m.id) item.aniId = String(m.id);
+              if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
+              if (m.format === 'MOVIE') item.type = 'movie';
+              const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
+                ? (m.nextAiringEpisode.episode - 1)
+                : (m.episodes || null);
+              if (aired && (item.episodeCountUnknown || !item.episodes || item.episodes < aired)) {
+                item.episodes = aired;
+                item.episodeCountUnknown = false;
+              }
+            }
+          }
+        }
+        item._idsSynced = true;
+      } catch (err) {
+        console.warn('ID sync warning:', err);
+      }
+      return item;
+    }
+
     async function selectAnimeById(id, autoPlay, targetEp = 1) {
       const strId = String(id);
       let match = ANIME_CACHE.get(strId);
@@ -2740,6 +2847,27 @@
         match = [...(latestReleasesList || []), ...trendingList, ...seasonalList, ...topRatedList, ...ANIME_CATALOG, ...LEGENDARY_CATALOG].find(a => String(a.id) === strId);
       }
       if (!match) {
+        const hMatch = getWatchHistory().find(h => String(h.id) === strId);
+        if (hMatch) {
+          match = { ...hMatch, episodes: hMatch.totalEpisodes || (hMatch.type === 'movie' ? 1 : 12) };
+        }
+      }
+      if (!match && strId.startsWith('tt')) {
+        for (const metaType of ['movie', 'series']) {
+          try {
+            const cRes = await fetch(`https://v3-cinemeta.strem.io/meta/${metaType}/${strId}.json`);
+            if (cRes.ok) {
+              const cJson = await cRes.json();
+              if (cJson?.meta) {
+                match = normalizeCinemetaMedia({ ...cJson.meta, type: metaType });
+                ANIME_CACHE.set(strId, match);
+                break;
+              }
+            }
+          } catch (_) {}
+        }
+      }
+      if (!match && /^\d+$/.test(strId)) {
         try {
           const q = `
             query($id: Int) {
@@ -2750,6 +2878,7 @@
                 coverImage { large }
                 bannerImage
                 episodes
+                nextAiringEpisode { episode }
                 averageScore
                 format
                 description
@@ -2757,7 +2886,7 @@
               }
             }
           `;
-          const res = await fetch('https://graphql.anilist.co', {
+          const res = await fetch(ANILIST_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: q, variables: { id: parseInt(id, 10) } })
@@ -2765,19 +2894,24 @@
           const json = await res.json();
           const m = json.data?.Media;
           if (m) {
+            const airedCount = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
+              ? (m.nextAiringEpisode.episode - 1)
+              : (m.episodes || (m.format === 'MOVIE' ? 1 : 12));
             match = {
               id: String(m.id),
+              aniId: String(m.id),
               idMal: m.idMal ? String(m.idMal) : null,
-              tmdbId: String(m.id),
+              tmdbId: null,
               title: m.title.english || m.title.romaji || 'Anime',
               romaji: m.title.romaji || '',
               rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
               year: m.startDate?.year ? String(m.startDate.year) : '',
-              episodes: m.episodes || (m.format === 'MOVIE' ? 1 : 12),
+              episodes: airedCount,
               poster: m.coverImage?.large || '',
               backdrop: m.bannerImage || m.coverImage?.large || '',
               synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'No synopsis available.',
-              type: m.format === 'MOVIE' ? 'movie' : 'tv'
+              type: m.format === 'MOVIE' ? 'movie' : 'tv',
+              _idsSynced: true
             };
             ANIME_CACHE.set(strId, match);
           }
@@ -2787,17 +2921,19 @@
       }
 
       if (match) {
-        selectAnime(match, autoPlay);
-        if (targetEp && targetEp > 1) {
-          setEpisode(targetEp);
-        }
+        await ensureMediaIds(match);
+        ANIME_CACHE.set(strId, match);
+        if (match.aniId) ANIME_CACHE.set(String(match.aniId), match);
+        const maxEp = match.episodes || targetEp || 1;
+        const clampedEp = targetEp && targetEp > 1 ? Math.max(1, Math.min(targetEp, maxEp)) : 1;
+        selectAnime(match, autoPlay, clampedEp);
       }
     }
 
-    function selectAnime(anime, autoPlay) {
+    function selectAnime(anime, autoPlay, initialEp = 1) {
       currentAnime = anime;
-      currentEpisode = 1;
-      activeEpisodeRange = 0;
+      currentEpisode = initialEp > 1 ? initialEp : 1;
+      activeEpisodeRange = Math.floor((currentEpisode - 1) / 50);
       ANIME_CACHE.set(String(anime.id), anime);
 
       // Update Hero banner
@@ -2817,10 +2953,10 @@
         if (epSec) epSec.style.display = 'none';
         if (epNav) epNav.style.display = 'none';
       } else {
-        document.getElementById('heroEpisodes').innerText = (anime.episodes || 12) + ' EPISODES';
+        document.getElementById('heroEpisodes').innerText = (anime.episodes || 'ONGOING') + (anime.episodes ? ' EPISODES' : '');
         if (epSec) epSec.style.display = 'block';
         if (epNav) epNav.style.display = 'flex';
-        renderEpisodeGrid(anime.episodes || 12);
+        renderEpisodeGrid(anime.episodes || Math.max(12, currentEpisode));
       }
 
       fetchRelations(anime);
@@ -2899,7 +3035,7 @@
             <div class="relation-card ${isCurrent ? 'current' : ''}" onclick="selectAnimeById('${rel.id}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${rel.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${rel.title}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
               </div>
               <div class="relation-body">
                 <div class="relation-title" title="${rel.title}">${rel.title}</div>
@@ -2986,13 +3122,14 @@
       }
       updatePlayerUrl();
       markEpisodeWatched(currentAnime.id, ep, true);
-      renderEpisodeGrid(currentAnime.episodes);
+      renderEpisodeGrid(currentAnime.episodes || Math.max(12, ep));
       saveWatchHistory(currentAnime, ep, activeServer);
     }
 
     function changeEpisode(delta) {
       const target = currentEpisode + delta;
-      if (target >= 1 && target <= currentAnime.episodes) {
+      const maxEp = currentAnime.episodes || Math.max(999, target);
+      if (target >= 1 && target <= maxEp) {
         setEpisode(target);
       }
     }
@@ -3016,7 +3153,7 @@
       const badge = document.getElementById('playerCoreBadge');
       const toggle = document.getElementById('subDubToggleBox');
 
-      if (currentAnime.type === 'movie' || currentAnime.isMovieOrSeries) {
+      if (currentAnime.isMovieOrSeries) {
         if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
         if (toggle) toggle.style.display = 'none';
         const titleText = currentAnime.type === 'movie'
@@ -3025,13 +3162,14 @@
         document.getElementById('playerTitle').innerText = titleText;
         document.getElementById('currentEpLabel').innerText = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
-        document.getElementById('nextEpBtn').disabled = currentEpisode >= (currentAnime.episodes || 1);
+        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
       } else {
         if (badge) badge.innerText = '⚡ 100% Ad-Free Anime Core';
         if (toggle) toggle.style.display = 'flex';
         const trackLabel = currentTrack.toUpperCase();
-        document.getElementById('playerTitle').innerText = `${currentAnime.title} • Ep ${currentEpisode} [${trackLabel}]`;
-        document.getElementById('currentEpLabel').innerText = `Ep ${currentEpisode}`;
+        const epLabel = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
+        document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${epLabel} [${trackLabel}]`;
+        document.getElementById('currentEpLabel').innerText = epLabel;
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
         document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
       }
@@ -3117,6 +3255,15 @@
         activeServer = btn.dataset.server;
         updatePlayerUrl();
       });
+    });
+
+    // ZokoAnime Auto-Next PostMessage Listener
+    window.addEventListener('message', (e) => {
+      try {
+        if (e.origin === 'https://zokoanime.video' && e.data && e.data.channel === 'zokoanime' && e.data.type === 'ended' && e.data.auto_next) {
+          changeEpisode(1);
+        }
+      } catch (_) {}
     });
 
     // --- Dynamic Live Search (AniList Global Search) ---
@@ -3409,9 +3556,14 @@
 
     // --- Stremio Cinemeta Movies & Series Core ---
     function normalizeCinemetaMedia(m) {
+      const imdbId = m.imdb_id || (String(m.id).startsWith('tt') ? String(m.id) : null);
+      const tmdbId = m.moviedb_id
+        ? String(m.moviedb_id)
+        : (String(m.id).startsWith('tmdb:') ? String(m.id).replace('tmdb:', '') : null);
       return {
-        id: m.id,
-        tmdbId: m.id,
+        id: String(m.id),
+        imdbId,
+        tmdbId,
         isMovieOrSeries: true,
         type: m.type || 'movie',
         title: m.name || 'Title',
@@ -3621,43 +3773,128 @@
     }
 
     // --- Live Simulcast & Newly Released Episodes Feed (Kitsu High-Speed Core) ---
+    function formatAiringAgo(airingAtSec) {
+      if (!airingAtSec) return 'Recent';
+      const diffMins = Math.max(1, Math.floor((Date.now() - airingAtSec * 1000) / 60000));
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHrs = Math.floor(diffMins / 60);
+      if (diffHrs < 24) return `${diffHrs}h ago`;
+      const diffDays = Math.floor(diffHrs / 24);
+      if (diffDays === 1) return 'Yesterday';
+      return `${diffDays}d ago`;
+    }
+
+    function normalizeAniListScheduleItem(sched) {
+      const m = sched.media || {};
+      const airedTotal = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
+        ? (m.nextAiringEpisode.episode - 1)
+        : (m.episodes || sched.episode || 1);
+      const latestEp = sched.episode || airedTotal || 1;
+      return {
+        id: String(m.id),
+        aniId: String(m.id),
+        idMal: m.idMal ? String(m.idMal) : null,
+        tmdbId: null,
+        type: m.format === 'MOVIE' ? 'movie' : 'tv',
+        title: m.title?.english || m.title?.romaji || 'Anime',
+        romaji: m.title?.romaji || m.title?.english || '',
+        rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
+        year: m.startDate?.year ? String(m.startDate.year) : '2026',
+        episodes: Math.max(airedTotal, latestEp),
+        latestAiredEp: latestEp,
+        airingAt: sched.airingAt || 0,
+        poster: m.coverImage?.large || '',
+        backdrop: m.bannerImage || m.coverImage?.large || '',
+        synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'No synopsis available.',
+        _idsSynced: true
+      };
+    }
+
     async function loadLatestReleases() {
       const grid = document.getElementById('latestReleasesGrid');
       if (!grid) return;
 
       try {
-        const url = 'https://kitsu.io/api/edge/anime?filter[status]=current&sort=-startDate&page[limit]=18&include=mappings';
-        const res = await fetch(url);
+        const query = `
+          query {
+            Page(page: 1, perPage: 45) {
+              airingSchedules(notYetAired: false, sort: TIME_DESC) {
+                id
+                episode
+                airingAt
+                media {
+                  id
+                  idMal
+                  isAdult
+                  popularity
+                  averageScore
+                  format
+                  episodes
+                  nextAiringEpisode { episode }
+                  title { english romaji }
+                  coverImage { large }
+                  bannerImage
+                  description(asHtml: false)
+                  startDate { year }
+                }
+              }
+            }
+          }
+        `;
+        const res = await fetch(ANILIST_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
         const json = await res.json();
-        const rawData = json.data || [];
-        const included = json.included || [];
+        const schedules = json?.data?.Page?.airingSchedules || [];
 
-        if (!rawData.length) {
-          grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No active simulcasts found.</div>';
-          return;
+        const seen = new Set();
+        const primary = [];
+        const secondary = [];
+
+        for (const s of schedules) {
+          const m = s?.media;
+          if (!m || m.isAdult || !m.idMal || m.format === 'MUSIC') continue;
+          const key = String(m.id);
+          if (seen.has(key)) continue;
+          seen.add(key);
+
+          const item = normalizeAniListScheduleItem(s);
+          if ((m.popularity || 0) >= 1200) {
+            primary.push(item);
+          } else {
+            secondary.push(item);
+          }
         }
 
-        latestReleasesList = rawData.map(d => {
-          const item = normalizeKitsuMedia(d, included);
-          ANIME_CACHE.set(String(item.id), item);
-          return item;
-        });
+        latestReleasesList = primary.length >= 12
+          ? primary.slice(0, 18)
+          : [...primary, ...secondary].slice(0, 18);
+
+        if (!latestReleasesList.length) {
+          throw new Error('Empty AniList airing feed');
+        }
+
+        latestReleasesList.forEach(item => ANIME_CACHE.set(String(item.id), item));
 
         grid.innerHTML = latestReleasesList.map(item => {
           const fav = isFavorited(item.id);
-          const epText = item.episodes ? `EP ${item.episodes}` : 'NEW';
+          const epNum = item.latestAiredEp || 1;
+          const epText = `EP ${epNum}`;
+          const agoText = formatAiringAgo(item.airingAt);
           return `
-            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${item.episodes || 1})">
+            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${epNum})">
               <div class="card-poster-wrapper">
                 <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   ${fav ? '❤️' : '🤍'}
                 </button>
-                <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+                <img class="card-poster" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
                 <div class="release-ep-badge">${epText}</div>
-                <div class="release-time-tag">⚡ ${item.year || '2026'} Airing</div>
+                <div class="release-time-tag">⚡ ${agoText}</div>
               </div>
               <div class="card-info">
-                <div class="card-title" title="${item.title}">${item.title}</div>
+                <div class="card-title" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
                 <div class="card-meta">
                   <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
                   <span style="color: #3b82f6; font-weight: 700;">Simulcast</span>
@@ -3668,8 +3905,48 @@
         }).join('');
 
       } catch (err) {
-        console.error('Failed to load latest releases:', err);
-        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Live release feed temporarily unavailable.</div>';
+        console.warn('AniList airing feed fallback to Kitsu:', err);
+        try {
+          const url = 'https://kitsu.io/api/edge/anime?filter[status]=current&sort=-userCount&page[limit]=18&include=mappings';
+          const res = await fetch(url);
+          const json = await res.json();
+          const rawData = json.data || [];
+          const included = json.included || [];
+          if (!rawData.length) {
+            grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No active simulcasts found.</div>';
+            return;
+          }
+          latestReleasesList = rawData.map(d => {
+            const item = normalizeKitsuMedia(d, included);
+            ANIME_CACHE.set(String(item.id), item);
+            return item;
+          });
+          grid.innerHTML = latestReleasesList.map(item => {
+            const fav = isFavorited(item.id);
+            const epText = item.episodes ? `EP ${item.episodes}` : 'NEW';
+            return `
+              <div class="anime-card" onclick="selectAnimeById('${item.id}', true, 1)">
+                <div class="card-poster-wrapper">
+                  <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                    ${fav ? '❤️' : '🤍'}
+                  </button>
+                  <img class="card-poster" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                  <div class="release-ep-badge">${epText}</div>
+                  <div class="release-time-tag">⚡ ${item.year || '2026'} Airing</div>
+                </div>
+                <div class="card-info">
+                  <div class="card-title" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
+                  <div class="card-meta">
+                    <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
+                    <span style="color: #3b82f6; font-weight: 700;">Simulcast</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (_) {
+          grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Live release feed temporarily unavailable.</div>';
+        }
       }
     }
 
@@ -4117,6 +4394,12 @@
       history = history.filter(h => String(h.id) !== String(anime.id));
       history.unshift({
         id: anime.id,
+        aniId: anime.aniId || null,
+        idMal: anime.idMal || null,
+        tmdbId: anime.tmdbId || null,
+        imdbId: anime.imdbId || null,
+        isMovieOrSeries: !!anime.isMovieOrSeries,
+        type: anime.type || 'tv',
         title: anime.title,
         poster: anime.poster,
         backdrop: anime.backdrop || anime.poster,
@@ -4219,16 +4502,14 @@
       container.innerHTML = items.map(renderCard).join('');
     }
 
-    function resumeAnime(id, episode, server) {
-      selectAnimeById(id, false);
-      setEpisode(episode);
+    async function resumeAnime(id, episode, server) {
       if (server) {
         activeServer = server;
         document.querySelectorAll('.server-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.server === server);
         });
       }
-      openTheater();
+      await selectAnimeById(id, true, episode || 1);
     }
 
     // Tab Switching
@@ -4304,22 +4585,67 @@
       }
 
       try {
-        const url = 'https://kitsu.io/api/edge/anime?filter[status]=current&sort=-userCount&page[limit]=20&include=mappings';
-        const res = await fetch(url);
+        const nowSec = Math.floor(Date.now() / 1000);
+        const weekStart = nowSec - 3 * 86400;
+        const weekEnd = nowSec + 4 * 86400;
+        const query = `
+          query($start: Int, $end: Int) {
+            Page(page: 1, perPage: 50) {
+              airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) {
+                id
+                episode
+                airingAt
+                media {
+                  id
+                  idMal
+                  isAdult
+                  popularity
+                  averageScore
+                  format
+                  episodes
+                  nextAiringEpisode { episode }
+                  title { english romaji }
+                  coverImage { large }
+                  bannerImage
+                  description(asHtml: false)
+                  startDate { year }
+                }
+              }
+            }
+          }
+        `;
+        const res = await fetch(ANILIST_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, variables: { start: weekStart, end: weekEnd } })
+        });
         const json = await res.json();
-        const raw = json.data || [];
-        const included = json.included || [];
+        const raw = json?.data?.Page?.airingSchedules || [];
 
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const byDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        const seenPerDay = new Set();
 
-        raw.forEach(d => {
-          const item = normalizeKitsuMedia(d, included);
+        raw.forEach(s => {
+          const m = s?.media;
+          if (!m || m.isAdult || !m.idMal || m.format === 'MUSIC' || (m.popularity || 0) < 800) return;
+          const airDate = new Date(s.airingAt * 1000);
+          const dayIdx = airDate.getDay();
+          const dedupeKey = `${dayIdx}:${m.id}`;
+          if (seenPerDay.has(dedupeKey)) return;
+          seenPerDay.add(dedupeKey);
+
+          const item = normalizeAniListScheduleItem(s);
+          const playableEp = (s.airingAt * 1000 <= Date.now()) ? s.episode : Math.max(1, (s.episode || 1) - 1);
+          const timeStr = airDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           ANIME_CACHE.set(String(item.id), item);
-          if (d.attributes?.startDate) {
-            const dayIdx = new Date(d.attributes.startDate).getDay();
-            byDay[dayIdx].push({ ...item, dayName: days[dayIdx] });
-          }
+          byDay[dayIdx].push({
+            ...item,
+            scheduleEp: s.episode,
+            playableEp,
+            dayName: days[dayIdx],
+            airTimeStr: timeStr
+          });
         });
 
         weeklyScheduleCache = byDay;
@@ -4354,14 +4680,15 @@
       }
 
       grid.innerHTML = list.map(item => {
-        const epLabel = item.episodes ? `Ep ${item.episodes} Airing` : 'New Episode';
+        const epNum = item.scheduleEp || item.episodes || 1;
+        const epLabel = `Ep ${epNum} • ${item.airTimeStr || 'Simulcast'}`;
         return `
-          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true)">
-            <img class="schedule-thumb" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://media.kitsu.app/anime/poster_image/default.jpg'">
+          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1})">
+            <img class="schedule-thumb" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="schedule-info">
               <div>
                 <div class="schedule-time-badge">⚡ ${item.dayName || 'This Week'}</div>
-                <div class="schedule-title" style="margin-top: 0.35rem;" title="${item.title}">${item.title}</div>
+                <div class="schedule-title" style="margin-top: 0.35rem;" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
               </div>
               <div style="font-size: 0.75rem; color: var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
                 <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>

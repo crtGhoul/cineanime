@@ -259,7 +259,7 @@
     }
 
     .hero-title {
-      font-size: 2.75rem;
+      font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem);
       font-weight: 800;
       line-height: 1.15;
       margin-bottom: 0.75rem;
@@ -281,8 +281,9 @@
 
     .hero-actions {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .play-btn {
@@ -1630,6 +1631,192 @@
       outline-offset: 2px;
     }
 
+    /* Hero Carousel Controls & Theater Details Strip */
+    .hero-nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 6;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(12, 12, 18, 0.72);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+      font-size: 1.25rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .hero-nav-arrow:hover {
+      background: var(--accent);
+      border-color: transparent;
+      transform: translateY(-50%) scale(1.06);
+    }
+    .hero-nav-prev { left: 1rem; }
+    .hero-nav-next { right: 1rem; }
+
+    .hero-dots {
+      position: absolute;
+      bottom: 1rem;
+      right: 1.5rem;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.32);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .hero-dot.active {
+      width: 24px;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+    @media (max-width: 640px) {
+      .hero-nav-arrow { display: none; }
+      .hero-dots { right: 1rem; bottom: 0.75rem; }
+    }
+
+    .theater-info-strip {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: rgba(18, 18, 26, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.9rem 1.15rem;
+      margin-top: 0.9rem;
+    }
+    .theater-info-strip.active {
+      display: flex;
+    }
+    .theater-info-left {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      min-width: 0;
+      flex: 1 1 320px;
+    }
+    .theater-info-poster {
+      width: 56px;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      border-radius: 6px;
+      flex: 0 0 auto;
+      background: #0a0a0f;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .theater-info-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .theater-info-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .theater-genre-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e4e4e7;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .theater-cast-line {
+      font-size: 0.78rem;
+      color: #a1a1aa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .theater-info-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .year-filter-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #e4e4e7;
+      padding: 0.38rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+    }
+    .year-filter-select:focus-visible {
+      border-color: #a78bfa;
+    }
+
+    .trailer-modal-dialog {
+      width: min(92vw, 880px);
+      background: #0e0e14;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    }
+    .trailer-iframe-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+    .trailer-iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .app-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      z-index: 9999;
+      background: rgba(18, 18, 26, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+      padding: 0.65rem 1.1rem;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .app-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .loading-spinner {
       display: inline-block;
       width: 24px;
@@ -2117,12 +2304,15 @@
           <button id="markWatchedBtn" class="ctrl-btn" onclick="toggleCurrentEpWatched()" title="Mark this episode as watched">✔ Watched</button>
         </div>
 
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="ctrl-btn skip" onclick="skipIntro()">⏭ Skip Intro (+85s)</button>
-          <button class="ctrl-btn skip" onclick="skipOutro()">⏭ Next Episode</button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button id="skipIntroBtn" class="ctrl-btn skip" onclick="skipIntro()">⏭ Skip Intro (+85s)</button>
+          <button id="skipOutroBtn" class="ctrl-btn skip" onclick="skipOutro()">⏭ Next Episode</button>
           <button id="fullscreenBtn" class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         </div>
       </div>
+
+      <!-- Theater Media Details & Official Trailer Strip -->
+      <div id="theaterInfoStrip" class="theater-info-strip"></div>
 
       <!-- Episode Matrix under Player -->
       <div class="episodes-section">
@@ -2162,13 +2352,15 @@
       </div>
     </section>
 
-    <!-- Hero Spotlight Section -->
+    <!-- Hero Spotlight Section (Rotating Carousel: Movies, TV & Anime) -->
     <section id="heroSection" class="hero-spotlight">
+      <button class="hero-nav-arrow hero-nav-prev" onclick="stepHeroSlide(-1)" aria-label="Previous featured title">‹</button>
+      <button class="hero-nav-arrow hero-nav-next" onclick="stepHeroSlide(1)" aria-label="Next featured title">›</button>
       <img id="heroBg" class="hero-bg" src="https://images.metahub.space/background/large/tt21209876/img" alt="Backdrop">
       <div class="hero-gradient"></div>
       <div class="hero-content">
         <div class="hero-badges">
-          <span class="badge badge-subdub">SUB & DUB</span>
+          <span id="heroTypeBadge" class="badge badge-subdub">SUB & DUB</span>
           <span id="heroRating" class="badge badge-rating">★ 8.5</span>
           <span id="heroQuality" class="badge badge-quality">1080p FHD</span>
           <span id="heroEpisodes" class="badge badge-subdub">12 EPISODES</span>
@@ -2178,14 +2370,21 @@
           In a world where hunters must battle deadly monsters to protect humanity, Sung Jinwoo, notoriously known as the "weakest hunter of all mankind," finds himself in an unending struggle for survival until a mysterious quest grants him the ability to level up.
         </p>
         <div class="hero-actions">
-          <button class="play-btn" onclick="playCurrentHero()">
-            <span>▶</span> Watch Episode 1
+          <button id="heroPlayBtn" class="play-btn" onclick="playCurrentHero()">
+            <span>▶</span> Watch Now
           </button>
-          <button class="details-btn" onclick="selectAnime(currentHeroAnime, true)">
-            Episodes & Info
+          <button id="heroTrailerBtn" class="details-btn" style="display: none;" onclick="openCurrentHeroTrailer()">
+            🎬 Trailer
+          </button>
+          <button id="heroFavBtn" class="details-btn" onclick="toggleHeroFavorite()">
+            🤍 Watchlist
+          </button>
+          <button class="details-btn" onclick="surpriseMe()" title="Pick a top-rated movie, TV show, or anime at random">
+            🎲 Surprise Me
           </button>
         </div>
       </div>
+      <div id="heroDots" class="hero-dots" role="tablist" aria-label="Featured showcase slides"></div>
     </section>
 
     <!-- Catalog Filter Bar -->
@@ -2316,6 +2515,7 @@
           <button class="media-subpill active" data-mode="new" onclick="setMediaCatalogMode('movie', 'new')">🆕 New Releases (2026)</button>
           <button class="media-subpill" data-mode="popular" onclick="setMediaCatalogMode('movie', 'popular')">🔥 Popular</button>
           <button class="media-subpill" data-mode="featured" onclick="setMediaCatalogMode('movie', 'featured')">⭐ Top Rated</button>
+          <select id="moviesYearSelect" class="year-filter-select" aria-label="Filter movies by release year" onchange="setMediaCatalogYear('movie', this.value)"></select>
         </div>
         <div class="genre-pills-bar" id="moviesGenrePills" style="margin-bottom: 0;"></div>
       </div>
@@ -2341,6 +2541,7 @@
           <button class="media-subpill" data-mode="new" onclick="setMediaCatalogMode('series', 'new')">🆕 New Shows (2026)</button>
           <button class="media-subpill" data-mode="popular" onclick="setMediaCatalogMode('series', 'popular')">🔥 Popular</button>
           <button class="media-subpill" data-mode="featured" onclick="setMediaCatalogMode('series', 'featured')">⭐ Top Rated</button>
+          <select id="seriesYearSelect" class="year-filter-select" aria-label="Filter TV shows by release year" onchange="setMediaCatalogYear('series', this.value)"></select>
         </div>
         <div class="genre-pills-bar" id="seriesGenrePills" style="margin-bottom: 0;"></div>
       </div>
@@ -2481,6 +2682,30 @@
       </div>
     </div>
   </div>
+
+  <!-- Official Trailer Modal (Zero-Popup YouTube NoCookie) -->
+  <div id="trailerModal" class="addon-modal-backdrop" style="display: none;" onclick="if(event.target===this) closeTrailerModal()">
+    <div class="trailer-modal-dialog">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title">
+          <span id="trailerModalTitle">🎬 Official Trailer</span>
+        </div>
+        <button class="addon-modal-close" onclick="closeTrailerModal()" aria-label="Close trailer">✕</button>
+      </div>
+      <div class="trailer-iframe-wrap">
+        <iframe
+          id="trailerIframe"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+          src="about:blank"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
 
   <!-- Auth Modal (Sign In / Register) -->
   <div id="authModal" class="addon-modal-backdrop" style="display: none;">
@@ -3048,13 +3273,264 @@
     // Real-Life Movies & TV Series State
     let currentMoviesMode = 'new';
     let currentMoviesGenre = 'ALL';
+    let currentMoviesYear = 'ALL';
     let currentSeriesMode = 'latest';
     let currentSeriesGenre = 'ALL';
+    let currentSeriesYear = 'ALL';
     let currentRealReleaseMode = 'mix';
     let latestRealMoviesList = [];
     let latestRealTvList = [];
     let currentScheduleSource = 'anime';
     let weeklyTvScheduleCache = null;
+
+    // Hero Carousel & Toast / Trailer State
+    let heroSlides = [];
+    let heroSlideIndex = 0;
+    let heroAutoTimer = null;
+    let appToastTimer = null;
+
+    function showAppToast(msg) {
+      const el = document.getElementById('appToast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      if (appToastTimer) clearTimeout(appToastTimer);
+      appToastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function openTrailer(ytId, title = 'Official Trailer') {
+      if (!ytId) return;
+      const modal = document.getElementById('trailerModal');
+      const iframe = document.getElementById('trailerIframe');
+      const titleEl = document.getElementById('trailerModalTitle');
+      if (!modal || !iframe) return;
+      if (titleEl) titleEl.textContent = `🎬 ${title} • Official Trailer`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0`;
+      modal.style.display = 'flex';
+    }
+
+    function closeTrailerModal() {
+      const modal = document.getElementById('trailerModal');
+      const iframe = document.getElementById('trailerIframe');
+      if (iframe) iframe.src = 'about:blank';
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function openCurrentHeroTrailer() {
+      if (!currentHeroAnime) return;
+      if (!currentHeroAnime.trailerId) {
+        await ensureMediaIds(currentHeroAnime);
+      }
+      if (currentHeroAnime.trailerId) {
+        openTrailer(currentHeroAnime.trailerId, currentHeroAnime.title);
+      } else {
+        showAppToast('Official trailer unavailable for this title — click Watch Now to stream!');
+      }
+    }
+
+    function syncInlineFavButtons() {
+      const heroFavBtn = document.getElementById('heroFavBtn');
+      if (heroFavBtn && currentHeroAnime) {
+        const fav = isFavorited(currentHeroAnime.id);
+        heroFavBtn.innerHTML = fav ? '❤️ In Watchlist' : '🤍 Watchlist';
+      }
+      const theaterFavBtn = document.getElementById('theaterFavBtn');
+      if (theaterFavBtn && currentAnime) {
+        const fav = isFavorited(currentAnime.id);
+        theaterFavBtn.innerHTML = fav ? '❤️ Saved' : '🤍 + Watchlist';
+      }
+    }
+
+    function toggleHeroFavorite() {
+      if (!currentHeroAnime) return;
+      toggleFavorite({ stopPropagation: () => {} }, currentHeroAnime.id);
+    }
+
+    function toggleTheaterFavorite() {
+      if (!currentAnime) return;
+      toggleFavorite({ stopPropagation: () => {} }, currentAnime.id);
+    }
+
+    function updateServerButtonLabels(isMovieOrSeries) {
+      const labels = isMovieOrSeries
+        ? {
+            server1: '<span class="pulse-dot"></span> Server 1 (TMDB Ultra)',
+            server2: '🎬 Server 2 (IMDb Mirror)',
+            server3: '🛡️ Server 3 (Backup HD)',
+            server4: '⚡ Server 4 (Alt Embed)'
+          }
+        : {
+            server1: '<span class="pulse-dot"></span> Server 1 (Primary HD)',
+            server2: '🚀 Server 2 (AniList Mirror)',
+            server3: '🛡️ Server 3 (Backup / HardSub)',
+            server4: '⚡ Server 4 (Multi-Embed HD)'
+          };
+      document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(btn => {
+        const key = btn.dataset.server;
+        if (labels[key]) btn.innerHTML = labels[key];
+      });
+    }
+
+    function renderTheaterInfoStrip(item) {
+      const strip = document.getElementById('theaterInfoStrip');
+      if (!strip || !item) return;
+
+      const genreChips = (item.genres || []).slice(0, 4)
+        .map(g => `<span class="theater-genre-chip">${escapeHtml(g)}</span>`)
+        .join('');
+      const metaBits = [
+        item.year ? escapeHtml(item.year) : '',
+        item.runtime ? `⏱ ${escapeHtml(item.runtime)}` : '',
+        item.country ? `🌍 ${escapeHtml(item.country)}` : '',
+        item.rating ? `★ ${escapeHtml(item.rating)}` : ''
+      ].filter(Boolean).join(' • ');
+
+      const castParts = [];
+      if (Array.isArray(item.director) && item.director.length) {
+        castParts.push(`Director: ${item.director.slice(0, 2).join(', ')}`);
+      }
+      if (Array.isArray(item.cast) && item.cast.length) {
+        castParts.push(`Cast: ${item.cast.slice(0, 4).join(', ')}`);
+      }
+      const castLine = castParts.length ? escapeHtml(castParts.join(' • ')) : escapeHtml((item.synopsis || '').slice(0, 120));
+      const fav = isFavorited(item.id);
+      const trailerBtn = item.trailerId
+        ? `<button class="ctrl-btn" style="background: rgba(229,9,20,0.16); border-color: rgba(229,9,20,0.45);" data-yt="${escapeHtml(item.trailerId)}" data-title="${escapeHtml(item.title)}" onclick="openTrailer(this.dataset.yt, this.dataset.title)">🎬 Official Trailer</button>`
+        : '';
+
+      strip.classList.add('active');
+      strip.innerHTML = `
+        <div class="theater-info-left">
+          <img class="theater-info-poster" src="${item.poster}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'">
+          <div class="theater-info-body">
+            <div style="font-weight: 800; font-size: 0.96rem; color: #fff;">${escapeHtml(item.title)}</div>
+            <div class="theater-info-meta">
+              ${metaBits ? `<span>${metaBits}</span>` : ''}
+              ${genreChips}
+            </div>
+            <div class="theater-cast-line" title="${castLine}">${castLine}</div>
+          </div>
+        </div>
+        <div class="theater-info-actions">
+          ${trailerBtn}
+          <button id="theaterFavBtn" class="ctrl-btn" onclick="toggleTheaterFavorite()">${fav ? '❤️ Saved' : '🤍 + Watchlist'}</button>
+        </div>
+      `;
+    }
+
+    function applyHeroSlide(idx) {
+      if (!heroSlides.length) return;
+      heroSlideIndex = ((idx % heroSlides.length) + heroSlides.length) % heroSlides.length;
+      const item = heroSlides[heroSlideIndex];
+      if (!item) return;
+
+      currentHeroAnime = item;
+      const heroBg = document.getElementById('heroBg');
+      const heroTitle = document.getElementById('heroTitle');
+      const heroSynopsis = document.getElementById('heroSynopsis');
+      const heroRating = document.getElementById('heroRating');
+      const heroQuality = document.getElementById('heroQuality');
+      const heroEpisodes = document.getElementById('heroEpisodes');
+      const heroTypeBadge = document.getElementById('heroTypeBadge');
+      const heroTrailerBtn = document.getElementById('heroTrailerBtn');
+
+      if (heroBg) heroBg.src = item.backdrop || item.poster;
+      if (heroTitle) heroTitle.innerText = item.title;
+      if (heroSynopsis) heroSynopsis.innerText = item.synopsis || '';
+      if (heroRating) heroRating.innerText = '★ ' + (item.rating || '8.5');
+      if (heroQuality) heroQuality.innerText = item.runtime || '1080p FHD';
+      if (heroTypeBadge) {
+        heroTypeBadge.innerText = item.isMovieOrSeries
+          ? (item.type === 'movie' ? '🎬 MOVIE' : '📺 TV SERIES')
+          : '🔥 SUB & DUB ANIME';
+      }
+      if (heroEpisodes) {
+        if (item.type === 'movie') {
+          heroEpisodes.innerText = item.year ? `FILM • ${item.year}` : 'FEATURE FILM';
+        } else if (item.isMovieOrSeries) {
+          const sCnt = item.seasonNumbers?.length;
+          heroEpisodes.innerText = sCnt ? `${sCnt} SEASONS` : (item.year ? `TV • ${item.year}` : 'TV SERIES');
+        } else {
+          heroEpisodes.innerText = (item.episodes || 'ONGOING') + (item.episodes ? ' EPISODES' : '');
+        }
+      }
+      if (heroTrailerBtn) {
+        heroTrailerBtn.style.display = 'inline-flex';
+      }
+      syncInlineFavButtons();
+
+      const dotsWrap = document.getElementById('heroDots');
+      if (dotsWrap) {
+        dotsWrap.innerHTML = heroSlides.map((_, i) =>
+          `<button class="hero-dot ${i === heroSlideIndex ? 'active' : ''}" onclick="stepHeroSlide(${i}, true)" aria-label="Show slide ${i + 1}"></button>`
+        ).join('');
+      }
+    }
+
+    function stepHeroSlide(val, absolute = false) {
+      if (!heroSlides.length) return;
+      applyHeroSlide(absolute ? val : heroSlideIndex + val);
+      resetHeroAutoRotation();
+    }
+
+    function resetHeroAutoRotation() {
+      if (heroAutoTimer) clearInterval(heroAutoTimer);
+      if (heroSlides.length <= 1) return;
+      heroAutoTimer = setInterval(() => {
+        const theaterActive = document.getElementById('theaterSection')?.classList.contains('active');
+        if (!theaterActive && document.visibilityState !== 'hidden') {
+          applyHeroSlide(heroSlideIndex + 1);
+        }
+      }, 8500);
+    }
+
+    async function buildHeroCarousel() {
+      try {
+        const [popMovies, popSeries] = await Promise.all([
+          fetchCinemetaCatalog('movie', 'popular', 'ALL', 0).catch(() => []),
+          fetchCinemetaCatalog('series', 'popular', 'ALL', 0).catch(() => [])
+        ]);
+        const candidates = [
+          trendingList[0],
+          popMovies[0],
+          popSeries[0],
+          trendingList[1],
+          popMovies[1],
+          popSeries[1]
+        ].filter(Boolean);
+        const seen = new Set();
+        heroSlides = candidates.filter(c => {
+          const k = String(c.id);
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        });
+        if (heroSlides.length) {
+          heroSlides.forEach(s => ANIME_CACHE.set(String(s.id), s));
+          applyHeroSlide(0);
+          resetHeroAutoRotation();
+          // Pre-warm metadata (cast/runtime/trailer) silently for the first 3 hero slides
+          heroSlides.slice(0, 3).forEach(s => ensureMediaIds(s).then(() => {
+            if (currentHeroAnime && String(currentHeroAnime.id) === String(s.id)) applyHeroSlide(heroSlideIndex);
+          }).catch(() => {}));
+        }
+      } catch (err) {
+        console.warn('Hero carousel warning:', err);
+      }
+    }
+
+    async function surpriseMe() {
+      const pools = [
+        ...(latestRealMoviesList || []).filter(m => m.rating && m.rating !== 'NEW'),
+        ...(latestRealTvList || []),
+        ...(trendingList || []),
+        ...(currentMoviesList || [])
+      ].filter(x => x && x.id);
+      if (!pools.length) return;
+      const pick = pools[Math.floor(Math.random() * Math.min(pools.length, 30))];
+      showAppToast(`🎲 Random Pick: ${pick.title}`);
+      await selectAnimeById(pick.id, true, pick.latestEp || 1, pick.latestSeason || null);
+    }
 
     const CINEMETA_MOVIE_GENRES = [
       'Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary',
@@ -3479,6 +3955,7 @@
         btn.classList.toggle('favorited', fav);
         btn.innerHTML = fav ? '❤️' : '🤍';
       });
+      if (typeof syncInlineFavButtons === 'function') syncInlineFavButtons();
     }
 
     function renderCard(item) {
@@ -3522,7 +3999,8 @@
         if (item.isMovieOrSeries) {
           const hasNumericTmdb = item.tmdbId && /^\d+$/.test(String(item.tmdbId));
           const imdb = item.imdbId || (String(item.id).startsWith('tt') ? item.id : null);
-          if ((!hasNumericTmdb || needsSeriesSync) && imdb) {
+          const needsExtras = !item.runtime && !item.trailerId && !(item.cast && item.cast.length);
+          if ((!hasNumericTmdb || needsSeriesSync || needsExtras) && imdb) {
             const metaType = item.type === 'movie' ? 'movie' : 'series';
             const res = await fetch(`https://v3-cinemeta.strem.io/meta/${metaType}/${imdb}.json`);
             if (res.ok) {
@@ -3538,9 +4016,19 @@
                 if (meta.description && (!item.synopsis || item.synopsis.includes('No description'))) {
                   item.synopsis = meta.description;
                 }
-                if (meta.imdbRating && !item.rating) item.rating = String(meta.imdbRating);
+                if (meta.imdbRating && (!item.rating || item.rating === 'NEW')) item.rating = String(meta.imdbRating);
                 if (meta.year || meta.releaseInfo) {
                   item.year = item.year || String(meta.year || meta.releaseInfo).slice(0, 4);
+                }
+                if (meta.runtime) item.runtime = String(meta.runtime);
+                if (meta.country) item.country = String(meta.country);
+                if (Array.isArray(meta.genres) && meta.genres.length) item.genres = meta.genres;
+                else if (Array.isArray(meta.genre) && meta.genre.length) item.genres = meta.genre;
+                if (Array.isArray(meta.cast) && meta.cast.length) item.cast = meta.cast;
+                if (Array.isArray(meta.director) && meta.director.length) item.director = meta.director;
+                if (Array.isArray(meta.trailers) && meta.trailers.length) {
+                  const yt = meta.trailers.find(t => t?.source);
+                  if (yt?.source) item.trailerId = String(yt.source);
                 }
                 if (metaType === 'series' && Array.isArray(meta.videos) && meta.videos.length) {
                   const parsed = buildSeriesSeasonsMap(meta.videos);
@@ -3562,14 +4050,14 @@
           return item;
         }
 
-        if (!item.idMal || !item.aniId || item.episodeCountUnknown) {
+        if (!item.idMal || !item.aniId || item.episodeCountUnknown || !item.trailerId) {
           const hasAniId = item.aniId || (item.kitsuId ? String(item.id) !== String(item.kitsuId) : /^\d+$/.test(String(item.id)));
           const variables = hasAniId
             ? { id: parseInt(item.aniId || item.id, 10) }
             : { search: item.romaji || item.title };
           const q = hasAniId
-            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal episodes format nextAiringEpisode { episode airingAt } } }`
-            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal episodes format nextAiringEpisode { episode airingAt } } }`;
+            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`
+            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`;
 
           const res = await fetch(ANILIST_API, {
             method: 'POST',
@@ -3583,6 +4071,9 @@
               if (!item.aniId && m.id) item.aniId = String(m.id);
               if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
               if (m.format === 'MOVIE') item.type = 'movie';
+              if (m.duration && !item.runtime) item.runtime = `${m.duration} min`;
+              if (Array.isArray(m.genres) && m.genres.length && !item.genres) item.genres = m.genres;
+              if (m.trailer?.site === 'youtube' && m.trailer?.id) item.trailerId = String(m.trailer.id);
               const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
                 ? (m.nextAiringEpisode.episode - 1)
                 : (m.episodes || null);
@@ -4005,8 +4496,9 @@
       }
     }
 
-    function playCurrentHero() {
-      selectAnime(currentHeroAnime, true);
+    async function playCurrentHero() {
+      if (!currentHeroAnime) return;
+      await selectAnimeById(currentHeroAnime.id, true);
     }
 
     function renderSeasonPicker(anime) {
@@ -4179,10 +4671,17 @@
 
       const badge = document.getElementById('playerCoreBadge');
       const toggle = document.getElementById('subDubToggleBox');
+      const skipIntroBtn = document.getElementById('skipIntroBtn');
+      const skipOutroBtn = document.getElementById('skipOutroBtn');
+
+      updateServerButtonLabels(!!currentAnime.isMovieOrSeries);
+      renderTheaterInfoStrip(currentAnime);
 
       if (currentAnime.isMovieOrSeries) {
         if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
         if (toggle) toggle.style.display = 'none';
+        if (skipIntroBtn) skipIntroBtn.style.display = 'none';
+        if (skipOutroBtn) skipOutroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
         const epMeta = currentAnime.seasonsMap?.[currentSeason]?.find(e => Number(e.ep) === Number(currentEpisode));
         const epNameSuffix = epMeta?.title ? ` • ${epMeta.title}` : '';
         const titleText = currentAnime.type === 'movie'
@@ -4199,6 +4698,8 @@
       } else {
         if (badge) badge.innerText = '⚡ 100% Ad-Free Anime Core';
         if (toggle) toggle.style.display = 'flex';
+        if (skipIntroBtn) skipIntroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
+        if (skipOutroBtn) skipOutroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
         const trackLabel = currentTrack.toUpperCase();
         const epLabel = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
         document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${epLabel} [${trackLabel}]`;
@@ -4290,7 +4791,7 @@
     }
 
     function skipIntro() {
-      alert('Skipped opening intro (+85s)');
+      showAppToast('⏭ Skip Intro (+85s): use player timeline controls to jump ahead cleanly.');
     }
 
     function skipOutro() {
@@ -4682,6 +5183,8 @@
       const rating = (!isNaN(ratingNum) && ratingNum > 0) ? ratingNum.toFixed(1) : 'NEW';
       const yearRaw = m.year || (m.releaseInfo ? String(m.releaseInfo).slice(0, 4) : '');
       const poster = m.poster || (imdbId ? `https://images.metahub.space/poster/small/${imdbId}/img` : '');
+      const genres = Array.isArray(m.genres) ? m.genres : (Array.isArray(m.genre) ? m.genre : []);
+      const trailerId = Array.isArray(m.trailers) ? (m.trailers.find(t => t?.source)?.source || null) : null;
 
       return {
         id: String(m.id || imdbId || ''),
@@ -4693,6 +5196,12 @@
         romaji: m.name || '',
         rating,
         year: yearRaw,
+        runtime: m.runtime ? String(m.runtime) : '',
+        country: m.country ? String(m.country) : '',
+        genres,
+        cast: Array.isArray(m.cast) ? m.cast : [],
+        director: Array.isArray(m.director) ? m.director : [],
+        trailerId,
         episodes: epCount,
         seasonsMap: parsedSeasons?.seasonsMap || null,
         seasonNumbers: parsedSeasons?.seasonNumbers || null,
@@ -4704,16 +5213,19 @@
       };
     }
 
-    async function fetchCinemetaCatalog(type, mode = 'new', genre = 'ALL', skip = 0) {
+    async function fetchCinemetaCatalog(type, mode = 'new', genre = 'ALL', skip = 0, year = 'ALL') {
       const curYear = new Date().getFullYear();
-      const yrStr = String(curYear);
+      const targetYear = (year && year !== 'ALL') ? String(year) : String(curYear);
       let url = '';
-      if (genre && genre !== 'ALL') {
+      if (year && year !== 'ALL') {
+        const extra = skip > 0 ? `genre=${targetYear}&skip=${skip}` : `genre=${targetYear}`;
+        url = `https://v3-cinemeta.strem.io/catalog/${type}/year/${extra}.json`;
+      } else if (genre && genre !== 'ALL') {
         const catId = mode === 'featured' ? 'imdbRating' : 'top';
         const extra = skip > 0 ? `genre=${encodeURIComponent(genre)}&skip=${skip}` : `genre=${encodeURIComponent(genre)}`;
         url = `https://v3-cinemeta.strem.io/catalog/${type}/${catId}/${extra}.json`;
       } else if (mode === 'new') {
-        const extra = skip > 0 ? `genre=${yrStr}&skip=${skip}` : `genre=${yrStr}`;
+        const extra = skip > 0 ? `genre=${targetYear}&skip=${skip}` : `genre=${targetYear}`;
         url = `https://v3-cinemeta.strem.io/catalog/${type}/year/${extra}.json`;
       } else {
         const catId = mode === 'featured' ? 'imdbRating' : 'top';
@@ -4728,16 +5240,16 @@
       const metas = Array.isArray(data?.metas) ? data.metas : [];
       let list = metas.map(m => normalizeCinemetaMedia({ ...m, type }));
 
-      if (mode === 'new' && (!genre || genre === 'ALL')) {
-        // Filter out mis-indexed old catalog entries and prioritize rated, released titles
+      if ((mode === 'new' && (!genre || genre === 'ALL')) || (year && year !== 'ALL')) {
+        const yrNum = parseInt(targetYear, 10);
         list = list
           .filter(item => {
             const y = parseInt(item.year, 10);
-            return !y || y >= curYear - 1;
+            return year && year !== 'ALL' ? (!y || y === yrNum) : (!y || y >= curYear - 1);
           })
           .sort((a, b) => {
-            const aYear = parseInt(a.year, 10) === curYear ? 1 : 0;
-            const bYear = parseInt(b.year, 10) === curYear ? 1 : 0;
+            const aYear = parseInt(a.year, 10) === yrNum ? 1 : 0;
+            const bYear = parseInt(b.year, 10) === yrNum ? 1 : 0;
             if (bYear !== aYear) return bYear - aYear;
             const aRated = a.rating !== 'NEW' ? 1 : 0;
             const bRated = b.rating !== 'NEW' ? 1 : 0;
@@ -4931,21 +5443,55 @@
       container.innerHTML = pills.join('');
     }
 
+    function renderYearFilterOptions(type) {
+      const isMovie = type === 'movie';
+      const sel = document.getElementById(isMovie ? 'moviesYearSelect' : 'seriesYearSelect');
+      if (!sel) return;
+      const activeYear = isMovie ? currentMoviesYear : currentSeriesYear;
+      if (!sel.options.length) {
+        const curYear = new Date().getFullYear();
+        const years = [];
+        for (let y = curYear; y >= curYear - 10; y--) years.push(String(y));
+        ['2015', '2010', '2005', '2000', '1995', '1990'].forEach(y => {
+          if (!years.includes(y)) years.push(y);
+        });
+        sel.innerHTML = `<option value="ALL">All Years</option>` +
+          years.map(y => `<option value="${y}">${y}</option>`).join('');
+      }
+      sel.value = activeYear || 'ALL';
+    }
+
+    function setMediaCatalogYear(type, yrVal) {
+      const cleanYear = yrVal && yrVal !== 'ALL' ? String(yrVal) : 'ALL';
+      if (type === 'movie') {
+        currentMoviesYear = cleanYear;
+        if (cleanYear !== 'ALL') currentMoviesGenre = 'ALL';
+      } else {
+        currentSeriesYear = cleanYear;
+        if (cleanYear !== 'ALL') currentSeriesGenre = 'ALL';
+      }
+      loadMediaCatalog(type, true);
+    }
+
     function updateMediaCatalogUi(type) {
       const isMovie = type === 'movie';
       const mode = isMovie ? currentMoviesMode : currentSeriesMode;
       const genre = isMovie ? currentMoviesGenre : currentSeriesGenre;
+      const year = isMovie ? currentMoviesYear : currentSeriesYear;
       const curYear = new Date().getFullYear();
 
       const modeContainerId = isMovie ? 'moviesModePills' : 'seriesModePills';
       document.querySelectorAll(`#${modeContainerId} .media-subpill`).forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+        btn.classList.toggle('active', year === 'ALL' && btn.getAttribute('data-mode') === mode);
       });
       renderCinemetaGenrePills(type);
+      renderYearFilterOptions(type);
 
       const titleEl = document.getElementById(isMovie ? 'moviesSectionTitle' : 'seriesSectionTitle');
       if (titleEl) {
-        if (genre !== 'ALL') {
+        if (year !== 'ALL') {
+          titleEl.innerText = isMovie ? `📅 ${year} Movies` : `📅 ${year} TV Shows`;
+        } else if (genre !== 'ALL') {
           const verb = mode === 'featured' ? '⭐ Featured' : '🔥 Top';
           titleEl.innerText = isMovie ? `${verb} ${genre} Movies` : `${verb} ${genre} TV Shows`;
         } else if (!isMovie && mode === 'latest') {
@@ -4963,9 +5509,11 @@
     function setMediaCatalogMode(type, mode) {
       if (type === 'movie') {
         currentMoviesMode = mode;
+        currentMoviesYear = 'ALL';
         if (mode === 'new') currentMoviesGenre = 'ALL';
       } else {
         currentSeriesMode = mode;
+        currentSeriesYear = 'ALL';
         if (mode === 'latest' || mode === 'new') currentSeriesGenre = 'ALL';
       }
       loadMediaCatalog(type, true);
@@ -4974,9 +5522,11 @@
     function filterMediaByGenre(type, genre) {
       if (type === 'movie') {
         currentMoviesGenre = genre;
+        currentMoviesYear = 'ALL';
         if (genre !== 'ALL' && currentMoviesMode === 'new') currentMoviesMode = 'popular';
       } else {
         currentSeriesGenre = genre;
+        currentSeriesYear = 'ALL';
         if (genre !== 'ALL' && (currentSeriesMode === 'latest' || currentSeriesMode === 'new')) {
           currentSeriesMode = 'popular';
         }
@@ -4988,6 +5538,7 @@
       const isMovie = type === 'movie';
       const mode = isMovie ? currentMoviesMode : currentSeriesMode;
       const genre = isMovie ? currentMoviesGenre : currentSeriesGenre;
+      const year = isMovie ? currentMoviesYear : currentSeriesYear;
 
       if (reset) {
         if (isMovie) moviesOffset = 0;
@@ -5006,7 +5557,7 @@
       }
 
       try {
-        if (!isMovie && mode === 'latest' && genre === 'ALL') {
+        if (!isMovie && mode === 'latest' && genre === 'ALL' && year === 'ALL') {
           const liveList = await fetchLiveTvEpisodes(36, 3);
           currentSeriesList = liveList;
           if (!liveList.length) {
@@ -5018,8 +5569,8 @@
           return;
         }
 
-        const list = await fetchCinemetaCatalog(type, mode, genre, offset);
-        const cardFn = (mode === 'new' && (!genre || genre === 'ALL') && isMovie) ? renderRealReleaseCard : renderCard;
+        const list = await fetchCinemetaCatalog(type, mode, genre, offset, year);
+        const cardFn = (mode === 'new' && (!genre || genre === 'ALL') && year === 'ALL' && isMovie) ? renderRealReleaseCard : renderCard;
 
         if (list.length) {
           if (reset) {
@@ -5378,11 +5929,11 @@
 
           currentHeroAnime = trendingList[0];
           currentAnime = trendingList[0];
-          document.getElementById('heroBg').src = currentHeroAnime.backdrop || currentHeroAnime.poster;
-          document.getElementById('heroTitle').innerText = currentHeroAnime.title;
-          document.getElementById('heroSynopsis').innerText = currentHeroAnime.synopsis;
-          document.getElementById('heroRating').innerText = '★ ' + currentHeroAnime.rating;
-          document.getElementById('heroEpisodes').innerText = currentHeroAnime.episodes + ' EPISODES';
+          heroSlides = [trendingList[0]];
+          applyHeroSlide(0);
+          buildHeroCarousel();
+          renderYearFilterOptions('movie');
+          renderYearFilterOptions('series');
           renderEpisodeGrid(currentHeroAnime.episodes);
         }
 
@@ -5415,9 +5966,10 @@
 
     // Keyboard Shortcuts for TV / Remote
     window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
       if (e.key === 'Escape') {
         if (document.body.classList.contains('cinema-fs-open')) exitCinemaFullscreen();
+        closeTrailerModal();
         ['syncModal', 'authModal', 'profileModal', 'addonModal'].forEach(mid => {
           const el = document.getElementById(mid);
           if (el && el.style.display === 'flex') el.style.display = 'none';
@@ -5425,8 +5977,8 @@
       }
       if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
       if (e.key === 'ArrowLeft' && e.shiftKey) changeEpisode(-1);
-      if (e.key === 's' || e.key === 'S') skipIntro();
-      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      if ((e.key === 's' || e.key === 'S') && document.getElementById('theaterSection')?.classList.contains('active')) skipIntro();
+      if ((e.key === 'f' || e.key === 'F') && document.getElementById('theaterSection')?.classList.contains('active')) toggleFullscreen();
     });
 
     // --- Zero-Knowledge Encrypted Account System ---

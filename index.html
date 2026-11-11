@@ -3296,6 +3296,9 @@
       const container = document.getElementById('playerContainer');
       const btn = document.getElementById('fullscreenBtn');
       const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl && container) {
+        container.classList.remove('cinema-fullscreen');
+      }
       const active = Boolean(fsEl || (container && container.classList.contains('cinema-fullscreen')));
       document.body.classList.toggle('cinema-fs-open', active);
       if (btn) {
@@ -3348,7 +3351,13 @@
       const req = container.requestFullscreen || container.webkitRequestFullscreen;
       if (typeof req === 'function') {
         try {
-          await req.call(container);
+          const reqPromise = req.call(container);
+          if (reqPromise && typeof reqPromise.then === 'function') {
+            await Promise.race([
+              reqPromise,
+              new Promise((resolve) => setTimeout(resolve, 250))
+            ]);
+          }
         } catch (err) {
           console.warn('Native fullscreen unavailable, using cinema fullscreen fallback:', err);
         }

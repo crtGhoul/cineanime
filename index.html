@@ -1554,6 +1554,9 @@
       border-radius: 14px;
       width: 100%;
       max-width: 580px;
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
       overflow: hidden;
       animation: modalFadeIn 0.2s ease-out;
@@ -1599,6 +1602,8 @@
 
     .addon-modal-body {
       padding: 1.5rem;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .addon-input-group {
@@ -1771,6 +1776,120 @@
       padding: 0.25rem 0.6rem;
       border-radius: 9999px;
     }
+    .sync-status-card {
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .sync-live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #71717a;
+      margin-right: 0.35rem;
+    }
+    .sync-live-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .sync-live-dot.syncing {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+    .sync-provider-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+      margin-bottom: 0.9rem;
+    }
+    .sync-provider-btn {
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0.55rem 0.45rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .sync-provider-btn.active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.14);
+      color: #fff;
+    }
+    .sync-scope-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .sync-scope-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: #e4e4e7;
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      padding: 0.45rem 0.6rem;
+      cursor: pointer;
+    }
+    .qr-box-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin-top: 0.85rem;
+    }
+    .qr-svg-frame {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 10px;
+      line-height: 0;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+    .sync-room-code-pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px dashed rgba(16, 185, 129, 0.45);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      user-select: all;
+    }
+    .sync-step-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9px;
+      padding: 0.8rem 0.9rem;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    @media (max-width: 520px) {
+      .sync-provider-pills, .sync-scope-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1791,6 +1910,7 @@
       <button id="pwaInstallBtn" class="nav-btn" onclick="triggerPwaInstall()" style="border-color: rgba(229, 9, 20, 0.4); background: rgba(229, 9, 20, 0.12);">📲 Install App</button>
       <button class="nav-btn" onclick="openAddonModal()">🧩 Stremio Addons</button>
       <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
+      <button id="syncNavBtn" class="nav-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History"><span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync</button>
       <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
@@ -2258,6 +2378,7 @@
           </p>
 
           <div style="display: flex; gap: 0.5rem;">
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.6rem;" onclick="closeProfileModal(); openSyncModal('cloud');">🌐 Live Link / QR</button>
             <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.6rem;" onclick="generateSyncExport()">📋 Export Sync Key</button>
             <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.6rem;" onclick="showSyncImportBox()">📥 Import Sync Key</button>
           </div>
@@ -2288,6 +2409,153 @@
             <button class="server-btn" style="padding: 0.6rem 1rem;" onclick="saveDebridKey()">Save Key</button>
           </div>
           <div id="debridStatusLabel" style="font-size: 0.75rem; color: #10b981; margin-top: 0.4rem; display: none;">✅ 4K Debrid Engine Connected!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Cross-Device Link & Sync Modal -->
+  <div id="syncModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="syncModalTitle" style="display: none;">
+    <div class="addon-modal-dialog" style="max-width: 620px;">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title" id="syncModalTitle">
+          <span>🔗 Link Devices &amp; Cross-Device Sync</span>
+        </div>
+        <button class="addon-modal-close" onclick="closeSyncModal()" aria-label="Close Sync Dialog">✕</button>
+      </div>
+      <div class="addon-modal-body">
+        <!-- Pending #pair= Confirmation Banner -->
+        <div id="syncIncomingPairBanner" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="color: #10b981; font-size: 0.95rem; margin-bottom: 0.35rem;">📱 Link This Device to Synced Library?</h4>
+          <p id="syncIncomingPairDesc" style="font-size: 0.8rem; color: #e4e4e7; margin-bottom: 0.75rem;">This will connect this browser to your live encrypted room and merge Continue Watching, checkmarks, Watchlist, and addons.</p>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="auth-submit-btn" style="margin: 0; background: #10b981; padding: 0.6rem;" onclick="confirmIncomingPair()">✅ Link &amp; Sync Now</button>
+            <button class="server-btn" style="padding: 0.6rem 1rem;" onclick="dismissIncomingPair()">Cancel</button>
+          </div>
+        </div>
+
+        <div class="auth-tab-row" role="tablist">
+          <button id="syncTabCloud" class="auth-tab-btn active" onclick="switchSyncModalTab('cloud')">🌐 Live Auto-Sync (Linked)</button>
+          <button id="syncTabTransfer" class="auth-tab-btn" onclick="switchSyncModalTab('transfer')">📱 Quick Transfer (QR / Link / Key)</button>
+        </div>
+
+        <!-- What Data Syncs -->
+        <details style="margin-bottom: 1rem; background: #0d0d14; border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 0.65rem 0.85rem;">
+          <summary style="cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #e4e4e7;">⚙️ What Gets Synced Across Devices</summary>
+          <div class="sync-scope-grid">
+            <label class="sync-scope-item"><input type="checkbox" id="scopeHistory" onchange="saveSyncScopeFromUi()"> Continue Watching &amp; Episodes</label>
+            <label class="sync-scope-item"><input type="checkbox" id="scopeWatched" onchange="saveSyncScopeFromUi()"> Watched Checkmarks (✔)</label>
+            <label class="sync-scope-item"><input type="checkbox" id="scopeWatchlist" onchange="saveSyncScopeFromUi()"> My Watchlist (❤️ Saved)</label>
+            <label class="sync-scope-item"><input type="checkbox" id="scopeAddons" onchange="saveSyncScopeFromUi()"> Custom Stremio Addons</label>
+            <label class="sync-scope-item"><input type="checkbox" id="scopePrefs" onchange="saveSyncScopeFromUi()"> Preferred Server &amp; SUB/DUB</label>
+            <label class="sync-scope-item"><input type="checkbox" id="scopeDebrid" onchange="saveSyncScopeFromUi()"> 4K Debrid Key (Private)</label>
+          </div>
+        </details>
+
+        <!-- TAB 1: Live Auto-Sync -->
+        <div id="syncPanelCloud">
+          <div class="sync-status-card">
+            <div>
+              <div id="cloudStatusHeadline" style="font-size: 0.9rem; font-weight: 700; color: #fff;"><span id="cloudStatusDot" class="sync-live-dot"></span>Not linked yet</div>
+              <div id="cloudStatusSub" style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.15rem;">Connect a 100% free cloud store once, then scan the QR on your phone or TV.</div>
+            </div>
+            <div id="cloudConnectedBtns" style="display: none; gap: 0.45rem;">
+              <button class="server-btn" style="padding: 0.45rem 0.75rem; font-size: 0.78rem;" onclick="manualCloudSyncNow()">🔄 Sync Now</button>
+              <button class="addon-delete-btn" onclick="unlinkCloudDevice()">Unlink</button>
+            </div>
+          </div>
+
+          <div id="cloudConnectedPanel" style="display: none;">
+            <div class="qr-box-wrap" style="margin-top: 0;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">📲 Pair Your Phone, AppMaka, or Google TV</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Scan this QR with your phone camera, or enter this Sync Code on another device:</div>
+              <div id="cloudRoomCodeDisplay" class="sync-room-code-pill">CINE-XXXX-XXXX</div>
+              <div id="cloudQrFrame" class="qr-svg-frame" style="display: none;"></div>
+              <div id="cloudQrNote" style="font-size: 0.73rem; color: var(--text-muted); text-align: center;">Keep this QR &amp; Sync Code private—anyone with it can access this sync room.</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; width: 100%; margin-top: 0.25rem;">
+                <button class="server-btn" style="flex: 1; justify-content: center;" onclick="copyCloudPairLink()">🔗 Copy 1-Tap Pairing Link</button>
+                <button class="server-btn" style="flex: 1; justify-content: center;" onclick="copyTextWithAlert(currentCloudRoomCode(), 'Sync Room Code copied!')">📋 Copy Room Code</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="cloudSetupPanel">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">Choose a 100% Free ($0/mo) Cloud Sync Backend:</div>
+            <div class="sync-provider-pills">
+              <button class="sync-provider-btn active" data-provider="gist" onclick="selectCloudProvider('gist')">🐙 GitHub Private Gist<br><span style="font-weight:400; font-size:0.7rem;">No server deploy needed</span></button>
+              <button class="sync-provider-btn" data-provider="cloudflare" onclick="selectCloudProvider('cloudflare')">☁️ Cloudflare Worker<br><span style="font-weight:400; font-size:0.7rem;">Worker in repo (100k/day free)</span></button>
+              <button class="sync-provider-btn" data-provider="firebase" onclick="selectCloudProvider('firebase')">🔥 Firebase RTDB<br><span style="font-weight:400; font-size:0.7rem;">Spark $0 plan, zero code</span></button>
+            </div>
+
+            <div id="providerFieldsGist">
+              <div class="auth-field">
+                <label>GitHub Gist Token (Fine-grained PAT with <b>Gists: Read &amp; write</b> only)</label>
+                <input type="password" id="syncGistToken" placeholder="github_pat_... or ghp_...">
+              </div>
+              <div class="auth-field" style="margin-bottom: 0.5rem;">
+                <label>Existing Gist ID (Leave blank on PC to create a new private synced Gist)</label>
+                <input type="text" id="syncGistId" placeholder="Optional — only needed when joining manually without QR">
+              </div>
+            </div>
+
+            <div id="providerFieldsEndpoint" style="display: none;">
+              <div class="auth-field">
+                <label id="syncEndpointLabel">Cloudflare Worker URL</label>
+                <input type="url" id="syncEndpointUrl" placeholder="https://cineanime-sync.your-name.workers.dev">
+              </div>
+            </div>
+
+            <div class="auth-field">
+              <label>Sync Room Code (Used to encrypt/link devices — leave blank to auto-generate)</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="syncRoomCodeInput" style="flex: 1; text-transform: uppercase;" placeholder="e.g. CINE-7K4M-92PX (auto-generates if blank)">
+                <button class="server-btn" type="button" onclick="fillRandomRoomCode()">🎲 Random</button>
+              </div>
+            </div>
+
+            <button class="auth-submit-btn" style="background: #10b981;" onclick="connectCloudSync()">🔗 Link &amp; Enable Live Auto-Sync</button>
+
+            <div id="providerHelpBox" class="sync-step-box"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Instant Transfer (Zero-Server QR / Link / Key) -->
+        <div id="syncPanelTransfer" style="display: none;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem; line-height: 1.5;">
+            Works immediately with <strong style="color:#fff;">zero servers or logins</strong>. Export a snapshot from PC to send via Link, QR code, or pasted Sync Key to your phone or TV (one-time transfer; use <b>Live Auto-Sync</b> to keep devices linked permanently).
+          </div>
+
+          <div class="auth-field" style="margin-bottom: 0.65rem;">
+            <label>Optional Encryption Password (Leave blank for quick 1-tap transfer link)</label>
+            <input type="password" id="transferPasswordInput" placeholder="Optional password (leave blank for instant QR/link)">
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem;" onclick="generateInstantTransfer()">📤 Create Transfer Code / QR</button>
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem;" onclick="document.getElementById('transferReceiveWrap').style.display='block'">📥 Paste Code / Link Here</button>
+          </div>
+
+          <div id="transferSendWrap" style="display: none;">
+            <textarea id="transferOutputText" class="sync-code-area" readonly onclick="this.select()"></textarea>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              <button class="auth-submit-btn" style="flex: 1; margin: 0; padding: 0.6rem;" onclick="copyTransferLink()">🔗 Copy 1-Tap Phone Link</button>
+              <button class="server-btn" style="flex: 1; justify-content: center;" onclick="copyTransferKey()">📋 Copy Sync Key</button>
+            </div>
+            <div id="transferQrWrap" class="qr-box-wrap" style="display: none;">
+              <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">📷 Scan with Phone Camera</div>
+              <div id="transferQrFrame" class="qr-svg-frame"></div>
+            </div>
+            <div id="transferQrFallbackNote" style="display: none; font-size: 0.76rem; color: var(--text-muted); margin-top: 0.5rem;">
+              Library snapshot is too large for a dense QR code — send the <b>1-Tap Phone Link</b> or <b>Sync Key</b> above (or use <b>Live Auto-Sync</b> for a small scan-friendly QR).
+            </div>
+          </div>
+
+          <div id="transferReceiveWrap" style="display: none; margin-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Paste Sync Key (<code>CINE2:...</code>) or Transfer URL:</label>
+            <textarea id="transferImportInput" class="sync-code-area" placeholder="Paste https://crtghoul.github.io/cineanime/#sync=... or CINE2:... sync key here"></textarea>
+            <input type="password" id="transferImportPassword" class="addon-text-input" style="width: 100%; margin-top: 0.5rem;" placeholder="Password (only needed if the sender entered one)">
+            <button class="auth-submit-btn" style="margin-top: 0.5rem; background: #10b981;" onclick="applyInstantTransferImport()">📥 Merge Into This Device</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2788,18 +3056,72 @@
     }
 
     // --- Data Accessors (Scoped to Guest or Decrypted Vault) ---
+    function isVaultUnlocked() {
+      return !!(currentSessionUser && sessionVaultKey);
+    }
+
     function getWatchHistory() {
-      if (currentSessionUser && sessionData.history) {
+      if (isVaultUnlocked() && Array.isArray(sessionData.history)) {
         return sessionData.history;
       }
       return JSON.parse(localStorage.getItem('cineanime_history') || '[]');
     }
 
     function getWatchlist() {
-      if (currentSessionUser && sessionData.watchlist) {
+      if (isVaultUnlocked() && Array.isArray(sessionData.watchlist)) {
         return sessionData.watchlist;
       }
       return JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+    }
+
+    function getWatchlistMeta() {
+      if (isVaultUnlocked() && sessionData.watchlistMeta) {
+        return sessionData.watchlistMeta;
+      }
+      return JSON.parse(localStorage.getItem('cineanime_watchlist_meta') || '{}');
+    }
+
+    function saveWatchlistMeta(meta) {
+      if (isVaultUnlocked()) {
+        sessionData.watchlistMeta = meta;
+        persistUserData();
+      } else {
+        localStorage.setItem('cineanime_watchlist_meta', JSON.stringify(meta));
+      }
+    }
+
+    function toCompactMediaMeta(item) {
+      if (!item || !item.id) return null;
+      return {
+        id: String(item.id),
+        aniId: item.aniId || null,
+        idMal: item.idMal || null,
+        tmdbId: item.tmdbId || null,
+        imdbId: item.imdbId || null,
+        isMovieOrSeries: !!item.isMovieOrSeries,
+        type: item.type || 'tv',
+        title: item.title || '',
+        poster: item.poster || '',
+        backdrop: item.backdrop || item.poster || '',
+        rating: item.rating || '8.5',
+        year: item.year || '',
+        episodes: item.episodes || (item.type === 'movie' ? 1 : 12)
+      };
+    }
+
+    function hydrateWatchlistCache() {
+      const meta = getWatchlistMeta();
+      Object.keys(meta).forEach(id => {
+        if (!ANIME_CACHE.has(id) && meta[id] && meta[id].title) {
+          ANIME_CACHE.set(id, meta[id]);
+        }
+      });
+      getWatchHistory().forEach(h => {
+        const sid = String(h.id);
+        if (!ANIME_CACHE.has(sid) && h.title) {
+          ANIME_CACHE.set(sid, { ...h, episodes: h.totalEpisodes || (h.type === 'movie' ? 1 : 12) });
+        }
+      });
     }
 
     async function persistUserData() {
@@ -2825,21 +3147,40 @@
 
     function toggleFavorite(e, id) {
       e.stopPropagation();
-      let list = getWatchlist();
+      let list = [...getWatchlist()];
       const strId = String(id);
+      const tsMap = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
+      const delMap = JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}');
+      const metaMap = { ...getWatchlistMeta() };
+      const now = Date.now();
+
       if (list.includes(strId)) {
         list = list.filter(item => item !== strId);
+        delete tsMap[strId];
+        delMap[strId] = now;
       } else {
         list.push(strId);
+        tsMap[strId] = now;
+        delete delMap[strId];
+        const found = ANIME_CACHE.get(strId) || (currentAnime && String(currentAnime.id) === strId ? currentAnime : null);
+        const stub = toCompactMediaMeta(found);
+        if (stub) metaMap[strId] = stub;
       }
-      if (currentSessionUser) {
+
+      localStorage.setItem('cineanime_watchlist_ts', JSON.stringify(tsMap));
+      localStorage.setItem('cineanime_deleted_watchlist', JSON.stringify(delMap));
+
+      if (isVaultUnlocked()) {
         sessionData.watchlist = list;
+        sessionData.watchlistMeta = metaMap;
         persistUserData();
       } else {
         localStorage.setItem('cineanime_watchlist', JSON.stringify(list));
+        localStorage.setItem('cineanime_watchlist_meta', JSON.stringify(metaMap));
       }
       renderWatchlist();
       updateBadges();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
       // Re-render favorite buttons in place
       document.querySelectorAll(`.card-fav-btn[data-id="${strId}"]`).forEach(btn => {
         const fav = list.includes(strId);
@@ -3239,6 +3580,7 @@
       currentTrack = track;
       document.getElementById('trackSubBtn').classList.toggle('active', track === 'sub');
       document.getElementById('trackDubBtn').classList.toggle('active', track === 'dub');
+      savePlaybackPrefs();
       updatePlayerUrl();
     }
 
@@ -3407,6 +3749,7 @@
         document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeServer = btn.dataset.server;
+        savePlaybackPrefs();
         updatePlayerUrl();
       });
     });
@@ -3857,6 +4200,7 @@
     function saveStoredAddons(addons) {
       localStorage.setItem('cineanime_stremio_addons', JSON.stringify(addons));
       renderAddonsList();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
     }
 
     function openAddonModal() {
@@ -4167,7 +4511,13 @@
     // Keyboard Shortcuts for TV / Remote
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT') return;
-      if (e.key === 'Escape' && document.body.classList.contains('cinema-fs-open')) exitCinemaFullscreen();
+      if (e.key === 'Escape') {
+        if (document.body.classList.contains('cinema-fs-open')) exitCinemaFullscreen();
+        ['syncModal', 'authModal', 'profileModal', 'addonModal'].forEach(mid => {
+          const el = document.getElementById(mid);
+          if (el && el.style.display === 'flex') el.style.display = 'none';
+        });
+      }
       if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
       if (e.key === 'ArrowLeft' && e.shiftKey) changeEpisode(-1);
       if (e.key === 's' || e.key === 'S') skipIntro();
@@ -4177,10 +4527,50 @@
     // --- Zero-Knowledge Encrypted Account System ---
     let currentSessionUser = localStorage.getItem('cineanime_active_user') || null;
     let sessionVaultKey = null;
-    let sessionData = { history: [], watchlist: [], watchedEpisodes: {}, debridKey: '' };
+    let sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '' };
+
+    function getPlaybackPrefs() {
+      try {
+        return JSON.parse(localStorage.getItem('cineanime_prefs') || '{}');
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function savePlaybackPrefs(fromRemote = null) {
+      const next = fromRemote || {
+        server: activeServer,
+        track: currentTrack,
+        updatedAt: Date.now()
+      };
+      localStorage.setItem('cineanime_prefs', JSON.stringify(next));
+      if (!fromRemote && typeof scheduleCloudPush === 'function') scheduleCloudPush();
+    }
+
+    function applyPlaybackPrefsUi() {
+      const prefs = getPlaybackPrefs();
+      if (prefs.server && SERVERS[prefs.server]) {
+        activeServer = prefs.server;
+        document.querySelectorAll('.server-btn').forEach(b => {
+          if (b.dataset.server) b.classList.toggle('active', b.dataset.server === activeServer);
+        });
+      }
+      if (prefs.track === 'dub' || prefs.track === 'sub') {
+        currentTrack = prefs.track;
+        const sBtn = document.getElementById('trackSubBtn');
+        const dBtn = document.getElementById('trackDubBtn');
+        if (sBtn) sBtn.classList.toggle('active', currentTrack === 'sub');
+        if (dBtn) dBtn.classList.toggle('active', currentTrack === 'dub');
+      }
+    }
+
+    function getDebridKeyValue() {
+      if (isVaultUnlocked() && sessionData.debridKey) return sessionData.debridKey;
+      return sessionStorage.getItem('cineanime_debrid_key') || localStorage.getItem('cineanime_debrid_key') || '';
+    }
 
     function getWatchedEpisodesMap() {
-      if (currentSessionUser && sessionData.watchedEpisodes) {
+      if (isVaultUnlocked() && sessionData.watchedEpisodes) {
         return sessionData.watchedEpisodes;
       }
       return JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}');
@@ -4195,17 +4585,17 @@
     function markEpisodeWatched(animeId, ep, isWatched = true) {
       const strId = String(animeId);
       const epNum = Number(ep);
-      let map = getWatchedEpisodesMap();
-      let list = map[strId] || [];
+      let map = { ...getWatchedEpisodesMap() };
+      let list = [...(map[strId] || [])];
 
       if (isWatched) {
         if (!list.includes(epNum)) list.push(epNum);
       } else {
         list = list.filter(e => e !== epNum);
       }
-      map[strId] = list;
+      map[strId] = list.sort((a, b) => a - b);
 
-      if (currentSessionUser) {
+      if (isVaultUnlocked()) {
         sessionData.watchedEpisodes = map;
         persistUserData();
       } else {
@@ -4215,6 +4605,7 @@
         renderEpisodeGrid(currentAnime.episodes || 12);
         updateWatchedBtn();
       }
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
     }
 
     function toggleCurrentEpWatched() {
@@ -4225,12 +4616,12 @@
     function markAllEpisodesWatched() {
       const count = currentAnime.episodes || 12;
       const strId = String(currentAnime.id);
-      let map = getWatchedEpisodesMap();
+      let map = { ...getWatchedEpisodesMap() };
       let list = [];
       for (let i = 1; i <= count; i++) list.push(i);
       map[strId] = list;
 
-      if (currentSessionUser) {
+      if (isVaultUnlocked()) {
         sessionData.watchedEpisodes = map;
         persistUserData();
       } else {
@@ -4238,6 +4629,7 @@
       }
       renderEpisodeGrid(count);
       updateWatchedBtn();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
     }
 
     function updateWatchedBtn() {
@@ -4260,7 +4652,7 @@
       const val = input ? input.value.trim() : '';
       if (!val) return alert('Please enter a valid Debrid API key.');
 
-      if (currentSessionUser) {
+      if (isVaultUnlocked()) {
         sessionData.debridKey = val;
         persistUserData();
       } else {
@@ -4268,10 +4660,75 @@
       }
       const label = document.getElementById('debridStatusLabel');
       if (label) label.style.display = 'block';
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
       alert('✅ 4K Debrid API key saved securely into your encrypted vault!');
     }
 
-    // Crypto Helpers (PBKDF2 + AES-256-GCM)
+    // Crypto Helpers (PBKDF2 + AES-256-GCM + UTF-8 Safe Base64Url)
+    function bytesToBase64Url(bytes) {
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      }
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function base64UrlToBytes(str) {
+      let b64 = String(str).trim().replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const out = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    }
+
+    function utf8ToBase64Url(text) {
+      return bytesToBase64Url(new TextEncoder().encode(text));
+    }
+
+    function base64UrlToUtf8(b64u) {
+      return new TextDecoder().decode(base64UrlToBytes(b64u));
+    }
+
+    async function sha256Hex(text) {
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function compressPayloadString(str) {
+      const raw = new TextEncoder().encode(str);
+      if (typeof CompressionStream === 'function') {
+        try {
+          const cs = new CompressionStream('deflate-raw');
+          const writer = cs.writable.getWriter();
+          writer.write(raw);
+          writer.close();
+          const buf = await new Response(cs.readable).arrayBuffer();
+          return 'p:' + bytesToBase64Url(new Uint8Array(buf));
+        } catch (_) {}
+      }
+      return 'u:' + bytesToBase64Url(raw);
+    }
+
+    async function decompressPayloadString(encoded) {
+      const sep = encoded.indexOf(':');
+      if (sep === -1) return base64UrlToUtf8(encoded);
+      const mode = encoded.slice(0, sep);
+      const bytes = base64UrlToBytes(encoded.slice(sep + 1));
+      if (mode === 'p') {
+        if (typeof DecompressionStream !== 'function') {
+          throw new Error('This browser cannot decompress deflate links. Paste in a modern browser or use Live Cloud Sync.');
+        }
+        const ds = new DecompressionStream('deflate-raw');
+        const writer = ds.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const buf = await new Response(ds.readable).arrayBuffer();
+        return new TextDecoder().decode(buf);
+      }
+      return new TextDecoder().decode(bytes);
+    }
+
     async function deriveVaultKey(password, salt) {
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey(
@@ -4281,7 +4738,7 @@
         { name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' },
         keyMaterial,
         { name: 'AES-GCM', length: 256 },
-        false,
+        true,
         ['encrypt', 'decrypt']
       );
     }
@@ -4325,8 +4782,32 @@
       return JSON.parse(dec.decode(decrypted));
     }
 
+    async function saveTabVaultKey(u, key) {
+      try {
+        const jwk = await crypto.subtle.exportKey('jwk', key);
+        sessionStorage.setItem('cineanime_tab_jwk_' + u, JSON.stringify(jwk));
+      } catch (_) {}
+    }
+
+    async function restoreTabVaultSession() {
+      if (!currentSessionUser) return;
+      try {
+        const rawJwk = sessionStorage.getItem('cineanime_tab_jwk_' + currentSessionUser);
+        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+        const account = accounts[currentSessionUser];
+        if (!rawJwk || !account) return;
+        const key = await crypto.subtle.importKey('jwk', JSON.parse(rawJwk), { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
+        const decrypted = await decryptVault(account.encryptedData, key);
+        sessionVaultKey = key;
+        sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '', ...(decrypted || {}) };
+        hydrateWatchlistCache();
+      } catch (_) {
+        sessionVaultKey = null;
+      }
+    }
+
     function handleAuthClick() {
-      if (currentSessionUser) {
+      if (isVaultUnlocked()) {
         openProfileModal();
       } else {
         openAuthModal();
@@ -4336,6 +4817,10 @@
     function openAuthModal() {
       document.getElementById('authModal').style.display = 'flex';
       switchAuthTab('signin');
+      const loginInput = document.getElementById('loginUsername');
+      if (loginInput && currentSessionUser && !loginInput.value) {
+        loginInput.value = currentSessionUser;
+      }
     }
 
     function closeAuthModal() {
@@ -4348,6 +4833,8 @@
       document.getElementById('profileFavCount').innerText = getWatchlist().length;
       document.getElementById('syncExportBox').style.display = 'none';
       document.getElementById('syncImportBox').style.display = 'none';
+      const debridLabel = document.getElementById('debridStatusLabel');
+      if (debridLabel) debridLabel.style.display = getDebridKeyValue() ? 'block' : 'none';
       document.getElementById('profileModal').style.display = 'flex';
     }
 
@@ -4379,9 +4866,13 @@
         const authHash = await hashPassword(p, salt);
         const vaultKey = await deriveVaultKey(p, salt);
 
-        const existingHistory = JSON.parse(localStorage.getItem('cineanime_history') || '[]');
-        const existingWatchlist = JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
-        const initialData = { history: existingHistory, watchlist: existingWatchlist };
+        const initialData = {
+          history: JSON.parse(localStorage.getItem('cineanime_history') || '[]'),
+          watchlist: JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]'),
+          watchlistMeta: JSON.parse(localStorage.getItem('cineanime_watchlist_meta') || '{}'),
+          watchedEpisodes: JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}'),
+          debridKey: localStorage.getItem('cineanime_debrid_key') || ''
+        };
 
         const encData = await encryptVault(initialData, vaultKey);
 
@@ -4398,11 +4889,10 @@
         sessionVaultKey = vaultKey;
         sessionData = initialData;
         localStorage.setItem('cineanime_active_user', u);
+        await saveTabVaultKey(u, vaultKey);
 
         closeAuthModal();
-        renderHistory();
-        renderWatchlist();
-        updateBadges();
+        refreshAllUiAfterSync();
         alert(`🎉 Account vault created successfully for @${u}!\nYour watch history is now encrypted with AES-256.`);
       } catch (err) {
         alert('Registration error: ' + err.message);
@@ -4417,7 +4907,7 @@
 
       const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
       const account = accounts[u];
-      if (!account) return alert('Account not found. Please register a new vault.');
+      if (!account) return alert('Account not found on this device. To load an account from another PC, use "🔗 Sync -> Live Auto-Sync" or "Quick Transfer".');
 
       try {
         const inputHash = await hashPassword(p, account.salt);
@@ -4430,13 +4920,12 @@
 
         currentSessionUser = u;
         sessionVaultKey = vaultKey;
-        sessionData = decrypted || { history: [], watchlist: [] };
+        sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '', ...(decrypted || {}) };
         localStorage.setItem('cineanime_active_user', u);
+        await saveTabVaultKey(u, vaultKey);
 
         closeAuthModal();
-        renderHistory();
-        renderWatchlist();
-        updateBadges();
+        refreshAllUiAfterSync();
         alert(`🔓 Welcome back, @${u}! Your encrypted vault is unlocked.`);
       } catch (err) {
         alert('Decryption error: ' + err.message);
@@ -4445,30 +4934,31 @@
 
     function logoutUser() {
       if (confirm('Sign out of your encrypted account vault? Your history will be locked.')) {
+        if (currentSessionUser) sessionStorage.removeItem('cineanime_tab_jwk_' + currentSessionUser);
         currentSessionUser = null;
         sessionVaultKey = null;
-        sessionData = { history: [], watchlist: [] };
+        sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '' };
         localStorage.removeItem('cineanime_active_user');
         closeProfileModal();
-        renderHistory();
-        renderWatchlist();
-        updateBadges();
+        refreshAllUiAfterSync();
       }
     }
 
     async function generateSyncExport() {
-      if (!currentSessionUser || !sessionVaultKey) {
-        return alert('Please sign in to export your sync key.');
+      if (!isVaultUnlocked()) {
+        return alert('Please sign in to export a password-encrypted vault key, or use "🔗 Sync" in the top bar for instant guest/cloud transfer.');
       }
       try {
+        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+        const salt = accounts[currentSessionUser]?.salt;
         const payload = {
-          version: '1.0',
+          version: '2.0',
           username: currentSessionUser,
-          data: sessionData,
+          data: collectSyncSnapshot(true),
           exportedAt: Date.now()
         };
         const enc = await encryptVault(payload, sessionVaultKey);
-        const token = btoa(JSON.stringify({ u: currentSessionUser, s: enc }));
+        const token = 'CINEV2:' + utf8ToBase64Url(JSON.stringify({ v: 2, u: currentSessionUser, salt, s: enc }));
         const box = document.getElementById('syncExportBox');
         const txt = document.getElementById('syncExportText');
         txt.value = token;
@@ -4481,9 +4971,7 @@
 
     function copySyncExport() {
       const txt = document.getElementById('syncExportText');
-      txt.select();
-      navigator.clipboard.writeText(txt.value);
-      alert('📋 Encrypted Sync Key copied to clipboard!\nPaste it into "Import Sync Key" on your phone or TV.');
+      copyTextWithAlert(txt.value, '📋 Encrypted Sync Key copied! Paste it into "Import Sync Key" or "🔗 Sync -> Quick Transfer" on your phone or TV.');
     }
 
     function showSyncImportBox() {
@@ -4494,61 +4982,919 @@
     async function processSyncImport() {
       const token = document.getElementById('syncImportText').value.trim();
       const p = document.getElementById('syncImportPassword').value;
-
       if (!token) return alert('Please paste an encrypted sync key.');
-      if (!p) return alert('Please enter the master password used to encrypt this sync key.');
-
       try {
-        const parsed = JSON.parse(atob(token));
-        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
-        const salt = accounts[parsed.u] ? accounts[parsed.u].salt : (parsed.u + "_cine_salt_2026");
-        const vaultKey = await deriveVaultKey(p, salt);
-        const decryptedPayload = await decryptVault(parsed.s, vaultKey);
-
-        if (!decryptedPayload || !decryptedPayload.data) {
-          throw new Error('Invalid or corrupted sync payload.');
-        }
-
-        const importedHistory = decryptedPayload.data.history || [];
-        const importedWatchlist = decryptedPayload.data.watchlist || [];
-
-        let currentHist = getWatchHistory();
-        const mergedIds = new Set(currentHist.map(h => h.id));
-        importedHistory.forEach(h => {
-          if (!mergedIds.has(h.id)) currentHist.push(h);
-        });
-
-        let currentFavs = getWatchlist();
-        importedWatchlist.forEach(id => {
-          if (!currentFavs.includes(id)) currentFavs.push(id);
-        });
-
-        sessionData.history = currentHist;
-        sessionData.watchlist = currentFavs;
-        if (currentSessionUser) {
-          persistUserData();
-        } else {
-          localStorage.setItem('cineanime_history', JSON.stringify(currentHist));
-          localStorage.setItem('cineanime_watchlist', JSON.stringify(currentFavs));
-        }
-
-        renderHistory();
-        renderWatchlist();
-        updateBadges();
+        const snap = await decodeTransferToken(token, p);
+        const counts = mergeSyncSnapshot(snap);
         closeProfileModal();
-        alert('✅ Cross-device sync complete! All your watch history and saved titles are synced.');
+        alert(`✅ Cross-device sync complete!\nMerged ${counts.historyCount} watched, ${counts.watchlistCount} saved, and ${counts.watchedShowsCount} progress checkmarks.`);
       } catch (err) {
-        alert('Sync import failed: ' + err.message + '\nVerify that the password matches the exported vault.');
+        alert('Sync import failed: ' + err.message);
       }
+    }
+
+    // --- Pure-JS Scannable QR Code SVG Generator (Byte mode, ECC Level M, v1..v16) ---
+    const QR_ALIGN_TABLE = [
+      null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
+      [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50], [6, 30, 54], [6, 32, 58], [6, 34, 62],
+      [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74]
+    ];
+    const QR_SPEC_M_TABLE = [
+      null,
+      [10, 1, 16, 0, 0], [16, 1, 28, 0, 0], [26, 1, 44, 0, 0], [18, 2, 32, 0, 0],
+      [24, 2, 43, 0, 0], [16, 4, 27, 0, 0], [18, 4, 31, 0, 0], [22, 2, 38, 2, 39],
+      [22, 3, 36, 2, 37], [26, 4, 43, 1, 44], [30, 1, 50, 4, 51], [22, 6, 36, 2, 37],
+      [22, 8, 37, 1, 38], [24, 4, 40, 5, 41], [24, 5, 41, 5, 42], [28, 7, 45, 3, 46]
+    ];
+
+    function renderQrSvg(text, px = 216) {
+      const bytes = new TextEncoder().encode(text);
+      let ver = 0;
+      for (let v = 1; v <= 16; v++) {
+        const [, g1c, g1d, g2c, g2d] = QR_SPEC_M_TABLE[v];
+        if (bytes.length <= (g1c * g1d + g2c * g2d) - (v >= 10 ? 3 : 2)) { ver = v; break; }
+      }
+      if (!ver) return null;
+
+      const [ecLen, g1c, g1d, g2c, g2d] = QR_SPEC_M_TABLE[ver];
+      const totalData = g1c * g1d + g2c * g2d;
+      const bits = [];
+      const pushBits = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+      pushBits(0b0100, 4);
+      pushBits(bytes.length, ver >= 10 ? 16 : 8);
+      for (const b of bytes) pushBits(b, 8);
+      const term = Math.min(4, totalData * 8 - bits.length);
+      for (let i = 0; i < term; i++) bits.push(0);
+      while (bits.length % 8) bits.push(0);
+      const data = [];
+      for (let i = 0; i < bits.length; i += 8) {
+        let val = 0;
+        for (let j = 0; j < 8; j++) val = (val << 1) | bits[i + j];
+        data.push(val);
+      }
+      for (let p = 0; data.length < totalData; p++) data.push(p % 2 === 0 ? 0xec : 0x11);
+
+      const gfMul = (x, y) => {
+        let r = 0;
+        for (let i = 7; i >= 0; i--) r = (r << 1) ^ ((r >> 7) * 0x11d) ^ (((y >> i) & 1) * x);
+        return r;
+      };
+      let gen = [1], root = 1;
+      for (let i = 0; i < ecLen; i++) {
+        const next = new Array(gen.length + 1).fill(0);
+        for (let j = 0; j < gen.length; j++) { next[j] ^= gen[j]; next[j + 1] ^= gfMul(gen[j], root); }
+        gen = next;
+        root = gfMul(root, 2);
+      }
+      const blocks = [], eccs = [];
+      let off = 0;
+      for (let b = 0; b < g1c + g2c; b++) {
+        const blk = data.slice(off, off + (b < g1c ? g1d : g2d));
+        off += blk.length;
+        const rem = new Array(ecLen).fill(0);
+        for (const byteVal of blk) {
+          const factor = byteVal ^ rem.shift();
+          rem.push(0);
+          for (let i = 0; i < ecLen; i++) rem[i] ^= gfMul(gen[i + 1], factor);
+        }
+        blocks.push(blk);
+        eccs.push(rem);
+      }
+      const codewords = [];
+      for (let i = 0; i < Math.max(g1d, g2d); i++) for (const blk of blocks) if (i < blk.length) codewords.push(blk[i]);
+      for (let i = 0; i < ecLen; i++) for (const ec of eccs) codewords.push(ec[i]);
+
+      const size = ver * 4 + 17;
+      const mod = Array.from({ length: size }, () => new Array(size).fill(false));
+      const fn = Array.from({ length: size }, () => new Array(size).fill(false));
+      const setFn = (x, y, dark) => { if (x >= 0 && y >= 0 && x < size && y < size) { mod[y][x] = !!dark; fn[y][x] = true; } };
+      const drawFinder = (cx, cy) => {
+        for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) setFn(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 2 && Math.max(Math.abs(dx), Math.abs(dy)) !== 4);
+      };
+      drawFinder(3, 3); drawFinder(size - 4, 3); drawFinder(3, size - 4);
+      for (let i = 8; i < size - 8; i++) { setFn(i, 6, i % 2 === 0); setFn(6, i, i % 2 === 0); }
+      setFn(8, size - 8, true);
+      const pos = QR_ALIGN_TABLE[ver];
+      for (let i = 0; i < pos.length; i++) for (let j = 0; j < pos.length; j++) {
+        if ((i === 0 && j === 0) || (i === 0 && j === pos.length - 1) || (i === pos.length - 1 && j === 0)) continue;
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) setFn(pos[i] + dx, pos[j] + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+      }
+      for (let i = 0; i <= 8; i++) {
+        if (i !== 6) { setFn(8, i, false); setFn(i, 8, false); }
+        if (i < 8) setFn(size - 1 - i, 8, false);
+        if (i < 7) setFn(8, size - 1 - i, false);
+      }
+      if (ver >= 7) {
+        let rem = ver;
+        for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >> 11) * 0x1f25);
+        const vBits = (ver << 12) | rem;
+        for (let i = 0; i < 18; i++) {
+          const bit = ((vBits >> i) & 1) === 1, a = size - 11 + (i % 3), b = Math.floor(i / 3);
+          setFn(a, b, bit); setFn(b, a, bit);
+        }
+      }
+      let bitIdx = 0;
+      for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right = 5;
+        for (let vert = 0; vert < size; vert++) for (let j = 0; j < 2; j++) {
+          const x = right - j, y = (((right + 1) & 2) === 0) ? size - 1 - vert : vert;
+          if (!fn[y][x] && bitIdx < codewords.length * 8) { mod[y][x] = ((codewords[bitIdx >> 3] >> (7 - (bitIdx & 7))) & 1) === 1; bitIdx++; }
+        }
+      }
+      const applyMask = (mask) => {
+        for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+          if (fn[y][x]) continue;
+          let inv = false;
+          if (mask === 0) inv = (x + y) % 2 === 0;
+          else if (mask === 1) inv = y % 2 === 0;
+          else if (mask === 2) inv = x % 3 === 0;
+          else if (mask === 3) inv = (x + y) % 3 === 0;
+          else if (mask === 4) inv = (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0;
+          else if (mask === 5) inv = ((x * y) % 2 + (x * y) % 3) === 0;
+          else if (mask === 6) inv = ((x * y) % 2 + (x * y) % 3) % 2 === 0;
+          else inv = ((x + y) % 2 + (x * y) % 3) % 2 === 0;
+          if (inv) mod[y][x] = !mod[y][x];
+        }
+      };
+      const drawFormat = (mask) => {
+        const dataFmt = mask;
+        let rem = dataFmt;
+        for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) * 0x537);
+        const fmt = ((dataFmt << 10) | rem) ^ 0x5412;
+        for (let i = 0; i < 6; i++) setFn(8, i, ((fmt >> i) & 1) === 1);
+        setFn(8, 7, ((fmt >> 6) & 1) === 1); setFn(8, 8, ((fmt >> 7) & 1) === 1); setFn(7, 8, ((fmt >> 8) & 1) === 1);
+        for (let i = 9; i < 15; i++) setFn(14 - i, 8, ((fmt >> i) & 1) === 1);
+        for (let i = 0; i < 8; i++) setFn(size - 1 - i, 8, ((fmt >> i) & 1) === 1);
+        for (let i = 8; i < 15; i++) setFn(8, size - 15 + i, ((fmt >> i) & 1) === 1);
+        setFn(8, size - 8, true);
+      };
+      const penalty = () => {
+        let score = 0;
+        for (let y = 0; y < size; y++) {
+          let rc = false, rl = 0, rc2 = false, rl2 = 0;
+          for (let x = 0; x < size; x++) {
+            if (mod[y][x] === rc) { rl++; if (rl === 5) score += 3; else if (rl > 5) score++; } else { rc = mod[y][x]; rl = 1; }
+            if (mod[x][y] === rc2) { rl2++; if (rl2 === 5) score += 3; else if (rl2 > 5) score++; } else { rc2 = mod[x][y]; rl2 = 1; }
+          }
+        }
+        for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) {
+          const c = mod[y][x];
+          if (mod[y][x + 1] === c && mod[y + 1][x] === c && mod[y + 1][x + 1] === c) score += 3;
+        }
+        return score;
+      };
+      let bestMask = 0, bestPen = Infinity;
+      for (let m = 0; m < 8; m++) { applyMask(m); drawFormat(m); const p = penalty(); if (p < bestPen) { bestPen = p; bestMask = m; } applyMask(m); }
+      applyMask(bestMask); drawFormat(bestMask);
+
+      const quiet = 3, dim = size + quiet * 2;
+      let path = '';
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (mod[y][x]) path += `M${x + quiet},${y + quiet}h1v1h-1z`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${px}" height="${px}" shape-rendering="crispEdges"><rect width="${dim}" height="${dim}" fill="#ffffff"/><path d="${path}" fill="#000000"/></svg>`;
+    }
+
+    // --- Cross-Device Snapshot, Smart LWW Merge & Live Cloud Sync Engine ---
+    function copyTextWithAlert(text, msg) {
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => prompt('Copy this value:', text));
+      } else {
+        prompt('Copy this value:', text);
+      }
+    }
+
+    function getSyncScopePrefs() {
+      const def = { history: true, watched: true, watchlist: true, addons: true, prefs: true, debrid: false };
+      try {
+        return { ...def, ...JSON.parse(localStorage.getItem('cineanime_sync_scope') || '{}') };
+      } catch (_) {
+        return def;
+      }
+    }
+
+    function saveSyncScopeFromUi() {
+      const next = {
+        history: !!document.getElementById('scopeHistory')?.checked,
+        watched: !!document.getElementById('scopeWatched')?.checked,
+        watchlist: !!document.getElementById('scopeWatchlist')?.checked,
+        addons: !!document.getElementById('scopeAddons')?.checked,
+        prefs: !!document.getElementById('scopePrefs')?.checked,
+        debrid: !!document.getElementById('scopeDebrid')?.checked
+      };
+      localStorage.setItem('cineanime_sync_scope', JSON.stringify(next));
+      if (getCloudConfig()) scheduleCloudPush();
+    }
+
+    function syncScopeCheckboxesUi() {
+      const s = getSyncScopePrefs();
+      const map = { scopeHistory: s.history, scopeWatched: s.watched, scopeWatchlist: s.watchlist, scopeAddons: s.addons, scopePrefs: s.prefs, scopeDebrid: s.debrid };
+      Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!val;
+      });
+    }
+
+    function pruneTombstones(obj, maxAgeDays = 90) {
+      const cutoff = Date.now() - maxAgeDays * 86400000;
+      const out = {};
+      Object.entries(obj || {}).forEach(([k, ts]) => {
+        const num = Number(ts) || 0;
+        if (num > cutoff) out[k] = num;
+      });
+      return out;
+    }
+
+    function collectSyncSnapshot(forceIncludeDebrid = false) {
+      const scope = getSyncScopePrefs();
+      const snap = { v: 2 };
+      if (scope.history) {
+        snap.history = getWatchHistory().slice(0, 50);
+        snap.deletedHistory = pruneTombstones(JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}'));
+      }
+      if (scope.watched) {
+        snap.watchedEpisodes = getWatchedEpisodesMap();
+      }
+      if (scope.watchlist) {
+        snap.watchlist = getWatchlist();
+        snap.watchlistMeta = getWatchlistMeta();
+        snap.watchlistTs = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
+        snap.deletedWatchlist = pruneTombstones(JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}'));
+      }
+      if (scope.addons) {
+        snap.stremioAddons = getStoredAddons().filter(a => a?.manifest?.id && a.manifest.id !== 'org.stremio.cinemeta');
+      }
+      if (scope.prefs) {
+        const p = getPlaybackPrefs();
+        snap.prefs = { server: p.server || activeServer, track: p.track || currentTrack, updatedAt: p.updatedAt || 0 };
+      }
+      if (scope.debrid || forceIncludeDebrid) {
+        const dk = getDebridKeyValue();
+        if (dk) snap.debridKey = dk;
+      }
+      return snap;
+    }
+
+    function canonicalSnapshotDigest(snap) {
+      return JSON.stringify(snap);
+    }
+
+    function mergeSyncSnapshot(remote) {
+      if (!remote || typeof remote !== 'object') throw new Error('Invalid sync snapshot.');
+      const scope = getSyncScopePrefs();
+      let historyCount = 0;
+      let watchlistCount = 0;
+      let watchedShowsCount = 0;
+
+      // 1. Continue Watching & History (Last-Write-Wins per item + tombstones)
+      if (scope.history && Array.isArray(remote.history)) {
+        const localDel = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+        const mergedDel = pruneTombstones({ ...localDel });
+        Object.entries(remote.deletedHistory || {}).forEach(([k, ts]) => {
+          mergedDel[k] = Math.max(Number(mergedDel[k]) || 0, Number(ts) || 0);
+        });
+        localStorage.setItem('cineanime_deleted_history', JSON.stringify(mergedDel));
+
+        const byId = new Map();
+        const ingest = (arr) => {
+          (arr || []).forEach(item => {
+            if (!item || !item.id) return;
+            const id = String(item.id);
+            const itemTs = Number(item.updatedAt) || 0;
+            if ((mergedDel[id] || 0) > itemTs) return;
+            const prev = byId.get(id);
+            if (!prev) {
+              byId.set(id, { ...item, id, updatedAt: itemTs });
+            } else {
+              const prevTs = Number(prev.updatedAt) || 0;
+              const newer = itemTs > prevTs || (itemTs === prevTs && (Number(item.episode) || 0) > (Number(prev.episode) || 0));
+              if (newer) byId.set(id, { ...prev, ...item, id, updatedAt: itemTs });
+            }
+          });
+        };
+        ingest(getWatchHistory());
+        ingest(remote.history);
+
+        const nextHistory = [...byId.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).slice(0, 50);
+        historyCount = nextHistory.length;
+        if (isVaultUnlocked()) sessionData.history = nextHistory;
+        else localStorage.setItem('cineanime_history', JSON.stringify(nextHistory));
+      }
+
+      // 2. Watched Episode Checkmarks (Union per show)
+      if (scope.watched && remote.watchedEpisodes && typeof remote.watchedEpisodes === 'object') {
+        const mergedWatched = { ...getWatchedEpisodesMap() };
+        Object.entries(remote.watchedEpisodes).forEach(([id, eps]) => {
+          if (!Array.isArray(eps)) return;
+          const set = new Set([...(mergedWatched[id] || []), ...eps].map(Number).filter(n => n > 0));
+          mergedWatched[id] = [...set].sort((a, b) => a - b);
+        });
+        watchedShowsCount = Object.keys(mergedWatched).length;
+        if (isVaultUnlocked()) sessionData.watchedEpisodes = mergedWatched;
+        else localStorage.setItem('cineanime_watched_eps', JSON.stringify(mergedWatched));
+      }
+
+      // 3. Watchlist & Card Metadata (Timestamp LWW + metadata hydration)
+      if (scope.watchlist && Array.isArray(remote.watchlist)) {
+        const localTs = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
+        const mergedTs = { ...localTs };
+        Object.entries(remote.watchlistTs || {}).forEach(([id, ts]) => {
+          mergedTs[id] = Math.max(Number(mergedTs[id]) || 0, Number(ts) || 1);
+        });
+        const localDelW = JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}');
+        const mergedDelW = pruneTombstones({ ...localDelW });
+        Object.entries(remote.deletedWatchlist || {}).forEach(([id, ts]) => {
+          mergedDelW[id] = Math.max(Number(mergedDelW[id]) || 0, Number(ts) || 0);
+        });
+
+        const favSet = new Set([...getWatchlist(), ...remote.watchlist].map(String));
+        const nextWatchlist = [...favSet].filter(id => {
+          const addedAt = Number(mergedTs[id]) || 1;
+          const delAt = Number(mergedDelW[id]) || 0;
+          if (delAt > addedAt) return false;
+          if (!mergedTs[id]) mergedTs[id] = 1;
+          return true;
+        });
+
+        const mergedMeta = { ...getWatchlistMeta(), ...(remote.watchlistMeta || {}) };
+        watchlistCount = nextWatchlist.length;
+        localStorage.setItem('cineanime_watchlist_ts', JSON.stringify(mergedTs));
+        localStorage.setItem('cineanime_deleted_watchlist', JSON.stringify(mergedDelW));
+        if (isVaultUnlocked()) {
+          sessionData.watchlist = nextWatchlist;
+          sessionData.watchlistMeta = mergedMeta;
+        } else {
+          localStorage.setItem('cineanime_watchlist', JSON.stringify(nextWatchlist));
+          localStorage.setItem('cineanime_watchlist_meta', JSON.stringify(mergedMeta));
+        }
+      }
+
+      // 4. Stremio Addons
+      if (scope.addons && Array.isArray(remote.stremioAddons)) {
+        const addons = [...getStoredAddons()];
+        const seen = new Set(addons.map(a => a?.manifest?.id || a.transportUrl));
+        remote.stremioAddons.forEach(a => {
+          const key = a?.manifest?.id || a?.transportUrl;
+          if (key && !seen.has(key)) { seen.add(key); addons.push(a); }
+        });
+        localStorage.setItem('cineanime_stremio_addons', JSON.stringify(addons));
+      }
+
+      // 5. Playback Prefs (Server & SUB/DUB)
+      if (scope.prefs && remote.prefs && typeof remote.prefs === 'object') {
+        const localP = getPlaybackPrefs();
+        if ((remote.prefs.updatedAt || 0) > (localP.updatedAt || 0)) {
+          savePlaybackPrefs(remote.prefs);
+        }
+      }
+
+      // 6. Optional Debrid Key
+      if (scope.debrid && typeof remote.debridKey === 'string' && remote.debridKey) {
+        if (isVaultUnlocked()) sessionData.debridKey = remote.debridKey;
+        else localStorage.setItem('cineanime_debrid_key', remote.debridKey);
+      }
+
+      if (isVaultUnlocked()) persistUserData();
+      hydrateWatchlistCache();
+      refreshAllUiAfterSync();
+      return { historyCount, watchlistCount, watchedShowsCount };
+    }
+
+    function refreshAllUiAfterSync() {
+      applyPlaybackPrefsUi();
+      renderHistory();
+      renderWatchlist();
+      renderAddonsList();
+      if (currentAnime) {
+        renderEpisodeGrid(currentAnime.episodes || 12);
+        updateWatchedBtn();
+      }
+      updateBadges();
+    }
+
+    // --- Instant Transfer (CINE2: / #sync= / QR / Legacy Sync Key) ---
+    function extractSyncTokenFromInput(raw) {
+      const s = String(raw || '').trim();
+      const idx = s.indexOf('#sync=');
+      if (idx !== -1) return decodeURIComponent(s.slice(idx + 6).split('&')[0]);
+      return s;
+    }
+
+    async function generateInstantTransfer() {
+      const pass = (document.getElementById('transferPasswordInput')?.value || '').trim();
+      const snap = collectSyncSnapshot(false);
+      const compressed = await compressPayloadString(JSON.stringify(snap));
+      let token;
+      if (pass) {
+        const salt = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(12)));
+        const key = await deriveVaultKey(pass, salt);
+        const enc = await encryptVault({ p: compressed }, key);
+        token = `CINE2:E:${salt}:${enc.iv}:${utf8ToBase64Url(enc.ciphertext)}`;
+      } else {
+        token = `CINE2:P:${compressed}`;
+      }
+
+      document.getElementById('transferOutputText').value = token;
+      document.getElementById('transferSendWrap').style.display = 'block';
+
+      const magicUrl = buildTransferUrl(token);
+      const qrSvg = renderQrSvg(magicUrl, 210);
+      const qrWrap = document.getElementById('transferQrWrap');
+      const qrFrame = document.getElementById('transferQrFrame');
+      const qrNote = document.getElementById('transferQrFallbackNote');
+      if (qrSvg) {
+        qrFrame.innerHTML = qrSvg;
+        qrWrap.style.display = 'flex';
+        qrNote.style.display = 'none';
+      } else {
+        qrFrame.innerHTML = '';
+        qrWrap.style.display = 'none';
+        qrNote.style.display = 'block';
+      }
+    }
+
+    function buildTransferUrl(token) {
+      const base = location.origin === 'null' ? 'https://crtghoul.github.io/cineanime/' : (location.origin + location.pathname);
+      return `${base}#sync=${encodeURIComponent(token)}`;
+    }
+
+    function copyTransferLink() {
+      const token = document.getElementById('transferOutputText')?.value?.trim();
+      if (!token) return;
+      copyTextWithAlert(buildTransferUrl(token), '🔗 1-Tap Phone Link copied! Send it to your phone or TV and open it to merge your history.');
+    }
+
+    function copyTransferKey() {
+      const token = document.getElementById('transferOutputText')?.value?.trim();
+      copyTextWithAlert(token, '📋 Sync Key copied! Paste it into "🔗 Sync -> Quick Transfer -> Paste Code / Link" on your other device.');
+    }
+
+    async function decodeTransferToken(rawInput, password) {
+      const token = extractSyncTokenFromInput(rawInput);
+      if (token.startsWith('CINE2:P:')) {
+        const text = await decompressPayloadString(token.slice(8));
+        return JSON.parse(text);
+      }
+      if (token.startsWith('CINE2:E:')) {
+        const parts = token.slice(8).split(':');
+        if (parts.length !== 3) throw new Error('Malformed encrypted CINE2 token.');
+        if (!password) throw new Error('This transfer link is password-protected. Please enter the password.');
+        const key = await deriveVaultKey(password, parts[0]);
+        const dec = await decryptVault({ iv: parts[1], ciphertext: base64UrlToUtf8(parts[2]) }, key);
+        const text = await decompressPayloadString(dec.p);
+        return JSON.parse(text);
+      }
+      if (token.startsWith('CINEV2:')) {
+        if (!password) throw new Error('Please enter the master password used to encrypt this sync key.');
+        const parsed = JSON.parse(base64UrlToUtf8(token.slice(7)));
+        const key = await deriveVaultKey(password, parsed.salt);
+        const dec = await decryptVault(parsed.s, key);
+        return dec.data || dec;
+      }
+      // Legacy v1 fallback
+      if (!password) throw new Error('Please enter the master password used to encrypt this sync key.');
+      const parsed = JSON.parse(atob(token));
+      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+      const salt = parsed.salt || (accounts[parsed.u] ? accounts[parsed.u].salt : (parsed.u + '_cine_salt_2026'));
+      const key = await deriveVaultKey(password, salt);
+      const dec = await decryptVault(parsed.s, key);
+      if (!dec || !dec.data) throw new Error('Invalid or corrupted sync payload.');
+      return dec.data;
+    }
+
+    async function applyInstantTransferImport() {
+      const raw = document.getElementById('transferImportInput')?.value || '';
+      const pass = document.getElementById('transferImportPassword')?.value || '';
+      if (!raw.trim()) return alert('Please paste a Sync Key or Phone Transfer URL.');
+      try {
+        const snap = await decodeTransferToken(raw, pass);
+        const counts = mergeSyncSnapshot(snap);
+        closeSyncModal();
+        alert(`✅ Sync complete!\nContinue Watching: ${counts.historyCount} • Watchlist: ${counts.watchlistCount} • Tracked Series: ${counts.watchedShowsCount}`);
+      } catch (err) {
+        alert('Transfer import failed: ' + err.message);
+      }
+    }
+
+    // --- 100% Free Live Cloud Auto-Sync Engine (GitHub Gist / Cloudflare Worker / Firebase RTDB) ---
+    let selectedCloudProvider = 'gist';
+    let cloudSyncInFlight = false;
+    let cloudPushTimer = null;
+    let lastCloudPullAt = 0;
+    let lastRemoteDigest = '';
+    let pendingIncomingPairCfg = null;
+
+    const CLOUD_PROVIDER_HELP = {
+      gist: '<b>100% Free GitHub Private Gist (Zero Server Setup):</b><br>1. Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" style="color:#10b981;">GitHub Fine-Grained Tokens</a>.<br>2. Under <b>Permissions -> Account permissions</b>, set <b>Gists = Read and write</b>.<br>3. Paste the token above &amp; click <b>Link &amp; Enable Live Auto-Sync</b>, then scan the QR with your phone!',
+      cloudflare: '<b>100% Free Cloudflare Worker + KV (100k requests/day):</b><br>1. Deploy <code>sync-worker/worker.js</code> from the CineAnime GitHub repo on your free Cloudflare account &amp; bind KV <code>SYNC_KV</code>.<br>2. Paste your <code>*.workers.dev</code> URL above &amp; click Link. Every device enters the short Sync Code or scans the QR!',
+      firebase: '<b>100% Free Firebase RTDB (Spark Plan, Zero Code):</b><br>1. Create a free Firebase Realtime Database (see <code>sync-worker/README.md</code> rules).<br>2. Paste your <code>https://...firebaseio.com</code> URL above &amp; scan the Pairing QR on your phone/TV!'
+    };
+
+    function getCloudConfig() {
+      try {
+        const cfg = JSON.parse(localStorage.getItem('cineanime_cloud_link') || 'null');
+        return cfg && cfg.provider && cfg.code ? cfg : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function saveCloudConfig(cfg) {
+      if (cfg) localStorage.setItem('cineanime_cloud_link', JSON.stringify(cfg));
+      else localStorage.removeItem('cineanime_cloud_link');
+      updateSyncStatusUi();
+    }
+
+    function normalizeRoomCode(code) {
+      return String(code || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    }
+
+    function generateRandomRoomCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const rnd = crypto.getRandomValues(new Uint8Array(12));
+      const pick = (a, b) => Array.from(rnd.slice(a, b)).map(v => chars[v % chars.length]).join('');
+      return `CINE-${pick(0, 4)}-${pick(4, 8)}-${pick(8, 12)}`;
+    }
+
+    function fillRandomRoomCode() {
+      const el = document.getElementById('syncRoomCodeInput');
+      if (el) el.value = generateRandomRoomCode();
+    }
+
+    function currentCloudRoomCode() {
+      return getCloudConfig()?.code || '';
+    }
+
+    function selectCloudProvider(provider) {
+      selectedCloudProvider = provider;
+      document.querySelectorAll('.sync-provider-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.provider === provider);
+      });
+      const isGist = provider === 'gist';
+      document.getElementById('providerFieldsGist').style.display = isGist ? 'block' : 'none';
+      document.getElementById('providerFieldsEndpoint').style.display = isGist ? 'none' : 'block';
+      const label = document.getElementById('syncEndpointLabel');
+      const input = document.getElementById('syncEndpointUrl');
+      if (provider === 'cloudflare') {
+        label.innerText = 'Cloudflare Worker URL';
+        input.placeholder = 'https://cineanime-sync.your-name.workers.dev';
+      } else if (provider === 'firebase') {
+        label.innerText = 'Firebase Realtime Database URL';
+        input.placeholder = 'https://your-project-default-rtdb.firebaseio.com';
+      }
+      const help = document.getElementById('providerHelpBox');
+      if (help) help.innerHTML = CLOUD_PROVIDER_HELP[provider] || '';
+    }
+
+    async function cloudRoomContext(cfg) {
+      const cleanCode = normalizeRoomCode(cfg.code);
+      const roomId = await sha256Hex('cineanime-room:' + cleanCode);
+      const encKey = await deriveVaultKey(cleanCode, 'cineanime-cloud-salt:' + (cfg.provider === 'gist' ? cfg.gistId : roomId));
+      return { roomId, encKey };
+    }
+
+    const CLOUD_SYNC_DRIVERS = {
+      gist: {
+        async load(cfg) {
+          const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(cfg.gistId)}`, {
+            cache: 'no-store',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': `Bearer ${cfg.token}`
+            }
+          });
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error(`GitHub Gist read HTTP ${res.status}`);
+          const json = await res.json();
+          const file = json?.files?.['cineanime-sync.json'];
+          if (!file || !file.content) return null;
+          const parsed = JSON.parse(file.content);
+          return parsed && parsed.iv && parsed.ciphertext ? parsed : null;
+        },
+        async save(cfg, record) {
+          const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(cfg.gistId)}`, {
+            method: 'PATCH',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': `Bearer ${cfg.token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              files: { 'cineanime-sync.json': { content: JSON.stringify(record) } }
+            })
+          });
+          if (!res.ok) throw new Error(`GitHub Gist write HTTP ${res.status}`);
+        }
+      },
+      cloudflare: {
+        async load(cfg, roomId) {
+          const base = cfg.endpoint.replace(/\/+$/, '');
+          const res = await fetch(`${base}/room/${roomId}`, { cache: 'no-store' });
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error(`Worker read HTTP ${res.status}`);
+          const parsed = await res.json();
+          return parsed && parsed.iv && parsed.ciphertext ? parsed : null;
+        },
+        async save(cfg, record, roomId) {
+          const base = cfg.endpoint.replace(/\/+$/, '');
+          const res = await fetch(`${base}/room/${roomId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+          });
+          if (!res.ok) throw new Error(`Worker write HTTP ${res.status}`);
+        }
+      },
+      firebase: {
+        async load(cfg, roomId) {
+          const base = cfg.endpoint.replace(/\/+$/, '');
+          const res = await fetch(`${base}/cineanime_sync/${roomId}.json`, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`Firebase read HTTP ${res.status}`);
+          const parsed = await res.json();
+          return parsed && parsed.iv && parsed.ciphertext ? parsed : null;
+        },
+        async save(cfg, record, roomId) {
+          const base = cfg.endpoint.replace(/\/+$/, '');
+          const res = await fetch(`${base}/cineanime_sync/${roomId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+          });
+          if (!res.ok) throw new Error(`Firebase write HTTP ${res.status}`);
+        }
+      }
+    };
+
+    async function syncCloudNow({ pushLocal = true, silent = true } = {}) {
+      const cfg = getCloudConfig();
+      if (!cfg || cloudSyncInFlight) return false;
+      const driver = CLOUD_SYNC_DRIVERS[cfg.provider];
+      if (!driver) return false;
+
+      cloudSyncInFlight = true;
+      setSyncDotState('syncing', 'Syncing with cloud...');
+      try {
+        const { roomId, encKey } = await cloudRoomContext(cfg);
+        const remoteRecord = await driver.load(cfg, roomId);
+        let remoteSnap = null;
+        if (remoteRecord) {
+          remoteSnap = await decryptVault(remoteRecord, encKey);
+          lastRemoteDigest = canonicalSnapshotDigest(remoteSnap);
+          mergeSyncSnapshot(remoteSnap);
+        }
+        const mergedSnap = collectSyncSnapshot(false);
+        const mergedDigest = canonicalSnapshotDigest(mergedSnap);
+
+        if (pushLocal && (!remoteRecord || mergedDigest !== lastRemoteDigest)) {
+          const enc = await encryptVault(mergedSnap, encKey);
+          await driver.save(cfg, { v: 2, updatedAt: Date.now(), iv: enc.iv, ciphertext: enc.ciphertext }, roomId);
+          lastRemoteDigest = mergedDigest;
+        }
+        lastCloudPullAt = Date.now();
+        localStorage.setItem('cineanime_last_cloud_sync', String(lastCloudPullAt));
+        updateSyncStatusUi();
+        return true;
+      } catch (err) {
+        console.warn('Cloud sync warning:', err);
+        setSyncDotState('connected', 'Sync warning: ' + err.message);
+        if (!silent) alert('Cloud sync error: ' + err.message);
+        return false;
+      } finally {
+        cloudSyncInFlight = false;
+      }
+    }
+
+    function scheduleCloudPush() {
+      if (!getCloudConfig()) return;
+      clearTimeout(cloudPushTimer);
+      cloudPushTimer = setTimeout(() => {
+        syncCloudNow({ pushLocal: true, silent: true });
+      }, 1500);
+    }
+
+    function manualCloudSyncNow() {
+      syncCloudNow({ pushLocal: true, silent: false }).then(ok => {
+        if (ok) alert('✅ All linked devices are now up to date!');
+      });
+    }
+
+    async function connectCloudSync() {
+      const rawCode = document.getElementById('syncRoomCodeInput')?.value || '';
+      const code = normalizeRoomCode(rawCode) || generateRandomRoomCode();
+      if (code.length < 8) return alert('Please enter a longer Sync Room Code (at least 8 characters) or click Random.');
+
+      let cfg;
+      if (selectedCloudProvider === 'gist') {
+        const token = document.getElementById('syncGistToken')?.value?.trim();
+        let gistId = document.getElementById('syncGistId')?.value?.trim();
+        if (!token) return alert('Please paste your GitHub Fine-Grained Token (with Gists: Read & Write permission).');
+
+        if (!gistId) {
+          const initRes = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              description: 'CineAnime Encrypted Cross-Device Sync Vault',
+              public: false,
+              files: { 'cineanime-sync.json': { content: '{"v":2}' } }
+            })
+          });
+          if (!initRes.ok) {
+            return alert(`Failed to create GitHub Gist (HTTP ${initRes.status}). Make sure your token has "Gists: Read and write" access.`);
+          }
+          const created = await initRes.json();
+          gistId = created.id;
+        }
+        cfg = { provider: 'gist', token, gistId, code };
+      } else {
+        const endpoint = (document.getElementById('syncEndpointUrl')?.value || '').trim().replace(/\/+$/, '');
+        if (!/^https?:\/\//i.test(endpoint)) {
+          return alert('Please paste a valid https:// URL for your Worker or Firebase database.');
+        }
+        cfg = { provider: selectedCloudProvider, endpoint, code };
+      }
+
+      saveCloudConfig(cfg);
+      const ok = await syncCloudNow({ pushLocal: true, silent: false });
+      if (!ok) {
+        saveCloudConfig(null);
+        return;
+      }
+      renderCloudPairingCard();
+      alert('✅ Live Auto-Sync enabled! Now scan the QR code or copy the 1-Tap Pairing Link onto your Phone, AppMaka, or Google TV.');
+    }
+
+    function buildCloudPairUrl(cfg) {
+      const slim = cfg.provider === 'gist'
+        ? { v: 1, p: 'gist', id: cfg.gistId, k: cfg.code, t: cfg.token }
+        : { v: 1, p: cfg.provider, u: cfg.endpoint, k: cfg.code };
+      const base = location.origin === 'null' ? 'https://crtghoul.github.io/cineanime/' : (location.origin + location.pathname);
+      return `${base}#pair=${utf8ToBase64Url(JSON.stringify(slim))}`;
+    }
+
+    function copyCloudPairLink() {
+      const cfg = getCloudConfig();
+      if (!cfg) return;
+      copyTextWithAlert(buildCloudPairUrl(cfg), '🔗 Pairing Link copied! Open it on your Phone, AppMaka, or Google TV to stay permanently synced.');
+    }
+
+    function renderCloudPairingCard() {
+      const cfg = getCloudConfig();
+      const connectedPanel = document.getElementById('cloudConnectedPanel');
+      const setupPanel = document.getElementById('cloudSetupPanel');
+      const btns = document.getElementById('cloudConnectedBtns');
+      if (!connectedPanel || !setupPanel) return;
+
+      if (!cfg) {
+        connectedPanel.style.display = 'none';
+        setupPanel.style.display = 'block';
+        if (btns) btns.style.display = 'none';
+        return;
+      }
+      setupPanel.style.display = 'none';
+      connectedPanel.style.display = 'block';
+      if (btns) btns.style.display = 'flex';
+      document.getElementById('cloudRoomCodeDisplay').innerText = cfg.code;
+
+      const pairUrl = buildCloudPairUrl(cfg);
+      const qrFrame = document.getElementById('cloudQrFrame');
+      const svg = renderQrSvg(pairUrl, 212);
+      if (svg) {
+        qrFrame.innerHTML = svg;
+        qrFrame.style.display = 'block';
+      } else {
+        qrFrame.style.display = 'none';
+      }
+    }
+
+    function unlinkCloudDevice() {
+      if (confirm('Unlink this browser from Live Auto-Sync? Your local watch history stays untouched on this device.')) {
+        saveCloudConfig(null);
+        lastRemoteDigest = '';
+        renderCloudPairingCard();
+      }
+    }
+
+    function setSyncDotState(mode, subMsg) {
+      const navDot = document.getElementById('syncNavDot');
+      const cardDot = document.getElementById('cloudStatusDot');
+      [navDot, cardDot].forEach(d => {
+        if (!d) return;
+        d.classList.toggle('connected', mode === 'connected');
+        d.classList.toggle('syncing', mode === 'syncing');
+      });
+      if (subMsg) {
+        const sub = document.getElementById('cloudStatusSub');
+        if (sub) sub.innerText = subMsg;
+      }
+    }
+
+    function updateSyncStatusUi() {
+      const cfg = getCloudConfig();
+      const navBtn = document.getElementById('syncNavBtn');
+      const head = document.getElementById('cloudStatusHeadline');
+      const sub = document.getElementById('cloudStatusSub');
+      if (cfg) {
+        const lastTs = Number(localStorage.getItem('cineanime_last_cloud_sync') || 0);
+        const ago = lastTs ? ('Last synced ' + formatAiringAgo(Math.floor(lastTs / 1000))) : 'Connected & ready';
+        const provName = cfg.provider === 'gist' ? 'GitHub Gist' : (cfg.provider === 'cloudflare' ? 'Cloudflare Worker' : 'Firebase RTDB');
+        if (navBtn) navBtn.innerHTML = `<span id="syncNavDot" class="sync-live-dot connected"></span>🔗 Linked`;
+        if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot connected"></span>Live Auto-Sync Active (${provName})`;
+        if (sub) sub.innerText = `Room ${cfg.code} • ${ago}`;
+      } else {
+        if (navBtn) navBtn.innerHTML = `<span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync`;
+        if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot"></span>Not linked yet`;
+        if (sub) sub.innerText = 'Connect a 100% free cloud store once, then scan the QR on your phone or TV.';
+      }
+    }
+
+    function openSyncModal(defaultTab = 'cloud') {
+      syncScopeCheckboxesUi();
+      selectCloudProvider(selectedCloudProvider);
+      updateSyncStatusUi();
+      renderCloudPairingCard();
+      switchSyncModalTab(defaultTab);
+      document.getElementById('syncModal').style.display = 'flex';
+    }
+
+    function closeSyncModal() {
+      document.getElementById('syncModal').style.display = 'none';
+    }
+
+    function switchSyncModalTab(tab) {
+      const isCloud = tab === 'cloud';
+      document.getElementById('syncTabCloud').classList.toggle('active', isCloud);
+      document.getElementById('syncTabTransfer').classList.toggle('active', !isCloud);
+      document.getElementById('syncPanelCloud').style.display = isCloud ? 'block' : 'none';
+      document.getElementById('syncPanelTransfer').style.display = isCloud ? 'none' : 'block';
+    }
+
+    async function confirmIncomingPair() {
+      if (!pendingIncomingPairCfg) return;
+      saveCloudConfig(pendingIncomingPairCfg);
+      pendingIncomingPairCfg = null;
+      document.getElementById('syncIncomingPairBanner').style.display = 'none';
+      const ok = await syncCloudNow({ pushLocal: true, silent: false });
+      renderCloudPairingCard();
+      if (ok) alert('🎉 Devices linked! Your Continue Watching, checkmarks, Watchlist, and addons are synced live.');
+    }
+
+    function dismissIncomingPair() {
+      pendingIncomingPairCfg = null;
+      document.getElementById('syncIncomingPairBanner').style.display = 'none';
+    }
+
+    async function initCrossDeviceSync() {
+      applyPlaybackPrefsUi();
+      const hash = location.hash || '';
+      if (hash.startsWith('#pair=')) {
+        try {
+          const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(hash.slice(6))));
+          history.replaceState(null, '', location.pathname + location.search);
+          pendingIncomingPairCfg = payload.p === 'gist'
+            ? { provider: 'gist', gistId: payload.id, code: payload.k, token: payload.t }
+            : { provider: payload.p, endpoint: payload.u, code: payload.k };
+          openSyncModal('cloud');
+          document.getElementById('syncIncomingPairBanner').style.display = 'block';
+          document.getElementById('syncIncomingPairDesc').innerText =
+            `Pair this browser to Room ${pendingIncomingPairCfg.code} (${pendingIncomingPairCfg.provider}) so your watches stay synced automatically across PC, Phone & TV?`;
+          return;
+        } catch (e) {
+          console.warn('Invalid #pair link:', e);
+        }
+      } else if (hash.startsWith('#sync=')) {
+        const token = decodeURIComponent(hash.slice(6));
+        history.replaceState(null, '', location.pathname + location.search);
+        openSyncModal('transfer');
+        document.getElementById('transferReceiveWrap').style.display = 'block';
+        document.getElementById('transferImportInput').value = token;
+        return;
+      }
+
+      updateSyncStatusUi();
+      if (getCloudConfig()) {
+        setTimeout(() => syncCloudNow({ pushLocal: true, silent: true }), 450);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && getCloudConfig() && Date.now() - lastCloudPullAt > 20000) {
+          syncCloudNow({ pushLocal: false, silent: true });
+        }
+      });
     }
 
     // --- Watch History & Storage Management ---
     function saveWatchHistory(anime, episode, server) {
       if (!anime || !anime.id) return;
-      let history = getWatchHistory();
-      history = history.filter(h => String(h.id) !== String(anime.id));
+      const sid = String(anime.id);
+      const now = Date.now();
+      let history = [...getWatchHistory()];
+      history = history.filter(h => String(h.id) !== sid);
       history.unshift({
-        id: anime.id,
+        id: sid,
         aniId: anime.aniId || null,
         idMal: anime.idMal || null,
         tmdbId: anime.tmdbId || null,
@@ -4558,13 +5904,22 @@
         title: anime.title,
         poster: anime.poster,
         backdrop: anime.backdrop || anime.poster,
+        season: currentSeason || 1,
         episode: episode,
-        totalEpisodes: anime.episodes,
-        server: server || 'server1',
-        updatedAt: Date.now()
+        totalEpisodes: anime.episodes || (anime.type === 'movie' ? 1 : 12),
+        server: server || activeServer || 'server1',
+        track: currentTrack || 'sub',
+        updatedAt: now
       });
       if (history.length > 50) history = history.slice(0, 50);
-      if (currentSessionUser) {
+
+      const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+      if (delH[sid]) {
+        delete delH[sid];
+        localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
+      }
+
+      if (isVaultUnlocked()) {
         sessionData.history = history;
         persistUserData();
       } else {
@@ -4572,12 +5927,18 @@
       }
       renderHistory();
       updateBadges();
+      scheduleCloudPush();
     }
 
     function removeHistoryItem(e, id) {
       e.stopPropagation();
-      let history = getWatchHistory().filter(h => String(h.id) !== String(id));
-      if (currentSessionUser) {
+      const sid = String(id);
+      let history = getWatchHistory().filter(h => String(h.id) !== sid);
+      const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+      delH[sid] = Date.now();
+      localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
+
+      if (isVaultUnlocked()) {
         sessionData.history = history;
         persistUserData();
       } else {
@@ -4585,11 +5946,17 @@
       }
       renderHistory();
       updateBadges();
+      scheduleCloudPush();
     }
 
     function clearWatchHistory() {
       if (confirm('Are you sure you want to clear your entire watch history?')) {
-        if (currentSessionUser) {
+        const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+        const now = Date.now();
+        getWatchHistory().forEach(h => { delH[String(h.id)] = now; });
+        localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
+
+        if (isVaultUnlocked()) {
           sessionData.history = [];
           persistUserData();
         } else {
@@ -4597,6 +5964,7 @@
         }
         renderHistory();
         updateBadges();
+        scheduleCloudPush();
       }
     }
 
@@ -4617,12 +5985,17 @@
 
       section.style.display = 'block';
       container.innerHTML = history.map(item => {
-        const percent = Math.min(100, Math.round((item.episode / item.totalEpisodes) * 100));
+        const totalEps = Math.max(1, Number(item.totalEpisodes) || 1);
+        const epNum = Number(item.episode) || 1;
+        const percent = Math.min(100, Math.round((epNum / totalEps) * 100));
+        const epText = item.type === 'movie'
+          ? 'Movie'
+          : (item.isMovieOrSeries && item.season > 1 ? `S${item.season} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
         return `
-          <div class="history-card" onclick="resumeAnime('${item.id}', ${item.episode}, '${item.server}')">
+          <div class="history-card" onclick="resumeAnime('${item.id}', ${epNum}, '${item.server || 'server1'}', ${item.season || 1}, '${item.track || 'sub'}')">
             <div class="history-card-thumb-wrap">
               <button class="history-remove-btn" onclick="removeHistoryItem(event, '${item.id}')" title="Remove from history">✕</button>
-              <img class="history-card-thumb" src="${item.backdrop}" alt="${item.title}">
+              <img class="history-card-thumb" src="${item.backdrop || item.poster}" alt="${item.title}">
               <div class="history-progress-container">
                 <div class="history-progress-fill" style="width: ${percent}%;"></div>
               </div>
@@ -4630,11 +6003,11 @@
             <div class="history-card-body">
               <div class="history-card-title" title="${item.title}">${item.title}</div>
               <div class="history-card-meta">
-                <span style="color: #10b981; font-weight: 700;">Episode ${item.episode} / ${item.totalEpisodes}</span>
+                <span style="color: #10b981; font-weight: 700;">${epText}</span>
                 <span>${percent}% completed</span>
               </div>
               <button class="history-resume-btn">
-                <span>▶</span> Resume Ep ${item.episode}
+                <span>▶</span> ${item.type === 'movie' ? 'Resume Movie' : `Resume Ep ${epNum}`}
               </button>
             </div>
           </div>
@@ -4643,25 +6016,35 @@
     }
 
     function renderWatchlist() {
+      hydrateWatchlistCache();
       const list = getWatchlist();
+      const metaMap = getWatchlistMeta();
       const container = document.getElementById('watchlistGrid');
       if (!list.length) {
         container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your watchlist is empty. Tap the heart ❤️ on any anime card to add it here!</div>';
         return;
       }
-      const items = list.map(id => ANIME_CACHE.get(String(id))).filter(Boolean);
+      const items = list.map(id => ANIME_CACHE.get(String(id)) || metaMap[String(id)]).filter(Boolean);
       if (!items.length) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your saved anime will load automatically.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1.5rem 0;">Your saved titles will appear shortly.</div>';
         return;
       }
       container.innerHTML = items.map(renderCard).join('');
     }
 
-    async function resumeAnime(id, episode, server) {
-      if (server) {
+    async function resumeAnime(id, episode, server, season = 1, track = 'sub') {
+      currentSeason = Number(season) || 1;
+      if (track === 'dub' || track === 'sub') {
+        currentTrack = track;
+        const sBtn = document.getElementById('trackSubBtn');
+        const dBtn = document.getElementById('trackDubBtn');
+        if (sBtn) sBtn.classList.toggle('active', track === 'sub');
+        if (dBtn) dBtn.classList.toggle('active', track === 'dub');
+      }
+      if (server && SERVERS[server]) {
         activeServer = server;
         document.querySelectorAll('.server-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.server === server);
+          if (b.dataset.server) b.classList.toggle('active', b.dataset.server === server);
         });
       }
       await selectAnimeById(id, true, episode || 1);
@@ -4893,9 +6276,12 @@
 
       const authBtn = document.getElementById('authBtn');
       if (authBtn) {
-        if (currentSessionUser) {
+        if (isVaultUnlocked()) {
           authBtn.innerHTML = `🛡️ ${currentSessionUser}`;
           authBtn.classList.add('primary');
+        } else if (currentSessionUser) {
+          authBtn.innerHTML = `🔒 Unlock ${currentSessionUser}`;
+          authBtn.classList.remove('primary');
         } else {
           authBtn.innerHTML = `👤 Sign In`;
           authBtn.classList.remove('primary');
@@ -4904,12 +6290,18 @@
     }
 
     // Initialize
-    fallbackOfflineCatalog();
-    renderEpisodeGrid(currentAnime.episodes);
-    renderHistory();
-    renderWatchlist();
-    updateBadges();
-    loadDynamicCatalog();
+    (async () => {
+      await restoreTabVaultSession();
+      hydrateWatchlistCache();
+      applyPlaybackPrefsUi();
+      fallbackOfflineCatalog();
+      renderEpisodeGrid(currentAnime.episodes);
+      renderHistory();
+      renderWatchlist();
+      updateBadges();
+      loadDynamicCatalog();
+      await initCrossDeviceSync();
+    })();
   </script>
 </body>
 </html>

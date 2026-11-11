@@ -1,0 +1,10 @@
+name = "cineanime-sync"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Create the free KV namespace with:
+#   npx wrangler kv namespace create SYNC_KV
+# Then replace the id below before running `npx wrangler deploy`:
+[[kv_namespaces]]
+binding = "SYNC_KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

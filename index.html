@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -463,8 +463,16 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
     }
 
-    .player-container:fullscreen,
-    .player-container:-webkit-full-screen,
+    /* Keep native :fullscreen and .cinema-fullscreen separate so older WebKit/TV parsers never drop .cinema-fullscreen */
+    .player-container:fullscreen {
+      max-width: none;
+      max-height: none;
+      aspect-ratio: auto;
+      border-radius: 0;
+      box-shadow: none;
+      background: #000;
+    }
+
     .player-container.cinema-fullscreen {
       position: fixed;
       inset: 0;
@@ -502,10 +510,14 @@
     }
 
     .fs-exit-pill {
-      display: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      visibility: hidden;
+      pointer-events: none;
       position: fixed;
-      top: 14px;
-      right: 18px;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(18px, env(safe-area-inset-right));
       z-index: 100000;
       background: rgba(15, 15, 22, 0.82);
       color: #fff;
@@ -515,23 +527,39 @@
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       opacity: 0;
       transition: opacity 0.2s ease;
     }
 
-    .player-container:fullscreen .fs-exit-pill,
-    .player-container:-webkit-full-screen .fs-exit-pill,
-    .player-container.cinema-fullscreen .fs-exit-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
+    .player-container:fullscreen .fs-exit-pill {
+      visibility: visible;
+      pointer-events: auto;
     }
 
-    .player-container:fullscreen:hover .fs-exit-pill,
-    .player-container:-webkit-full-screen:hover .fs-exit-pill,
-    .player-container.cinema-fullscreen:hover .fs-exit-pill {
+    .player-container.cinema-fullscreen .fs-exit-pill {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .player-container:fullscreen:hover .fs-exit-pill {
       opacity: 1;
+    }
+
+    .player-container.cinema-fullscreen:hover .fs-exit-pill,
+    .fs-exit-pill:focus-visible {
+      opacity: 1;
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .player-container:fullscreen .fs-exit-pill {
+        opacity: 0.78;
+      }
+
+      .player-container.cinema-fullscreen .fs-exit-pill {
+        opacity: 0.78;
+      }
     }
 
     .player-iframe {

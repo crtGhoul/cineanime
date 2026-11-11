@@ -258,6 +258,20 @@
       color: #6ee7b7;
     }
 
+    .badge-next-airing {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      color: #fde68a;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .badge-next-airing.state-ongoing {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: rgba(96, 165, 250, 0.5);
+      color: #bfdbfe;
+    }
+
     .hero-title {
       font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem);
       font-weight: 800;
@@ -758,6 +772,22 @@
       border-color: #f59e0b;
       box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
       animation: nextUpPulse 2s infinite ease-in-out;
+    }
+    .ep-card.upcoming {
+      border-style: dashed;
+      border-color: rgba(251, 191, 36, 0.55);
+      background: rgba(245, 158, 11, 0.08);
+      color: #fde68a;
+    }
+    .ep-card.upcoming:hover {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: #fbbf24;
+    }
+    .ep-card.upcoming .ep-card-sub {
+      color: #fcd34d;
+    }
+    .episode-grid:not(.has-ep-titles) .ep-card.upcoming {
+      grid-column: span 2;
     }
     @keyframes nextUpPulse {
       0%, 100% { border-color: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.3); }
@@ -1765,6 +1795,34 @@
       align-items: center;
       gap: 0.5rem;
     }
+    .theater-next-airing {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.2rem;
+      padding: 0.32rem 0.65rem;
+      border-radius: 7px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      width: fit-content;
+      max-width: 100%;
+    }
+    .theater-next-airing.state-scheduled {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(251, 191, 36, 0.48);
+      color: #fde68a;
+    }
+    .theater-next-airing.state-ongoing {
+      background: rgba(59, 130, 246, 0.14);
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      color: #bfdbfe;
+    }
+    .theater-next-airing.state-ended {
+      background: rgba(16, 185, 129, 0.11);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
+    }
 
     .year-filter-select {
       background: var(--surface);
@@ -2587,6 +2645,7 @@
           <span id="heroRating" class="badge badge-rating">★ 8.5</span>
           <span id="heroQuality" class="badge badge-quality">1080p FHD</span>
           <span id="heroEpisodes" class="badge badge-subdub">12 EPISODES</span>
+          <span id="heroNextBadge" class="badge badge-next-airing" style="display: none;"></span>
         </div>
         <h1 id="heroTitle" class="hero-title">Solo Leveling</h1>
         <p id="heroSynopsis" class="hero-synopsis">
@@ -3642,6 +3701,360 @@
       });
     }
 
+    const NEXT_AIRING_CACHE = new Map();
+    const NEXT_AIRING_INFLIGHT = new Map();
+    const TIME_UNTIL_DURATION_FMT = (typeof Intl !== 'undefined' && typeof Intl.DurationFormat === 'function')
+      ? new Intl.DurationFormat(undefined, { style: 'narrow' })
+      : null;
+
+    function formatCountdownDuration(targetMs) {
+      if (!Number.isFinite(targetMs)) return '';
+      const diffMs = targetMs - Date.now();
+      if (diffMs <= 0) return 'Airing now';
+      if (diffMs < 60000) return 'in < 1m';
+
+      let days = 0;
+      let hours = 0;
+      let minutes = 0;
+
+      if (typeof Temporal !== 'undefined' && typeof Temporal.Instant === 'function' && typeof Temporal.Now?.instant === 'function') {
+        try {
+          const nowInst = Temporal.Now.instant();
+          const targetInst = Temporal.Instant.fromEpochMilliseconds(Math.round(targetMs));
+          const dur = nowInst.until(targetInst, { largestUnit: 'day', smallestUnit: 'minute' });
+          days = Math.max(0, dur.days || 0);
+          hours = Math.max(0, dur.hours || 0);
+          minutes = Math.max(0, dur.minutes || 0);
+        } catch (_) {
+          const totalMins = Math.floor(diffMs / 60000);
+          days = Math.floor(totalMins / 1440);
+          hours = Math.floor((totalMins % 1440) / 60);
+          minutes = totalMins % 60;
+        }
+      } else {
+        const totalMins = Math.floor(diffMs / 60000);
+        days = Math.floor(totalMins / 1440);
+        hours = Math.floor((totalMins % 1440) / 60);
+        minutes = totalMins % 60;
+      }
+
+      const compact = days > 0
+        ? (hours > 0 ? { days, hours } : { days })
+        : (hours > 0 ? (minutes > 0 ? { hours, minutes } : { hours }) : { minutes: Math.max(1, minutes) });
+
+      if (TIME_UNTIL_DURATION_FMT) {
+        return 'in ' + TIME_UNTIL_DURATION_FMT.format(compact);
+      }
+      const parts = [];
+      if (compact.days) parts.push(`${compact.days}d`);
+      if (compact.hours) parts.push(`${compact.hours}h`);
+      if (compact.minutes && !compact.days) parts.push(`${compact.minutes}m`);
+      return 'in ' + (parts.join(' ') || '1m');
+    }
+
+    function formatLocalReleaseDate(targetMs, hasTime = true) {
+      if (!Number.isFinite(targetMs) || targetMs <= 0) return '';
+      const d = new Date(targetMs);
+      const now = new Date();
+      const tmrw = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const timeStr = hasTime
+        ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(d)
+        : '';
+
+      if (d.toDateString() === now.toDateString()) return hasTime ? `Today, ${timeStr}` : 'Today';
+      if (d.toDateString() === tmrw.toDateString()) return hasTime ? `Tomorrow, ${timeStr}` : 'Tomorrow';
+
+      const dateOpts = {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        ...(d.getFullYear() !== now.getFullYear() ? { year: 'numeric' } : {})
+      };
+      const dateStr = new Intl.DateTimeFormat(undefined, dateOpts).format(d);
+      return hasTime ? `${dateStr} • ${timeStr}` : dateStr;
+    }
+
+    function getItemNextAiringInfo(item) {
+      if (!item || item.type === 'movie') return null;
+      const nowMs = Date.now();
+      const statusUpper = String(item.seriesStatus || '').trim().toUpperCase();
+      let candidate = item.nextAiring || null;
+
+      if ((!candidate || candidate.airingAtMs <= nowMs) && Array.isArray(item.upcomingEpisodes)) {
+        const nextEp = item.upcomingEpisodes.find(ep => ep.releasedTs > nowMs);
+        if (nextEp) {
+          candidate = {
+            season: nextEp.season,
+            episode: nextEp.ep,
+            title: nextEp.title || '',
+            airingAtMs: nextEp.releasedTs,
+            hasTime: !!(nextEp.released && /T\d{2}:\d{2}/.test(nextEp.released)),
+            source: 'cinemeta'
+          };
+          item.nextAiring = candidate;
+        }
+      }
+
+      if (candidate && Number.isFinite(candidate.airingAtMs) && candidate.airingAtMs > nowMs) {
+        const s = Number(candidate.season);
+        const e = Number(candidate.episode);
+        let epCode = 'Next Episode';
+        if (item.isMovieOrSeries) {
+          if (Number.isFinite(s) && s > 0 && s < 1900 && Number.isFinite(e) && e > 0) {
+            epCode = `S${s} E${e}`;
+          } else if (Number.isFinite(s) && s > 0 && s < 1900) {
+            epCode = `S${s} Special`;
+          } else if (Number.isFinite(e) && e > 0) {
+            epCode = `Ep ${e}`;
+          }
+        } else if (Number.isFinite(e) && e > 0) {
+          epCode = `Ep ${e}`;
+        }
+
+        const hasTime = candidate.hasTime !== false;
+        const dateLabel = formatLocalReleaseDate(candidate.airingAtMs, hasTime);
+        const countdownLabel = formatCountdownDuration(candidate.airingAtMs);
+        const rawName = String(candidate.title || '').trim();
+        const epName = rawName && rawName.toUpperCase() !== 'TBA' ? rawName : '';
+        return {
+          state: 'scheduled',
+          epCode,
+          epTitle: epName,
+          airingAtMs: candidate.airingAtMs,
+          hasTime,
+          dateLabel,
+          countdownLabel,
+          season: candidate.season || null,
+          episode: candidate.episode || null,
+          bannerText: `Next ${epCode}${epName ? ` — "${epName}"` : ''} • ${dateLabel} (${countdownLabel})`,
+          badgeText: `⏰ Next ${epCode} • ${countdownLabel}`
+        };
+      }
+
+      if (['RELEASING', 'NOT_YET_RELEASED', 'CONTINUING', 'RUNNING', 'TO BE DETERMINED', 'IN DEVELOPMENT'].includes(statusUpper)) {
+        const statusMsg = statusUpper === 'NOT_YET_RELEASED' || statusUpper === 'IN DEVELOPMENT'
+          ? 'Upcoming Series • Release date TBA'
+          : 'Currently airing / returning • Next episode date TBA';
+        return {
+          state: 'ongoing',
+          epCode: 'TBA',
+          bannerText: statusMsg,
+          badgeText: (statusUpper === 'NOT_YET_RELEASED' || statusUpper === 'IN DEVELOPMENT') ? '📡 Upcoming • TBA' : '📡 Ongoing • Date TBA'
+        };
+      }
+
+      if (['ENDED', 'FINISHED', 'CANCELLED'].includes(statusUpper)) {
+        return {
+          state: 'ended',
+          epCode: 'ENDED',
+          bannerText: statusUpper === 'CANCELLED' ? 'Series Cancelled • No new episodes' : 'Series Completed • All episodes aired',
+          badgeText: ''
+        };
+      }
+      return null;
+    }
+
+    function applyNormalizedAniListNextAiring(item, m) {
+      if (!item || !m) return;
+      if (m.status) item.seriesStatus = String(m.status);
+      if (m.nextAiringEpisode && Number.isFinite(Number(m.nextAiringEpisode.airingAt))) {
+        const ms = Number(m.nextAiringEpisode.airingAt) * 1000;
+        if (ms > Date.now()) {
+          item.nextAiring = {
+            season: 1,
+            episode: Number(m.nextAiringEpisode.episode) || null,
+            title: '',
+            airingAtMs: ms,
+            hasTime: true,
+            source: 'anilist'
+          };
+        }
+      }
+    }
+
+    function refreshNextAiringViews(item) {
+      if (!item) return;
+      const itemIdStr = String(item.id);
+      if (currentHeroAnime && String(currentHeroAnime.id) === itemIdStr) {
+        renderHeroNextBadge(item);
+      }
+      if (currentAnime && String(currentAnime.id) === itemIdStr) {
+        renderTheaterInfoStrip(currentAnime);
+        renderEpisodesSubnote(currentAnime);
+        if (currentAnime.type !== 'movie') {
+          renderEpisodeGrid(currentAnime.episodes || Math.max(12, currentEpisode));
+        }
+      }
+    }
+
+    function renderHeroNextBadge(item) {
+      const heroNext = document.getElementById('heroNextBadge');
+      if (!heroNext) return;
+      const info = getItemNextAiringInfo(item);
+      if (!info || !info.badgeText) {
+        heroNext.style.display = 'none';
+        heroNext.innerText = '';
+        heroNext.title = '';
+        return;
+      }
+      heroNext.style.display = 'inline-flex';
+      heroNext.className = `badge badge-next-airing state-${info.state}`;
+      heroNext.innerText = info.badgeText;
+      heroNext.title = info.bannerText || '';
+    }
+
+    function renderEpisodesSubnote(item) {
+      const epSubnote = document.getElementById('episodesSubnote');
+      if (!epSubnote || !item) return;
+      const baseNote = item.isMovieOrSeries
+        ? '● Multi-Season HD • Sequential Episode Guide'
+        : '● Japanese SUB & English DUB • Auto-Skip Intro';
+      const info = getItemNextAiringInfo(item);
+      if (info && info.state === 'scheduled') {
+        epSubnote.innerHTML = `${baseNote} &nbsp;•&nbsp; <span style="color:#fbbf24;">⏰ Next ${escapeHtml(info.epCode)}: ${escapeHtml(info.dateLabel)} (${escapeHtml(info.countdownLabel)})</span>`;
+      } else if (info && info.state === 'ongoing') {
+        epSubnote.innerHTML = `${baseNote} &nbsp;•&nbsp; <span style="color:#60a5fa;">📡 Ongoing Series (Next Ep Date TBA)</span>`;
+      } else {
+        epSubnote.textContent = baseNote;
+      }
+    }
+
+    function showUpcomingEpisodeToast(btn) {
+      const ds = btn?.dataset || {};
+      const season = Number(ds.season);
+      const ep = Number(ds.ep);
+      const airingAtMs = Number(ds.ts);
+      const epName = String(ds.epname || '').trim();
+      const seasonPart = (season > 0 && season < 1900 && currentAnime?.isMovieOrSeries) ? `S${season} ` : '';
+      const epPart = (ep > 0) ? `Ep ${ep}` : 'Special';
+      const namePart = epName && epName.toUpperCase() !== 'TBA' ? ` — "${epName}"` : '';
+      const datePart = formatLocalReleaseDate(airingAtMs, ds.hastime !== '0');
+      const cdPart = formatCountdownDuration(airingAtMs);
+      showAppToast(`📅 ${seasonPart}${epPart}${namePart} airs ${datePart} (${cdPart})`);
+    }
+
+    async function hydrateNextAiringMeta(item) {
+      if (!item || item.type === 'movie') return item;
+      const cacheKey = `${item.isMovieOrSeries ? 'tv' : 'ani'}:${item.imdbId || item.aniId || item.id}`;
+      const cached = NEXT_AIRING_CACHE.get(cacheKey);
+      const nowMs = Date.now();
+      if (cached && (!cached.nextAiring || cached.nextAiring.airingAtMs > nowMs)) {
+        if (cached.seriesStatus && !item.seriesStatus) item.seriesStatus = cached.seriesStatus;
+        if (cached.nextAiring && (!item.nextAiring || item.nextAiring.airingAtMs <= nowMs)) {
+          item.nextAiring = cached.nextAiring;
+        }
+        item._nextAiringChecked = true;
+        refreshNextAiringViews(item);
+        return item;
+      }
+
+      if (NEXT_AIRING_INFLIGHT.has(cacheKey)) {
+        return NEXT_AIRING_INFLIGHT.get(cacheKey);
+      }
+
+      const task = (async () => {
+        try {
+          if (item.isMovieOrSeries && item.type === 'series') {
+            const imdb = item.imdbId || (String(item.id).startsWith('tt') ? String(item.id) : null);
+            const statusUpper = String(item.seriesStatus || '').toUpperCase();
+            if (imdb && statusUpper !== 'ENDED' && statusUpper !== 'CANCELLED') {
+              const r = await fetch(`https://api.tvmaze.com/lookup/shows?imdb=${encodeURIComponent(imdb)}`);
+              if (r.ok) {
+                const d = await r.json();
+                if (d?.status) item.seriesStatus = String(d.status);
+                const nextHref = d?._links?.nextepisode?.href;
+                if (nextHref) {
+                  try {
+                    const parsedUrl = new URL(nextHref.replace(/^http:\/\//i, 'https://'));
+                    if (parsedUrl.hostname === 'api.tvmaze.com') {
+                      const epRes = await fetch(parsedUrl.toString());
+                      if (epRes.ok) {
+                        const epJson = await epRes.json();
+                        const hasTime = Boolean(epJson?.airstamp);
+                        let airMs = 0;
+                        if (epJson?.airstamp) {
+                          airMs = Date.parse(epJson.airstamp);
+                        } else if (epJson?.airdate) {
+                          airMs = Date.parse(`${epJson.airdate}T23:59:00`);
+                        }
+                        if (Number.isFinite(airMs) && airMs > Date.now()) {
+                          const tvS = Number(epJson.season);
+                          const tvE = Number(epJson.number);
+                          const cmNext = item.nextAiring;
+                          const closeToCinemeta = cmNext && Math.abs(cmNext.airingAtMs - airMs) <= 172800000;
+                          const resolvedSeason = (closeToCinemeta && cmNext.season && cmNext.season < 1900)
+                            ? cmNext.season
+                            : (Number.isFinite(tvS) && tvS > 0 && tvS < 1900 ? tvS : null);
+                          const resolvedEp = (closeToCinemeta && cmNext.episode)
+                            ? cmNext.episode
+                            : (Number.isFinite(tvE) && tvE > 0 ? tvE : null);
+                          const cleanName = String(epJson.name || cmNext?.title || '').trim();
+                          item.nextAiring = {
+                            season: resolvedSeason,
+                            episode: resolvedEp,
+                            title: cleanName,
+                            airingAtMs: airMs,
+                            hasTime,
+                            source: 'tvmaze'
+                          };
+                        }
+                      }
+                    }
+                  } catch (_) {}
+                }
+              }
+            }
+          } else if (!item.isMovieOrSeries) {
+            const hasFreshFuture = item.seriesStatus && (!item.nextAiring || item.nextAiring.airingAtMs > Date.now());
+            const statusUpper = String(item.seriesStatus || '').toUpperCase();
+            if (!hasFreshFuture || ((statusUpper === 'RELEASING' || statusUpper === 'NOT_YET_RELEASED') && !item.nextAiring)) {
+              const hasAniId = item.aniId || (item.kitsuId ? String(item.id) !== String(item.kitsuId) : /^\d+$/.test(String(item.id)));
+              const variables = hasAniId
+                ? { id: parseInt(item.aniId || item.id, 10) }
+                : { search: item.romaji || item.title };
+              const q = hasAniId
+                ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal status episodes nextAiringEpisode { episode airingAt } } }`
+                : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal status episodes nextAiringEpisode { episode airingAt } } }`;
+              const res = await fetch(ANILIST_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: q, variables })
+              });
+              if (res.ok) {
+                const json = await res.json();
+                const m = json?.data?.Media;
+                if (m) {
+                  if (!item.aniId && m.id) item.aniId = String(m.id);
+                  if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
+                  applyNormalizedAniListNextAiring(item, m);
+                  const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
+                    ? (m.nextAiringEpisode.episode - 1)
+                    : (m.episodes || null);
+                  if (aired && (item.episodeCountUnknown || !item.episodes || item.episodes < aired)) {
+                    item.episodes = aired;
+                    item.episodeCountUnknown = false;
+                  }
+                }
+              }
+            }
+          }
+        } catch (_) {
+        } finally {
+          item._nextAiringChecked = true;
+          NEXT_AIRING_CACHE.set(cacheKey, {
+            seriesStatus: item.seriesStatus || '',
+            nextAiring: item.nextAiring || null
+          });
+          NEXT_AIRING_INFLIGHT.delete(cacheKey);
+          refreshNextAiringViews(item);
+        }
+        return item;
+      })();
+
+      NEXT_AIRING_INFLIGHT.set(cacheKey, task);
+      return task;
+    }
+
     function renderTheaterInfoStrip(item) {
       const strip = document.getElementById('theaterInfoStrip');
       if (!strip || !item) return;
@@ -3664,6 +4077,11 @@
         castParts.push(`Cast: ${item.cast.slice(0, 4).join(', ')}`);
       }
       const castLine = castParts.length ? escapeHtml(castParts.join(' • ')) : escapeHtml((item.synopsis || '').slice(0, 120));
+      const nextInfo = getItemNextAiringInfo(item);
+      const nextAiringIcon = nextInfo?.state === 'scheduled' ? '📅' : (nextInfo?.state === 'ongoing' ? '📡' : '✅');
+      const nextAiringRow = nextInfo
+        ? `<div class="theater-next-airing state-${nextInfo.state}" id="theaterNextAiringRow">${nextAiringIcon} ${escapeHtml(nextInfo.bannerText)}</div>`
+        : '';
       const fav = isFavorited(item.id);
       const trailerBtn = item.trailerId
         ? `<button class="ctrl-btn" style="background: rgba(229,9,20,0.16); border-color: rgba(229,9,20,0.45);" data-yt="${escapeHtml(item.trailerId)}" data-title="${escapeHtml(item.title)}" onclick="openTrailer(this.dataset.yt, this.dataset.title)">🎬 Official Trailer</button>`
@@ -3680,6 +4098,7 @@
               ${genreChips}
             </div>
             <div class="theater-cast-line" title="${castLine}">${castLine}</div>
+            ${nextAiringRow}
           </div>
         </div>
         <div class="theater-info-actions">
@@ -3722,6 +4141,10 @@
         } else {
           heroEpisodes.innerText = (item.episodes || 'ONGOING') + (item.episodes ? ' EPISODES' : '');
         }
+      }
+      renderHeroNextBadge(item);
+      if (item.type !== 'movie' && !item._nextAiringChecked) {
+        hydrateNextAiringMeta(item);
       }
       if (heroTrailerBtn) heroTrailerBtn.style.display = 'inline-flex';
       syncInlineFavButtons();
@@ -3826,11 +4249,13 @@
     function buildSeriesSeasonsMap(videos) {
       const seasonsMap = {};
       const seasonsMeta = {};
+      const seasonsUpcoming = {};
+      const upcomingEpisodes = [];
       if (!Array.isArray(videos) || !videos.length) {
-        return { seasonsMap, seasonNumbers: [], seasonsMeta };
+        return { seasonsMap, seasonNumbers: [], seasonsMeta, seasonsUpcoming, upcomingEpisodes };
       }
 
-      const cutoffTs = Date.now() + 86400000;
+      const nowTs = Date.now();
       const bySeason = new Map();
 
       videos.forEach(v => {
@@ -3839,16 +4264,19 @@
         if (!Number.isFinite(sNum) || sNum < 0 || !Number.isFinite(epNum) || epNum <= 0) return;
         const releasedStr = v.released || v.firstAired || '';
         const releasedTs = releasedStr ? Date.parse(releasedStr) : 0;
-        const aired = !releasedTs || isNaN(releasedTs) || releasedTs <= cutoffTs;
+        const validTs = releasedTs && !isNaN(releasedTs) ? releasedTs : 0;
+        const epTitle = String(v.name || v.title || '');
+        const isTba = !validTs && epTitle.trim().toUpperCase() === 'TBA';
+        const aired = validTs > 0 ? validTs <= nowTs : !isTba;
         if (!bySeason.has(sNum)) bySeason.set(sNum, new Map());
         const epMap = bySeason.get(sNum);
         if (!epMap.has(epNum)) {
           epMap.set(epNum, {
             season: sNum,
             ep: epNum,
-            title: v.name || v.title || '',
+            title: epTitle,
             released: releasedStr,
-            releasedTs: isNaN(releasedTs) ? 0 : releasedTs,
+            releasedTs: validTs,
             aired,
             thumbnail: v.thumbnail || '',
             overview: v.overview || v.description || ''
@@ -3867,6 +4295,11 @@
       allKeys.forEach(sNum => {
         if (sNum === 0 && hasNumberedSeasons) return;
         const allEps = [...bySeason.get(sNum).values()].sort((a, b) => a.ep - b.ep);
+        const futureEps = allEps.filter(e => !e.aired && e.releasedTs > nowTs);
+        if (futureEps.length) {
+          seasonsUpcoming[sNum] = futureEps;
+          upcomingEpisodes.push(...futureEps);
+        }
         const airedEps = allEps.filter(e => e.aired);
         if (sNum > 0 && airedEps.length === 0 && seasonNumbers.some(n => n > 0)) return;
         const activeEps = airedEps.length > 0 ? airedEps : allEps;
@@ -3882,7 +4315,8 @@
         seasonNumbers.push(sNum);
       });
 
-      return { seasonsMap, seasonNumbers, seasonsMeta };
+      upcomingEpisodes.sort((a, b) => a.releasedTs - b.releasedTs);
+      return { seasonsMap, seasonNumbers, seasonsMeta, seasonsUpcoming, upcomingEpisodes };
     }
 
     function getSeasonEpisodeCount(item, seasonNum) {
@@ -4079,6 +4513,8 @@
       const poster = attrs.posterImage?.small || attrs.posterImage?.original || '';
       const backdrop = attrs.coverImage?.large || attrs.coverImage?.original || poster;
       const synopsis = attrs.synopsis || 'No synopsis available.';
+      const statusMap = { current: 'RELEASING', finished: 'FINISHED', upcoming: 'NOT_YET_RELEASED', unreleased: 'NOT_YET_RELEASED' };
+      const seriesStatus = statusMap[String(attrs.status || '').toLowerCase()] || '';
 
       return {
         id: String(id),
@@ -4087,6 +4523,7 @@
         idMal: malMap ? String(malMap.attributes.externalId) : null,
         tmdbId: null,
         episodeCountUnknown,
+        seriesStatus,
         type: attrs.subtype === 'movie' ? 'movie' : 'tv',
         title,
         romaji,
@@ -4306,12 +4743,26 @@
                   const yt = meta.trailers.find(t => t?.source);
                   if (yt?.source) item.trailerId = String(yt.source);
                 }
+                if (meta.status) item.seriesStatus = String(meta.status);
                 if (metaType === 'series' && Array.isArray(meta.videos) && meta.videos.length) {
                   const parsed = buildSeriesSeasonsMap(meta.videos);
                   if (parsed.seasonNumbers.length) {
                     item.seasonsMap = parsed.seasonsMap;
                     item.seasonNumbers = parsed.seasonNumbers;
                     item.seasonsMeta = parsed.seasonsMeta;
+                    item.seasonsUpcoming = parsed.seasonsUpcoming || null;
+                    item.upcomingEpisodes = parsed.upcomingEpisodes || null;
+                    if (parsed.upcomingEpisodes?.length) {
+                      const nextEp = parsed.upcomingEpisodes[0];
+                      item.nextAiring = {
+                        season: nextEp.season,
+                        episode: nextEp.ep,
+                        title: nextEp.title || '',
+                        airingAtMs: nextEp.releasedTs,
+                        hasTime: !!(nextEp.released && /T\d{2}:\d{2}/.test(nextEp.released)),
+                        source: 'cinemeta'
+                      };
+                    }
                     const activeS = parsed.seasonsMap[Number(currentSeason)]
                       ? Number(currentSeason)
                       : parsed.seasonNumbers[0];
@@ -4323,6 +4774,9 @@
             }
           }
           item._idsSynced = true;
+          if (item.type !== 'movie' && !item._nextAiringChecked) {
+            hydrateNextAiringMeta(item);
+          }
           return item;
         }
 
@@ -4332,8 +4786,8 @@
             ? { id: parseInt(item.aniId || item.id, 10) }
             : { search: item.romaji || item.title };
           const q = hasAniId
-            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`
-            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`;
+            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal status episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`
+            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal status episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`;
 
           const res = await fetch(ANILIST_API, {
             method: 'POST',
@@ -4350,6 +4804,7 @@
               if (m.duration && !item.runtime) item.runtime = `${m.duration} min`;
               if (Array.isArray(m.genres) && m.genres.length && !item.genres) item.genres = m.genres;
               if (m.trailer?.site === 'youtube' && m.trailer?.id) item.trailerId = String(m.trailer.id);
+              applyNormalizedAniListNextAiring(item, m);
               const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
                 ? (m.nextAiringEpisode.episode - 1)
                 : (m.episodes || null);
@@ -4361,6 +4816,9 @@
           }
         }
         item._idsSynced = true;
+        if (item.type !== 'movie' && !item._nextAiringChecked) {
+          hydrateNextAiringMeta(item);
+        }
       } catch (err) {
         console.warn('ID sync warning:', err);
       }
@@ -4417,8 +4875,9 @@
                 title { english romaji }
                 coverImage { large }
                 bannerImage
+                status
                 episodes
-                nextAiringEpisode { episode }
+                nextAiringEpisode { episode airingAt }
                 averageScore
                 format
                 description
@@ -4453,6 +4912,7 @@
               type: m.format === 'MOVIE' ? 'movie' : 'tv',
               _idsSynced: true
             };
+            applyNormalizedAniListNextAiring(match, m);
             ANIME_CACHE.set(strId, match);
           }
         } catch (err) {
@@ -4519,11 +4979,7 @@
         renderHeroBannerItem(anime, heroEpLabel);
         if (epSec) epSec.style.display = 'block';
         if (epNav) epNav.style.display = 'flex';
-        if (epSubnote) {
-          epSubnote.innerText = anime.isMovieOrSeries
-            ? '● Multi-Season HD • Sequential Episode Guide'
-            : '● Japanese SUB & English DUB • Auto-Skip Intro';
-        }
+        renderEpisodesSubnote(anime);
         renderEpisodeGrid(anime.episodes || Math.max(12, currentEpisode));
       }
 
@@ -4873,6 +5329,16 @@
         ].filter(Boolean).join(' ');
 
         const epTitleText = epMeta?.title || '';
+        if (epMeta && epMeta.aired === false && epMeta.releasedTs > Date.now()) {
+          const epDisp = i < 10 ? '0' + i : String(i);
+          const hasT = !!(epMeta.released && /T\d{2}:\d{2}/.test(epMeta.released));
+          const shortDate = formatLocalReleaseDate(epMeta.releasedTs, hasT);
+          const cd = formatCountdownDuration(epMeta.releasedTs);
+          const upName = epTitleText.trim().toUpperCase() !== 'TBA' ? epTitleText.trim() : '';
+          const tip = `Upcoming Ep ${i}${upName ? `: ${upName}` : ''} • Airs ${shortDate} (${cd})`;
+          html += `<button class="ep-card upcoming" data-season="${currentSeason}" data-ep="${i}" data-ts="${epMeta.releasedTs}" data-hastime="${hasT ? '1' : '0'}" data-epname="${escapeHtml(upName)}" onclick="showUpcomingEpisodeToast(this)" title="${escapeHtml(tip)}"><span class="ep-card-num">📅 ${epDisp}</span><span class="ep-card-sub">${escapeHtml(cd)} • ${escapeHtml(shortDate)}</span></button>`;
+          continue;
+        }
         const tooltip = epTitleText
           ? `S${currentSeason}E${i}: ${epTitleText}${epMeta.released ? ' • ' + epMeta.released.slice(0, 10) : ''}`
           : `Episode ${i}${isWatched ? ' (Watched)' : ''}${isNextUp ? ' (Next Up!)' : ''}`;
@@ -4882,6 +5348,44 @@
 
         html += `<button class="${classes}" onclick="setEpisode(${i})" title="${escapeHtml(tooltip)}">${label}</button>`;
       }
+
+      const lastRangeIdx = Math.max(0, Math.ceil(count / 50) - 1);
+      if (activeEpisodeRange >= lastRangeIdx) {
+        const nowMs = Date.now();
+        let upcomingList = [];
+        if (currentAnime?.isMovieOrSeries && Array.isArray(currentAnime?.seasonsUpcoming?.[currentSeason])) {
+          upcomingList = currentAnime.seasonsUpcoming[currentSeason]
+            .filter(u => u.releasedTs > nowMs && u.ep > count)
+            .slice(0, 3)
+            .map(u => ({
+              season: u.season,
+              episode: u.ep,
+              title: u.title || '',
+              airingAtMs: u.releasedTs,
+              hasTime: !!(u.released && /T\d{2}:\d{2}/.test(u.released))
+            }));
+        }
+        const na = currentAnime?.nextAiring;
+        if (!upcomingList.length && na && Number.isFinite(na.airingAtMs) && na.airingAtMs > nowMs) {
+          const matchesSeason = !currentAnime?.isMovieOrSeries
+            || !na.season
+            || Number(na.season) === Number(currentSeason)
+            || Number(na.season) >= 1900;
+          if (matchesSeason && (!na.episode || na.episode > count || na.episode <= 0)) {
+            upcomingList = [na];
+          }
+        }
+        upcomingList.forEach(up => {
+          const epDisplay = up.episode && up.episode > 0 ? (up.episode < 10 ? `0${up.episode}` : String(up.episode)) : 'SPEC';
+          const shortDate = formatLocalReleaseDate(up.airingAtMs, up.hasTime !== false);
+          const cd = formatCountdownDuration(up.airingAtMs);
+          const rawTitle = String(up.title || '').trim();
+          const upName = rawTitle && rawTitle.toUpperCase() !== 'TBA' ? rawTitle : '';
+          const tip = `Upcoming Ep ${up.episode || ''}${upName ? `: ${upName}` : ''} • Airs ${shortDate} (${cd})`;
+          html += `<button class="ep-card upcoming" data-season="${up.season || ''}" data-ep="${up.episode || ''}" data-ts="${up.airingAtMs}" data-hastime="${up.hasTime !== false ? '1' : '0'}" data-epname="${escapeHtml(upName)}" onclick="showUpcomingEpisodeToast(this)" title="${escapeHtml(tip)}"><span class="ep-card-num">📅 ${epDisplay}</span><span class="ep-card-sub">${escapeHtml(cd)} • ${escapeHtml(shortDate)}</span></button>`;
+        });
+      }
+
       grid.innerHTML = html;
       updateWatchedBtn();
     }
@@ -5534,6 +6038,18 @@
       const genres = Array.isArray(m.genres) ? m.genres : (Array.isArray(m.genre) ? m.genre : []);
       const trailerId = Array.isArray(m.trailers) ? (m.trailers.find(t => t?.source)?.source || null) : null;
 
+      const firstUpcoming = parsedSeasons?.upcomingEpisodes?.[0] || null;
+      const nextAiring = firstUpcoming
+        ? {
+            season: firstUpcoming.season,
+            episode: firstUpcoming.ep,
+            title: firstUpcoming.title || '',
+            airingAtMs: firstUpcoming.releasedTs,
+            hasTime: !!(firstUpcoming.released && /T\d{2}:\d{2}/.test(firstUpcoming.released)),
+            source: 'cinemeta'
+          }
+        : null;
+
       return {
         id: String(m.id || imdbId || ''),
         imdbId,
@@ -5546,6 +6062,7 @@
         year: yearRaw,
         runtime: m.runtime ? String(m.runtime) : '',
         country: m.country ? String(m.country) : '',
+        seriesStatus: m.status ? String(m.status) : '',
         genres,
         cast: Array.isArray(m.cast) ? m.cast : [],
         director: Array.isArray(m.director) ? m.director : [],
@@ -5554,6 +6071,9 @@
         seasonsMap: parsedSeasons?.seasonsMap || null,
         seasonNumbers: parsedSeasons?.seasonNumbers || null,
         seasonsMeta: parsedSeasons?.seasonsMeta || null,
+        seasonsUpcoming: parsedSeasons?.seasonsUpcoming || null,
+        upcomingEpisodes: parsedSeasons?.upcomingEpisodes || null,
+        nextAiring,
         _videosSynced: !!(parsedSeasons?.seasonNumbers?.length),
         poster,
         backdrop: m.background || poster || '',
@@ -5656,6 +6176,7 @@
           romaji: sh.name || '',
           rating: avgRating,
           year: sh.premiered ? sh.premiered.slice(0, 4) : String(new Date().getFullYear()),
+          seriesStatus: sh.status ? String(sh.status) : '',
           episodes: epNum,
           latestSeason: sNum,
           latestEp: epNum,
@@ -6522,7 +7043,7 @@
         ? (m.nextAiringEpisode.episode - 1)
         : (m.episodes || sched.episode || 1);
       const latestEp = sched.episode || airedTotal || 1;
-      return {
+      const item = {
         id: String(m.id),
         aniId: String(m.id),
         idMal: m.idMal ? String(m.idMal) : null,
@@ -6540,6 +7061,8 @@
         synopsis: m.description ? m.description.replace(/<[^>]*>/g, '') : 'No synopsis available.',
         _idsSynced: true
       };
+      applyNormalizedAniListNextAiring(item, m);
+      return item;
     }
 
     async function loadLatestReleases() {
@@ -6561,8 +7084,9 @@
                   popularity
                   averageScore
                   format
+                  status
                   episodes
-                  nextAiringEpisode { episode }
+                  nextAiringEpisode { episode airingAt }
                   title { english romaji }
                   coverImage { large }
                   bannerImage
@@ -6615,6 +7139,10 @@
           const epNum = item.latestAiredEp || 1;
           const epText = `EP ${epNum}`;
           const agoText = formatAiringAgo(item.airingAt);
+          const nextInfo = getItemNextAiringInfo(item);
+          const rightMeta = (nextInfo && nextInfo.state === 'scheduled')
+            ? `<span style="color: #fbbf24; font-weight: 700;" title="${escapeHtml(nextInfo.bannerText)}">⏰ Next ${escapeHtml(nextInfo.countdownLabel)}</span>`
+            : `<span style="color: #3b82f6; font-weight: 700;">Simulcast</span>`;
           return `
             <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${epNum})">
               <div class="card-poster-wrapper">
@@ -6629,7 +7157,7 @@
                 <div class="card-title" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
                 <div class="card-meta">
                   <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
-                  <span style="color: #3b82f6; font-weight: 700;">Simulcast</span>
+                  ${rightMeta}
                 </div>
               </div>
             </div>
@@ -8461,6 +8989,7 @@
             tmdbId: null,
             isMovieOrSeries: true,
             type: 'series',
+            seriesStatus: sh.status ? String(sh.status) : '',
             title: sh.name || 'TV Show',
             romaji: sh.name || '',
             rating,
@@ -8471,6 +9000,14 @@
             playableEp,
             dayName: days[dayIdx],
             airTimeStr: timeStr,
+            nextAiring: airTs > now ? {
+              season: sNum,
+              episode: epNum,
+              title: ep.name || '',
+              airingAtMs: airTs,
+              hasTime: Boolean(ep.airstamp),
+              source: 'tvmaze'
+            } : null,
             poster,
             backdrop,
             synopsis: sh.summary ? sh.summary.replace(/<[^>]*>/g, '').trim() : 'TV Series'
@@ -8520,8 +9057,9 @@
                   popularity
                   averageScore
                   format
+                  status
                   episodes
-                  nextAiringEpisode { episode }
+                  nextAiringEpisode { episode airingAt }
                   title { english romaji }
                   coverImage { large }
                   bannerImage

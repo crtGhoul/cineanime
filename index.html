@@ -671,18 +671,51 @@
       border-radius: 9999px;
     }
 
+    .episode-grid.has-ep-titles {
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    }
+
     .ep-card {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       color: #fff;
-      padding: 0.65rem 0.25rem;
+      padding: 0.65rem 0.35rem;
       border-radius: 8px;
       text-align: center;
       font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
+    }
+
+    .ep-card-num {
+      line-height: 1.1;
+    }
+
+    .ep-card-sub {
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      display: block;
+    }
+
+    .ep-card.active .ep-card-sub {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .ep-card.watched .ep-card-sub {
+      color: #a7f3d0;
     }
 
     .ep-card:hover {
@@ -1486,6 +1519,117 @@
       color: #fff;
     }
 
+    /* Sequential Season Picker & Movie/TV Sub-Filters */
+    .season-picker-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      overflow-x: auto;
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.8rem;
+      scrollbar-width: thin;
+      overscroll-behavior-x: contain;
+    }
+    .season-picker-bar::-webkit-scrollbar {
+      height: 5px;
+    }
+    .season-picker-bar::-webkit-scrollbar-thumb {
+      background: var(--surface-light);
+      border-radius: 9999px;
+    }
+
+    .season-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.42rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .season-pill:hover {
+      background: var(--surface-light);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+    .season-pill.active {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.45);
+    }
+    .season-pill-count {
+      font-size: 0.7rem;
+      font-weight: 600;
+      opacity: 0.78;
+    }
+
+    .media-subfilter-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .media-mode-pills {
+      display: flex;
+      flex-wrap: wrap;
+      flex-wrap: balance;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .media-subpill {
+      flex: 0 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s ease;
+    }
+    .media-subpill:hover {
+      background: var(--surface-light);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .media-subpill.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.55);
+      color: #a7f3d0;
+    }
+    #seriesSection .media-subpill.active {
+      background: rgba(139, 92, 246, 0.24);
+      border-color: rgba(139, 92, 246, 0.65);
+      color: #ddd6fe;
+    }
+
+    .release-subtoggles {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .season-pill:focus-visible,
+    .media-subpill:focus-visible,
+    .ep-card:focus-visible,
+    .relation-card:focus-visible {
+      outline: 2px solid #a78bfa;
+      outline-offset: 2px;
+    }
+
     .loading-spinner {
       display: inline-block;
       width: 24px;
@@ -1989,11 +2133,12 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
             <button class="ctrl-btn" style="font-size:0.75rem; padding: 3px 8px;" onclick="markAllEpisodesWatched()">✔ Mark All Watched</button>
-            <div style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
+            <div id="episodesSubnote" style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
               ● Japanese SUB & English DUB • Auto-Skip Intro
             </div>
           </div>
         </div>
+        <div id="seasonPickerBar" class="season-picker-bar" style="display: none;" role="tablist" aria-label="Seasons"></div>
         <div id="epRangeTabs" class="ep-range-tabs"></div>
         <div id="episodeGrid" class="episode-grid">
           <!-- Populated by JS -->
@@ -2004,10 +2149,10 @@
       <div id="relationsSection" class="relations-section" style="display: none;">
         <div class="relations-header">
           <div class="relations-title">
-            <span>🔗 Franchise Watch Order & Sequels</span>
+            <span id="relationsHeading">🔗 Franchise Watch Order & Sequels</span>
             <span id="relationsCount" class="badge badge-subdub" style="font-size: 0.72rem; padding: 2px 8px;">0 Parts</span>
           </div>
-          <div style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">
+          <div id="relationsSubheading" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">
             Chronological storyline & spin-offs
           </div>
         </div>
@@ -2088,10 +2233,13 @@
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip" style="background: #8b5cf6;"></div>
-          <span>📅 Weekly Simulcast Airing Schedule</span>
+          <span id="scheduleSectionTitle">📅 Weekly Airing Schedule</span>
           <span style="font-size: 0.72rem; background: rgba(139,92,246,0.2); color:#a78bfa; border: 1px solid rgba(139,92,246,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE TIMETABLE</span>
         </div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">See what drops every day of the week</span>
+        <div class="release-subtoggles" id="scheduleSourceTabs">
+          <button class="media-subpill active" data-sched="anime" onclick="selectScheduleSource('anime')">🇯🇵 Anime Simulcasts</button>
+          <button class="media-subpill" data-sched="tv" onclick="selectScheduleSource('tv')">📺 Real-Life TV</button>
+        </div>
       </div>
 
       <div class="schedule-day-tabs" id="scheduleDayTabs">
@@ -2151,7 +2299,7 @@
         <!-- Rendered by JS -->
       </div>
       <div id="searchLoadMoreBox" class="load-more-container" style="display: none;">
-        <button id="searchLoadMoreBtn" class="load-more-btn" onclick="loadMoreSearchResults()">See More Anime ↓</button>
+        <button id="searchLoadMoreBtn" class="load-more-btn" onclick="loadMoreSearchResults()">See More Results ↓</button>
       </div>
     </section>
 
@@ -2160,8 +2308,16 @@
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip" style="background: #10b981;"></div>
-          <span id="moviesSectionTitle">🎬 Popular Movies (Stremio Core)</span>
+          <span id="moviesSectionTitle">🆕 New Movies (2026)</span>
         </div>
+      </div>
+      <div class="media-subfilter-bar">
+        <div class="media-mode-pills" id="moviesModePills">
+          <button class="media-subpill active" data-mode="new" onclick="setMediaCatalogMode('movie', 'new')">🆕 New Releases (2026)</button>
+          <button class="media-subpill" data-mode="popular" onclick="setMediaCatalogMode('movie', 'popular')">🔥 Popular</button>
+          <button class="media-subpill" data-mode="featured" onclick="setMediaCatalogMode('movie', 'featured')">⭐ Top Rated</button>
+        </div>
+        <div class="genre-pills-bar" id="moviesGenrePills" style="margin-bottom: 0;"></div>
       </div>
       <div id="moviesGrid" class="anime-cards-grid">
         <!-- Rendered by JS -->
@@ -2171,13 +2327,22 @@
       </div>
     </section>
 
-    <!-- TV Series Section (Stremio/Cinemeta Protocol) -->
+    <!-- TV Series Section (Stremio/Cinemeta Protocol & Live Airing) -->
     <section id="seriesSection" class="catalog-section" style="display: none;">
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip" style="background: #8b5cf6;"></div>
-          <span id="seriesSectionTitle">📺 Popular TV Shows (Stremio Core)</span>
+          <span id="seriesSectionTitle">⚡ Newly Aired TV Episodes</span>
         </div>
+      </div>
+      <div class="media-subfilter-bar">
+        <div class="media-mode-pills" id="seriesModePills">
+          <button class="media-subpill active" data-mode="latest" onclick="setMediaCatalogMode('series', 'latest')">⚡ Newly Aired Episodes</button>
+          <button class="media-subpill" data-mode="new" onclick="setMediaCatalogMode('series', 'new')">🆕 New Shows (2026)</button>
+          <button class="media-subpill" data-mode="popular" onclick="setMediaCatalogMode('series', 'popular')">🔥 Popular</button>
+          <button class="media-subpill" data-mode="featured" onclick="setMediaCatalogMode('series', 'featured')">⭐ Top Rated</button>
+        </div>
+        <div class="genre-pills-bar" id="seriesGenrePills" style="margin-bottom: 0;"></div>
       </div>
       <div id="seriesGrid" class="anime-cards-grid">
         <!-- Rendered by JS -->
@@ -2192,7 +2357,7 @@
       <div class="section-header">
         <div class="section-title">
           <div class="section-pip" style="background: #10b981;"></div>
-          <span>⚡ Newly Released Episodes</span>
+          <span>⚡ Newly Released Anime</span>
           <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color:#10b981; border: 1px solid rgba(16,185,129,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE SIMULCAST</span>
         </div>
         <span style="font-size: 0.8rem; color: var(--text-muted);">Updated in real-time as episodes air in Japan</span>
@@ -2200,6 +2365,27 @@
       <div id="latestReleasesGrid" class="anime-cards-grid">
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Fetching today's freshly aired episodes...
+        </div>
+      </div>
+    </section>
+
+    <!-- 🎬 Newly Released Movies & TV Episodes (Real-Life Live Drops) -->
+    <section id="latestRealReleasesSection" class="catalog-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #f59e0b;"></div>
+          <span id="latestRealTitle">🎬 New Movies & Fresh TV Drops</span>
+          <span style="font-size: 0.72rem; background: rgba(245,158,11,0.2); color:#fbbf24; border: 1px solid rgba(245,158,11,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE MOVIES & TV</span>
+        </div>
+        <div class="release-subtoggles" id="realReleaseModeTabs">
+          <button class="media-subpill active" data-real-mode="mix" onclick="setRealReleaseMode('mix')">🔥 All Fresh</button>
+          <button class="media-subpill" data-real-mode="tv" onclick="setRealReleaseMode('tv')">📺 New TV Episodes</button>
+          <button class="media-subpill" data-real-mode="movie" onclick="setRealReleaseMode('movie')">🎬 New Movies</button>
+        </div>
+      </div>
+      <div id="latestRealReleasesGrid" class="anime-cards-grid">
+        <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
+          <div class="loading-spinner"></div> Fetching new movies & freshly aired TV episodes...
         </div>
       </div>
     </section>
@@ -2859,6 +3045,112 @@
     let moviesOffset = 0;
     let seriesOffset = 0;
 
+    // Real-Life Movies & TV Series State
+    let currentMoviesMode = 'new';
+    let currentMoviesGenre = 'ALL';
+    let currentSeriesMode = 'latest';
+    let currentSeriesGenre = 'ALL';
+    let currentRealReleaseMode = 'mix';
+    let latestRealMoviesList = [];
+    let latestRealTvList = [];
+    let currentScheduleSource = 'anime';
+    let weeklyTvScheduleCache = null;
+
+    const CINEMETA_MOVIE_GENRES = [
+      'Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary',
+      'Drama', 'Family', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller'
+    ];
+    const CINEMETA_SERIES_GENRES = [...CINEMETA_MOVIE_GENRES, 'Reality-TV'];
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function buildSeriesSeasonsMap(videos) {
+      const seasonsMap = {};
+      const seasonsMeta = {};
+      if (!Array.isArray(videos) || !videos.length) {
+        return { seasonsMap, seasonNumbers: [], seasonsMeta };
+      }
+
+      const cutoffTs = Date.now() + 86400000;
+      const bySeason = new Map();
+
+      videos.forEach(v => {
+        const sNum = Number(v?.season);
+        const epNum = Number(v?.episode ?? v?.number);
+        if (!Number.isFinite(sNum) || sNum < 0 || !Number.isFinite(epNum) || epNum <= 0) return;
+        const releasedStr = v.released || v.firstAired || '';
+        const releasedTs = releasedStr ? Date.parse(releasedStr) : 0;
+        const aired = !releasedTs || isNaN(releasedTs) || releasedTs <= cutoffTs;
+        if (!bySeason.has(sNum)) bySeason.set(sNum, new Map());
+        const epMap = bySeason.get(sNum);
+        if (!epMap.has(epNum)) {
+          epMap.set(epNum, {
+            season: sNum,
+            ep: epNum,
+            title: v.name || v.title || '',
+            released: releasedStr,
+            releasedTs: isNaN(releasedTs) ? 0 : releasedTs,
+            aired,
+            thumbnail: v.thumbnail || '',
+            overview: v.overview || v.description || ''
+          });
+        }
+      });
+
+      const allKeys = [...bySeason.keys()].sort((a, b) => {
+        if (a === 0 && b !== 0) return 1;
+        if (b === 0 && a !== 0) return -1;
+        return a - b;
+      });
+
+      const hasNumberedSeasons = allKeys.some(s => s > 0);
+      const seasonNumbers = [];
+      allKeys.forEach(sNum => {
+        if (sNum === 0 && hasNumberedSeasons) return;
+        const allEps = [...bySeason.get(sNum).values()].sort((a, b) => a.ep - b.ep);
+        const airedEps = allEps.filter(e => e.aired);
+        if (sNum > 0 && airedEps.length === 0 && seasonNumbers.some(n => n > 0)) return;
+        const activeEps = airedEps.length > 0 ? airedEps : allEps;
+        if (!activeEps.length) return;
+        seasonsMap[sNum] = activeEps;
+        seasonsMeta[sNum] = {
+          season: sNum,
+          totalCount: allEps.length,
+          airedCount: airedEps.length || allEps.length,
+          firstYear: activeEps[0]?.released ? activeEps[0].released.slice(0, 4) : '',
+          thumb: activeEps.find(e => e.thumbnail)?.thumbnail || ''
+        };
+        seasonNumbers.push(sNum);
+      });
+
+      return { seasonsMap, seasonNumbers, seasonsMeta };
+    }
+
+    function getSeasonEpisodeCount(item, seasonNum) {
+      if (!item) return 1;
+      if (item.type === 'movie') return 1;
+      const list = item.seasonsMap?.[Number(seasonNum)];
+      if (Array.isArray(list) && list.length) {
+        return Math.max(list.length, Number(list[list.length - 1]?.ep) || list.length);
+      }
+      return item.episodes || 12;
+    }
+
+    function getWatchedKey(animeId, season = currentSeason) {
+      const base = String(animeId || '');
+      const s = Number(season);
+      if (!base) return '';
+      if (!Number.isFinite(s) || s === 1) return base;
+      return `${base}_s${s}`;
+    }
+
     const ZOKO_QUERY = 'color=e50914&autoplay=1&asi=1&autonext=1';
 
     function buildZokoUrl(item, ep, trackOverride, preferAni = false) {
@@ -3191,22 +3483,29 @@
 
     function renderCard(item) {
       const fav = isFavorited(item.id);
-      const epBadge = item.type === 'movie' ? 'MOVIE' : (item.episodes ? `${item.episodes} EPS` : 'ONGOING');
-      const audioBadge = item.isMovieOrSeries ? 'HD' : 'SUB/DUB';
+      let epBadge = item.type === 'movie' ? 'MOVIE' : (item.episodes ? `${item.episodes} EPS` : 'ONGOING');
+      if (item.isMovieOrSeries && item.type === 'series') {
+        const sNums = item.seasonNumbers?.filter(s => s > 0) || [];
+        epBadge = sNums.length > 1
+          ? `${sNums.length} SEASONS`
+          : (item._videosSynced && item.episodes ? `${item.episodes} EPS` : 'TV SERIES');
+      }
+      const audioBadge = item.isMovieOrSeries ? (item.type === 'movie' ? 'HD MOVIE' : 'HD SERIES') : 'SUB/DUB';
+      const safeTitle = escapeHtml(item.title);
       return `
         <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
-            <img class="card-poster" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="card-rating">★ ${item.rating}</div>
             <div class="card-ep-badge">${epBadge}</div>
           </div>
           <div class="card-info">
-            <div class="card-title" title="${item.title}">${item.title}</div>
+            <div class="card-title" title="${safeTitle}">${safeTitle}</div>
             <div class="card-meta">
-              <span>${item.year}</span>
+              <span>${item.year || ''}</span>
               <span style="color: #10b981; font-weight: 700;">${audioBadge}</span>
             </div>
           </div>
@@ -3216,26 +3515,45 @@
 
     async function ensureMediaIds(item) {
       if (!item) return item;
-      if (item._idsSynced) return item;
+      const needsSeriesSync = item.isMovieOrSeries && item.type === 'series' && !item._videosSynced;
+      if (item._idsSynced && !needsSeriesSync) return item;
 
       try {
         if (item.isMovieOrSeries) {
           const hasNumericTmdb = item.tmdbId && /^\d+$/.test(String(item.tmdbId));
           const imdb = item.imdbId || (String(item.id).startsWith('tt') ? item.id : null);
-          if ((!hasNumericTmdb || (item.type === 'series' && !item._videosSynced)) && imdb) {
+          if ((!hasNumericTmdb || needsSeriesSync) && imdb) {
             const metaType = item.type === 'movie' ? 'movie' : 'series';
             const res = await fetch(`https://v3-cinemeta.strem.io/meta/${metaType}/${imdb}.json`);
             if (res.ok) {
               const json = await res.json();
               const meta = json?.meta;
-              if (meta?.moviedb_id) {
-                item.tmdbId = String(meta.moviedb_id);
-              }
-              if (metaType === 'series' && Array.isArray(meta?.videos) && meta.videos.length) {
-                const s1Eps = meta.videos.filter(v => Number(v.season) === (currentSeason || 1) && Number(v.episode) > 0);
-                if (s1Eps.length) {
-                  item.episodes = s1Eps.length;
-                  item._videosSynced = true;
+              if (meta) {
+                if (meta.moviedb_id) item.tmdbId = String(meta.moviedb_id);
+                if (meta.name && (!item.title || item.title === 'Title')) item.title = meta.name;
+                if (meta.poster && !item.poster) item.poster = meta.poster;
+                if (meta.background && (!item.backdrop || item.backdrop === item.poster)) {
+                  item.backdrop = meta.background;
+                }
+                if (meta.description && (!item.synopsis || item.synopsis.includes('No description'))) {
+                  item.synopsis = meta.description;
+                }
+                if (meta.imdbRating && !item.rating) item.rating = String(meta.imdbRating);
+                if (meta.year || meta.releaseInfo) {
+                  item.year = item.year || String(meta.year || meta.releaseInfo).slice(0, 4);
+                }
+                if (metaType === 'series' && Array.isArray(meta.videos) && meta.videos.length) {
+                  const parsed = buildSeriesSeasonsMap(meta.videos);
+                  if (parsed.seasonNumbers.length) {
+                    item.seasonsMap = parsed.seasonsMap;
+                    item.seasonNumbers = parsed.seasonNumbers;
+                    item.seasonsMeta = parsed.seasonsMeta;
+                    const activeS = parsed.seasonsMap[Number(currentSeason)]
+                      ? Number(currentSeason)
+                      : parsed.seasonNumbers[0];
+                    item.episodes = getSeasonEpisodeCount(item, activeS);
+                    item._videosSynced = true;
+                  }
                 }
               }
             }
@@ -3282,11 +3600,24 @@
       return item;
     }
 
-    async function selectAnimeById(id, autoPlay, targetEp = 1) {
+    async function selectAnimeById(id, autoPlay, targetEp = 1, targetSeason = null) {
       const strId = String(id);
+      currentSeason = (targetSeason !== null && targetSeason !== undefined)
+        ? (Number.isFinite(Number(targetSeason)) ? Number(targetSeason) : 1)
+        : 1;
+
       let match = ANIME_CACHE.get(strId);
       if (!match) {
-        match = [...(latestReleasesList || []), ...trendingList, ...seasonalList, ...topRatedList, ...ANIME_CATALOG, ...LEGENDARY_CATALOG].find(a => String(a.id) === strId);
+        match = [
+          ...(latestReleasesList || []),
+          ...(latestRealMoviesList || []),
+          ...(latestRealTvList || []),
+          ...trendingList,
+          ...seasonalList,
+          ...topRatedList,
+          ...ANIME_CATALOG,
+          ...LEGENDARY_CATALOG
+        ].find(a => String(a.id) === strId);
       }
       if (!match) {
         const hMatch = getWatchHistory().find(h => String(h.id) === strId);
@@ -3366,14 +3697,36 @@
         await ensureMediaIds(match);
         ANIME_CACHE.set(strId, match);
         if (match.aniId) ANIME_CACHE.set(String(match.aniId), match);
+
+        let resolvedSeason = currentSeason;
+        if (match.isMovieOrSeries && match.type === 'series' && match.seasonNumbers?.length) {
+          if (!match.seasonsMap?.[resolvedSeason]) {
+            resolvedSeason = match.seasonNumbers[0];
+          }
+          currentSeason = resolvedSeason;
+          match.episodes = getSeasonEpisodeCount(match, resolvedSeason);
+        }
+
         const maxEp = match.episodes || targetEp || 1;
         const clampedEp = targetEp && targetEp > 1 ? Math.max(1, Math.min(targetEp, maxEp)) : 1;
-        selectAnime(match, autoPlay, clampedEp);
+        selectAnime(match, autoPlay, clampedEp, resolvedSeason);
       }
     }
 
-    function selectAnime(anime, autoPlay, initialEp = 1) {
+    function selectAnime(anime, autoPlay, initialEp = 1, initialSeason = null) {
       currentAnime = anime;
+      if (initialSeason !== null && initialSeason !== undefined && Number.isFinite(Number(initialSeason))) {
+        currentSeason = Number(initialSeason);
+      } else if (anime.isMovieOrSeries && anime.type === 'series' && anime.seasonNumbers?.length) {
+        currentSeason = anime.seasonsMap?.[currentSeason] ? currentSeason : anime.seasonNumbers[0];
+      } else {
+        currentSeason = 1;
+      }
+
+      if (anime.isMovieOrSeries && anime.type === 'series' && anime.seasonsMap?.[currentSeason]) {
+        anime.episodes = getSeasonEpisodeCount(anime, currentSeason);
+      }
+
       currentEpisode = initialEp > 1 ? initialEp : 1;
       activeEpisodeRange = Math.floor((currentEpisode - 1) / 50);
       ANIME_CACHE.set(String(anime.id), anime);
@@ -3390,14 +3743,26 @@
 
       const epSec = document.querySelector('.episodes-section');
       const epNav = document.querySelector('.ep-nav-controls');
+      const epSubnote = document.getElementById('episodesSubnote');
+      const seasonBar = document.getElementById('seasonPickerBar');
       if (anime.type === 'movie') {
         document.getElementById('heroEpisodes').innerText = 'FEATURE FILM';
         if (epSec) epSec.style.display = 'none';
         if (epNav) epNav.style.display = 'none';
+        if (seasonBar) seasonBar.style.display = 'none';
       } else {
-        document.getElementById('heroEpisodes').innerText = (anime.episodes || 'ONGOING') + (anime.episodes ? ' EPISODES' : '');
+        const sTotal = anime.seasonNumbers?.length || 0;
+        const heroEpLabel = (anime.isMovieOrSeries && sTotal > 1)
+          ? `${sTotal} SEASONS • S${currentSeason}: ${anime.episodes || '?'} EPS`
+          : ((anime.episodes || 'ONGOING') + (anime.episodes ? ' EPISODES' : ''));
+        document.getElementById('heroEpisodes').innerText = heroEpLabel;
         if (epSec) epSec.style.display = 'block';
         if (epNav) epNav.style.display = 'flex';
+        if (epSubnote) {
+          epSubnote.innerText = anime.isMovieOrSeries
+            ? '● Multi-Season HD • Sequential Episode Guide'
+            : '● Japanese SUB & English DUB • Auto-Skip Intro';
+        }
         renderEpisodeGrid(anime.episodes || Math.max(12, currentEpisode));
       }
 
@@ -3408,11 +3773,156 @@
       }
     }
 
+    function renderSeriesSeasonRelations(anime) {
+      const container = document.getElementById('relationsSection');
+      const grid = document.getElementById('relationsGrid');
+      const countBadge = document.getElementById('relationsCount');
+      const heading = document.getElementById('relationsHeading');
+      const subheading = document.getElementById('relationsSubheading');
+      if (!container || !grid || !anime?.seasonNumbers || anime.seasonNumbers.length <= 1) {
+        if (container) container.style.display = 'none';
+        return;
+      }
+
+      if (heading) heading.innerText = '📚 All Seasons in Sequential Order';
+      if (subheading) subheading.innerText = 'Watch in release order from Season 1 onward';
+      if (countBadge) {
+        const regularCount = anime.seasonNumbers.filter(s => s > 0).length || anime.seasonNumbers.length;
+        countBadge.innerText = `${regularCount} Seasons`;
+      }
+
+      container.style.display = 'block';
+      grid.innerHTML = anime.seasonNumbers.map((sNum, idx) => {
+        const meta = anime.seasonsMeta?.[sNum] || {};
+        const epsList = anime.seasonsMap?.[sNum] || [];
+        const isCurrent = Number(sNum) === Number(currentSeason);
+        const label = sNum === 0 ? 'Specials' : `Season ${sNum}`;
+        const thumb = meta.thumb || anime.backdrop || anime.poster || '';
+        const epCount = epsList.length || 0;
+        const yearTxt = meta.firstYear ? `${meta.firstYear} • ` : '';
+
+        let badgeClass = 'tag-sequel';
+        let badgeLabel = sNum === 0 ? '★ SPECIALS' : `⏩ SEASON ${sNum}`;
+        if (isCurrent) {
+          badgeClass = 'tag-current';
+          badgeLabel = `▶ WATCHING`;
+        } else if (idx === 0) {
+          badgeClass = 'tag-prequel';
+          badgeLabel = '⏪ START HERE';
+        }
+
+        return `
+          <div class="relation-card ${isCurrent ? 'current' : ''}" data-season="${sNum}" onclick="setSeriesSeason(${sNum}, 1)">
+            <div class="relation-thumb-wrap">
+              <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
+              <img class="relation-thumb" src="${thumb}" alt="${escapeHtml(label)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            </div>
+            <div class="relation-body">
+              <div class="relation-title" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+              <div class="relation-meta">
+                <span>${yearTxt}${epCount} eps</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function fetchMovieFranchiseRelations(anime) {
+      const container = document.getElementById('relationsSection');
+      const grid = document.getElementById('relationsGrid');
+      const countBadge = document.getElementById('relationsCount');
+      const heading = document.getElementById('relationsHeading');
+      const subheading = document.getElementById('relationsSubheading');
+      if (!container || !grid || !anime) return;
+
+      const baseTitle = (anime.title || '')
+        .replace(/[:\-–—].*$/, '')
+        .replace(/\b(part|chapter|vol\.?|episode)\s*\d+\b/gi, '')
+        .replace(/\b([IVX]{1,4}|\d+)\b\s*$/i, '')
+        .trim();
+
+      if (baseTitle.length < 3) {
+        container.style.display = 'none';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(baseTitle)}.json`);
+        if (!res.ok) {
+          container.style.display = 'none';
+          return;
+        }
+        const json = await res.json();
+        const raw = Array.isArray(json?.metas) ? json.metas : [];
+        const baseLow = baseTitle.toLowerCase();
+        const seen = new Set();
+        const parts = raw
+          .map(m => normalizeCinemetaMedia({ ...m, type: 'movie' }))
+          .filter(item => {
+            if (!item.id || seen.has(item.id)) return false;
+            const tLow = item.title.toLowerCase();
+            if (!tLow.includes(baseLow) && !baseLow.includes(tLow)) return false;
+            seen.add(item.id);
+            return true;
+          })
+          .sort((a, b) => (parseInt(a.year, 10) || 9999) - (parseInt(b.year, 10) || 9999));
+
+        if (parts.length <= 1) {
+          container.style.display = 'none';
+          return;
+        }
+
+        parts.forEach(p => ANIME_CACHE.set(String(p.id), p));
+        if (heading) heading.innerText = '🎬 Movie Franchise Watch Order';
+        if (subheading) subheading.innerText = 'Sequential theatrical release order';
+        if (countBadge) countBadge.innerText = `${parts.length} Movies`;
+        container.style.display = 'block';
+
+        grid.innerHTML = parts.map((rel, idx) => {
+          const isCurrent = String(rel.id) === String(anime.id);
+          const badgeClass = isCurrent ? 'tag-current' : (idx === 0 ? 'tag-prequel' : 'tag-sequel');
+          const badgeLabel = isCurrent ? '▶ CURRENT' : (idx === 0 ? '⏪ PART 1' : `⏩ PART ${idx + 1}`);
+          return `
+            <div class="relation-card ${isCurrent ? 'current' : ''}" onclick="selectAnimeById('${rel.id}', true)">
+              <div class="relation-thumb-wrap">
+                <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${escapeHtml(rel.title)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+              </div>
+              <div class="relation-body">
+                <div class="relation-title" title="${escapeHtml(rel.title)}">${escapeHtml(rel.title)}</div>
+                <div class="relation-meta">
+                  <span>${rel.year ? rel.year + ' • ' : ''}Movie</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.warn('Movie franchise relations warning:', err);
+        container.style.display = 'none';
+      }
+    }
+
     async function fetchRelations(anime) {
       const container = document.getElementById('relationsSection');
       const grid = document.getElementById('relationsGrid');
       const countBadge = document.getElementById('relationsCount');
+      const heading = document.getElementById('relationsHeading');
+      const subheading = document.getElementById('relationsSubheading');
       if (!container || !grid || !anime) return;
+
+      if (anime.isMovieOrSeries) {
+        if (anime.type === 'series') {
+          renderSeriesSeasonRelations(anime);
+        } else {
+          await fetchMovieFranchiseRelations(anime);
+        }
+        return;
+      }
+
+      if (heading) heading.innerText = '🔗 Franchise Watch Order & Sequels';
+      if (subheading) subheading.innerText = 'Chronological storyline & spin-offs';
 
       const titleQuery = anime.romaji || anime.title || '';
       const cleanTitle = titleQuery.replace(/[:\-–—].*$/, '').replace(/(season|part|cour|arc)\s*\d+/gi, '').trim();
@@ -3499,10 +4009,57 @@
       selectAnime(currentHeroAnime, true);
     }
 
+    function renderSeasonPicker(anime) {
+      const bar = document.getElementById('seasonPickerBar');
+      if (!bar) return;
+      if (!anime?.isMovieOrSeries || anime.type === 'movie' || !anime.seasonNumbers?.length) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+      bar.style.display = 'flex';
+      bar.innerHTML = anime.seasonNumbers.map(sNum => {
+        const active = Number(sNum) === Number(currentSeason);
+        const epLen = anime.seasonsMap?.[sNum]?.length || 0;
+        const label = sNum === 0 ? 'Specials' : `Season ${sNum}`;
+        return `<button class="season-pill ${active ? 'active' : ''}" role="tab" aria-selected="${active}" onclick="setSeriesSeason(${sNum}, 1)"><span>${label}</span><span class="season-pill-count">${epLen} eps</span></button>`;
+      }).join('');
+    }
+
+    function setSeriesSeason(seasonNum, targetEp = 1) {
+      if (!currentAnime) return;
+      const nextS = Number(seasonNum);
+      if (!Number.isFinite(nextS)) return;
+      currentSeason = nextS;
+      const count = getSeasonEpisodeCount(currentAnime, nextS);
+      currentAnime.episodes = count;
+      const safeEp = Math.max(1, Math.min(Number(targetEp) || 1, count));
+      activeEpisodeRange = Math.floor((safeEp - 1) / 50);
+
+      // Keep Franchise/Seasons cards synced cleanly
+      document.querySelectorAll('#relationsGrid .relation-card[data-season]').forEach(card => {
+        const sAttr = Number(card.getAttribute('data-season'));
+        const isCurr = sAttr === nextS;
+        card.classList.toggle('current', isCurr);
+        const tag = card.querySelector('.relation-type-tag');
+        if (tag) {
+          tag.className = `relation-type-tag ${isCurr ? 'tag-current' : (sAttr === 1 ? 'tag-prequel' : 'tag-sequel')}`;
+          tag.textContent = isCurr ? '▶ WATCHING' : (sAttr === 0 ? '★ SPECIALS' : `⏩ SEASON ${sAttr}`);
+        }
+      });
+
+      setEpisode(safeEp);
+    }
+
     function renderEpisodeGrid(count) {
       const grid = document.getElementById('episodeGrid');
       const tabs = document.getElementById('epRangeTabs');
-      document.getElementById('epTotalCount').innerText = `(${count} Episodes)`;
+      renderSeasonPicker(currentAnime);
+
+      const seasonPrefix = (currentAnime?.isMovieOrSeries && currentAnime.type === 'series')
+        ? (currentSeason === 0 ? 'Specials • ' : `Season ${currentSeason} • `)
+        : '';
+      document.getElementById('epTotalCount').innerText = `${seasonPrefix}(${count} Episodes)`;
 
       // Build range tabs if count > 50 (e.g. One Piece, Naruto)
       if (count > 50) {
@@ -3521,10 +4078,17 @@
         activeEpisodeRange = 0;
       }
 
-      // Determine next unwatched episode
+      const seasonEpList = (currentAnime?.isMovieOrSeries && currentAnime?.seasonsMap)
+        ? (currentAnime.seasonsMap[currentSeason] || null)
+        : null;
+      const epMetaMap = seasonEpList ? new Map(seasonEpList.map(e => [Number(e.ep), e])) : null;
+      const hasTitles = !!(seasonEpList && seasonEpList.some(e => e.title));
+      grid.classList.toggle('has-ep-titles', hasTitles);
+
+      // Determine next unwatched episode (scoped per season)
       let nextUnwatched = -1;
       for (let j = 1; j <= count; j++) {
-        if (!isEpisodeWatched(currentAnime.id, j)) {
+        if (!isEpisodeWatched(currentAnime.id, j, currentSeason)) {
           nextUnwatched = j;
           break;
         }
@@ -3536,8 +4100,9 @@
       let html = '';
       for (let i = startEp; i <= endEp; i++) {
         const isActive = i === currentEpisode;
-        const isWatched = isEpisodeWatched(currentAnime.id, i);
+        const isWatched = isEpisodeWatched(currentAnime.id, i, currentSeason);
         const isNextUp = i === nextUnwatched && !isActive;
+        const epMeta = epMetaMap ? epMetaMap.get(i) : null;
         const classes = [
           'ep-card',
           isActive ? 'active' : '',
@@ -3545,7 +4110,15 @@
           isNextUp ? 'next-up' : ''
         ].filter(Boolean).join(' ');
 
-        html += `<button class="${classes}" onclick="setEpisode(${i})" title="Episode ${i}${isWatched ? ' (Watched)' : ''}${isNextUp ? ' (Next Up!)' : ''}">${i < 10 ? '0' + i : i}</button>`;
+        const epTitleText = epMeta?.title || '';
+        const tooltip = epTitleText
+          ? `S${currentSeason}E${i}: ${epTitleText}${epMeta.released ? ' • ' + epMeta.released.slice(0, 10) : ''}`
+          : `Episode ${i}${isWatched ? ' (Watched)' : ''}${isNextUp ? ' (Next Up!)' : ''}`;
+        const label = hasTitles
+          ? `<span class="ep-card-num">${i < 10 ? '0' + i : i}</span><span class="ep-card-sub">${escapeHtml(epTitleText || 'Ep ' + i)}</span>`
+          : `${i < 10 ? '0' + i : i}`;
+
+        html += `<button class="${classes}" onclick="setEpisode(${i})" title="${escapeHtml(tooltip)}">${label}</button>`;
       }
       grid.innerHTML = html;
       updateWatchedBtn();
@@ -3563,7 +4136,7 @@
         activeEpisodeRange = neededRange;
       }
       updatePlayerUrl();
-      markEpisodeWatched(currentAnime.id, ep, true);
+      markEpisodeWatched(currentAnime.id, ep, true, currentSeason);
       renderEpisodeGrid(currentAnime.episodes || Math.max(12, ep));
       saveWatchHistory(currentAnime, ep, activeServer);
     }
@@ -3573,6 +4146,17 @@
       const maxEp = currentAnime.episodes || Math.max(999, target);
       if (target >= 1 && target <= maxEp) {
         setEpisode(target);
+        return;
+      }
+      if (currentAnime?.isMovieOrSeries && currentAnime?.seasonNumbers?.length) {
+        const idx = currentAnime.seasonNumbers.indexOf(Number(currentSeason));
+        if (delta > 0 && idx >= 0 && idx + 1 < currentAnime.seasonNumbers.length) {
+          setSeriesSeason(currentAnime.seasonNumbers[idx + 1], 1);
+        } else if (delta < 0 && idx > 0) {
+          const prevSeason = currentAnime.seasonNumbers[idx - 1];
+          const prevCount = getSeasonEpisodeCount(currentAnime, prevSeason);
+          setSeriesSeason(prevSeason, prevCount);
+        }
       }
     }
 
@@ -3599,13 +4183,19 @@
       if (currentAnime.isMovieOrSeries) {
         if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
         if (toggle) toggle.style.display = 'none';
+        const epMeta = currentAnime.seasonsMap?.[currentSeason]?.find(e => Number(e.ep) === Number(currentEpisode));
+        const epNameSuffix = epMeta?.title ? ` • ${epMeta.title}` : '';
         const titleText = currentAnime.type === 'movie'
           ? `${currentAnime.title} (${currentAnime.year || 'Movie'})`
-          : `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}`;
+          : `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}${epNameSuffix}`;
         document.getElementById('playerTitle').innerText = titleText;
-        document.getElementById('currentEpLabel').innerText = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
-        document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
-        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
+        document.getElementById('currentEpLabel').innerText = currentAnime.type === 'movie'
+          ? 'Movie'
+          : `S${currentSeason} • Ep ${currentEpisode}`;
+        const seasonNums = currentAnime.seasonNumbers || [];
+        const sIdx = seasonNums.indexOf(Number(currentSeason));
+        document.getElementById('prevEpBtn').disabled = currentEpisode <= 1 && sIdx <= 0;
+        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes && (sIdx < 0 || sIdx >= seasonNums.length - 1);
       } else {
         if (badge) badge.innerText = '⚡ 100% Ad-Free Anime Core';
         if (toggle) toggle.style.display = 'flex';
@@ -3797,37 +4387,58 @@
       searchSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
       try {
-        const [kitsuRes, cinemetaRes] = await Promise.all([
-          fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=20&include=mappings`),
-          fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(q)}.json`).catch(() => null)
+        const [kitsuRes, movieRes, seriesRes] = await Promise.all([
+          fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=20&include=mappings`).catch(() => null),
+          fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(q)}.json`).catch(() => null),
+          fetch(`https://v3-cinemeta.strem.io/catalog/series/top/search=${encodeURIComponent(q)}.json`).catch(() => null)
         ]);
 
-        const json = await kitsuRes.json();
-        let cinemetaJson = null;
-        if (cinemetaRes && cinemetaRes.ok) {
-          cinemetaJson = await cinemetaRes.json().catch(() => null);
-        }
+        const [json, movieJson, seriesJson] = await Promise.all([
+          kitsuRes && kitsuRes.ok ? kitsuRes.json().catch(() => null) : null,
+          movieRes && movieRes.ok ? movieRes.json().catch(() => null) : null,
+          seriesRes && seriesRes.ok ? seriesRes.json().catch(() => null) : null
+        ]);
 
         const animeResults = (json && json.data && json.data.length)
           ? json.data.map(item => normalizeKitsuMedia(item, json.included || []))
           : [];
-        animeResults.forEach(item => ANIME_CACHE.set(String(item.id), item));
-
-        const movieResults = (cinemetaJson && cinemetaJson.metas && cinemetaJson.metas.length)
-          ? cinemetaJson.metas.slice(0, 8).map(normalizeCinemetaMedia)
+        const movieResults = (movieJson && movieJson.metas && movieJson.metas.length)
+          ? movieJson.metas.slice(0, 12).map(m => normalizeCinemetaMedia({ ...m, type: 'movie' }))
           : [];
-        movieResults.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        const seriesResults = (seriesJson && seriesJson.metas && seriesJson.metas.length)
+          ? seriesJson.metas.slice(0, 12).map(m => normalizeCinemetaMedia({ ...m, type: 'series' }))
+          : [];
 
-        const combined = [...animeResults, ...movieResults];
+        const qLow = q.toLowerCase();
+        const scoreTitle = (item) => {
+          const t = (item.title || '').toLowerCase();
+          const r = (item.romaji || '').toLowerCase();
+          if (t === qLow || r === qLow) return 0;
+          if (t.startsWith(qLow) || r.startsWith(qLow)) return 1;
+          if (t.includes(qLow) || r.includes(qLow)) return 2;
+          return 3;
+        };
+
+        const seenIds = new Set();
+        const combined = [...seriesResults, ...movieResults, ...animeResults]
+          .filter(item => {
+            const key = String(item.id);
+            if (!key || seenIds.has(key)) return false;
+            seenIds.add(key);
+            return true;
+          })
+          .sort((a, b) => scoreTitle(a) - scoreTitle(b));
+
+        combined.forEach(item => ANIME_CACHE.set(String(item.id), item));
 
         if (!combined.length) {
           searchTitle.innerText = `🔍 No results found for "${q}"`;
-          searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime or movies found. Try another title or check spelling!</div>';
+          searchGrid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching anime, TV shows, or movies found. Try another title or check spelling!</div>';
           if (loadMoreBox) loadMoreBox.style.display = 'none';
           return;
         }
 
-        searchTitle.innerText = `🔍 Search Results for "${q}" (${combined.length} found)`;
+        searchTitle.innerText = `🔍 Search Results for "${q}" (${combined.length} found across Anime, Movies & TV)`;
         searchGrid.innerHTML = combined.map(renderCard).join('');
 
         if (loadMoreBox) {
@@ -4051,67 +4662,396 @@
       }
     }
 
-    // --- Stremio Cinemeta Movies & Series Core ---
+    // --- Stremio Cinemeta Movies & Series + Live TVmaze Releases Core ---
     function normalizeCinemetaMedia(m) {
       const imdbId = m.imdb_id || (String(m.id).startsWith('tt') ? String(m.id) : null);
       const tmdbId = m.moviedb_id
         ? String(m.moviedb_id)
         : (String(m.id).startsWith('tmdb:') ? String(m.id).replace('tmdb:', '') : null);
+      const mediaType = m.type === 'series' ? 'series' : 'movie';
+      const parsedSeasons = (mediaType === 'series' && Array.isArray(m.videos) && m.videos.length)
+        ? buildSeriesSeasonsMap(m.videos)
+        : null;
+      const firstSeason = parsedSeasons?.seasonNumbers?.[0] ?? 1;
+      const epCount = mediaType === 'movie'
+        ? 1
+        : (parsedSeasons?.seasonNumbers?.length
+            ? getSeasonEpisodeCount({ seasonsMap: parsedSeasons.seasonsMap }, firstSeason)
+            : null);
+      const ratingNum = parseFloat(m.imdbRating);
+      const rating = (!isNaN(ratingNum) && ratingNum > 0) ? ratingNum.toFixed(1) : 'NEW';
+      const yearRaw = m.year || (m.releaseInfo ? String(m.releaseInfo).slice(0, 4) : '');
+      const poster = m.poster || (imdbId ? `https://images.metahub.space/poster/small/${imdbId}/img` : '');
+
       return {
-        id: String(m.id),
+        id: String(m.id || imdbId || ''),
         imdbId,
         tmdbId,
         isMovieOrSeries: true,
-        type: m.type || 'movie',
+        type: mediaType,
         title: m.name || 'Title',
         romaji: m.name || '',
-        rating: m.imdbRating || '8.2',
-        year: m.year || (m.releaseInfo ? m.releaseInfo.slice(0, 4) : ''),
-        episodes: m.type === 'movie' ? 1 : 12,
-        poster: m.poster || '',
-        backdrop: m.background || m.poster || '',
+        rating,
+        year: yearRaw,
+        episodes: epCount,
+        seasonsMap: parsedSeasons?.seasonsMap || null,
+        seasonNumbers: parsedSeasons?.seasonNumbers || null,
+        seasonsMeta: parsedSeasons?.seasonsMeta || null,
+        _videosSynced: !!(parsedSeasons?.seasonNumbers?.length),
+        poster,
+        backdrop: m.background || poster || '',
         synopsis: m.description || 'No description available from Stremio Cinemeta.'
       };
     }
 
-    async function loadMoviesCatalog(reset = true) {
-      if (reset) moviesOffset = 0;
-      const grid = document.getElementById('moviesGrid');
-      const loadMoreBox = document.getElementById('moviesLoadMoreBox');
-      const btn = document.getElementById('moviesLoadMoreBtn');
+    async function fetchCinemetaCatalog(type, mode = 'new', genre = 'ALL', skip = 0) {
+      const curYear = new Date().getFullYear();
+      const yrStr = String(curYear);
+      let url = '';
+      if (genre && genre !== 'ALL') {
+        const catId = mode === 'featured' ? 'imdbRating' : 'top';
+        const extra = skip > 0 ? `genre=${encodeURIComponent(genre)}&skip=${skip}` : `genre=${encodeURIComponent(genre)}`;
+        url = `https://v3-cinemeta.strem.io/catalog/${type}/${catId}/${extra}.json`;
+      } else if (mode === 'new') {
+        const extra = skip > 0 ? `genre=${yrStr}&skip=${skip}` : `genre=${yrStr}`;
+        url = `https://v3-cinemeta.strem.io/catalog/${type}/year/${extra}.json`;
+      } else {
+        const catId = mode === 'featured' ? 'imdbRating' : 'top';
+        url = skip > 0
+          ? `https://v3-cinemeta.strem.io/catalog/${type}/${catId}/skip=${skip}.json`
+          : `https://v3-cinemeta.strem.io/catalog/${type}/${catId}.json`;
+      }
+
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const metas = Array.isArray(data?.metas) ? data.metas : [];
+      let list = metas.map(m => normalizeCinemetaMedia({ ...m, type }));
+
+      if (mode === 'new' && (!genre || genre === 'ALL')) {
+        // Filter out mis-indexed old catalog entries and prioritize rated, released titles
+        list = list
+          .filter(item => {
+            const y = parseInt(item.year, 10);
+            return !y || y >= curYear - 1;
+          })
+          .sort((a, b) => {
+            const aYear = parseInt(a.year, 10) === curYear ? 1 : 0;
+            const bYear = parseInt(b.year, 10) === curYear ? 1 : 0;
+            if (bYear !== aYear) return bYear - aYear;
+            const aRated = a.rating !== 'NEW' ? 1 : 0;
+            const bRated = b.rating !== 'NEW' ? 1 : 0;
+            return bRated - aRated;
+          });
+      }
+
+      list.forEach(item => {
+        if (item.id) ANIME_CACHE.set(String(item.id), item);
+      });
+      return list;
+    }
+
+    async function fetchLiveTvEpisodes(limit = 24, daysBack = 2) {
+      const nowMs = Date.now();
+      const dates = [];
+      for (let d = 0; d < daysBack; d++) {
+        dates.push(new Date(nowMs - d * 86400000).toISOString().slice(0, 10));
+      }
+
+      const reqs = dates.flatMap(dateStr => [
+        fetch(`https://api.tvmaze.com/schedule/web?date=${dateStr}`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`https://api.tvmaze.com/schedule?country=US&date=${dateStr}`).then(r => r.ok ? r.json() : []).catch(() => [])
+      ]);
+      const batches = await Promise.all(reqs);
+      const byImdb = new Map();
+
+      batches.flat().forEach(ep => {
+        const sh = ep?._embedded?.show || ep?.show;
+        if (!sh || sh.language !== 'English') return;
+        if (!['Scripted', 'Animation', 'Reality'].includes(sh.type)) return;
+        const imdb = sh.externals?.imdb;
+        if (!imdb || !String(imdb).startsWith('tt')) return;
+        const sNum = Number(ep.season);
+        const epNum = Number(ep.number);
+        if (!Number.isFinite(sNum) || sNum <= 0 || sNum >= 100 || !Number.isFinite(epNum) || epNum <= 0 || epNum >= 100) return;
+
+        const airTs = Date.parse(ep.airstamp || ep.airdate || '');
+        if (!airTs || isNaN(airTs) || airTs > nowMs) return;
+
+        const prev = byImdb.get(imdb);
+        if (prev && prev._airTs >= airTs) return;
+
+        const poster = sh.image?.medium || sh.image?.original || `https://images.metahub.space/poster/small/${imdb}/img`;
+        const backdrop = sh.image?.original || poster;
+        const avgRating = sh.rating?.average ? Number(sh.rating.average).toFixed(1) : '8.0';
+        const cleanSummary = sh.summary ? sh.summary.replace(/<[^>]*>/g, '').trim() : 'Fresh episode just aired.';
+
+        byImdb.set(imdb, {
+          id: imdb,
+          imdbId: imdb,
+          tmdbId: null,
+          isMovieOrSeries: true,
+          type: 'series',
+          title: sh.name || 'TV Series',
+          romaji: sh.name || '',
+          rating: avgRating,
+          year: sh.premiered ? sh.premiered.slice(0, 4) : String(new Date().getFullYear()),
+          episodes: epNum,
+          latestSeason: sNum,
+          latestEp: epNum,
+          latestEpTitle: ep.name || '',
+          airingAt: Math.floor(airTs / 1000),
+          _airTs: airTs,
+          poster,
+          backdrop,
+          synopsis: cleanSummary
+        });
+      });
+
+      const list = [...byImdb.values()]
+        .sort((a, b) => b._airTs - a._airTs)
+        .slice(0, limit);
+
+      list.forEach(item => {
+        const existing = ANIME_CACHE.get(item.id);
+        ANIME_CACHE.set(item.id, existing?._videosSynced ? { ...item, ...existing, poster: existing.poster || item.poster } : item);
+      });
+      return list;
+    }
+
+    function renderRealReleaseCard(item) {
+      const fav = isFavorited(item.id);
+      const safeTitle = escapeHtml(item.title);
+      if (item.type === 'series') {
+        const sNum = item.latestSeason || 1;
+        const epNum = item.latestEp || 1;
+        const epLabel = `S${sNum} • EP ${epNum}`;
+        const agoText = formatAiringAgo(item.airingAt);
+        const subTitle = item.latestEpTitle ? `${epLabel}: ${item.latestEpTitle}` : safeTitle;
+        return `
+          <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${epNum}, ${sNum})">
+            <div class="card-poster-wrapper">
+              <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                ${fav ? '❤️' : '🤍'}
+              </button>
+              <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+              <div class="release-ep-badge">${epLabel}</div>
+              <div class="release-time-tag">⚡ ${agoText}</div>
+            </div>
+            <div class="card-info">
+              <div class="card-title" title="${escapeHtml(subTitle)}">${safeTitle}</div>
+              <div class="card-meta">
+                <span style="color: #10b981; font-weight: 700;">★ ${item.rating || '8.0'}</span>
+                <span style="color: #a78bfa; font-weight: 700;">New Episode</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const yrBadge = `NEW ${item.year || new Date().getFullYear()}`;
+      return `
+        <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
+          <div class="card-poster-wrapper">
+            <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+              ${fav ? '❤️' : '🤍'}
+            </button>
+            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            <div class="release-ep-badge" style="background:#10b981;">${yrBadge}</div>
+            <div class="release-time-tag">🎬 Feature Film</div>
+          </div>
+          <div class="card-info">
+            <div class="card-title" title="${safeTitle}">${safeTitle}</div>
+            <div class="card-meta">
+              <span style="color: #10b981; font-weight: 700;">★ ${item.rating || 'NEW'}</span>
+              <span style="color: #34d399; font-weight: 700;">New Movie</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLatestRealReleasesGrid() {
+      const grid = document.getElementById('latestRealReleasesGrid');
+      if (!grid) return;
+      let items = [];
+      if (currentRealReleaseMode === 'tv') {
+        items = latestRealTvList.slice(0, 18);
+      } else if (currentRealReleaseMode === 'movie') {
+        items = latestRealMoviesList.slice(0, 18);
+      } else {
+        const maxLen = Math.max(latestRealTvList.length, latestRealMoviesList.length);
+        for (let i = 0; i < maxLen && items.length < 18; i++) {
+          if (latestRealTvList[i]) items.push(latestRealTvList[i]);
+          if (items.length < 18 && latestRealMoviesList[i]) items.push(latestRealMoviesList[i]);
+        }
+      }
+
+      if (!items.length) {
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Live movies & TV feed temporarily unavailable.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(renderRealReleaseCard).join('');
+    }
+
+    function setRealReleaseMode(mode) {
+      currentRealReleaseMode = mode;
+      document.querySelectorAll('#realReleaseModeTabs .media-subpill').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-real-mode') === mode);
+      });
+      renderLatestRealReleasesGrid();
+    }
+
+    async function loadLatestRealReleases() {
+      const grid = document.getElementById('latestRealReleasesGrid');
+      if (!grid) return;
+      try {
+        const [tvDrops, newMovies] = await Promise.all([
+          fetchLiveTvEpisodes(18, 2).catch(() => []),
+          fetchCinemetaCatalog('movie', 'new', 'ALL', 0).catch(() => [])
+        ]);
+        latestRealTvList = tvDrops;
+        latestRealMoviesList = newMovies;
+        renderLatestRealReleasesGrid();
+      } catch (err) {
+        console.warn('Real releases feed warning:', err);
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Live movies & TV feed temporarily unavailable.</div>';
+      }
+    }
+
+    function renderCinemetaGenrePills(type) {
+      const container = document.getElementById(type === 'movie' ? 'moviesGenrePills' : 'seriesGenrePills');
+      if (!container) return;
+      const activeGenre = type === 'movie' ? currentMoviesGenre : currentSeriesGenre;
+      const genres = type === 'movie' ? CINEMETA_MOVIE_GENRES : CINEMETA_SERIES_GENRES;
+      const pills = ['ALL', ...genres].map(g => {
+        const label = g === 'ALL' ? 'All Genres' : g;
+        return `<button class="genre-pill ${activeGenre === g ? 'active' : ''}" onclick="filterMediaByGenre('${type}', '${g}')">${label}</button>`;
+      });
+      container.innerHTML = pills.join('');
+    }
+
+    function updateMediaCatalogUi(type) {
+      const isMovie = type === 'movie';
+      const mode = isMovie ? currentMoviesMode : currentSeriesMode;
+      const genre = isMovie ? currentMoviesGenre : currentSeriesGenre;
+      const curYear = new Date().getFullYear();
+
+      const modeContainerId = isMovie ? 'moviesModePills' : 'seriesModePills';
+      document.querySelectorAll(`#${modeContainerId} .media-subpill`).forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+      });
+      renderCinemetaGenrePills(type);
+
+      const titleEl = document.getElementById(isMovie ? 'moviesSectionTitle' : 'seriesSectionTitle');
+      if (titleEl) {
+        if (genre !== 'ALL') {
+          const verb = mode === 'featured' ? '⭐ Featured' : '🔥 Top';
+          titleEl.innerText = isMovie ? `${verb} ${genre} Movies` : `${verb} ${genre} TV Shows`;
+        } else if (!isMovie && mode === 'latest') {
+          titleEl.innerText = '⚡ Newly Aired TV Episodes';
+        } else if (mode === 'new') {
+          titleEl.innerText = isMovie ? `🆕 New Movies (${curYear})` : `🆕 New TV Shows (${curYear})`;
+        } else if (mode === 'featured') {
+          titleEl.innerText = isMovie ? '⭐ Top Rated Movies' : '⭐ Top Rated TV Shows';
+        } else {
+          titleEl.innerText = isMovie ? '🔥 Popular Movies' : '🔥 Popular TV Shows';
+        }
+      }
+    }
+
+    function setMediaCatalogMode(type, mode) {
+      if (type === 'movie') {
+        currentMoviesMode = mode;
+        if (mode === 'new') currentMoviesGenre = 'ALL';
+      } else {
+        currentSeriesMode = mode;
+        if (mode === 'latest' || mode === 'new') currentSeriesGenre = 'ALL';
+      }
+      loadMediaCatalog(type, true);
+    }
+
+    function filterMediaByGenre(type, genre) {
+      if (type === 'movie') {
+        currentMoviesGenre = genre;
+        if (genre !== 'ALL' && currentMoviesMode === 'new') currentMoviesMode = 'popular';
+      } else {
+        currentSeriesGenre = genre;
+        if (genre !== 'ALL' && (currentSeriesMode === 'latest' || currentSeriesMode === 'new')) {
+          currentSeriesMode = 'popular';
+        }
+      }
+      loadMediaCatalog(type, true);
+    }
+
+    async function loadMediaCatalog(type, reset = true) {
+      const isMovie = type === 'movie';
+      const mode = isMovie ? currentMoviesMode : currentSeriesMode;
+      const genre = isMovie ? currentMoviesGenre : currentSeriesGenre;
 
       if (reset) {
-        grid.innerHTML = '<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading popular movies from Stremio Cinemeta...</div>';
+        if (isMovie) moviesOffset = 0;
+        else seriesOffset = 0;
+      }
+
+      updateMediaCatalogUi(type);
+      const offset = isMovie ? moviesOffset : seriesOffset;
+      const grid = document.getElementById(isMovie ? 'moviesGrid' : 'seriesGrid');
+      const loadMoreBox = document.getElementById(isMovie ? 'moviesLoadMoreBox' : 'seriesLoadMoreBox');
+      const btn = document.getElementById(isMovie ? 'moviesLoadMoreBtn' : 'seriesLoadMoreBtn');
+      const noun = isMovie ? 'Movies' : 'TV Shows';
+
+      if (reset) {
+        grid.innerHTML = `<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading ${noun.toLowerCase()}...</div>`;
       }
 
       try {
-        const url = moviesOffset === 0
-          ? 'https://v3-cinemeta.strem.io/catalog/movie/top.json'
-          : `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${moviesOffset}.json`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.metas && data.metas.length) {
-          const list = data.metas.map(normalizeCinemetaMedia);
-          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
-          if (reset) {
-            currentMoviesList = list;
-            grid.innerHTML = list.map(renderCard).join('');
+        if (!isMovie && mode === 'latest' && genre === 'ALL') {
+          const liveList = await fetchLiveTvEpisodes(36, 3);
+          currentSeriesList = liveList;
+          if (!liveList.length) {
+            grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">No freshly aired episodes found right now. Try "New Shows" or "Popular"!</div>';
           } else {
-            currentMoviesList.push(...list);
-            grid.insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
+            grid.innerHTML = liveList.map(renderRealReleaseCard).join('');
+          }
+          if (loadMoreBox) loadMoreBox.style.display = 'none';
+          return;
+        }
+
+        const list = await fetchCinemetaCatalog(type, mode, genre, offset);
+        const cardFn = (mode === 'new' && (!genre || genre === 'ALL') && isMovie) ? renderRealReleaseCard : renderCard;
+
+        if (list.length) {
+          if (reset) {
+            if (isMovie) currentMoviesList = list;
+            else currentSeriesList = list;
+            grid.innerHTML = list.map(cardFn).join('');
+          } else {
+            if (isMovie) currentMoviesList.push(...list);
+            else currentSeriesList.push(...list);
+            grid.insertAdjacentHTML('beforeend', list.map(cardFn).join(''));
           }
           if (loadMoreBox) {
-            loadMoreBox.style.display = 'flex';
+            loadMoreBox.style.display = list.length >= 20 ? 'flex' : 'none';
             if (btn) {
               btn.disabled = false;
-              btn.innerText = 'See More Movies ↓';
+              btn.innerText = `See More ${noun} ↓`;
             }
           }
+        } else if (reset) {
+          grid.innerHTML = `<div style="color: var(--text-muted); padding: 1.5rem 0;">No matching ${noun.toLowerCase()} found.</div>`;
+          if (loadMoreBox) loadMoreBox.style.display = 'none';
+        } else if (loadMoreBox) {
+          loadMoreBox.style.display = 'none';
         }
       } catch (err) {
-        console.error('Movies error:', err);
-        if (reset) grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load movies at this time.</div>';
+        console.error(`${type} catalog error:`, err);
+        if (reset) grid.innerHTML = `<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load ${noun.toLowerCase()} at this time.</div>`;
       }
+    }
+
+    async function loadMoviesCatalog(reset = true) {
+      return loadMediaCatalog('movie', reset);
     }
 
     async function loadMoreMovies() {
@@ -4121,47 +5061,11 @@
         btn.disabled = true;
         btn.innerText = 'Loading More Movies...';
       }
-      await loadMoviesCatalog(false);
+      await loadMediaCatalog('movie', false);
     }
 
     async function loadSeriesCatalog(reset = true) {
-      if (reset) seriesOffset = 0;
-      const grid = document.getElementById('seriesGrid');
-      const loadMoreBox = document.getElementById('seriesLoadMoreBox');
-      const btn = document.getElementById('seriesLoadMoreBtn');
-
-      if (reset) {
-        grid.innerHTML = '<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading top TV shows from Stremio Cinemeta...</div>';
-      }
-
-      try {
-        const url = seriesOffset === 0
-          ? 'https://v3-cinemeta.strem.io/catalog/series/top.json'
-          : `https://v3-cinemeta.strem.io/catalog/series/top/skip=${seriesOffset}.json`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.metas && data.metas.length) {
-          const list = data.metas.map(normalizeCinemetaMedia);
-          list.forEach(item => ANIME_CACHE.set(String(item.id), item));
-          if (reset) {
-            currentSeriesList = list;
-            grid.innerHTML = list.map(renderCard).join('');
-          } else {
-            currentSeriesList.push(...list);
-            grid.insertAdjacentHTML('beforeend', list.map(renderCard).join(''));
-          }
-          if (loadMoreBox) {
-            loadMoreBox.style.display = 'flex';
-            if (btn) {
-              btn.disabled = false;
-              btn.innerText = 'See More TV Shows ↓';
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Series error:', err);
-        if (reset) grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Unable to load TV shows at this time.</div>';
-      }
+      return loadMediaCatalog('series', reset);
     }
 
     async function loadMoreSeries() {
@@ -4171,7 +5075,7 @@
         btn.disabled = true;
         btn.innerText = 'Loading More TV Shows...';
       }
-      await loadSeriesCatalog(false);
+      await loadMediaCatalog('series', false);
     }
 
     // --- Stremio Addon Protocol Manager ---
@@ -4451,6 +5355,7 @@
     // --- Dynamic Catalog Initialization (High-Speed Kitsu Core) ---
     async function loadDynamicCatalog() {
       loadLatestReleases();
+      loadLatestRealReleases();
       try {
         const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
           fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
@@ -4576,24 +5481,26 @@
       return JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}');
     }
 
-    function isEpisodeWatched(animeId, ep) {
+    function isEpisodeWatched(animeId, ep, season = currentSeason) {
       const map = getWatchedEpisodesMap();
-      const list = map[String(animeId)] || [];
+      const key = getWatchedKey(animeId, season);
+      const list = map[key] || [];
       return list.includes(Number(ep));
     }
 
-    function markEpisodeWatched(animeId, ep, isWatched = true) {
+    function markEpisodeWatched(animeId, ep, isWatched = true, season = currentSeason) {
       const strId = String(animeId);
+      const key = getWatchedKey(strId, season);
       const epNum = Number(ep);
       let map = { ...getWatchedEpisodesMap() };
-      let list = [...(map[strId] || [])];
+      let list = [...(map[key] || [])];
 
       if (isWatched) {
         if (!list.includes(epNum)) list.push(epNum);
       } else {
         list = list.filter(e => e !== epNum);
       }
-      map[strId] = list.sort((a, b) => a - b);
+      map[key] = list.sort((a, b) => a - b);
 
       if (isVaultUnlocked()) {
         sessionData.watchedEpisodes = map;
@@ -4601,7 +5508,7 @@
       } else {
         localStorage.setItem('cineanime_watched_eps', JSON.stringify(map));
       }
-      if (currentAnime && String(currentAnime.id) === strId) {
+      if (currentAnime && String(currentAnime.id) === strId && Number(season) === Number(currentSeason)) {
         renderEpisodeGrid(currentAnime.episodes || 12);
         updateWatchedBtn();
       }
@@ -4609,17 +5516,17 @@
     }
 
     function toggleCurrentEpWatched() {
-      const current = isEpisodeWatched(currentAnime.id, currentEpisode);
-      markEpisodeWatched(currentAnime.id, currentEpisode, !current);
+      const current = isEpisodeWatched(currentAnime.id, currentEpisode, currentSeason);
+      markEpisodeWatched(currentAnime.id, currentEpisode, !current, currentSeason);
     }
 
     function markAllEpisodesWatched() {
       const count = currentAnime.episodes || 12;
-      const strId = String(currentAnime.id);
+      const key = getWatchedKey(currentAnime.id, currentSeason);
       let map = { ...getWatchedEpisodesMap() };
       let list = [];
       for (let i = 1; i <= count; i++) list.push(i);
-      map[strId] = list;
+      map[key] = list;
 
       if (isVaultUnlocked()) {
         sessionData.watchedEpisodes = map;
@@ -4635,7 +5542,7 @@
     function updateWatchedBtn() {
       const btn = document.getElementById('markWatchedBtn');
       if (!btn) return;
-      const watched = isEpisodeWatched(currentAnime.id, currentEpisode);
+      const watched = isEpisodeWatched(currentAnime.id, currentEpisode, currentSeason);
       if (watched) {
         btn.innerHTML = '✔ Watched';
         btn.style.color = '#10b981';
@@ -6019,24 +6926,24 @@
         const percent = Math.min(100, Math.round((epNum / totalEps) * 100));
         const epText = item.type === 'movie'
           ? 'Movie'
-          : (item.isMovieOrSeries && item.season > 1 ? `S${item.season} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
+          : (item.isMovieOrSeries ? `S${item.season || 1} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
         return `
           <div class="history-card" onclick="resumeAnime('${item.id}', ${epNum}, '${item.server || 'server1'}', ${item.season || 1}, '${item.track || 'sub'}')">
             <div class="history-card-thumb-wrap">
               <button class="history-remove-btn" onclick="removeHistoryItem(event, '${item.id}')" title="Remove from history">✕</button>
-              <img class="history-card-thumb" src="${item.backdrop || item.poster}" alt="${item.title}">
+              <img class="history-card-thumb" src="${item.backdrop || item.poster}" alt="${escapeHtml(item.title)}">
               <div class="history-progress-container">
                 <div class="history-progress-fill" style="width: ${percent}%;"></div>
               </div>
             </div>
             <div class="history-card-body">
-              <div class="history-card-title" title="${item.title}">${item.title}</div>
+              <div class="history-card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
               <div class="history-card-meta">
                 <span style="color: #10b981; font-weight: 700;">${epText}</span>
                 <span>${percent}% completed</span>
               </div>
               <button class="history-resume-btn">
-                <span>▶</span> ${item.type === 'movie' ? 'Resume Movie' : `Resume Ep ${epNum}`}
+                <span>▶</span> ${item.type === 'movie' ? 'Resume Movie' : (item.isMovieOrSeries ? `Resume S${item.season || 1} Ep ${epNum}` : `Resume Ep ${epNum}`)}
               </button>
             </div>
           </div>
@@ -6062,7 +6969,8 @@
     }
 
     async function resumeAnime(id, episode, server, season = 1, track = 'sub') {
-      currentSeason = Number(season) || 1;
+      const targetSeason = Number(season) || 1;
+      currentSeason = targetSeason;
       if (track === 'dub' || track === 'sub') {
         currentTrack = track;
         const sBtn = document.getElementById('trackSubBtn');
@@ -6076,7 +6984,7 @@
           if (b.dataset.server) b.classList.toggle('active', b.dataset.server === server);
         });
       }
-      await selectAnimeById(id, true, episode || 1);
+      await selectAnimeById(id, true, episode || 1, targetSeason);
     }
 
     // Tab Switching
@@ -6091,6 +6999,7 @@
       const watchlistSection = document.getElementById('watchlistSection');
       const searchSection = document.getElementById('searchSection');
       const latestReleasesSection = document.getElementById('latestReleasesSection');
+      const latestRealReleasesSection = document.getElementById('latestRealReleasesSection');
       const scheduleSection = document.getElementById('scheduleSection');
       const seasonalSection = document.getElementById('seasonalSection');
       const trendingSection = document.getElementById('trendingSection');
@@ -6104,6 +7013,7 @@
       if (watchlistSection) watchlistSection.style.display = 'none';
       if (searchSection) searchSection.style.display = 'none';
       if (latestReleasesSection) latestReleasesSection.style.display = 'none';
+      if (latestRealReleasesSection) latestRealReleasesSection.style.display = 'none';
       if (scheduleSection) scheduleSection.style.display = 'none';
       if (seasonalSection) seasonalSection.style.display = 'none';
       if (trendingSection) trendingSection.style.display = 'none';
@@ -6115,6 +7025,7 @@
       if (tab === 'all') {
         renderHistory();
         if (latestReleasesSection) latestReleasesSection.style.display = 'block';
+        if (latestRealReleasesSection) latestRealReleasesSection.style.display = 'block';
         if (seasonalSection) seasonalSection.style.display = 'block';
         if (trendingSection) trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';
@@ -6124,11 +7035,13 @@
         loadWeeklySchedule();
       } else if (tab === 'movies') {
         if (moviesSection) moviesSection.style.display = 'block';
+        updateMediaCatalogUi('movie');
         if (currentMoviesList.length === 0) {
           loadMoviesCatalog(true);
         }
       } else if (tab === 'series') {
         if (seriesSection) seriesSection.style.display = 'block';
+        updateMediaCatalogUi('series');
         if (currentSeriesList.length === 0) {
           loadSeriesCatalog(true);
         }
@@ -6141,10 +7054,117 @@
       }
     }
 
-    // --- Weekly Airing Timetable Engine ---
+    // --- Weekly Airing Timetable Engine (Anime + Real-Life TV) ---
+    function selectScheduleSource(source) {
+      currentScheduleSource = source === 'tv' ? 'tv' : 'anime';
+      document.querySelectorAll('#scheduleSourceTabs .media-subpill').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-sched') === currentScheduleSource);
+      });
+      const titleEl = document.getElementById('scheduleSectionTitle');
+      if (titleEl) {
+        titleEl.innerText = currentScheduleSource === 'tv'
+          ? '📺 Weekly Real-Life TV Schedule'
+          : '📅 Weekly Simulcast Airing Schedule';
+      }
+      if (currentScheduleSource === 'tv') {
+        loadWeeklyTvSchedule();
+      } else {
+        loadWeeklySchedule();
+      }
+    }
+
+    async function loadWeeklyTvSchedule() {
+      const grid = document.getElementById('scheduleGrid');
+      if (!grid) return;
+
+      if (weeklyTvScheduleCache) {
+        renderWeeklySchedule(weeklyTvScheduleCache, currentScheduleDay);
+        return;
+      }
+
+      grid.innerHTML = '<div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;"><div class="loading-spinner"></div> Loading weekly real-life TV timetable...</div>';
+
+      try {
+        const now = Date.now();
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const byDay = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+        const seenPerDay = new Set();
+
+        const dayOffsets = [-2, -1, 0, 1, 2, 3];
+        const requests = dayOffsets.flatMap(offset => {
+          const dateObj = new Date(now + offset * 86400000);
+          const dateStr = dateObj.toISOString().slice(0, 10);
+          return [
+            fetch(`https://api.tvmaze.com/schedule?country=US&date=${dateStr}`).then(r => r.ok ? r.json() : []).catch(() => []),
+            fetch(`https://api.tvmaze.com/schedule/web?date=${dateStr}`).then(r => r.ok ? r.json() : []).catch(() => [])
+          ];
+        });
+
+        const results = await Promise.all(requests);
+        results.flat().forEach(ep => {
+          const sh = ep?._embedded?.show || ep?.show;
+          if (!sh || sh.language !== 'English') return;
+          if (!['Scripted', 'Animation', 'Reality'].includes(sh.type)) return;
+          const imdb = sh.externals?.imdb;
+          if (!imdb || !String(imdb).startsWith('tt')) return;
+          const sNum = Number(ep.season);
+          const epNum = Number(ep.number);
+          if (!Number.isFinite(sNum) || sNum <= 0 || sNum >= 100 || !Number.isFinite(epNum) || epNum <= 0 || epNum >= 100) return;
+
+          const airTs = Date.parse(ep.airstamp || ep.airdate || '');
+          if (!airTs || isNaN(airTs)) return;
+          const airDate = new Date(airTs);
+          const dayIdx = airDate.getDay();
+          const dedupeKey = `${dayIdx}:${imdb}`;
+          if (seenPerDay.has(dedupeKey)) return;
+          seenPerDay.add(dedupeKey);
+
+          const poster = sh.image?.medium || sh.image?.original || `https://images.metahub.space/poster/small/${imdb}/img`;
+          const backdrop = sh.image?.original || poster;
+          const rating = sh.rating?.average ? Number(sh.rating.average).toFixed(1) : '8.0';
+          const playableEp = airTs <= now ? epNum : Math.max(1, epNum - 1);
+          const timeStr = ep.airstamp ? airDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Streaming';
+          const item = {
+            id: imdb,
+            imdbId: imdb,
+            tmdbId: null,
+            isMovieOrSeries: true,
+            type: 'series',
+            title: sh.name || 'TV Show',
+            romaji: sh.name || '',
+            rating,
+            year: sh.premiered ? sh.premiered.slice(0, 4) : String(new Date().getFullYear()),
+            episodes: playableEp,
+            latestSeason: sNum,
+            scheduleEp: epNum,
+            playableEp,
+            dayName: days[dayIdx],
+            airTimeStr: timeStr,
+            poster,
+            backdrop,
+            synopsis: sh.summary ? sh.summary.replace(/<[^>]*>/g, '').trim() : 'TV Series'
+          };
+          ANIME_CACHE.set(imdb, item);
+          byDay[dayIdx].push(item);
+        });
+
+        weeklyTvScheduleCache = byDay;
+        if (currentScheduleSource === 'tv') {
+          renderWeeklySchedule(byDay, currentScheduleDay);
+        }
+      } catch (err) {
+        console.error('Failed to load weekly TV schedule:', err);
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Real-life TV schedule temporarily unavailable.</div>';
+      }
+    }
+
     async function loadWeeklySchedule() {
       const grid = document.getElementById('scheduleGrid');
       if (!grid) return;
+
+      if (currentScheduleSource === 'tv') {
+        return loadWeeklyTvSchedule();
+      }
 
       if (weeklyScheduleCache) {
         renderWeeklySchedule(weeklyScheduleCache, currentScheduleDay);
@@ -6216,7 +7236,9 @@
         });
 
         weeklyScheduleCache = byDay;
-        renderWeeklySchedule(byDay, currentScheduleDay);
+        if (currentScheduleSource === 'anime') {
+          renderWeeklySchedule(byDay, currentScheduleDay);
+        }
       } catch (err) {
         console.error('Failed to load weekly schedule:', err);
         grid.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem 0;">Schedule feed temporarily unavailable.</div>';
@@ -6228,8 +7250,9 @@
       document.querySelectorAll('.schedule-day-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-day') === String(day));
       });
-      if (weeklyScheduleCache) {
-        renderWeeklySchedule(weeklyScheduleCache, day);
+      const cache = currentScheduleSource === 'tv' ? weeklyTvScheduleCache : weeklyScheduleCache;
+      if (cache) {
+        renderWeeklySchedule(cache, day);
       } else {
         loadWeeklySchedule();
       }
@@ -6248,14 +7271,17 @@
 
       grid.innerHTML = list.map(item => {
         const epNum = item.scheduleEp || item.episodes || 1;
-        const epLabel = `Ep ${epNum} • ${item.airTimeStr || 'Simulcast'}`;
+        const seasonPrefix = item.isMovieOrSeries ? `S${item.latestSeason || 1} ` : '';
+        const epLabel = `${seasonPrefix}Ep ${epNum} • ${item.airTimeStr || 'Simulcast'}`;
+        const seasonArg = item.isMovieOrSeries ? `, ${item.latestSeason || 1}` : '';
+        const safeTitle = escapeHtml(item.title);
         return `
-          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1})">
-            <img class="schedule-thumb" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1}${seasonArg})">
+            <img class="schedule-thumb" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="schedule-info">
               <div>
                 <div class="schedule-time-badge">⚡ ${item.dayName || 'This Week'}</div>
-                <div class="schedule-title" style="margin-top: 0.35rem;" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
+                <div class="schedule-title" style="margin-top: 0.35rem;" title="${safeTitle}">${safeTitle}</div>
               </div>
               <div style="font-size: 0.75rem; color: var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
                 <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>

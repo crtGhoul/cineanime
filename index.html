@@ -510,6 +510,8 @@
     body.cinema-fs-open header,
     body.cinema-fs-open .theater-header,
     body.cinema-fs-open .player-controls-bar,
+    body.cinema-fs-open .theater-info-strip,
+    body.cinema-fs-open .addon-streams-section,
     body.cinema-fs-open .episodes-section,
     body.cinema-fs-open .relations-section,
     body.cinema-fs-open .ambient-glow-canvas {
@@ -1823,6 +1825,191 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Direct HTML5 Video & Stremio Addon Stream Resolver UI */
+    .player-video {
+      display: none;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+    }
+    .stream-codec-banner {
+      display: none;
+      position: absolute;
+      inset-inline: 1rem;
+      bottom: 4.25rem;
+      z-index: 4;
+      background: rgba(15, 15, 22, 0.94);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 0.82rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      backdrop-filter: blur(8px);
+    }
+    .stream-codec-banner.active {
+      display: flex;
+    }
+
+    .addon-streams-section {
+      display: none;
+      background: rgba(18, 18, 26, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      margin-top: 0.9rem;
+    }
+    .addon-streams-section.active {
+      display: block;
+    }
+    .addon-streams-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .addon-stream-filters {
+      display: flex;
+      flex-wrap: wrap;
+      flex-wrap: balance;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .addon-stream-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+      gap: 0.7rem;
+      max-height: 280px;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      overscroll-behavior: contain;
+      padding-right: 0.25rem;
+    }
+    .addon-stream-card {
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.55rem;
+      min-width: 0;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+    .addon-stream-card:hover {
+      border-color: rgba(167, 139, 250, 0.45);
+    }
+    .addon-stream-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: center;
+    }
+    .stream-pill-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e4e4e7;
+    }
+    .stream-pill-tag.cached {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .stream-pill-tag.p2p {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.38);
+      color: #fbbf24;
+    }
+    .stream-pill-tag.uhd {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      color: #c4b5fd;
+    }
+    .addon-stream-title {
+      font-size: 0.78rem;
+      color: #d4d4d8;
+      line-height: 1.4;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .addon-stream-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+    .addon-stream-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #fff;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.15s ease;
+    }
+    .addon-stream-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .addon-stream-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .addon-stream-btn.primary:hover {
+      background: #ff1f2d;
+    }
+
+    /* Cauldron Configurator Box in Stremio Addon Modal */
+    .cauldron-box {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(229, 9, 20, 0.08));
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .cauldron-form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .cauldron-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+    .cauldron-field label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #d4d4d8;
+    }
+    .cauldron-status {
+      font-size: 0.78rem;
+      color: #a1a1aa;
+      min-height: 1.1em;
+    }
+
     .loading-spinner {
       display: inline-block;
       width: 24px;
@@ -2294,6 +2481,15 @@
             referrerpolicy="no-referrer"
             src="about:blank"
           ></iframe>
+          <video id="directVideoPlayer" class="player-video" controls autoplay playsinline></video>
+          <div id="streamCodecBanner" class="stream-codec-banner">
+            <span id="streamCodecMessage">Browser cannot decode this MKV/HEVC stream directly. Open in VLC / Stremio or switch back to Server 1–4.</span>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button type="button" class="addon-stream-btn" onclick="copyCurrentDirectStreamUrl()">📋 Copy Stream URL</button>
+              <a id="streamCodecVlcBtn" href="#" class="addon-stream-btn" target="_blank" rel="noopener">▶ VLC ↗</a>
+              <button type="button" class="addon-stream-btn primary" onclick="switchToEmbedPlayer()">Use Web Player</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2319,6 +2515,27 @@
 
       <!-- Theater Media Details & Official Trailer Strip -->
       <div id="theaterInfoStrip" class="theater-info-strip"></div>
+
+      <!-- Stremio Addon Streams Shelf (Cauldron & Community Resolvers) -->
+      <div id="addonStreamsSection" class="addon-streams-section">
+        <div class="addon-streams-header">
+          <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap;">
+            <span style="font-weight:800; font-size:0.95rem; color:#fff;">🧩 Addon Streams</span>
+            <span id="addonStreamsStatus" style="font-size:0.78rem; color:var(--text-muted);">Ready</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <div id="addonStreamFilters" class="addon-stream-filters">
+              <button type="button" class="media-subpill active" data-filter="all" onclick="setAddonStreamFilter('all')">All</button>
+              <button type="button" class="media-subpill" data-filter="direct" onclick="setAddonStreamFilter('direct')">⚡ Direct HTTPS</button>
+              <button type="button" class="media-subpill" data-filter="4k" onclick="setAddonStreamFilter('4k')">4K / 2160p</button>
+              <button type="button" class="media-subpill" data-filter="1080p" onclick="setAddonStreamFilter('1080p')">1080p</button>
+            </div>
+            <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openAddonModal()">⚙ Addons</button>
+          </div>
+        </div>
+        <div id="addonStreamNotice" style="font-size:0.76rem; color:#a1a1aa; margin-bottom:0.65rem; display:none;"></div>
+        <div id="addonStreamsList" class="addon-stream-list"></div>
+      </div>
 
       <!-- Episode Matrix under Player -->
       <div class="episodes-section">
@@ -2661,13 +2878,52 @@
         <button class="addon-modal-close" onclick="closeAddonModal()">✕</button>
       </div>
       <div class="addon-modal-body">
-        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
-          Connect official or community Stremio Addons by pasting their <code>manifest.json</code> URL. CineAnime automatically integrates their catalogs and stream resolvers.
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">
+          Connect official or community Stremio Addons by pasting their <code>manifest.json</code> or <code>stremio://</code> URL. Installed stream addons (like Cauldron) automatically resolve sources right inside Theater.
         </p>
 
+        <!-- Featured Open-Source Cauldron Setup (wizaarddlabs/cauldron) -->
+        <div class="cauldron-box">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+            <div>
+              <h4 style="font-size:0.95rem; color:#fff; margin-bottom:0.2rem;">🧙 Cauldron Torrent & Debrid Addon</h4>
+              <div style="font-size:0.77rem; color:#c4b5fd;">Free MIT open-source scraper (TPB, 1337x, YTS, Nyaa, EZTV, DMM) — works <strong>100% Free P2P</strong> or with optional Debrid for direct 4K HTTPS browser streams.</div>
+            </div>
+            <a href="https://github.com/wizaarddlabs/cauldron" target="_blank" rel="noopener noreferrer" class="addon-stream-btn">GitHub ↗</a>
+          </div>
+          <form id="cauldronSetupForm" class="cauldron-form-grid" aria-labelledby="cauldronSetupSubmit" onsubmit="submitCauldronSetup(event)">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:0.65rem;">
+              <div class="cauldron-field">
+                <label for="cauldronProviderSelect">Playback Mode / Debrid Provider</label>
+                <select id="cauldronProviderSelect" name="provider" class="addon-text-input" onchange="onCauldronProviderChange()">
+                  <option value="p2p">None — 100% Free P2P (Needs Stremio App / Magnet)</option>
+                  <option value="realdebrid">Real-Debrid (Direct 4K HTTPS Streams)</option>
+                  <option value="torbox">TorBox (Direct HTTPS Streams)</option>
+                  <option value="alldebrid">AllDebrid (Direct HTTPS Streams)</option>
+                  <option value="premiumize">Premiumize (Direct HTTPS Streams)</option>
+                  <option value="offcloud">Offcloud (Direct HTTPS Streams)</option>
+                  <option value="torrin">Torrin (Direct HTTPS Streams)</option>
+                </select>
+              </div>
+              <div class="cauldron-field">
+                <label for="cauldronInstanceInput">Cauldron Instance URL</label>
+                <input type="url" id="cauldronInstanceInput" name="instance_url" class="addon-text-input" value="https://cauldron.forthewizards.uk" autocorrect="off" autocapitalize="none" spellcheck="false" required>
+              </div>
+            </div>
+            <div id="cauldronApiKeyWrap" class="cauldron-field" style="display:none;">
+              <label for="cauldronApiKeyInput">Debrid API Key (Encrypted inside your personal Cauldron URL)</label>
+              <input type="password" id="cauldronApiKeyInput" name="api_key" class="addon-text-input" placeholder="Paste your Real-Debrid / TorBox / AllDebrid API token" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+              <span id="cauldronFormStatus" class="cauldron-status" role="status" aria-live="polite">Ready — free public instance pre-selected.</span>
+              <button type="submit" id="cauldronSetupSubmit" class="addon-add-btn">✨ Install / Update Cauldron</button>
+            </div>
+          </form>
+        </div>
+
         <div class="addon-input-group">
-          <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="https://v3-cinemeta.strem.io/manifest.json">
-          <button class="addon-add-btn" onclick="installAddonFromInput()">+ Add Addon</button>
+          <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="https://... or stremio://.../manifest.json" autocorrect="off" autocapitalize="none" spellcheck="false">
+          <button type="button" class="addon-add-btn" onclick="installAddonFromInput()">+ Add Addon</button>
         </div>
 
         <div style="margin-top: 1.5rem;">
@@ -3294,6 +3550,15 @@
     let heroSlideIndex = 0;
     let heroAutoTimer = null;
     let appToastTimer = null;
+
+    // Stremio Addon Stream Resolver & Cauldron State
+    let currentAddonStreams = [];
+    let currentAddonStreamFilter = 'all';
+    let addonStreamReqToken = 0;
+    let lastAddonStreamQueryKey = '';
+    const addonStreamsCache = new Map();
+    let currentDirectStreamUrl = '';
+    let _cauldronBootPromise = null;
 
     function showAppToast(msg) {
       const el = document.getElementById('appToast');
@@ -4665,12 +4930,88 @@
       updatePlayerUrl();
     }
 
+    function resetDirectVideoPlayer() {
+      const vid = document.getElementById('directVideoPlayer');
+      const codecBanner = document.getElementById('streamCodecBanner');
+      if (codecBanner) codecBanner.classList.remove('active');
+      if (vid) {
+        vid.onerror = null;
+        vid.pause();
+        vid.removeAttribute('src');
+        vid.load();
+        vid.style.display = 'none';
+      }
+      currentDirectStreamUrl = '';
+    }
+
+    function switchToEmbedPlayer() {
+      resetDirectVideoPlayer();
+      const iframe = document.getElementById('playerIframe');
+      if (iframe) iframe.style.display = 'block';
+      document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
+        b.classList.toggle('active', b.dataset.server === activeServer);
+      });
+      updatePlayerUrl();
+    }
+
+    function copyCurrentDirectStreamUrl() {
+      if (!currentDirectStreamUrl) return;
+      copyStreamText(currentDirectStreamUrl, 'Stream URL copied — paste into VLC or external player!');
+    }
+
+    function playDirectStreamUrl(rawUrl, streamLabel = 'Addon Stream') {
+      const safeUrl = normalizeSafeHttpUrl(rawUrl);
+      if (!safeUrl) {
+        showAppToast('Unsupported or unsafe stream URL.');
+        return;
+      }
+      const iframe = document.getElementById('playerIframe');
+      const vid = document.getElementById('directVideoPlayer');
+      const codecBanner = document.getElementById('streamCodecBanner');
+      const vlcBtn = document.getElementById('streamCodecVlcBtn');
+      const badge = document.getElementById('playerCoreBadge');
+      if (!vid) return;
+
+      if (streamTimer) clearTimeout(streamTimer);
+      const assist = document.getElementById('streamAssistPill');
+      if (assist) assist.style.display = 'none';
+
+      if (iframe) {
+        iframe.src = 'about:blank';
+        iframe.style.display = 'none';
+      }
+      document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => b.classList.remove('active'));
+
+      currentDirectStreamUrl = safeUrl;
+      if (codecBanner) codecBanner.classList.remove('active');
+      if (vlcBtn) vlcBtn.href = `vlc://${safeUrl}`;
+      if (badge) badge.innerText = '🧙 Addon Direct Stream';
+      if (currentAnime) {
+        document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${streamLabel}`;
+      }
+
+      vid.style.display = 'block';
+      vid.onerror = () => {
+        if (codecBanner) codecBanner.classList.add('active');
+      };
+      vid.src = safeUrl;
+      vid.play().catch(() => {});
+      scrollToPlayer();
+      showAppToast(`Playing direct stream: ${streamLabel}`);
+    }
+
     function updatePlayerUrl() {
+      resetDirectVideoPlayer();
       const getUrl = SERVERS[activeServer] || SERVERS.server1;
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
       ensureSandboxedPlayer(iframe);
+      iframe.style.display = 'block';
       iframe.src = url;
+
+      document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
+        b.classList.toggle('active', b.dataset.server === activeServer);
+      });
 
       startStreamAssistTimer();
 
@@ -4681,6 +5022,7 @@
 
       updateServerButtonLabels(!!currentAnime.isMovieOrSeries);
       renderTheaterInfoStrip(currentAnime);
+      refreshTheaterAddonStreams(currentAnime, currentSeason, currentEpisode);
 
       if (currentAnime.isMovieOrSeries) {
         if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
@@ -4786,6 +5128,7 @@
 
     function closeTheater() {
       exitCinemaFullscreen();
+      resetDirectVideoPlayer();
       const section = document.getElementById('theaterSection');
       section.classList.remove('active');
       document.getElementById('playerIframe').src = 'about:blank';
@@ -5634,7 +5977,8 @@
       await loadMediaCatalog('series', false);
     }
 
-    // --- Stremio Addon Protocol Manager ---
+    // --- Stremio Addon Protocol Manager & Cauldron Resolver ---
+    const CAULDRON_DEFAULT_ORIGIN = 'https://cauldron.forthewizards.uk';
     const DEFAULT_ADDONS = [
       {
         transportUrl: 'https://v3-cinemeta.strem.io/manifest.json',
@@ -5648,6 +5992,41 @@
       }
     ];
 
+    function normalizeSafeHttpUrl(raw, allowStremio = false) {
+      if (!raw || typeof raw !== 'string') return '';
+      let trimmed = raw.trim();
+      if (allowStremio && /^stremio:\/\//i.test(trimmed)) {
+        trimmed = trimmed.replace(/^stremio:\/\//i, 'https://');
+      }
+      try {
+        const parsed = new URL(trimmed);
+        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return '';
+        return parsed.href;
+      } catch (_) {
+        return '';
+      }
+    }
+
+    function sanitizeMagnetUrl(infoHash, sources = [], title = '') {
+      const candidate = (sources || []).find(s => typeof s === 'string' && /^magnet:\?xt=urn:btih:[a-zA-Z0-9]{32,64}/i.test(s));
+      if (candidate) return candidate;
+      const cleanHash = String(infoHash || '').trim();
+      if (!/^[a-fA-F0-9]{40}$|^[A-Za-z2-7]{32}$/.test(cleanHash)) return '';
+      const dn = title ? `&dn=${encodeURIComponent(title.slice(0, 80))}` : '';
+      return `magnet:?xt=urn:btih:${cleanHash.toLowerCase()}${dn}`;
+    }
+
+    function copyStreamText(text, successMsg = 'Copied to clipboard!') {
+      if (!text) return;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showAppToast(successMsg))
+          .catch(() => showAppToast('Clipboard permission blocked — copy manually from link.'));
+      } else {
+        showAppToast('Clipboard API unavailable in this context.');
+      }
+    }
+
     function getStoredAddons() {
       try {
         const raw = localStorage.getItem('cineanime_stremio_addons');
@@ -5659,17 +6038,182 @@
 
     function saveStoredAddons(addons) {
       localStorage.setItem('cineanime_stremio_addons', JSON.stringify(addons));
+      lastAddonStreamQueryKey = '';
+      addonStreamsCache.clear();
       renderAddonsList();
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (document.getElementById('theaterSection')?.classList.contains('active') && currentAnime) {
+        refreshTheaterAddonStreams(currentAnime, currentSeason, currentEpisode);
+      }
+    }
+
+    function onCauldronProviderChange() {
+      const sel = document.getElementById('cauldronProviderSelect');
+      const wrap = document.getElementById('cauldronApiKeyWrap');
+      const keyInput = document.getElementById('cauldronApiKeyInput');
+      if (!sel || !wrap) return;
+      const isDebrid = sel.value && sel.value !== 'p2p';
+      wrap.style.display = isDebrid ? 'flex' : 'none';
+      if (isDebrid && keyInput && !keyInput.value) {
+        const existingKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
+        if (existingKey) keyInput.value = existingKey;
+      }
+      if (keyInput) keyInput.removeAttribute('aria-invalid');
+    }
+
+    async function provisionCauldronAddon({ instanceUrl = CAULDRON_DEFAULT_ORIGIN, provider = 'p2p', apiKey = '' } = {}) {
+      const safeInstance = normalizeSafeHttpUrl(instanceUrl);
+      if (!safeInstance) throw new Error('Enter a valid http:// or https:// Cauldron URL.');
+      const origin = new URL(safeInstance).origin;
+
+      const form = new URLSearchParams();
+      const cleanProvider = (provider && provider !== 'p2p') ? provider : 'p2p';
+      form.set('provider', cleanProvider);
+      if (cleanProvider !== 'p2p' && apiKey) {
+        form.set('api_key', apiKey.trim());
+      }
+      const modeLabel = cleanProvider === 'p2p' ? 'Free P2P' : cleanProvider.toUpperCase();
+      form.set('addon_name', `Cauldron (${modeLabel})`);
+
+      const res = await fetch(`${origin}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form.toString()
+      });
+      if (!res.ok) {
+        throw new Error(`Cauldron returned HTTP ${res.status}. Check your API key or instance URL.`);
+      }
+      const html = await res.text();
+      let manifestUrl = '';
+      const absMatch = html.match(/https?:\/\/[^"'\s<>]+\/[A-Za-z0-9_-]{8,}\/manifest\.json/i);
+      if (absMatch) {
+        manifestUrl = absMatch[0];
+      } else {
+        const relMatch = html.match(/\/([A-Za-z0-9_-]{8,})\/manifest\.json/i);
+        if (relMatch) manifestUrl = `${origin}/${relMatch[1]}/manifest.json`;
+      }
+      if (!manifestUrl) {
+        throw new Error('Could not parse generated Cauldron manifest URL.');
+      }
+
+      const mRes = await fetch(manifestUrl);
+      if (!mRes.ok) throw new Error(`Manifest check failed (HTTP ${mRes.status}).`);
+      const manifest = await mRes.json();
+      if (!manifest?.id || !manifest?.name) {
+        throw new Error('Invalid manifest returned from Cauldron.');
+      }
+
+      let addons = getStoredAddons().filter(a => a?.manifest?.id !== manifest.id);
+      addons.push({
+        transportUrl: manifestUrl,
+        manifest,
+        cauldronMode: cleanProvider,
+        instanceOrigin: origin
+      });
+      localStorage.setItem('cineanime_cauldron_initialized', '1');
+      saveStoredAddons(addons);
+      return { manifestUrl, manifest, cleanProvider };
+    }
+
+    function ensureDefaultCauldronAddon() {
+      const initFlag = localStorage.getItem('cineanime_cauldron_initialized');
+      const hasCauldron = getStoredAddons().some(a => a?.manifest?.id === 'community.cauldron');
+      if (hasCauldron || initFlag === 'removed') return Promise.resolve(false);
+      if (initFlag === '1' && !hasCauldron) return Promise.resolve(false);
+      if (_cauldronBootPromise) return _cauldronBootPromise;
+
+      _cauldronBootPromise = provisionCauldronAddon({
+        instanceUrl: CAULDRON_DEFAULT_ORIGIN,
+        provider: 'p2p',
+        apiKey: ''
+      }).then(() => true).catch(err => {
+        console.warn('Cauldron default P2P bootstrap skipped:', err.message);
+        return false;
+      }).finally(() => {
+        _cauldronBootPromise = null;
+      });
+      return _cauldronBootPromise;
+    }
+
+    async function submitCauldronSetup(e) {
+      e.preventDefault();
+      const sel = document.getElementById('cauldronProviderSelect');
+      const urlInput = document.getElementById('cauldronInstanceInput');
+      const keyInput = document.getElementById('cauldronApiKeyInput');
+      const statusEl = document.getElementById('cauldronFormStatus');
+      const submitBtn = document.getElementById('cauldronSetupSubmit');
+      if (!sel || !urlInput) return;
+
+      const provider = sel.value || 'p2p';
+      const apiKey = (keyInput?.value || '').trim();
+      if (provider !== 'p2p' && !apiKey) {
+        if (keyInput) {
+          keyInput.setAttribute('aria-invalid', 'true');
+          keyInput.focus();
+        }
+        if (statusEl) statusEl.textContent = 'Enter your Debrid API key or switch back to Free P2P.';
+        return;
+      }
+
+      if (keyInput) keyInput.removeAttribute('aria-invalid');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Connecting...';
+      }
+      if (statusEl) statusEl.textContent = 'Generating your Cauldron addon manifest...';
+
+      try {
+        const result = await provisionCauldronAddon({
+          instanceUrl: urlInput.value.trim(),
+          provider,
+          apiKey
+        });
+        if (provider !== 'p2p' && apiKey) {
+          if (typeof isVaultUnlocked === 'function' && isVaultUnlocked()) sessionData.debridKey = apiKey;
+          else localStorage.setItem('cineanime_debrid_key', apiKey);
+          const debridLabel = document.getElementById('debridStatusLabel');
+          if (debridLabel) debridLabel.style.display = 'block';
+        }
+        if (statusEl) {
+          statusEl.textContent = `✅ Connected ${result.manifest.name} (${result.cleanProvider === 'p2p' ? 'Free P2P Torrents' : result.cleanProvider.toUpperCase() + ' HTTPS'})`;
+        }
+        showAppToast(`✅ ${result.manifest.name} installed cleanly!`);
+      } catch (err) {
+        if (statusEl) statusEl.textContent = `❌ ${err.message}`;
+        showAppToast(`❌ Cauldron setup failed: ${err.message}`);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '✨ Install / Update Cauldron';
+        }
+      }
     }
 
     function openAddonModal() {
       renderAddonsList();
+      onCauldronProviderChange();
       document.getElementById('addonModal').style.display = 'flex';
+      ensureDefaultCauldronAddon().then(added => {
+        if (added) {
+          const statusEl = document.getElementById('cauldronFormStatus');
+          if (statusEl) statusEl.textContent = '✅ Free P2P Cauldron addon ready (zero Debrid key needed).';
+        }
+      });
     }
 
     function closeAddonModal() {
       document.getElementById('addonModal').style.display = 'none';
+    }
+
+    function describeInstalledAddon(addon) {
+      const m = addon.manifest || {};
+      if (m.id === 'community.cauldron') {
+        const mode = addon.cauldronMode || 'p2p';
+        return mode === 'p2p'
+          ? 'Free Open-Source P2P Scraper (TPB, 1337x, YTS, Nyaa, EZTV, DMM) • Zero API Key Required'
+          : `Debrid Direct 4K HTTPS Resolver (${mode.toUpperCase()}) • Secret Config Token Protected`;
+      }
+      return m.description || addon.transportUrl || '';
     }
 
     function renderAddonsList() {
@@ -5685,13 +6229,17 @@
       container.innerHTML = list.map(addon => {
         const m = addon.manifest || {};
         const isDefault = m.id === 'org.stremio.cinemeta';
+        const isCauldron = m.id === 'community.cauldron';
+        const modeBadge = isCauldron
+          ? `<span style="font-size: 0.68rem; color: #c4b5fd; background: rgba(139,92,246,0.2); padding: 0.15rem 0.4rem; border-radius: 4px;">${addon.cauldronMode && addon.cauldronMode !== 'p2p' ? escapeHtml(addon.cauldronMode.toUpperCase()) : 'Free P2P'}</span>`
+          : '';
         return `
           <div class="addon-item-card">
-            <div class="addon-item-info">
-              <h5>📦 ${m.name || 'Unnamed Addon'} <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">v${m.version || '1.0'}</span></h5>
-              <p>${m.description || addon.transportUrl}</p>
+            <div class="addon-item-info" style="min-width: 0; padding-right: 0.65rem;">
+              <h5>${isCauldron ? '🧙' : '📦'} ${escapeHtml(m.name || 'Unnamed Addon')} <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">v${escapeHtml(m.version || '1.0')}</span> ${modeBadge}</h5>
+              <p>${escapeHtml(describeInstalledAddon(addon))}</p>
             </div>
-            ${isDefault ? '<span style="font-size:0.75rem; color:var(--text-muted);">Default</span>' : `<button class="addon-delete-btn" onclick="deleteAddon('${m.id}')">Remove</button>`}
+            ${isDefault ? '<span style="font-size:0.75rem; color:var(--text-muted);">Default</span>' : `<button type="button" class="addon-delete-btn" data-addon-id="${escapeHtml(m.id || '')}" onclick="deleteAddon(this.dataset.addonId)">Remove</button>`}
           </div>
         `;
       }).join('');
@@ -5699,35 +6247,261 @@
 
     async function installAddonFromInput() {
       const input = document.getElementById('addonUrlInput');
-      const url = input.value.trim();
-      if (!url) return;
+      const rawUrl = (input?.value || '').trim();
+      if (!rawUrl) return;
 
       try {
-        let manifestUrl = url;
-        if (!manifestUrl.endsWith('manifest.json')) {
+        let manifestUrl = normalizeSafeHttpUrl(rawUrl, true);
+        if (!manifestUrl) {
+          throw new Error('Enter a valid https://, http://, or stremio:// addon URL.');
+        }
+        if (!manifestUrl.endsWith('/manifest.json')) {
           manifestUrl = manifestUrl.replace(/\/+$/, '') + '/manifest.json';
         }
         const res = await fetch(manifestUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status} fetching manifest.`);
         const manifest = await res.json();
         if (!manifest.id || !manifest.name) {
           throw new Error('Invalid Stremio manifest format (id and name required).');
         }
 
-        let addons = getStoredAddons();
-        addons = addons.filter(a => a.manifest.id !== manifest.id);
+        let addons = getStoredAddons().filter(a => a?.manifest?.id !== manifest.id);
         addons.push({ transportUrl: manifestUrl, manifest });
+        if (manifest.id === 'community.cauldron') {
+          localStorage.setItem('cineanime_cauldron_initialized', '1');
+        }
         saveStoredAddons(addons);
         input.value = '';
-        alert(`✅ Successfully installed Stremio Addon: ${manifest.name}`);
+        showAppToast(`✅ Installed Stremio Addon: ${manifest.name}`);
       } catch (err) {
-        alert(`❌ Failed to load addon: ${err.message}\nMake sure the addon URL is reachable and allows CORS.`);
+        showAppToast(`❌ Addon error: ${err.message}`);
       }
     }
 
     function deleteAddon(id) {
-      let addons = getStoredAddons();
-      addons = addons.filter(a => a.manifest.id !== id);
+      if (id === 'community.cauldron') {
+        localStorage.setItem('cineanime_cauldron_initialized', 'removed');
+      }
+      const addons = getStoredAddons().filter(a => a?.manifest?.id !== id);
       saveStoredAddons(addons);
+      showAppToast('Removed Stremio addon.');
+    }
+
+    function addonSupportsStreamResource(addon, mediaType) {
+      const m = addon?.manifest;
+      if (!m || !addon?.transportUrl) return false;
+      const resources = m.resources || [];
+      const hasStream = resources.some(r => r === 'stream' || (r && typeof r === 'object' && r.name === 'stream'));
+      if (!hasStream) return false;
+      if (Array.isArray(m.types) && m.types.length && !m.types.includes(mediaType)) return false;
+      return true;
+    }
+
+    async function resolveImdbIdForAddonLookup(item) {
+      if (!item) return null;
+      if (item.imdbId && String(item.imdbId).startsWith('tt')) return String(item.imdbId);
+      if (String(item.id || '').startsWith('tt')) {
+        item.imdbId = String(item.id);
+        return item.imdbId;
+      }
+      const metaType = item.type === 'movie' ? 'movie' : 'series';
+      try {
+        const res = await fetch(`https://v3-cinemeta.strem.io/catalog/${metaType}/top/search=${encodeURIComponent(item.title)}.json`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        const metas = Array.isArray(json?.metas) ? json.metas : [];
+        const normTarget = (item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const best = metas.find(m => (m?.name || '').toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget) || metas[0];
+        if (best?.id && String(best.id).startsWith('tt')) {
+          item.imdbId = String(best.id);
+          return item.imdbId;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    function extractStreamQuality(text) {
+      const m = String(text || '').match(/\b(2160p|4k|1080p|720p|480p)\b/i);
+      return m ? m[1].toUpperCase().replace('4K', '2160P') : '';
+    }
+
+    function setAddonStreamFilter(filterKey) {
+      currentAddonStreamFilter = filterKey || 'all';
+      document.querySelectorAll('#addonStreamFilters .media-subpill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === currentAddonStreamFilter);
+      });
+      renderAddonStreamsList();
+    }
+
+    function playAddonStreamByIndex(idx) {
+      const stream = currentAddonStreams[idx];
+      if (!stream || !stream.url) return;
+      playDirectStreamUrl(stream.url, `${stream.quality || 'HD'} • ${stream.addonName}`);
+    }
+
+    function copyAddonMagnetByIndex(idx) {
+      const stream = currentAddonStreams[idx];
+      if (!stream) return;
+      copyStreamText(stream.magnet || stream.url, stream.magnet ? '🧲 Magnet link copied!' : '📋 Stream URL copied!');
+    }
+
+    function renderAddonStreamsList() {
+      const grid = document.getElementById('addonStreamsList');
+      const notice = document.getElementById('addonStreamNotice');
+      const statusEl = document.getElementById('addonStreamsStatus');
+      if (!grid) return;
+
+      const filtered = currentAddonStreams.filter(s => {
+        if (currentAddonStreamFilter === 'direct') return !!s.url;
+        if (currentAddonStreamFilter === '4k') return s.quality === '2160P';
+        if (currentAddonStreamFilter === '1080p') return s.quality === '1080P';
+        return true;
+      });
+
+      const hasDirect = currentAddonStreams.some(s => !!s.url);
+      if (notice) {
+        if (currentAddonStreams.length && !hasDirect) {
+          notice.style.display = 'block';
+          notice.innerHTML = '💡 <strong>Free P2P Torrents Found:</strong> Web browsers cannot torrent raw P2P swarms directly — watch free instantly on <strong>Server 1–4</strong> above, click <strong>Stremio App / Magnet</strong> below, or add a Debrid key inside <button type="button" class="addon-stream-btn" style="padding:1px 6px;" onclick="openAddonModal()">⚙ Addons</button> to unlock direct 4K HTTPS browser playback.';
+        } else {
+          notice.style.display = 'none';
+        }
+      }
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; padding:0.4rem 0;">${currentAddonStreams.length ? 'No streams match this quality filter.' : 'No streams returned from installed Stremio addons yet.'}</div>`;
+        return;
+      }
+
+      if (statusEl && currentAddonStreams.length) {
+        statusEl.textContent = `${filtered.length} of ${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'}`;
+      }
+
+      grid.innerHTML = filtered.slice(0, 36).map(s => {
+        const qualityBadge = s.quality
+          ? `<span class="stream-pill-tag ${s.quality === '2160P' ? 'uhd' : ''}">${escapeHtml(s.quality)}</span>`
+          : '';
+        const modeBadge = s.url
+          ? `<span class="stream-pill-tag cached">${s.cached ? '⚡ Cached Direct' : '▶ Direct HTTPS'}</span>`
+          : '<span class="stream-pill-tag p2p">P2P Torrent</span>';
+        const actions = s.url
+          ? `
+            <button type="button" class="addon-stream-btn primary" onclick="playAddonStreamByIndex(${s._idx})">▶ Play Direct</button>
+            <button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy Link</button>
+            <a href="vlc://${escapeHtml(s.url)}" target="_blank" rel="noopener" class="addon-stream-btn">VLC ↗</a>
+          `
+          : `
+            ${s.stremioLink ? `<a href="${escapeHtml(s.stremioLink)}" target="_blank" rel="noopener" class="addon-stream-btn primary">⚡ Stremio App</a>` : ''}
+            ${s.magnet ? `<a href="${escapeHtml(s.magnet)}" class="addon-stream-btn">🧲 Magnet</a>` : ''}
+            ${s.magnet ? `<button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy</button>` : ''}
+          `;
+        return `
+          <div class="addon-stream-card">
+            <div class="addon-stream-badges">
+              <span class="stream-pill-tag">${escapeHtml(s.addonName)}</span>
+              ${qualityBadge}
+              ${modeBadge}
+            </div>
+            <div class="addon-stream-title" title="${escapeHtml(s.displayTitle)}">${escapeHtml(s.displayTitle)}</div>
+            <div class="addon-stream-actions">${actions}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function refreshTheaterAddonStreams(item, season = 1, ep = 1) {
+      const section = document.getElementById('addonStreamsSection');
+      const statusEl = document.getElementById('addonStreamsStatus');
+      const grid = document.getElementById('addonStreamsList');
+      if (!section || !item) return;
+
+      section.classList.add('active');
+      const reqToken = ++addonStreamReqToken;
+      if (statusEl) statusEl.textContent = 'Checking Stremio addons (Cauldron)...';
+
+      await ensureDefaultCauldronAddon();
+      if (reqToken !== addonStreamReqToken) return;
+
+      const mediaType = item.type === 'movie' ? 'movie' : 'series';
+      const streamAddons = getStoredAddons().filter(a => addonSupportsStreamResource(a, mediaType));
+      if (!streamAddons.length) {
+        currentAddonStreams = [];
+        lastAddonStreamQueryKey = '';
+        if (statusEl) statusEl.textContent = 'No stream addons active — click Addons to enable Cauldron.';
+        if (grid) grid.innerHTML = '';
+        return;
+      }
+
+      const imdbId = await resolveImdbIdForAddonLookup(item);
+      if (reqToken !== addonStreamReqToken) return;
+      if (!imdbId) {
+        currentAddonStreams = [];
+        if (statusEl) statusEl.textContent = 'IMDb ID unavailable for this title — use Server 1–4 above.';
+        if (grid) grid.innerHTML = '';
+        return;
+      }
+
+      const stremioId = mediaType === 'movie' ? imdbId : `${imdbId}:${season || 1}:${ep || 1}`;
+      const cacheKey = `${mediaType}:${stremioId}`;
+      if (cacheKey === lastAddonStreamQueryKey && currentAddonStreams.length) {
+        renderAddonStreamsList();
+        return;
+      }
+      if (addonStreamsCache.has(cacheKey)) {
+        lastAddonStreamQueryKey = cacheKey;
+        currentAddonStreams = addonStreamsCache.get(cacheKey);
+        renderAddonStreamsList();
+        return;
+      }
+
+      const stremioLink = mediaType === 'movie'
+        ? `stremio://detail/movie/${imdbId}`
+        : `stremio://detail/series/${imdbId}/${stremioId}`;
+
+      if (grid) {
+        grid.innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; display:flex; align-items:center; gap:0.5rem;"><div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Scraping Cauldron & installed Stremio addons...</div>';
+      }
+
+      const results = await Promise.allSettled(streamAddons.map(async addon => {
+        const base = String(addon.transportUrl).replace(/\/manifest\.json\/?$/i, '');
+        const url = `${base}/stream/${mediaType}/${encodeURIComponent(stremioId)}.json`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const rawStreams = Array.isArray(json?.streams) ? json.streams : [];
+        return rawStreams.map(st => {
+          const safeUrl = normalizeSafeHttpUrl(st?.url);
+          const displayTitle = [st?.name, st?.title || st?.description].filter(Boolean).join(' — ') || 'Unnamed Stream';
+          const magnet = safeUrl ? '' : sanitizeMagnetUrl(st?.infoHash, st?.sources, st?.title || item.title);
+          if (!safeUrl && !magnet) return null;
+          return {
+            addonName: addon.manifest?.name || 'Addon',
+            displayTitle,
+            quality: extractStreamQuality(displayTitle),
+            cached: /⚡|cached|\[\+\]/i.test(displayTitle),
+            url: safeUrl,
+            magnet,
+            stremioLink
+          };
+        }).filter(Boolean);
+      }));
+
+      if (reqToken !== addonStreamReqToken) return;
+      const merged = [];
+      results.forEach(r => {
+        if (r.status === 'fulfilled' && Array.isArray(r.value)) merged.push(...r.value);
+      });
+      merged.forEach((s, idx) => { s._idx = idx; });
+
+      currentAddonStreams = merged;
+      lastAddonStreamQueryKey = cacheKey;
+      addonStreamsCache.set(cacheKey, merged);
+      if (statusEl) {
+        statusEl.textContent = merged.length
+          ? `${merged.length} stream${merged.length === 1 ? '' : 's'} resolved (${streamAddons.map(a => a.manifest?.name).join(', ')})`
+          : `No streams found on ${stremioId} — use Server 1–4 above.`;
+      }
+      renderAddonStreamsList();
     }
 
     // --- Live Simulcast & Newly Released Episodes Feed (Kitsu High-Speed Core) ---

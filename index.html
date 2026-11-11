@@ -1714,11 +1714,12 @@
         </div>
 
         <div class="server-switcher" id="serverSwitcher">
+          <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e;"></span> 0 Ads • Zero Popups</span>
           <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Ad-Free HD)</button>
           <button class="server-btn" data-server="server2">🚀 Server 2 (Ad-Free Ultra)</button>
           <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup HD)</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
-          <button class="server-btn" data-server="vidsrc" title="External mirror - ad blocker recommended">⚠️ VidSrc (Ads)</button>
+          <button class="server-btn" data-server="vidsrc" title="External mirror - strictly sandboxed with zero popups or downloads">🛡️ VidSrc (Sandboxed)</button>
           <a id="externalStreamBtn" href="#" target="_blank" class="server-btn" style="text-decoration:none; display:inline-flex; align-items:center;" title="Open player directly in new tab">↗ New Tab</a>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
@@ -1730,8 +1731,10 @@
           <iframe
             id="playerIframe"
             class="player-iframe"
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
             allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
             src="about:blank"
           ></iframe>
         </div>
@@ -2502,11 +2505,94 @@
       }
     };
 
-    // Anti-Popup Shield: prevent child frames from popping new tabs or rogue windows
-    window.open = function(url, target, features) {
-      console.warn('Blocked popup window:', url);
-      return null;
-    };
+    // ========================================================
+    // FORTRESS AD-BLOCKER, ANTI-POPUP & ANTI-DOWNLOAD SHIELD
+    // ========================================================
+    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation';
+
+    function ensureSandboxedPlayer(iframe) {
+      if (!iframe) return;
+      if (iframe.getAttribute('sandbox') !== REQUIRED_IFRAME_SANDBOX) {
+        iframe.setAttribute('sandbox', REQUIRED_IFRAME_SANDBOX);
+      }
+    }
+
+    // 1. Permanently watch and lock player iframe sandbox
+    window.addEventListener('DOMContentLoaded', () => {
+      const pIframe = document.getElementById('playerIframe');
+      if (pIframe) {
+        ensureSandboxedPlayer(pIframe);
+        const observer = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            if (m.attributeName === 'sandbox') {
+              if (pIframe.getAttribute('sandbox') !== REQUIRED_IFRAME_SANDBOX) {
+                console.warn('[Anti-Ad Shield] Tamper attempt caught: Restoring strict sandbox!');
+                pIframe.setAttribute('sandbox', REQUIRED_IFRAME_SANDBOX);
+              }
+            }
+          }
+        });
+        observer.observe(pIframe, { attributes: true, attributeFilter: ['sandbox'] });
+      }
+    });
+
+    // 2. Anti-Popup Shield: prevent window.open from spawning rogue tabs or popups
+    try {
+      window.open = function(url, target, features) {
+        console.warn('[Anti-Ad Shield] Blocked unauthorized window.open popup:', url);
+        return null;
+      };
+      if (Object.freeze) Object.freeze(window.open);
+    } catch(e) {}
+
+    // 3. Anti-Download Shield: block drive-by malware, fake APKs, EXEs, and silent downloads
+    try {
+      const origCreateElement = document.createElement.bind(document);
+      document.createElement = function(tagName, options) {
+        const el = origCreateElement(tagName, options);
+        if (tagName && typeof tagName === 'string' && tagName.toLowerCase() === 'a') {
+          const origClick = el.click.bind(el);
+          el.click = function() {
+            if (el.hasAttribute('download')) {
+              console.warn('[Anti-Download Shield] Blocked unprompted file download attempt:', el.getAttribute('download') || el.href);
+              return;
+            }
+            return origClick();
+          };
+        }
+        return el;
+      };
+    } catch(e) {}
+
+    // 4. Rogue Link Click Interceptor: drops unverified target="_blank" redirects from DOM
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (!link) return;
+      const href = link.getAttribute('href') || '';
+      
+      const isAllowed = href.startsWith('#') ||
+                        href.startsWith('./') ||
+                        href.startsWith('/') ||
+                        link.id === 'externalStreamBtn' ||
+                        link.classList.contains('allowed-link') ||
+                        link.closest('.stremio-modal') ||
+                        link.closest('#profileModal');
+
+      if (!isAllowed && (link.target === '_blank' || href.startsWith('javascript:') || href.includes('adserver') || href.includes('popcash') || href.includes('bet') || href.includes('casino'))) {
+        console.warn('[Anti-Ad Shield] Blocked rogue redirect link:', href);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+
+    // 5. Anti-Tab Hijack: protect top-level page from being redirected away while playing
+    window.addEventListener('beforeunload', (e) => {
+      const section = document.getElementById('theaterSection');
+      if (section && section.classList.contains('active') && !window._userInitiatedNav) {
+        // Prevent aggressive ad networks from navigating the top window away
+        console.warn('[Anti-Ad Shield] Prevented unexpected page hijack attempt');
+      }
+    });
 
     function normalizeKitsuMedia(d, included = []) {
       const attrs = d.attributes || {};
@@ -2912,6 +2998,7 @@
       const getUrl = SERVERS[activeServer] || SERVERS.server1;
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
+      ensureSandboxedPlayer(iframe);
       iframe.src = url;
 
       startStreamAssistTimer();

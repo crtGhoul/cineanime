@@ -1718,9 +1718,8 @@
           <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Ad-Free HD)</button>
           <button class="server-btn" data-server="server2">🚀 Server 2 (Ad-Free Ultra)</button>
           <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup HD)</button>
+          <button class="server-btn" data-server="server4">⚡ Server 4 (Ad-Free Cinema)</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
-          <button class="server-btn" data-server="vidsrc" title="External mirror - strictly sandboxed with zero popups or downloads">🛡️ VidSrc (Sandboxed)</button>
-          <a id="externalStreamBtn" href="#" target="_blank" class="server-btn" style="text-decoration:none; display:inline-flex; align-items:center;" title="Open player directly in new tab">↗ New Tab</a>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
       </div>
@@ -1734,7 +1733,7 @@
             sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
             allowfullscreen
-            referrerpolicy="no-referrer-when-downgrade"
+            referrerpolicy="no-referrer"
             src="about:blank"
           ></iframe>
         </div>
@@ -2477,31 +2476,43 @@
     const SERVERS = {
       server1: (item, s, e) => {
         if (item.type === 'movie' || item.isMovieOrSeries) {
+          const tmdb = item.tmdbId || item.id;
           return item.type === 'movie'
-            ? `https://vidsrc.me/embed/movie?imdb=${item.id}`
-            : `https://vidsrc.me/embed/tv?imdb=${item.id}&season=${s}&episode=${e}`;
+            ? `https://vidlink.pro/movie/${tmdb}`
+            : `https://vidlink.pro/tv/${tmdb}/${s}/${e}`;
         }
         const aniId = item.id;
         return `https://animeembed.com/embed/ani/${aniId}/${e}?server=1&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       },
       server2: (item, s, e) => {
         if (item.type === 'movie' || item.isMovieOrSeries) {
+          const tmdb = item.tmdbId || item.id;
           return item.type === 'movie'
-            ? `https://vidsrc.to/embed/movie/${item.id}`
-            : `https://vidsrc.to/embed/tv/${item.id}/${s}/${e}`;
+            ? `https://embed.su/embed/movie/${tmdb}`
+            : `https://embed.su/embed/tv/${tmdb}/${s}/${e}`;
         }
         const aniId = item.id;
         return `https://animeembed.com/embed/ani/${aniId}/${e}?server=2&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       },
       server3: (item, s, e) => {
+        if (item.type === 'movie' || item.isMovieOrSeries) {
+          const tmdb = item.tmdbId || item.id;
+          return item.type === 'movie'
+            ? `https://player.autoembed.cc/embed/movie/${tmdb}`
+            : `https://player.autoembed.cc/embed/tv/${tmdb}/${s}/${e}`;
+        }
         const id = item.idMal || item.id;
         return `https://animeembed.com/embed/mal/${id}/${e}?autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       },
-      vidsrc: (item, s, e) => {
-        const id = item.tmdbId || item.id;
-        return item.type === 'movie'
-          ? `https://vidsrc.me/embed/movie?imdb=${id}`
-          : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`;
+      server4: (item, s, e) => {
+        if (item.type === 'movie' || item.isMovieOrSeries) {
+          const tmdb = item.tmdbId || item.id;
+          return item.type === 'movie'
+            ? `https://moviesapi.club/movie/${tmdb}`
+            : `https://moviesapi.club/tv/${tmdb}-${s}-${e}`;
+        }
+        const aniId = item.id;
+        return `https://animeembed.com/embed/ani/${aniId}/${e}?server=3&autoSkip=1&autoNext=1&track=${currentTrack}&accent=e50914`;
       }
     };
 
@@ -2573,7 +2584,6 @@
       const isAllowed = href.startsWith('#') ||
                         href.startsWith('./') ||
                         href.startsWith('/') ||
-                        link.id === 'externalStreamBtn' ||
                         link.classList.contains('allowed-link') ||
                         link.closest('.stremio-modal') ||
                         link.closest('#profileModal');
@@ -3003,9 +3013,6 @@
 
       startStreamAssistTimer();
 
-      const extBtn = document.getElementById('externalStreamBtn');
-      if (extBtn) extBtn.href = url;
-
       const badge = document.getElementById('playerCoreBadge');
       const toggle = document.getElementById('subDubToggleBox');
 
@@ -3049,10 +3056,19 @@
       }, 6500);
     }
 
+    function switchServer(serverKey) {
+      activeServer = serverKey;
+      document.querySelectorAll('.server-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.server === serverKey);
+      });
+      updatePlayerUrl();
+    }
+
     function autoFallbackServer() {
       const current = activeServer;
       if (current === 'server1') switchServer('server2');
       else if (current === 'server2') switchServer('server3');
+      else if (current === 'server3') switchServer('server4');
       else switchServer('server1');
       const assist = document.getElementById('streamAssistPill');
       if (assist) assist.style.display = 'none';

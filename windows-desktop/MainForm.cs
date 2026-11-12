@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -68,6 +69,20 @@ namespace CineAnime
                 settings.IsStatusBarEnabled = false;
                 settings.AreDefaultContextMenusEnabled = true;
                 settings.IsWebMessageEnabled = true;
+
+                // Open external links (Ko-fi, Codeberg, GitHub, donations) in the user's default desktop browser
+                _webView.CoreWebView2.NewWindowRequested += (s, e) =>
+                {
+                    e.Handled = true;
+                    if (!string.IsNullOrWhiteSpace(e.Uri) && (e.Uri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || e.Uri.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        try
+                        {
+                            Process.Start(new ProcessStartInfo(e.Uri) { UseShellExecute = true });
+                        }
+                        catch { }
+                    }
+                };
 
                 // Handle navigation failover
                 _webView.CoreWebView2.NavigationCompleted += (s, e) =>

@@ -5737,7 +5737,11 @@
       try {
         const parsed = new URL(href, location.href);
         const host = parsed.hostname.toLowerCase();
-        isSafeTrustedHost = host === 'github.com' || host.endsWith('.github.com') || host === 'localhost' || host === '127.0.0.1';
+        isSafeTrustedHost = host === 'github.com' || host.endsWith('.github.com') ||
+                            host === 'ko-fi.com' || host.endsWith('.ko-fi.com') ||
+                            host === 'codeberg.org' || host.endsWith('.codeberg.org') || host.endsWith('.codeberg.page') ||
+                            host === 'pages.dev' || host.endsWith('.pages.dev') ||
+                            host === 'localhost' || host === '127.0.0.1';
       } catch (_) {}
 
       const isAllowed = href.startsWith('#') ||
@@ -5748,7 +5752,7 @@
                         lowerHref.startsWith('magnet:') ||
                         isSafeTrustedHost ||
                         link.classList.contains('allowed-link') ||
-                        link.closest('#addonModal, #syncModal, #profileModal, #addonStreamsSection, #streamCodecBanner');
+                        link.closest('#settingsModal, #addonModal, #syncModal, #profileModal, #addonStreamsSection, #streamCodecBanner, footer, header, .nav-actions');
 
       if (!isAllowed && (link.target === '_blank' || /\b(adserver|popcash|doubleclick|casino)\b/i.test(lowerHref))) {
         console.warn('[Anti-Ad Shield] Blocked rogue redirect link:', href);

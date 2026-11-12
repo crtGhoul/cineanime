@@ -5614,6 +5614,63 @@
       }
     });
 
+    // 6. Anti-Ad Injected Script & Banner Defuser (Blocks dynamic rogue ad injections)
+    try {
+      const AD_DOMAIN_REGEX = /(?:doubleclick\.net|googlesyndication\.com|popcash\.net|adservice\.google\.com|adnxs\.com|monetag\.com|propellerads\.com|adsterra\.com|exoclick\.com|trafficjunky\.com|infolinks\.com|outbrain\.com|taboola\.com|onclickpredictiv\.com|bet365|stake\.com|1xbet)/i;
+      const origScriptCreate = document.createElement.bind(document);
+
+      // Defuse rogue <script> or <iframe> injection attempts
+      document.createElement = function(tagName, options) {
+        const el = origScriptCreate(tagName, options);
+        const tag = String(tagName || '').toLowerCase();
+        if (tag === 'script') {
+          const origSetSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src')?.set;
+          if (origSetSrc) {
+            Object.defineProperty(el, 'src', {
+              set: function(val) {
+                if (typeof val === 'string' && AD_DOMAIN_REGEX.test(val)) {
+                  console.warn('[Anti-Ad Shield] Defused rogue injected ad script:', val);
+                  return;
+                }
+                origSetSrc.call(this, val);
+              },
+              configurable: true
+            });
+          }
+        }
+        return el;
+      };
+
+      // Continuous DOM guard to remove rogue ad overlays or floating iframe traps
+      const rogueAdObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          for (const node of m.addedNodes) {
+            if (node.nodeType !== 1) continue;
+            // Never touch player iframe or modal backdrops
+            if (node.id === 'playerIframe' || node.id === 'trailerIframe' || node.classList?.contains('addon-modal-backdrop') || node.classList?.contains('cine-dialog')) {
+              continue;
+            }
+            const src = node.getAttribute?.('src') || '';
+            const href = node.getAttribute?.('href') || '';
+            if (AD_DOMAIN_REGEX.test(src) || AD_DOMAIN_REGEX.test(href)) {
+              console.warn('[Anti-Ad Shield] Pruned rogue ad node from DOM:', src || href);
+              node.remove();
+              continue;
+            }
+            // Block rogue high z-index full-screen overlay clickjacks injected outside playerContainer
+            if (node.tagName === 'DIV' || node.tagName === 'A') {
+              const style = node.style;
+              if (style && style.position === 'fixed' && Number(style.zIndex) > 999999 && !node.closest('#theaterSection, header, dialog, .addon-modal-backdrop')) {
+                console.warn('[Anti-Ad Shield] Pruned rogue clickjack overlay element');
+                node.remove();
+              }
+            }
+          }
+        }
+      });
+      rogueAdObserver.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (_) {}
+
     function normalizeKitsuMedia(d, included = []) {
       const attrs = d.attributes || {};
       const mappings = included || [];

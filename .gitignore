@@ -1,0 +1,11 @@
+# Build & signing artifacts
+android-tv/build/
+android-tv/dist/
+*.apk
+*.aab
+*.keystore
+*.jks
+*.idsig
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,21 +1,23 @@
-name: Deploy to GitHub Pages
+name: Deploy CineAnime Pages & Build Android TV APK
 
 on:
   push:
     branches: ["main"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: "pages-and-tv"
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy-pages:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,7 +30,47 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "."
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build-android-tv-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - name: Set up Android SDK 34
+        uses: android-actions/setup-android@v3
+      - name: Install Build Tools 34.0.0 & Platform 34
+        run: |
+          (yes || true) | sdkmanager --licenses > /dev/null
+          sdkmanager "build-tools;34.0.0" "platforms;android-34"
+      - name: Build Signed CineAnime Android TV APK
+        shell: pwsh
+        run: |
+          ./android-tv/build.ps1
+      - name: Upload APK Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CineAnime-v1.0.0-tv.apk
+          path: android-tv/dist/CineAnime-v1.0.0-tv.apk
+          if-no-files-found: error
+      - name: Publish Signed TV APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-tv
+          name: CineAnime Android TV Shell (v1.0.0)
+          make_latest: true
+          fail_on_unmatched_files: true
+          body: |
+            Auto-updating Android TV WebView Wrapper APK for Chromecast with Google TV & Onn Google TV.
+            Points live to https://crtghoul.github.io/cineanime/ so every web commit updates automatically!
+          files: android-tv/dist/CineAnime-v1.0.0-tv.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

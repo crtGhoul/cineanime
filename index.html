@@ -7658,15 +7658,95 @@
       return { query, variables: vars };
     }
 
+    function syncDiscoverBarFromMedia(type) {
+      const isMovie = type === 'movie';
+      const year = isMovie ? currentMoviesYear : currentSeriesYear;
+      const mode = isMovie ? currentMoviesMode : currentSeriesMode;
+      const f = document.getElementById('discoverFormatSelect');
+      const y = document.getElementById('discoverYearSelect');
+      const s = document.getElementById('discoverSortSelect');
+      const resetBtn = document.getElementById('discoverResetBtn');
+      if (f) f.value = isMovie ? 'MOVIE' : 'TV';
+      if (y) y.value = (year && ['2026', '2025', '2024', '2023', '2020s', '2010s', 'CLASSIC'].includes(year)) ? year : (year || 'ALL');
+      if (s) {
+        if (mode === 'new' || mode === 'latest') s.value = 'START_DATE_DESC';
+        else if (mode === 'featured') s.value = 'SCORE_DESC';
+        else s.value = 'POPULARITY_DESC';
+      }
+      const isModified = (year && year !== 'ALL') || (isMovie ? mode !== 'new' : mode !== 'latest');
+      if (resetBtn) resetBtn.style.display = isModified ? 'inline-flex' : 'none';
+    }
+
     async function applyAnimeDiscoverFilters(loadMore = false) {
       const st = getDiscoverFilterState();
       const resetBtn = document.getElementById('discoverResetBtn');
+
+      // 1. If format is TV or user is currently browsing TV series
+      if (st.format === 'TV' || (currentTab === 'series' && st.format !== 'MOVIE' && st.format !== 'ALL' && st.format !== 'OVA')) {
+        if (currentTab !== 'series') {
+          switchTab('series');
+        }
+        currentSeriesYear = st.year !== 'ALL' ? st.year : 'ALL';
+        if (st.sort === 'START_DATE_DESC') currentSeriesMode = 'new';
+        else if (st.sort === 'SCORE_DESC') currentSeriesMode = 'featured';
+        else currentSeriesMode = 'popular';
+
+        const sYearSel = document.getElementById('seriesYearSelect');
+        if (sYearSel) sYearSel.value = currentSeriesYear;
+        const sPills = document.querySelectorAll('#seriesModePills .media-subpill');
+        sPills.forEach(b => b.classList.toggle('active', currentSeriesYear === 'ALL' && b.getAttribute('data-mode') === currentSeriesMode));
+
+        if (resetBtn) {
+          resetBtn.style.display = (currentSeriesYear !== 'ALL' || currentSeriesMode !== 'latest') ? 'inline-flex' : 'none';
+        }
+        await loadMediaCatalog('series', true);
+        const sSection = document.getElementById('seriesSection');
+        if (sSection) sSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      // 2. If format is MOVIE or user is currently browsing Movies
+      if (st.format === 'MOVIE' || (currentTab === 'movies' && st.format !== 'TV' && st.format !== 'ALL' && st.format !== 'OVA')) {
+        if (currentTab !== 'movies') {
+          switchTab('movies');
+        }
+        currentMoviesYear = st.year !== 'ALL' ? st.year : 'ALL';
+        if (st.sort === 'START_DATE_DESC') currentMoviesMode = 'new';
+        else if (st.sort === 'SCORE_DESC') currentMoviesMode = 'featured';
+        else currentMoviesMode = 'popular';
+
+        const mYearSel = document.getElementById('moviesYearSelect');
+        if (mYearSel) mYearSel.value = currentMoviesYear;
+        const mPills = document.querySelectorAll('#moviesModePills .media-subpill');
+        mPills.forEach(b => b.classList.toggle('active', currentMoviesYear === 'ALL' && b.getAttribute('data-mode') === currentMoviesMode));
+
+        if (resetBtn) {
+          resetBtn.style.display = (currentMoviesYear !== 'ALL' || currentMoviesMode !== 'new') ? 'inline-flex' : 'none';
+        }
+        await loadMediaCatalog('movie', true);
+        const mSection = document.getElementById('moviesSection');
+        if (mSection) mSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      // 3. Otherwise: anime / all discover grid
+      if (currentTab !== 'all') {
+        switchTab('all');
+      }
       const trendingSectionTitle = document.getElementById('trendingSectionTitle');
       const trendingGrid = document.getElementById('trendingGrid');
       const loadMoreBox = document.getElementById('trendingLoadMoreBox');
       const btn = document.getElementById('trendingLoadMoreBtn');
       const isDefault = isDefaultDiscoverState(st);
       if (resetBtn) resetBtn.style.display = isDefault ? 'none' : 'inline-flex';
+
+      const tSection = document.getElementById('trendingSection');
+      if (tSection) {
+        tSection.style.display = 'block';
+        if (!isDefault && !loadMore) {
+          tSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
 
       if (isDefault && !loadMore) {
         discoverPage = 1;
@@ -7748,9 +7828,34 @@
       const f = document.getElementById('discoverFormatSelect');
       const y = document.getElementById('discoverYearSelect');
       const s = document.getElementById('discoverSortSelect');
-      if (f) f.value = 'ALL';
+      const resetBtn = document.getElementById('discoverResetBtn');
       if (y) y.value = 'ALL';
       if (s) s.value = 'TRENDING_DESC';
+      if (resetBtn) resetBtn.style.display = 'none';
+
+      if (currentTab === 'movies') {
+        if (f) f.value = 'MOVIE';
+        currentMoviesYear = 'ALL';
+        currentMoviesGenre = 'ALL';
+        currentMoviesMode = 'new';
+        const mYearSel = document.getElementById('moviesYearSelect');
+        if (mYearSel) mYearSel.value = 'ALL';
+        loadMediaCatalog('movie', true);
+        return;
+      }
+
+      if (currentTab === 'series') {
+        if (f) f.value = 'TV';
+        currentSeriesYear = 'ALL';
+        currentSeriesGenre = 'ALL';
+        currentSeriesMode = 'latest';
+        const sYearSel = document.getElementById('seriesYearSelect');
+        if (sYearSel) sYearSel.value = 'ALL';
+        loadMediaCatalog('series', true);
+        return;
+      }
+
+      if (f) f.value = 'ALL';
       applyAnimeDiscoverFilters(false);
     }
 
@@ -7946,9 +8051,17 @@
     async function fetchCinemetaCatalog(type, mode = 'new', genre = 'ALL', skip = 0, year = 'ALL') {
       const curYear = new Date().getFullYear();
       const targetYear = (year && year !== 'ALL') ? String(year) : String(curYear);
+      const isDecade2020s = targetYear === '2020s';
+      const isDecade2010s = targetYear === '2010s';
+      const isClassic = targetYear === 'CLASSIC';
+      let cinemetaYearParam = targetYear;
+      if (isDecade2020s) cinemetaYearParam = '2021';
+      else if (isDecade2010s) cinemetaYearParam = '2015';
+      else if (isClassic) cinemetaYearParam = '2005';
+
       let url = '';
       if (year && year !== 'ALL') {
-        const extra = skip > 0 ? `genre=${targetYear}&skip=${skip}` : `genre=${targetYear}`;
+        const extra = skip > 0 ? `genre=${cinemetaYearParam}&skip=${skip}` : `genre=${cinemetaYearParam}`;
         url = `https://v3-cinemeta.strem.io/catalog/${type}/year/${extra}.json`;
       } else if (genre && genre !== 'ALL') {
         const catId = mode === 'featured' ? 'imdbRating' : 'top';
@@ -7971,11 +8084,15 @@
       let list = metas.map(m => normalizeCinemetaMedia({ ...m, type }));
 
       if ((mode === 'new' && (!genre || genre === 'ALL')) || (year && year !== 'ALL')) {
-        const yrNum = parseInt(targetYear, 10);
+        const yrNum = parseInt(cinemetaYearParam, 10);
         list = list
           .filter(item => {
             const y = parseInt(item.year, 10);
-            return year && year !== 'ALL' ? (!y || y === yrNum) : (!y || y >= curYear - 1);
+            if (!y) return true;
+            if (isDecade2020s) return y >= 2020 && y <= 2022;
+            if (isDecade2010s) return y >= 2010 && y <= 2019;
+            if (isClassic) return y < 2010;
+            return year && year !== 'ALL' ? y === yrNum : y >= curYear - 1;
           })
           .sort((a, b) => {
             const aYear = parseInt(a.year, 10) === yrNum ? 1 : 0;
@@ -7985,6 +8102,10 @@
             const bRated = b.rating !== 'NEW' ? 1 : 0;
             return bRated - aRated;
           });
+      }
+
+      if (mode === 'featured') {
+        list.sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0));
       }
 
       list.forEach(item => {
@@ -8201,6 +8322,7 @@
         currentSeriesYear = cleanYear;
         if (cleanYear !== 'ALL') currentSeriesGenre = 'ALL';
       }
+      syncDiscoverBarFromMedia(type);
       loadMediaCatalog(type, true);
     }
 
@@ -8247,6 +8369,7 @@
         currentSeriesYear = 'ALL';
         if (mode === 'latest' || mode === 'new') currentSeriesGenre = 'ALL';
       }
+      syncDiscoverBarFromMedia(type);
       loadMediaCatalog(type, true);
     }
 
@@ -11691,6 +11814,7 @@
       const moviesSection = document.getElementById('moviesSection');
       const seriesSection = document.getElementById('seriesSection');
       const genrePillsBar = document.getElementById('genrePillsBar');
+      const animeDiscoverBar = document.getElementById('animeDiscoverBar');
 
       // Hide all by default
       if (historySection) historySection.style.display = 'none';
@@ -11705,6 +11829,7 @@
       if (moviesSection) moviesSection.style.display = 'none';
       if (seriesSection) seriesSection.style.display = 'none';
       if (genrePillsBar) genrePillsBar.style.display = 'none';
+      if (animeDiscoverBar) animeDiscoverBar.style.display = 'none';
 
       if (tab === 'all') {
         renderHistory();
@@ -11714,6 +11839,9 @@
         if (trendingSection) trendingSection.style.display = 'block';
         if (legendarySection) legendarySection.style.display = 'block';
         if (genrePillsBar) genrePillsBar.style.display = 'flex';
+        if (animeDiscoverBar) animeDiscoverBar.style.display = 'flex';
+        const f = document.getElementById('discoverFormatSelect');
+        if (f) f.value = 'ALL';
       } else if (tab === 'schedule') {
         if (scheduleSection) scheduleSection.style.display = 'block';
         loadWeeklySchedule();
@@ -11722,6 +11850,8 @@
           moviesSection.style.display = 'block';
           moviesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+        if (animeDiscoverBar) animeDiscoverBar.style.display = 'flex';
+        syncDiscoverBarFromMedia('movie');
         updateMediaCatalogUi('movie');
         if (currentMoviesList.length === 0) {
           loadMoviesCatalog(true);
@@ -11731,6 +11861,8 @@
           seriesSection.style.display = 'block';
           seriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+        if (animeDiscoverBar) animeDiscoverBar.style.display = 'flex';
+        syncDiscoverBarFromMedia('series');
         updateMediaCatalogUi('series');
         if (currentSeriesList.length === 0) {
           loadSeriesCatalog(true);

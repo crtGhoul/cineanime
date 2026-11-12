@@ -11517,22 +11517,34 @@
         if (scheduleSection) scheduleSection.style.display = 'block';
         loadWeeklySchedule();
       } else if (tab === 'movies') {
-        if (moviesSection) moviesSection.style.display = 'block';
+        if (moviesSection) {
+          moviesSection.style.display = 'block';
+          moviesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         updateMediaCatalogUi('movie');
         if (currentMoviesList.length === 0) {
           loadMoviesCatalog(true);
         }
       } else if (tab === 'series') {
-        if (seriesSection) seriesSection.style.display = 'block';
+        if (seriesSection) {
+          seriesSection.style.display = 'block';
+          seriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         updateMediaCatalogUi('series');
         if (currentSeriesList.length === 0) {
           loadSeriesCatalog(true);
         }
       } else if (tab === 'history') {
-        if (historySection) historySection.style.display = 'block';
+        if (historySection) {
+          historySection.style.display = 'block';
+          historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         renderHistory();
       } else if (tab === 'watchlist') {
-        if (watchlistSection) watchlistSection.style.display = 'block';
+        if (watchlistSection) {
+          watchlistSection.style.display = 'block';
+          watchlistSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         renderWatchlist();
       }
     }

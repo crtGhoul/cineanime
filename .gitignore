@@ -9,3 +9,8 @@ android-tv/dist/
 node_modules/
 .DS_Store
 Thumbs.db
+ 
+windows-desktop/bin/
+windows-desktop/obj/
+windows-desktop/publish/
+*.user

@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
+import android.webkit.PermissionRequest;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -221,6 +222,17 @@ public class MainActivity extends Activity {
             @Override
             public void onHideCustomView() {
                 exitFullscreenCustomView();
+            }
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(() -> {
+                    try {
+                        request.grant(request.getResources());
+                    } catch (Exception e) {
+                        // ignore if destroyed
+                    }
+                });
             }
 
             @Override

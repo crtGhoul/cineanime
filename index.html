@@ -3863,7 +3863,7 @@
           <div id="cloudSetupPanel">
             <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: #a5b4fc;">📱 Link Phone to PC / TV</div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: #a5b4fc;">📱 Quick Link Phone or TV to PC</div>
                 <div style="display: flex; gap: 0.4rem;">
                   <button type="button" id="startCamScanBtn" class="server-btn" style="background: #10b981; color: #fff; border: none; font-size: 0.75rem; padding: 0.35rem 0.7rem; border-radius: 6px;" onclick="toggleQrCameraScanner()">📷 Live Camera</button>
                   <label class="server-btn" style="background: #6366f1; color: #fff; border: none; font-size: 0.75rem; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center;">
@@ -3879,6 +3879,15 @@
                 <button type="button" class="addon-delete-btn" style="margin-top: 0.5rem; width: 100%;" onclick="stopQrCameraScanner()">✕ Cancel Camera</button>
               </div>
 
+              <!-- Option 1: Enter Room Code directly -->
+              <div style="font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem;"><b>Option 1:</b> Enter the Room Code shown on your PC:</div>
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 0.65rem;">
+                <input type="text" id="quickRoomCodeInput" class="addon-text-input" style="flex: 1; text-transform: uppercase; font-family: monospace; font-weight: 700; letter-spacing: 0.05em;" placeholder="e.g. CINE-UDFB-G9VP-JXL7">
+                <button type="button" class="server-btn" style="background: #10b981; color: #fff; border: none; padding: 0.5rem 0.9rem; font-weight: 700;" onclick="applyQuickRoomCode()">Connect Code</button>
+              </div>
+
+              <!-- Option 2: Paste 1-Tap Link -->
+              <div style="font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem;"><b>Option 2:</b> Or paste 1-Tap Pairing Link:</div>
               <div style="display: flex; gap: 0.5rem;">
                 <input type="text" id="quickPairLinkInput" class="addon-text-input" style="flex: 1;" placeholder="Paste 1-Tap Pairing Link (#pair=...)">
                 <button type="button" class="server-btn" style="background: #6366f1; color: #fff; border: none; padding: 0.5rem 0.9rem;" onclick="applyQuickPastedPairLink()">Link Device</button>
@@ -10723,7 +10732,10 @@
         input.placeholder = 'https://cineanime-sync.your-name.workers.dev';
       } else if (provider === 'firebase') {
         label.innerText = 'Firebase Realtime Database URL';
-        input.placeholder = 'https://your-project-default-rtdb.firebaseio.com';
+        input.placeholder = 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com';
+        if (!input.value) {
+          input.value = 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com';
+        }
       }
       const help = document.getElementById('providerHelpBox');
       if (help) help.innerHTML = CLOUD_PROVIDER_HELP[provider] || '';
@@ -10904,23 +10916,31 @@
       } else {
         const epInput = document.getElementById('syncEndpointUrl');
         let endpoint = (epInput?.value || '').trim();
+        let targetProvider = selectedCloudProvider;
+        let finalCode = code;
         // If user accidentally pastes a #pair=... link into the endpoint field, automatically extract the endpoint and code!
         if (endpoint.includes('#pair=')) {
           try {
             const rawHash = endpoint.slice(endpoint.indexOf('#pair=') + 6);
             const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(rawHash.split('&')[0])));
             if (payload && payload.u) endpoint = payload.u;
-            if (payload && payload.k && codeInput) {
-              codeInput.value = payload.k;
+            if (payload && payload.p) targetProvider = payload.p;
+            if (payload && payload.k) {
+              finalCode = payload.k;
+              if (codeInput) codeInput.value = payload.k;
             }
           } catch (_) {}
         }
         endpoint = endpoint.replace(/\/+$/, '');
         if (!/^https?:\/\//i.test(endpoint)) {
-          if (epInput) epInput.focus();
-          return showAppToast('Please paste a valid https:// URL for your Worker or Firebase database.');
+          if (targetProvider === 'firebase') {
+            endpoint = 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com';
+          } else {
+            if (epInput) epInput.focus();
+            return showAppToast('Please paste a valid https:// URL for your Worker or Firebase database.');
+          }
         }
-        cfg = { provider: selectedCloudProvider, endpoint, code };
+        cfg = { provider: targetProvider, endpoint, code: finalCode };
       }
 
       saveCloudConfig(cfg);
@@ -11138,11 +11158,40 @@
       document.getElementById('syncPanelTransfer').style.display = isCloud ? 'none' : 'block';
     }
 
+    async function applyQuickRoomCode() {
+      const input = document.getElementById('quickRoomCodeInput');
+      const raw = (input?.value || '').trim();
+      const code = normalizeRoomCode(raw);
+      if (!code || code.length < 6) {
+        if (input) input.focus();
+        return showAppToast('Please enter the Sync Room Code from your PC (e.g. CINE-XXXX-XXXX)');
+      }
+      showAppToast('⏳ Connecting to room ' + code + '...');
+      const cfg = {
+        provider: 'firebase',
+        endpoint: 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com',
+        code: code
+      };
+      saveCloudConfig(cfg);
+      const ok = await syncCloudNow({ pushLocal: true, silent: false });
+      if (!ok) {
+        saveCloudConfig(null);
+        return showAppToast('⚠ Unable to link. Verify Room Code and try again.');
+      }
+      renderCloudPairingCard();
+      showAppToast('🎉 Connected! Devices linked and synced live.');
+    }
+
     function applyQuickPastedPairLink() {
       const input = document.getElementById('quickPairLinkInput');
       const val = (input?.value || '').trim();
-      if (!val) return showAppToast('Please paste a valid pairing link (#pair=...)');
-      if (!val.includes('#pair=')) return showAppToast('Link must contain #pair=...');
+      if (!val) return showAppToast('Please paste a pairing link (#pair=...) or Room Code.');
+      if (/^CINE-[A-Z0-9]{4}-[A-Z0-9]{4}/i.test(val)) {
+        const rInput = document.getElementById('quickRoomCodeInput');
+        if (rInput) rInput.value = val;
+        return applyQuickRoomCode();
+      }
+      if (!val.includes('#pair=')) return showAppToast('Link must contain #pair=... or enter Room Code above.');
       try {
         const rawHash = val.slice(val.indexOf('#pair=') + 6);
         const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(rawHash.split('&')[0])));

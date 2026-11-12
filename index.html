@@ -3036,7 +3036,7 @@
           <iframe
             id="playerIframe"
             class="player-iframe"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads allow-storage-access-by-user-activation"
             allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; gyroscope *; accelerometer *; clipboard-write *"
             allowfullscreen
             webkitallowfullscreen
@@ -5521,7 +5521,8 @@
     // ========================================================
     // FORTRESS AD-BLOCKER, ANTI-POPUP & ANTI-DOWNLOAD SHIELD
     // ========================================================
-    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock';
+    // Required tokens for iOS Safari, Naver Whale & WebKit video DRM playback
+    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads allow-storage-access-by-user-activation';
 
     function ensureSandboxedPlayer(iframe) {
       if (!iframe) return;

@@ -3861,7 +3861,15 @@
           </div>
 
           <div id="cloudSetupPanel">
-            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">Choose a 100% Free ($0/mo) Cloud Sync Backend:</div>
+            <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #a5b4fc; margin-bottom: 0.35rem;">📱 Have a 1-Tap Pairing Link from PC?</div>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="quickPairLinkInput" class="addon-text-input" style="flex: 1;" placeholder="Paste 1-Tap Pairing Link (#pair=...)">
+                <button type="button" class="server-btn" style="background: #6366f1; color: #fff; border: none; padding: 0.5rem 0.9rem;" onclick="applyQuickPastedPairLink()">Link Device</button>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">Or Setup / Connect Directly with Database:</div>
             <div class="sync-provider-pills">
               <button class="sync-provider-btn active" data-provider="gist" onclick="selectCloudProvider('gist')">🐙 GitHub Private Gist<br><span style="font-weight:400; font-size:0.7rem;">No server deploy needed</span></button>
               <button class="sync-provider-btn" data-provider="cloudflare" onclick="selectCloudProvider('cloudflare')">☁️ Cloudflare Worker<br><span style="font-weight:400; font-size:0.7rem;">Worker in repo (100k/day free)</span></button>
@@ -10879,7 +10887,19 @@
         cfg = { provider: 'gist', token, gistId, code };
       } else {
         const epInput = document.getElementById('syncEndpointUrl');
-        const endpoint = (epInput?.value || '').trim().replace(/\/+$/, '');
+        let endpoint = (epInput?.value || '').trim();
+        // If user accidentally pastes a #pair=... link into the endpoint field, automatically extract the endpoint and code!
+        if (endpoint.includes('#pair=')) {
+          try {
+            const rawHash = endpoint.slice(endpoint.indexOf('#pair=') + 6);
+            const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(rawHash.split('&')[0])));
+            if (payload && payload.u) endpoint = payload.u;
+            if (payload && payload.k && codeInput) {
+              codeInput.value = payload.k;
+            }
+          } catch (_) {}
+        }
+        endpoint = endpoint.replace(/\/+$/, '');
         if (!/^https?:\/\//i.test(endpoint)) {
           if (epInput) epInput.focus();
           return showAppToast('Please paste a valid https:// URL for your Worker or Firebase database.');
@@ -11012,6 +11032,26 @@
       document.getElementById('syncTabTransfer').classList.toggle('active', !isCloud);
       document.getElementById('syncPanelCloud').style.display = isCloud ? 'block' : 'none';
       document.getElementById('syncPanelTransfer').style.display = isCloud ? 'none' : 'block';
+    }
+
+    function applyQuickPastedPairLink() {
+      const input = document.getElementById('quickPairLinkInput');
+      const val = (input?.value || '').trim();
+      if (!val) return showAppToast('Please paste a valid pairing link (#pair=...)');
+      if (!val.includes('#pair=')) return showAppToast('Link must contain #pair=...');
+      try {
+        const rawHash = val.slice(val.indexOf('#pair=') + 6);
+        const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(rawHash.split('&')[0])));
+        if (!payload || !payload.p || !payload.k || (payload.p === 'gist' ? (!payload.id || !payload.t) : !payload.u)) {
+          throw new Error('Incomplete pairing payload');
+        }
+        pendingIncomingPairCfg = payload.p === 'gist'
+          ? { provider: 'gist', gistId: payload.id, code: payload.k, token: payload.t }
+          : { provider: payload.p, endpoint: payload.u, code: payload.k };
+        confirmIncomingPair();
+      } catch (e) {
+        showAppToast('⚠ Invalid pairing link format.');
+      }
     }
 
     async function confirmIncomingPair() {

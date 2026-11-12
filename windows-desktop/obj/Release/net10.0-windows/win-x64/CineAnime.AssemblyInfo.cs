@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Open Source Client Media Shell and Anime Tracker")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7bb3089eeb20ae5be1c4397776fdd17b022defe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ad0bc7517cd614a3a569b1cdd456af075b9a0fa")]
 [assembly: System.Reflection.AssemblyProductAttribute("CineAnime")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CineAnime")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

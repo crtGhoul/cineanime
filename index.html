@@ -2997,6 +2997,8 @@
       <button id="shortcutsBtn" type="button" class="nav-btn" onclick="openShortcutsDialog()" title="Keyboard &amp; TV Remote Shortcuts (?)">⌨ ?</button>
       <button id="syncNavBtn" class="nav-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History"><span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync</button>
       <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
+      <a href="https://ko-fi.com/crtghoul" target="_blank" rel="noopener noreferrer" class="nav-btn" style="border-color: rgba(250, 204, 21, 0.45); background: rgba(250, 204, 21, 0.12); color: #fde047; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;" title="Support CineAnime on Ko-fi">☕ Coffee</a>
+      <button id="settingsBtn" type="button" class="nav-btn" onclick="openSettingsModal()" title="Settings, About, Downloads &amp; Support">⚙️ Settings</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
       </button>
@@ -4043,6 +4045,91 @@
       </form>
     </div>
   </dialog>
+
+  <!-- Settings, About & Support Modal -->
+  <div id="settingsModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle" style="display: none;" onclick="if(event.target===this) closeSettingsModal()">
+    <div class="addon-modal-dialog" style="max-width: 620px;">
+      <div class="addon-modal-header">
+        <h3 id="settingsModalTitle" style="display:flex; align-items:center; gap:0.5rem; margin:0; font-size:1.1rem; color:#fff;">
+          <span>⚙️</span> Settings &amp; About CineAnime
+        </h3>
+        <button type="button" class="addon-modal-close" aria-label="Close Settings" onclick="closeSettingsModal()">✕</button>
+      </div>
+
+      <div class="addon-modal-body" style="display:flex; flex-direction:column; gap:1rem;">
+        <!-- Card 1: Ko-fi Support -->
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 179, 8, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 12px; padding: 1rem 1.15rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="font-size:0.95rem; font-weight:700; color:#fde047; display:flex; align-items:center; gap:0.4rem;">
+              <span>☕</span> Support the Creator on Ko-fi
+            </div>
+            <span style="font-size:0.7rem; background:rgba(245,158,11,0.25); color:#fde047; padding:2px 8px; border-radius:9999px; font-weight:700;">100% AD-FREE &amp; OPEN SOURCE</span>
+          </div>
+          <p style="font-size:0.8rem; color:#e4e4e7; margin:0 0 0.85rem 0; line-height:1.5;">
+            CineAnime runs without ads, trackers, or paywalls. If you enjoy the app, consider supporting ongoing development, serverless sync, and new streaming sources on Ko-fi!
+          </p>
+          <a href="https://ko-fi.com/crtghoul" target="_blank" rel="noopener noreferrer" class="auth-submit-btn" style="margin:0; background: linear-gradient(135deg, #f59e0b, #eab308); color: #000; font-weight: 800; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem 1.25rem;">
+            ☕ Buy Me a Coffee on Ko-fi (ko-fi.com/crtghoul) ↗
+          </a>
+        </div>
+
+        <!-- Card 2: About & Legal Disclosures -->
+        <div style="background: #0d0d14; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem;">
+          <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>ℹ️</span> About CineAnime Media Shell
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin:0 0 0.75rem 0; line-height:1.5;">
+            Zero video files, torrents, or streams are hosted, cached, or stored on our servers. Metadata is fetched in real-time from public APIs (AniList, Kitsu, Cinemeta, TVmaze). U.S. DMCA Title 17 § 512 safe harbor compliant.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <a href="about.html" class="server-btn" style="text-decoration:none; color:#a5b4fc; font-size:0.78rem; padding:0.45rem 0.85rem;">📖 Full Landing Page &amp; Legal Disclosures</a>
+            <a href="https://github.com/crtGhoul/cineanime" target="_blank" rel="noopener noreferrer" class="server-btn" style="text-decoration:none; color:#e4e4e7; font-size:0.78rem; padding:0.45rem 0.85rem;">🐙 GitHub</a>
+            <a href="https://codeberg.org/crtGhoul/cineanime" target="_blank" rel="noopener noreferrer" class="server-btn" style="text-decoration:none; color:#e4e4e7; font-size:0.78rem; padding:0.45rem 0.85rem;">🏔️ Codeberg</a>
+          </div>
+        </div>
+
+        <!-- Card 3: Apps & Downloads -->
+        <div style="background: #0d0d14; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem;">
+          <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>📲</span> Native Apps &amp; Downloads
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin:0 0 0.75rem 0;">
+            Enjoy CineAnime natively across Windows PC, Android Phone, Android TV, Google TV, and iOS.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <a href="CineAnime-v1.0.0-tv.apk" download class="server-btn" style="text-decoration:none; color:#34d399; font-size:0.78rem; padding:0.45rem 0.85rem;">⬇️ Download Android TV &amp; Mobile APK</a>
+            <a href="about.html#downloads" class="server-btn" style="text-decoration:none; color:#60a5fa; font-size:0.78rem; padding:0.45rem 0.85rem;">💻 Download Windows .exe (x64)</a>
+            <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="triggerPwaInstall()">📱 Install PWA Web App</button>
+          </div>
+        </div>
+
+        <!-- Card 4: Data Management & Backup -->
+        <div style="background: #0d0d14; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem;">
+          <div style="font-size:0.9rem; font-weight:700; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>💾</span> Data Backup &amp; Storage
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-muted); margin:0 0 0.75rem 0;">
+            Export an encrypted offline snapshot of your watch history, checkmarks, watchlist, and custom addons.
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="downloadFullBackupJson()">💾 Export Backup (.json)</button>
+            <label class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem; cursor:pointer;">
+              📥 Import Backup (.json)
+              <input type="file" accept=".json,application/json" style="display:none;" onchange="importFullBackupFile(this)">
+            </label>
+            <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="closeSettingsModal(); openSyncModal();">🔗 Cross-Device Sync</button>
+            <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="closeSettingsModal(); openAddonModal();">🧩 Stremio Addons</button>
+            <button type="button" class="addon-delete-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="clearLocalPlayerCache()">🧹 Clear Cache</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="addon-modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.25rem; border-top:1px solid rgba(255,255,255,0.08);">
+        <span style="font-size:0.75rem; color:var(--text-muted);">CineAnime v1.0.0 • Made with ❤️ by crtGhoul</span>
+        <button type="button" class="server-btn" onclick="closeSettingsModal()">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Curated Anime Database with AniList, MAL & TMDB IDs
@@ -11263,6 +11350,37 @@
       }
     }
 
+    function openSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        trapModalFocus(modal);
+      }
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
+      restoreModalFocus();
+    }
+
+    function clearLocalPlayerCache() {
+      try {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith('cinemeta_') || k.startsWith('aniskip_') || k.startsWith('stream_cache_') || k.startsWith('tmdb_'))) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        showAppToast('🧹 Local player & metadata cache cleared.');
+      } catch (_) {
+        showAppToast('Cache cleared.');
+      }
+    }
+
     function closeSyncModal() {
       stopQrCameraScanner();
       const modal = document.getElementById('syncModal');
@@ -12233,6 +12351,7 @@
 
       const MODAL_STACK = [
         { id: 'confirmModal', close: () => resolveConfirmDialog(false) },
+        { id: 'settingsModal', close: () => closeSettingsModal() },
         { id: 'syncModal', close: () => closeSyncModal() },
         { id: 'profileModal', close: () => closeProfileModal() },
         { id: 'authModal', close: () => closeAuthModal() },

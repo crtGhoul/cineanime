@@ -5,32 +5,25 @@
       <stop offset="100%" stop-color="#09090b"/>
     </linearGradient>
     <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff1e27"/>
+      <stop offset="0%" stop-color="#ff2a34"/>
       <stop offset="100%" stop-color="#b80009"/>
     </linearGradient>
-    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff4d53"/>
-      <stop offset="100%" stop-color="#e50914"/>
-    </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#e50914" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#e50914" flood-opacity="0.4"/>
     </filter>
   </defs>
   
-  <!-- Outer Rounded Container -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
-  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+  <!-- Outer Full-bleed Background for Squircle & Circle Masks -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+  <rect x="10" y="10" width="492" height="492" rx="100" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="4"/>
   
-  <!-- Inner Shield / TV Hexagon Glow -->
-  <circle cx="256" cy="256" r="170" fill="rgba(229, 9, 20, 0.12)" filter="url(#shadow)"/>
+  <!-- Centered Safe-Zone Rounded Badge (fits inside standard 80% safe circle) -->
+  <rect x="136" y="136" width="240" height="240" rx="64" fill="url(#redGrad)" filter="url(#shadow)"/>
+  <rect x="140" y="140" width="232" height="232" rx="60" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="4"/>
   
-  <!-- Main Rounded Play Shield Badge -->
-  <rect x="116" y="136" width="280" height="240" rx="60" fill="url(#redGrad)" filter="url(#shadow)"/>
-  <rect x="120" y="140" width="272" height="232" rx="56" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="4"/>
+  <!-- Perfectly Centered Play Triangle -->
+  <path d="M232 206 L316 256 L232 306 Z" fill="#ffffff" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.35))"/>
   
-  <!-- Play Triangle -->
-  <path d="M224 196 L332 256 L224 316 Z" fill="#ffffff" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.35))"/>
-  
-  <!-- Mini Accent Sparkle -->
-  <circle cx="376" cy="156" r="14" fill="#ffd700" filter="drop-shadow(0 0 8px #ffd700)"/>
+  <!-- Accent Sparkle within safe zone -->
+  <circle cx="348" cy="164" r="12" fill="#ffd700" filter="drop-shadow(0 0 6px #ffd700)"/>
 </svg>

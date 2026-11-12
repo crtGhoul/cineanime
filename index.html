@@ -3036,9 +3036,11 @@
           <iframe
             id="playerIframe"
             class="player-iframe"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock"
-            allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; gyroscope *; accelerometer *"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads"
+            allow="autoplay *; fullscreen *; picture-in-picture *; encrypted-media *; gyroscope *; accelerometer *; clipboard-write *"
             allowfullscreen
+            webkitallowfullscreen
+            mozallowfullscreen
             referrerpolicy="no-referrer"
             src="about:blank"
           ></iframe>

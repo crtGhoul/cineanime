@@ -1,7 +1,7 @@
 {
-  "name": "CineAnime — Clean Ad-Free Streaming",
+  "name": "CineAnime — Media Shell & Tracker",
   "short_name": "CineAnime",
-  "description": "Clean, ad-free anime, movie, and TV series streaming with zero-knowledge encrypted watch history and cross-device sync.",
+  "description": "Portable static web media client and cross-device Anime, Movie & Series progress tracker with encrypted sync.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

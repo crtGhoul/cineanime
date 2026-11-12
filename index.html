@@ -6,7 +6,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>CineAnime — Clean, Ad-Free Anime Streaming</title>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>CineAnime — Web Media Shell &amp; Progress Tracker</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -3514,6 +3515,20 @@
 
   </main>
 
+  <footer style="margin-top:auto; padding: 1.5rem clamp(1rem, 4vw, 3rem) 2.25rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(9,9,11,0.92); color: #9ca3af; font-size: 0.78rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.85rem;">
+    <div style="max-width:680px; line-height:1.5;">
+      <strong style="color:#e5e7eb;">CineAnime Media Shell</strong> — Zero video files are hosted, cached, or stored here. Catalog metadata is fetched directly by your browser from public APIs (AniList, Kitsu, Cinemeta, AniSkip); playback relies on user-configured add-ons or external URLs.
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+      <button type="button" class="ctrl-btn" style="font-size:0.75rem; padding:0.35rem 0.7rem;" onclick="downloadFullBackupJson()">💾 Export Backup</button>
+      <label class="ctrl-btn" style="font-size:0.75rem; padding:0.35rem 0.7rem; cursor:pointer;">
+        📥 Import Backup
+        <input type="file" accept=".json,application/json" style="display:none;" onchange="importFullBackupFile(this)">
+      </label>
+      <button type="button" class="ctrl-btn" style="font-size:0.75rem; padding:0.35rem 0.7rem;" onclick="openAddonModal(); setTimeout(() => { const d = document.getElementById('serverOverridesDetails'); if (d) d.open = true; }, 80);">🛰 Source Mirrors</button>
+    </div>
+  </footer>
+
   <!-- Stremio Addon Manager Modal -->
   <div id="addonModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;">
     <div class="addon-modal-dialog">
@@ -3578,6 +3593,22 @@
             <!-- Rendered by JS -->
           </div>
         </div>
+
+        <details id="serverOverridesDetails" class="anilist-sync-box" style="margin-top: 1.25rem;" ontoggle="if(this.open) populateServerOverridesForm()">
+          <summary>🛰 Custom Source Domains &amp; Remote Mirror Registry</summary>
+          <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">If an external source domain ever changes, override its base origin here (synced across devices via Live Sync) or point to a remote JSON config (`{ "server1": "https://...", "server2": "https://...", "server3": "https://...", "server4": "https://..." }`).</p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.5rem; margin-top:0.65rem;">
+            <input type="url" id="overrideZokoInput" class="anilist-sync-input" placeholder="Server 1 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideCineSrcInput" class="anilist-sync-input" placeholder="Movie/TV 1 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideSmashyInput" class="anilist-sync-input" placeholder="Movie/TV 2 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideVidZeeInput" class="anilist-sync-input" placeholder="Movie/TV 3 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.6rem; align-items:center;">
+            <input type="url" id="overrideRegistryUrlInput" class="anilist-sync-input" style="flex:1 1 240px;" placeholder="Optional Remote Domains JSON URL (Gist / Worker)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <button type="button" class="ctrl-btn" onclick="saveServerOverridesFromForm()">💾 Save Overrides</button>
+            <button type="button" class="ctrl-btn" onclick="resetServerOverrides()">↺ Reset</button>
+          </div>
+        </details>
 
         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display:flex; justify-content:space-between; align-items:center;">
           <div style="font-size: 0.82rem; color: var(--text-muted);">
@@ -3852,6 +3883,11 @@
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
             <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem;" onclick="generateInstantTransfer()">📤 Create Transfer Code / QR</button>
             <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem;" onclick="document.getElementById('transferReceiveWrap').style.display='block'">📥 Paste Code / Link Here</button>
+            <button class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem;" onclick="downloadFullBackupJson()">💾 Download Backup (.json)</button>
+            <label class="server-btn" style="flex: 1; justify-content: center; padding: 0.65rem; cursor: pointer;">
+              📂 Restore Backup (.json)
+              <input type="file" accept=".json,application/json" style="display:none;" onchange="importFullBackupFile(this)">
+            </label>
           </div>
 
           <div id="transferSendWrap" style="display: none;">
@@ -3871,7 +3907,7 @@
 
           <div id="transferReceiveWrap" style="display: none; margin-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem;">
             <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Paste Sync Key (<code>CINE2:...</code>) or Transfer URL:</label>
-            <textarea id="transferImportInput" class="sync-code-area" placeholder="Paste https://crtghoul.github.io/cineanime/#sync=... or CINE2:... sync key here"></textarea>
+            <textarea id="transferImportInput" class="sync-code-area" placeholder="Paste transfer URL (#sync=...) or CINE2:... sync key here"></textarea>
             <input type="password" id="transferImportPassword" class="addon-text-input" style="width: 100%; margin-top: 0.5rem;" placeholder="Password (only needed if the sender entered one)">
             <button class="auth-submit-btn" style="margin-top: 0.5rem; background: #10b981;" onclick="applyInstantTransferImport()">📥 Merge Into This Device</button>
           </div>
@@ -5267,6 +5303,106 @@
       };
     }
 
+    const SERVER_DEFAULT_ORIGINS = {
+      zoko: 'https://zokoanime.video',
+      smashy: 'https://embed.smashystream.com',
+      cinesrc: 'https://cinesrc.st',
+      vidzee: 'https://player.vidzee.wtf'
+    };
+
+    function getServerOverrides() {
+      const stored = readStorageJson('cineanime_server_overrides_v1', {});
+      return stored && typeof stored === 'object' ? stored : {};
+    }
+
+    function normalizeOriginOverride(raw, fallbackOrigin) {
+      const clean = normalizeSafeHttpUrl(raw);
+      if (!clean) return fallbackOrigin;
+      try { return new URL(clean).origin; } catch (_) { return fallbackOrigin; }
+    }
+
+    function getEffectiveServerOrigin(key) {
+      const ov = getServerOverrides();
+      const def = SERVER_DEFAULT_ORIGINS[key] || '';
+      return ov[key] ? normalizeOriginOverride(ov[key], def) : def;
+    }
+
+    function populateServerOverridesForm() {
+      const ov = getServerOverrides();
+      const map = [
+        ['overrideZokoInput', ov.zoko || ''],
+        ['overrideCineSrcInput', ov.cinesrc || ''],
+        ['overrideSmashyInput', ov.smashy || ''],
+        ['overrideVidZeeInput', ov.vidzee || ''],
+        ['overrideRegistryUrlInput', ov.registryUrl || '']
+      ];
+      map.forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+    }
+
+    async function loadRemoteServerRegistry(silent = true) {
+      const ov = getServerOverrides();
+      const regUrl = normalizeSafeHttpUrl(ov.registryUrl);
+      if (!regUrl) return;
+      try {
+        const res = await fetch(regUrl, { cache: 'no-store' });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json || typeof json !== 'object') return;
+        const next = { ...ov };
+        ['zoko', 'cinesrc', 'smashy', 'vidzee'].forEach(k => {
+          const val = json[k] || json[k + 'Origin'];
+          if (val && normalizeSafeHttpUrl(val)) {
+            next[k] = new URL(normalizeSafeHttpUrl(val)).origin;
+          }
+        });
+        next.updatedAt = Date.now();
+        localStorage.setItem('cineanime_server_overrides_v1', JSON.stringify(next));
+        if (!silent) showAppToast('🛰 Synced source domains from remote registry');
+      } catch (_) {}
+    }
+
+    async function saveServerOverridesFromForm() {
+      const next = { updatedAt: Date.now() };
+      const fields = [
+        ['zoko', 'overrideZokoInput'],
+        ['cinesrc', 'overrideCineSrcInput'],
+        ['smashy', 'overrideSmashyInput'],
+        ['vidzee', 'overrideVidZeeInput']
+      ];
+      fields.forEach(([key, elId]) => {
+        const raw = (document.getElementById(elId)?.value || '').trim();
+        if (raw) {
+          const safe = normalizeSafeHttpUrl(raw);
+          if (safe) next[key] = new URL(safe).origin;
+        }
+      });
+      const regRaw = (document.getElementById('overrideRegistryUrlInput')?.value || '').trim();
+      if (regRaw) {
+        const safeReg = normalizeSafeHttpUrl(regRaw);
+        if (safeReg) next.registryUrl = safeReg;
+      }
+      localStorage.setItem('cineanime_server_overrides_v1', JSON.stringify(next));
+      if (next.registryUrl) await loadRemoteServerRegistry(true);
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (currentAnime && document.getElementById('theaterSection')?.classList.contains('active')) {
+        updatePlayerUrl();
+      }
+      showAppToast('🛰 Source domain overrides saved & queued for Live Sync');
+    }
+
+    function resetServerOverrides() {
+      localStorage.removeItem('cineanime_server_overrides_v1');
+      populateServerOverridesForm();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (currentAnime && document.getElementById('theaterSection')?.classList.contains('active')) {
+        updatePlayerUrl();
+      }
+      showAppToast('↺ Reset source domains to defaults');
+    }
+
     function buildZokoUrl(item, ep, trackOverride = null) {
       const aniId = item?.aniId || (item?.kitsuId && String(item.id) === String(item.kitsuId) ? null : (isNumericId(item?.id) ? item.id : null));
       const malId = item?.idMal || null;
@@ -5274,7 +5410,7 @@
       const episode = item?.type === 'movie' ? 1 : (ep || 1);
       // MAL ID is substantially more complete on zokoanime.video than AniList ID; only use ani/ when malId is absent.
       const path = malId ? `mal/${encodeURIComponent(String(malId))}` : `ani/${encodeURIComponent(String(aniId || item?.id || ''))}`;
-      return `https://zokoanime.video/stream/${path}/${episode}/${track}?${ZOKO_QUERY}`;
+      return `${getEffectiveServerOrigin('zoko')}/stream/${path}/${episode}/${track}?${ZOKO_QUERY}`;
     }
 
     function buildSmashyUrl(item, s, e, preferImdb = false) {
@@ -5283,24 +5419,26 @@
       const refParam = (preferImdb && imdb)
         ? `imdb=${encodeURIComponent(imdb)}`
         : (tmdb ? `tmdb=${encodeURIComponent(tmdb)}` : `imdb=${encodeURIComponent(imdb || item?.id || '')}`);
+      const origin = getEffectiveServerOrigin('smashy');
       return item?.type === 'movie'
-        ? `https://embed.smashystream.com/playere.php?${refParam}`
-        : `https://embed.smashystream.com/playere.php?${refParam}&season=${s}&episode=${e}`;
+        ? `${origin}/playere.php?${refParam}`
+        : `${origin}/playere.php?${refParam}&season=${s}&episode=${e}`;
     }
 
     function buildCineSrcUrl(item, s, e) {
       if (!item) return 'about:blank';
+      const origin = getEffectiveServerOrigin('cinesrc');
       if (item.type === 'movie') {
         const id = isNumericId(item.tmdbId)
           ? String(item.tmdbId).trim()
           : (item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null));
         return id
-          ? `https://cinesrc.st/embed/movie/${encodeURIComponent(id)}?color=%23e50914&autoplay=true`
+          ? `${origin}/embed/movie/${encodeURIComponent(id)}?color=%23e50914&autoplay=true`
           : buildSmashyUrl(item, s, e);
       }
       // CineSrc TV requires a numeric TMDB ID (IMDb tt-IDs cause a server error); fall back to SmashyStream when absent.
       if (isNumericId(item.tmdbId)) {
-        return `https://cinesrc.st/embed/tv/${encodeURIComponent(String(item.tmdbId).trim())}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
+        return `${origin}/embed/tv/${encodeURIComponent(String(item.tmdbId).trim())}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
       }
       return buildSmashyUrl(item, s, e);
     }
@@ -5312,9 +5450,10 @@
         return buildSmashyUrl(item, s, e, true);
       }
       const tmdb = encodeURIComponent(String(item.tmdbId).trim());
+      const origin = getEffectiveServerOrigin('vidzee');
       return item.type === 'movie'
-        ? `https://player.vidzee.wtf/embed/movie/${tmdb}`
-        : `https://player.vidzee.wtf/embed/tv/${tmdb}/${s}/${e}`;
+        ? `${origin}/embed/movie/${tmdb}`
+        : `${origin}/embed/tv/${tmdb}/${s}/${e}`;
     }
 
     const SERVERS = {
@@ -8839,57 +8978,131 @@
     }
 
     // --- Dynamic Catalog Initialization (High-Speed Kitsu Core) ---
+    function applyCatalogSectionsUi(trending, seasonal, topRated) {
+      if (Array.isArray(trending) && trending.length) {
+        trendingList = trending;
+        trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
+        const tBox = document.getElementById('trendingLoadMoreBox');
+        if (tBox) tBox.style.display = 'flex';
+
+        currentHeroAnime = trendingList[0];
+        currentAnime = trendingList[0];
+        heroSlides = [trendingList[0]];
+        applyHeroSlide(0);
+        buildHeroCarousel();
+        renderYearFilterOptions('movie');
+        renderYearFilterOptions('series');
+        renderEpisodeGrid(getEffectiveEpisodeCount(currentHeroAnime, 1));
+      }
+      if (Array.isArray(seasonal) && seasonal.length) {
+        seasonalList = seasonal;
+        seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
+        const sBox = document.getElementById('seasonalLoadMoreBox');
+        if (sBox) sBox.style.display = 'flex';
+      }
+      if (Array.isArray(topRated) && topRated.length) {
+        topRatedList = topRated;
+        topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
+        document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
+        const lBox = document.getElementById('legendaryLoadMoreBox');
+        if (lBox) lBox.style.display = 'flex';
+      }
+    }
+
+    async function fetchAniListFallbackCatalog() {
+      const gql = `query {
+        trending: Page(page: 1, perPage: 20) {
+          media(type: ANIME, isAdult: false, sort: [TRENDING_DESC]) {
+            id idMal format seasonYear episodes averageScore description(asHtml:false) genres bannerImage
+            title { english romaji } coverImage { extraLarge large } nextAiringEpisode { episode airingAt }
+          }
+        }
+        popular: Page(page: 1, perPage: 20) {
+          media(type: ANIME, isAdult: false, sort: [POPULARITY_DESC]) {
+            id idMal format seasonYear episodes averageScore description(asHtml:false) genres bannerImage
+            title { english romaji } coverImage { extraLarge large } nextAiringEpisode { episode airingAt }
+          }
+        }
+        top: Page(page: 1, perPage: 20) {
+          media(type: ANIME, isAdult: false, sort: [SCORE_DESC]) {
+            id idMal format seasonYear episodes averageScore description(asHtml:false) genres bannerImage
+            title { english romaji } coverImage { extraLarge large } nextAiringEpisode { episode airingAt }
+          }
+        }
+      }`;
+      const res = await fetch('https://graphql.anilist.co', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ query: gql })
+      });
+      if (!res.ok) throw new Error('AniList HTTP ' + res.status);
+      const json = await res.json();
+      const mapList = (arr) => (arr || []).map(normalizeAniListMediaCard).filter(Boolean);
+      return {
+        trending: mapList(json?.data?.trending?.media),
+        seasonal: mapList(json?.data?.popular?.media),
+        topRated: mapList(json?.data?.top?.media)
+      };
+    }
+
     async function loadDynamicCatalog() {
       loadLatestReleases();
       loadLatestRealReleases();
+
+      // Instant hydrate from last-known-good local cache before live fetch completes
+      const cached = readStorageJson('cineanime_catalog_cache_v1', null);
+      if (cached && Array.isArray(cached.trending) && cached.trending.length) {
+        applyCatalogSectionsUi(cached.trending, cached.seasonal || [], cached.topRated || []);
+      }
+
       try {
-        const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
-          fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
-          fetch('https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=20&include=mappings'),
-          fetch('https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=20&include=mappings')
-        ]);
+        let nextTrending = [];
+        let nextSeasonal = [];
+        let nextTopRated = [];
 
-        const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([
-          trendingRes.json(),
-          seasonalRes.json(),
-          topRatedRes.json()
-        ]);
-
-        if (trendingJson && trendingJson.data && trendingJson.data.length) {
-          trendingList = trendingJson.data.map(item => normalizeKitsuMedia(item, trendingJson.included || []));
-          trendingList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-          document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
-          const tBox = document.getElementById('trendingLoadMoreBox');
-          if (tBox) tBox.style.display = 'flex';
-
-          currentHeroAnime = trendingList[0];
-          currentAnime = trendingList[0];
-          heroSlides = [trendingList[0]];
-          applyHeroSlide(0);
-          buildHeroCarousel();
-          renderYearFilterOptions('movie');
-          renderYearFilterOptions('series');
-          renderEpisodeGrid(getEffectiveEpisodeCount(currentHeroAnime, 1));
+        try {
+          const [trendingRes, seasonalRes, topRatedRes] = await Promise.all([
+            fetch('https://kitsu.io/api/edge/trending/anime?include=mappings'),
+            fetch('https://kitsu.io/api/edge/anime?sort=-userCount&page[limit]=20&include=mappings'),
+            fetch('https://kitsu.io/api/edge/anime?sort=-averageRating&page[limit]=20&include=mappings')
+          ]);
+          if (!trendingRes.ok || !seasonalRes.ok || !topRatedRes.ok) {
+            throw new Error('Kitsu non-OK');
+          }
+          const [trendingJson, seasonalJson, topRatedJson] = await Promise.all([
+            trendingRes.json(),
+            seasonalRes.json(),
+            topRatedRes.json()
+          ]);
+          nextTrending = (trendingJson?.data || []).map(item => normalizeKitsuMedia(item, trendingJson.included || []));
+          nextSeasonal = (seasonalJson?.data || []).map(item => normalizeKitsuMedia(item, seasonalJson.included || []));
+          nextTopRated = (topRatedJson?.data || []).map(item => normalizeKitsuMedia(item, topRatedJson.included || []));
+        } catch (kitsuErr) {
+          console.warn('Kitsu unreachable, failing over to AniList GraphQL:', kitsuErr);
+          const ani = await fetchAniListFallbackCatalog();
+          nextTrending = ani.trending;
+          nextSeasonal = ani.seasonal;
+          nextTopRated = ani.topRated;
         }
 
-        if (seasonalJson && seasonalJson.data && seasonalJson.data.length) {
-          seasonalList = seasonalJson.data.map(item => normalizeKitsuMedia(item, seasonalJson.included || []));
-          seasonalList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-          document.getElementById('seasonalGrid').innerHTML = seasonalList.map(renderCard).join('');
-          const sBox = document.getElementById('seasonalLoadMoreBox');
-          if (sBox) sBox.style.display = 'flex';
-        }
-
-        if (topRatedJson && topRatedJson.data && topRatedJson.data.length) {
-          topRatedList = topRatedJson.data.map(item => normalizeKitsuMedia(item, topRatedJson.included || []));
-          topRatedList.forEach(item => ANIME_CACHE.set(String(item.id), item));
-          document.getElementById('legendaryGrid').innerHTML = topRatedList.map(renderCard).join('');
-          const lBox = document.getElementById('legendaryLoadMoreBox');
-          if (lBox) lBox.style.display = 'flex';
+        if (nextTrending.length || nextSeasonal.length || nextTopRated.length) {
+          applyCatalogSectionsUi(nextTrending, nextSeasonal, nextTopRated);
+          try {
+            localStorage.setItem('cineanime_catalog_cache_v1', JSON.stringify({
+              updatedAt: Date.now(),
+              trending: nextTrending.slice(0, 20),
+              seasonal: nextSeasonal.slice(0, 20),
+              topRated: nextTopRated.slice(0, 20)
+            }));
+          } catch (_) {}
+        } else if (!cached?.trending?.length) {
+          fallbackOfflineCatalog();
         }
       } catch (err) {
-        console.warn('Dynamic load error, fallback active:', err);
-        fallbackOfflineCatalog();
+        console.warn('Dynamic load error, cache/fallback active:', err);
+        if (!cached?.trending?.length) fallbackOfflineCatalog();
       }
     }
 
@@ -9734,6 +9947,8 @@
       if (scope.prefs) {
         const p = getPlaybackPrefs();
         snap.prefs = { server: p.server || activeServer, track: p.track || currentTrack, updatedAt: p.updatedAt || 0 };
+        const ov = getServerOverrides();
+        if (Object.keys(ov).length) snap.serverOverrides = ov;
       }
       if (scope.debrid || forceIncludeDebrid) {
         const dk = getDebridKeyValue();
@@ -9900,11 +10115,17 @@
         localStorage.setItem('cineanime_stremio_addons', JSON.stringify(addons));
       }
 
-      // 5. Playback Prefs (Server & SUB/DUB)
+      // 5. Playback Prefs (Server & SUB/DUB + Source Overrides)
       if (scope.prefs && remote.prefs && typeof remote.prefs === 'object') {
         const localP = getPlaybackPrefs();
         if ((remote.prefs.updatedAt || 0) > (localP.updatedAt || 0)) {
           savePlaybackPrefs(remote.prefs);
+        }
+      }
+      if (scope.prefs && remote.serverOverrides && typeof remote.serverOverrides === 'object') {
+        const localOv = getServerOverrides();
+        if ((Number(remote.serverOverrides.updatedAt) || 0) >= (Number(localOv.updatedAt) || 0)) {
+          localStorage.setItem('cineanime_server_overrides_v1', JSON.stringify(remote.serverOverrides));
         }
       }
 
@@ -10024,6 +10245,42 @@
       const dec = await decryptVault(parsed.s, key);
       if (!dec || !dec.data) throw new Error('Invalid or corrupted sync payload.');
       return dec.data;
+    }
+
+    function downloadFullBackupJson() {
+      const payload = {
+        app: 'CineAnime',
+        exportedAt: new Date().toISOString(),
+        snapshot: collectSyncSnapshot(true)
+      };
+      const jsonStr = JSON.stringify(payload, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cineanime-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (_) {} }, 1500);
+      showAppToast('💾 Exported full CineAnime backup (.json)');
+    }
+
+    async function importFullBackupFile(input) {
+      const file = input?.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const snap = parsed?.snapshot && typeof parsed.snapshot === 'object' ? parsed.snapshot : parsed;
+        const counts = mergeSyncSnapshot(snap, { manualImport: true });
+        if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+        showAppToast(`✅ Restored backup! Watching: ${counts.historyCount} • Watchlist: ${counts.watchlistCount}`);
+      } catch (err) {
+        showAppToast('Backup import failed: ' + (err?.message || 'Invalid JSON file'));
+      } finally {
+        input.value = '';
+      }
     }
 
     async function applyInstantTransferImport() {
@@ -11554,6 +11811,7 @@
     // Initialize
     (async () => {
       initNativeDialogs();
+      loadRemoteServerRegistry(true);
       await restoreTabVaultSession();
       hydrateWatchlistCache();
       applyPlaybackPrefsUi();

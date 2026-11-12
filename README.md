@@ -1,15 +1,16 @@
 # CineAnime ⚡
 
-A clean, ad-free anime and streaming hub with an in-player episode selector, multi-server switcher, instant intro skipping (+85s), and persistent local watch history.
+A portable, zero-backend static Progressive Web App (PWA) & Android TV WebView shell for tracking Anime, Movies, and TV Series progress with Stremio Addon protocol integration and end-to-end encrypted cross-device sync.
 
-## Features
-- **100% Ad-Free (Zero Pop-ups):** Strict iframe sandboxing rejects all pop-ups, redirects, and clickjack tabs.
-- **In-Player Episode Selector:** Binge watch with quick selectable episode badges directly beside the player.
-- **Server Switcher:** 1-click fallback across VidLink (HD), VidSrc (Fast), EmbedSu (1080p), AutoEmbed, and SuperEmbed.
-- **Skip Intro / Outro Controls:** Skip opening intro (+85s) or swap episodes with one click or remote keys (`S`, `Shift+Right`).
-- **Continue Watching & Watchlist:** Automatically tracks your episode progress and favorites locally in `localStorage`.
-- **TV & Moonlight / Sunshine Optimized:** Fully navigable with keyboard and gamepads in fullscreen mode (`F`).
+> **Architecture Note:** CineAnime hosts, stores, caches, and distributes **zero** copyrighted video or media files. Catalog metadata is fetched directly by your browser from public APIs (AniList, Kitsu, Cinemeta, AniSkip), and streams come only from user-installed Stremio add-ons or user-configured external URLs.
 
-## Live Web App
-Open directly in your browser:
-**[https://crtGhoul.github.io/cineanime/](https://crtGhoul.github.io/cineanime/)**
+## Key Capabilities
+- **Stremio Addon Protocol & Direct HLS Player:** Connect any compatible `manifest.json`, play `.m3u8`/`.mp4` streams via `hls.js` with resolution selection, Picture-in-Picture, OpenSubtitles lookup, local `.srt`/`.vtt` upload, and timing offset controls.
+- **Metadata & Schedule Tracking:** Real-time airing countdowns, Watchlist status folders (`Watching`, `Plan to Watch`, `Completed`, `Dropped`), Drop Alerts, Anime Filler tags, and automatic metadata API failover (Kitsu + AniList + local snapshot cache).
+- **Zero-Knowledge Cross-Device Sync & Portable Backups:** Sync Watch History, Episode Progress, Watchlist, Add-ons, and Source Overrides via AES-GCM encrypted Firebase RTDB / GitHub Gist / Cloudflare Worker, QR code, or 1-click full `.json` backup export/import.
+- **Android TV Auto-Failover Shell:** D-pad spatial navigation, remote media keys, and multi-mirror failover with custom URL override (`android-tv/`).
+
+## Mirroring & Self-Hosting
+CineAnime uses strictly relative paths (`./index.html`, `./sw.js`, `./manifest.webmanifest`) so it runs identically on any static host without changes:
+- **GitHub Pages / Codeberg Pages / Cloudflare Pages / Netlify:** Deploy the root directory directly as static assets (no build step required for the web app).
+- **Android TV Shell (`android-tv/`):** Supports multiple backup origins and user-defined mirror URLs directly on TV if a primary host is ever unreachable.

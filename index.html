@@ -2472,6 +2472,89 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* TV Remote, D-Pad Spatial Navigation & WCAG Focus-Visible Accessibility */
+    html {
+      scroll-padding-top: 84px;
+    }
+    .search-input {
+      padding-right: 2.4rem;
+    }
+    .search-clear-btn {
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.1);
+      color: #e5e7eb;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .search-clear-btn:hover,
+    .search-clear-btn:focus-visible {
+      background: var(--accent);
+      color: #fff;
+    }
+    :where(
+      a:any-link,
+      button,
+      select,
+      input,
+      textarea,
+      [role="button"],
+      .anime-card,
+      .schedule-card,
+      .history-card,
+      .relation-card
+    ):focus-visible {
+      outline: 3px solid #e50914;
+      outline-offset: 3px;
+    }
+    .anime-card:focus-visible,
+    .schedule-card:focus-visible,
+    .history-card:focus-visible,
+    .relation-card:focus-visible {
+      box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.28), 0 14px 30px rgba(0, 0, 0, 0.75);
+      border-color: #ff4d58;
+      scroll-margin: 84px;
+      z-index: 3;
+    }
+    .nav-btn,
+    .filter-tab,
+    .server-btn,
+    .ctrl-btn,
+    .season-pill,
+    .media-subpill,
+    .ep-card,
+    .ep-range-btn,
+    .schedule-day-tab,
+    .load-more-btn,
+    .addon-stream-btn {
+      scroll-margin: 84px;
+    }
+    body.tv-webview-mode .nav-btn,
+    body.tv-webview-mode .filter-tab,
+    body.tv-webview-mode .ctrl-btn,
+    body.tv-webview-mode .server-btn {
+      padding-top: 0.62rem;
+      padding-bottom: 0.62rem;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2485,7 +2568,8 @@
 
     <div class="search-bar-container">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search anime, movies, TV shows..." autocomplete="off">
+      <input type="text" id="searchInput" class="search-input" aria-label="Search anime, movies, TV shows" placeholder="Search anime, movies, TV shows..." autocomplete="off">
+      <button id="clearSearchBtn" type="button" class="search-clear-btn" aria-label="Clear search" title="Clear search" onclick="clearSearchResults()" style="display: none;">✕</button>
     </div>
 
     <div class="nav-actions">
@@ -2775,6 +2859,7 @@
           <div class="section-pip" style="background: #a855f7;"></div>
           <span id="searchSectionTitle">🔍 Search Results</span>
         </div>
+        <button id="searchSectionClearBtn" type="button" class="nav-btn" style="font-size: 0.78rem; padding: 0.35rem 0.8rem;" onclick="clearSearchResults()">✕ Clear Search</button>
       </div>
       <div id="searchGrid" class="anime-cards-grid">
         <!-- Rendered by JS -->
@@ -2928,13 +3013,13 @@
   </main>
 
   <!-- Stremio Addon Manager Modal -->
-  <div id="addonModal" class="addon-modal-backdrop" style="display: none;">
+  <div id="addonModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;">
     <div class="addon-modal-dialog">
       <div class="addon-modal-header">
         <div class="addon-modal-title">
           <span>🧩 Stremio Addon Protocol Hub</span>
         </div>
-        <button class="addon-modal-close" onclick="closeAddonModal()">✕</button>
+        <button class="addon-modal-close" aria-label="Close addon manager" onclick="closeAddonModal()">✕</button>
       </div>
       <div class="addon-modal-body">
         <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">
@@ -3005,7 +3090,7 @@
   </div>
 
   <!-- Official Trailer Modal (Zero-Popup YouTube NoCookie) -->
-  <div id="trailerModal" class="addon-modal-backdrop" style="display: none;" onclick="if(event.target===this) closeTrailerModal()">
+  <div id="trailerModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;" onclick="if(event.target===this) closeTrailerModal()">
     <div class="trailer-modal-dialog">
       <div class="addon-modal-header">
         <div class="addon-modal-title">
@@ -3029,7 +3114,7 @@
   <div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
 
   <!-- Auth Modal (Sign In / Register) -->
-  <div id="authModal" class="addon-modal-backdrop" style="display: none;">
+  <div id="authModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;">
     <div class="addon-modal-dialog">
       <div class="addon-modal-header">
         <div class="addon-modal-title">
@@ -3075,7 +3160,7 @@
   </div>
 
   <!-- Profile & Cross-Device Sync Modal -->
-  <div id="profileModal" class="addon-modal-backdrop" style="display: none;">
+  <div id="profileModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;">
     <div class="addon-modal-dialog">
       <div class="addon-modal-header">
         <div class="addon-modal-title">
@@ -3628,12 +3713,38 @@
       appToastTimer = setTimeout(() => el.classList.remove('show'), 2800);
     }
 
+    let modalReturnFocusEl = null;
+    function captureModalOpener(modal, focusSelector) {
+      const active = document.activeElement;
+      if (active && active !== document.body && !active.closest('.addon-modal-backdrop')) {
+        modalReturnFocusEl = active;
+      }
+      if (modal && focusSelector) {
+        requestAnimationFrame(() => {
+          const target = modal.querySelector(focusSelector);
+          if (target && typeof target.focus === 'function') target.focus();
+        });
+      }
+    }
+    function restoreModalFocus() {
+      const target = modalReturnFocusEl;
+      modalReturnFocusEl = null;
+      if (target && target.isConnected && typeof target.focus === 'function') {
+        requestAnimationFrame(() => {
+          if (!document.querySelector('.addon-modal-backdrop[style*="display: flex"]')) {
+            target.focus();
+          }
+        });
+      }
+    }
+
     function openTrailer(ytId, title = 'Official Trailer') {
       if (!ytId) return;
       const modal = document.getElementById('trailerModal');
       const iframe = document.getElementById('trailerIframe');
       const titleEl = document.getElementById('trailerModalTitle');
       if (!modal || !iframe) return;
+      captureModalOpener(modal, '.addon-modal-close, button');
       if (titleEl) titleEl.textContent = `🎬 ${title} • Official Trailer`;
       iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0`;
       modal.style.display = 'flex';
@@ -3644,6 +3755,7 @@
       const iframe = document.getElementById('trailerIframe');
       if (iframe) iframe.src = 'about:blank';
       if (modal) modal.style.display = 'none';
+      restoreModalFocus();
     }
 
     async function openCurrentHeroTrailer() {
@@ -3684,10 +3796,10 @@
     function updateServerButtonLabels(isMovieOrSeries) {
       const labels = isMovieOrSeries
         ? {
-            server1: '<span class="pulse-dot"></span> Server 1 (TMDB Ultra)',
-            server2: '🎬 Server 2 (IMDb Mirror)',
-            server3: '🛡️ Server 3 (Backup HD)',
-            server4: '⚡ Server 4 (Alt Embed)'
+            server1: '<span class="pulse-dot"></span> Server 1 (VidLink Pro)',
+            server2: '🎬 Server 2 (SmashyStream HD)',
+            server3: '🛡️ Server 3 (VidFast Pro)',
+            server4: '⚡ Server 4 (111Movies HD)'
           }
         : {
             server1: '<span class="pulse-dot"></span> Server 1 (Primary HD)',
@@ -4683,7 +4795,7 @@
       const audioBadge = item.isMovieOrSeries ? (item.type === 'movie' ? 'HD MOVIE' : 'HD SERIES') : 'SUB/DUB';
       const safeTitle = escapeHtml(item.title);
       return `
-        <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
+        <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
@@ -5029,7 +5141,7 @@
         }
 
         return `
-          <div class="relation-card ${isCurrent ? 'current' : ''}" data-season="${sNum}" onclick="setSeriesSeason(${sNum}, 1)">
+          <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" data-season="${sNum}" onclick="setSeriesSeason(${sNum}, 1)">
             <div class="relation-thumb-wrap">
               <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
               <img class="relation-thumb" src="${thumb}" alt="${escapeHtml(label)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
@@ -5101,7 +5213,7 @@
           const badgeClass = isCurrent ? 'tag-current' : (idx === 0 ? 'tag-prequel' : 'tag-sequel');
           const badgeLabel = isCurrent ? '▶ CURRENT' : (idx === 0 ? '⏪ PART 1' : `⏩ PART ${idx + 1}`);
           return `
-            <div class="relation-card ${isCurrent ? 'current' : ''}" onclick="selectAnimeById('${rel.id}', true)">
+            <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" onclick="selectAnimeById('${rel.id}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
                 <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${escapeHtml(rel.title)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
@@ -5201,7 +5313,7 @@
           const epLabel = rel.type === 'movie' ? 'Movie' : `${rel.episodes || '?'} eps`;
 
           return `
-            <div class="relation-card ${isCurrent ? 'current' : ''}" onclick="selectAnimeById('${rel.id}', true)">
+            <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" onclick="selectAnimeById('${rel.id}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
                 <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${rel.title}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
@@ -5686,14 +5798,10 @@
     document.addEventListener('webkitfullscreenchange', syncFullscreenUi);
 
     // Server Switcher Click
-    document.querySelectorAll('.server-btn').forEach(btn => {
+    document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!btn.dataset.server) return;
-        document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeServer = btn.dataset.server;
-        savePlaybackPrefs();
-        updatePlayerUrl();
+        switchServer(btn.dataset.server);
       });
     });
 
@@ -5708,8 +5816,28 @@
 
     // --- Dynamic Live Search (AniList Global Search) ---
     const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    function syncClearSearchBtn() {
+      if (clearSearchBtn && searchInput) {
+        clearSearchBtn.style.display = searchInput.value.trim() ? 'flex' : 'none';
+      }
+    }
+    function clearSearchResults() {
+      clearTimeout(searchDebounceTimer);
+      currentSearchTerm = '';
+      searchOffset = 0;
+      if (searchInput) searchInput.value = '';
+      syncClearSearchBtn();
+      const searchSection = document.getElementById('searchSection');
+      const loadMoreBox = document.getElementById('searchLoadMoreBox');
+      const fromResults = !!(searchSection && document.activeElement && searchSection.contains(document.activeElement));
+      if (searchSection) searchSection.style.display = 'none';
+      if (loadMoreBox) loadMoreBox.style.display = 'none';
+      if (fromResults && searchInput) searchInput.focus();
+    }
     searchInput.addEventListener('input', (e) => {
       const q = e.target.value.trim();
+      syncClearSearchBtn();
       clearTimeout(searchDebounceTimer);
       if (!q) {
         document.getElementById('searchSection').style.display = 'none';
@@ -6210,7 +6338,7 @@
         const agoText = formatAiringAgo(item.airingAt);
         const subTitle = item.latestEpTitle ? `${epLabel}: ${item.latestEpTitle}` : safeTitle;
         return `
-          <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${epNum}, ${sNum})">
+          <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true, ${epNum}, ${sNum})">
             <div class="card-poster-wrapper">
               <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                 ${fav ? '❤️' : '🤍'}
@@ -6232,7 +6360,7 @@
 
       const yrBadge = `NEW ${item.year || new Date().getFullYear()}`;
       return `
-        <div class="anime-card" onclick="selectAnimeById('${item.id}', true)">
+        <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
@@ -6711,9 +6839,11 @@
     }
 
     function openAddonModal() {
+      const modal = document.getElementById('addonModal');
       renderAddonsList();
       onCauldronProviderChange();
-      document.getElementById('addonModal').style.display = 'flex';
+      captureModalOpener(modal, '.addon-modal-close, select, input, button');
+      modal.style.display = 'flex';
       ensureDefaultCauldronAddon().then(added => {
         if (added) {
           const statusEl = document.getElementById('cauldronFormStatus');
@@ -6724,6 +6854,7 @@
 
     function closeAddonModal() {
       document.getElementById('addonModal').style.display = 'none';
+      restoreModalFocus();
     }
 
     function describeInstalledAddon(addon) {
@@ -7144,7 +7275,7 @@
             ? `<span style="color: #fbbf24; font-weight: 700;" title="${escapeHtml(nextInfo.bannerText)}">⏰ Next ${escapeHtml(nextInfo.countdownLabel)}</span>`
             : `<span style="color: #3b82f6; font-weight: 700;">Simulcast</span>`;
           return `
-            <div class="anime-card" onclick="selectAnimeById('${item.id}', true, ${epNum})">
+            <div class="anime-card" tabindex="0" role="button" aria-label="${item.title.replace(/"/g, '&quot;')}" onclick="selectAnimeById('${item.id}', true, ${epNum})">
               <div class="card-poster-wrapper">
                 <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   ${fav ? '❤️' : '🤍'}
@@ -7185,7 +7316,7 @@
             const fav = isFavorited(item.id);
             const epText = item.episodes ? `EP ${item.episodes}` : 'NEW';
             return `
-              <div class="anime-card" onclick="selectAnimeById('${item.id}', true, 1)">
+              <div class="anime-card" tabindex="0" role="button" aria-label="${item.title.replace(/"/g, '&quot;')}" onclick="selectAnimeById('${item.id}', true, 1)">
                 <div class="card-poster-wrapper">
                   <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     ${fav ? '❤️' : '🤍'}
@@ -7581,7 +7712,9 @@
     }
 
     function openAuthModal() {
-      document.getElementById('authModal').style.display = 'flex';
+      const modal = document.getElementById('authModal');
+      captureModalOpener(modal, '#loginUsername, input, .addon-modal-close');
+      modal.style.display = 'flex';
       switchAuthTab('signin');
       const loginInput = document.getElementById('loginUsername');
       if (loginInput && currentSessionUser && !loginInput.value) {
@@ -7591,6 +7724,7 @@
 
     function closeAuthModal() {
       document.getElementById('authModal').style.display = 'none';
+      restoreModalFocus();
     }
 
     function openProfileModal() {
@@ -7601,11 +7735,14 @@
       document.getElementById('syncImportBox').style.display = 'none';
       const debridLabel = document.getElementById('debridStatusLabel');
       if (debridLabel) debridLabel.style.display = getDebridKeyValue() ? 'block' : 'none';
-      document.getElementById('profileModal').style.display = 'flex';
+      const modal = document.getElementById('profileModal');
+      captureModalOpener(modal, '.addon-modal-close, button');
+      modal.style.display = 'flex';
     }
 
     function closeProfileModal() {
       document.getElementById('profileModal').style.display = 'none';
+      restoreModalFocus();
     }
 
     function switchAuthTab(tab) {
@@ -8607,16 +8744,19 @@
     }
 
     function openSyncModal(defaultTab = 'cloud') {
+      const modal = document.getElementById('syncModal');
       syncScopeCheckboxesUi();
       selectCloudProvider(selectedCloudProvider);
       updateSyncStatusUi();
       renderCloudPairingCard();
       switchSyncModalTab(defaultTab);
-      document.getElementById('syncModal').style.display = 'flex';
+      captureModalOpener(modal, '.addon-modal-close, button');
+      modal.style.display = 'flex';
     }
 
     function closeSyncModal() {
       document.getElementById('syncModal').style.display = 'none';
+      restoreModalFocus();
     }
 
     function switchSyncModalTab(tab) {
@@ -8787,7 +8927,7 @@
           ? 'Movie'
           : (item.isMovieOrSeries ? `S${item.season || 1} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
         return `
-          <div class="history-card" onclick="resumeAnime('${item.id}', ${epNum}, '${item.server || 'server1'}', ${item.season || 1}, '${item.track || 'sub'}')">
+          <div class="history-card" tabindex="0" role="button" aria-label="${escapeHtml(item.title)}" onclick="resumeAnime('${item.id}', ${epNum}, '${item.server || 'server1'}', ${item.season || 1}, '${item.track || 'sub'}')">
             <div class="history-card-thumb-wrap">
               <button class="history-remove-btn" onclick="removeHistoryItem(event, '${item.id}')" title="Remove from history">✕</button>
               <img class="history-card-thumb" src="${item.backdrop || item.poster}" alt="${escapeHtml(item.title)}">
@@ -9145,7 +9285,7 @@
         const seasonArg = item.isMovieOrSeries ? `, ${item.latestSeason || 1}` : '';
         const safeTitle = escapeHtml(item.title);
         return `
-          <div class="schedule-card" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1}${seasonArg})">
+          <div class="schedule-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1}${seasonArg})">
             <img class="schedule-thumb" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="schedule-info">
               <div>
@@ -9212,6 +9352,378 @@
         }
       }
     }
+
+    // --- Multi-Provider Servers, Direct Player Auto-Next/Skip & Android TV Spatial D-Pad Navigation ---
+    (function initTvAndPlayerEnhancements() {
+      const origServers = {
+        server1: SERVERS.server1,
+        server2: SERVERS.server2,
+        server3: SERVERS.server3,
+        server4: SERVERS.server4
+      };
+
+      function resolveSeasonAndEp(argA, argB) {
+        if (argB !== undefined) {
+          return {
+            s: Math.max(0, Number(argA) || 1),
+            e: Math.max(1, Number(argB) || 1)
+          };
+        }
+        return {
+          s: Math.max(0, Number(typeof currentSeason !== 'undefined' ? currentSeason : 1) || 1),
+          e: Math.max(1, Number(argA) || 1)
+        };
+      }
+
+      function buildVidLinkUrl(item, s, e) {
+        if (!item) return origServers.server1(item, s, e);
+        if (item.type === 'movie') {
+          const id = item.tmdbId || item.imdbId;
+          return id
+            ? `https://vidlink.pro/movie/${encodeURIComponent(id)}?primaryColor=e50914&autoplay=true`
+            : origServers.server1(item, s, e);
+        }
+        if (item.tmdbId) {
+          return `https://vidlink.pro/tv/${encodeURIComponent(item.tmdbId)}/${s}/${e}?primaryColor=e50914&autoplay=true`;
+        }
+        return origServers.server1(item, s, e);
+      }
+
+      function buildVidFastUrl(item, s, e) {
+        const id = item && (item.tmdbId || item.imdbId);
+        if (!id) return origServers.server3(item, s, e);
+        return item.type === 'movie'
+          ? `https://vidfast.pro/movie/${encodeURIComponent(id)}?autoPlay=true&theme=E50914`
+          : `https://vidfast.pro/tv/${encodeURIComponent(id)}/${s}/${e}?autoPlay=true&theme=E50914`;
+      }
+
+      function build111MoviesUrl(item, s, e) {
+        const id = item && (item.imdbId || item.tmdbId);
+        if (!id) return origServers.server4(item, s, e);
+        return item.type === 'movie'
+          ? `https://111movies.com/movie/${encodeURIComponent(id)}`
+          : `https://111movies.com/tv/${encodeURIComponent(id)}/${s}/${e}`;
+      }
+
+      SERVERS.server1 = function(item, a, b) {
+        if (item && item.isMovieOrSeries) {
+          const { s, e } = resolveSeasonAndEp(a, b);
+          return buildVidLinkUrl(item, s, e);
+        }
+        return origServers.server1(item, a, b);
+      };
+      SERVERS.server2 = function(item, a, b) {
+        return origServers.server2(item, a, b);
+      };
+      SERVERS.server3 = function(item, a, b) {
+        if (item && item.isMovieOrSeries) {
+          const { s, e } = resolveSeasonAndEp(a, b);
+          return buildVidFastUrl(item, s, e);
+        }
+        return origServers.server3(item, a, b);
+      };
+      SERVERS.server4 = function(item, a, b) {
+        if (item && item.isMovieOrSeries) {
+          const { s, e } = resolveSeasonAndEp(a, b);
+          return build111MoviesUrl(item, s, e);
+        }
+        return origServers.server4(item, a, b);
+      };
+
+      const directVideo = document.getElementById('directVideoPlayer');
+      function isDirectVideoActive() {
+        return !!(directVideo && directVideo.style.display !== 'none' && directVideo.currentSrc);
+      }
+      if (directVideo) {
+        directVideo.addEventListener('ended', () => {
+          if (!currentAnime || currentAnime.type === 'movie') return;
+          const total = getSeasonEpisodeCount(currentAnime, currentSeason);
+          if (currentEpisode < total) {
+            showAppToast('⏭ Episode finished — starting next episode...');
+            changeEpisode(1);
+          }
+        });
+      }
+
+      window.skipIntro = function skipIntro() {
+        if (isDirectVideoActive() && Number.isFinite(directVideo.duration) && directVideo.duration > 0) {
+          const target = Math.min(Math.max(0, directVideo.duration - 1), (directVideo.currentTime || 0) + 85);
+          directVideo.currentTime = target;
+          showAppToast(`⏭ Skipped +85s (${Math.floor(target)}s)`);
+          return;
+        }
+        showAppToast('⏭ Direct MP4/Debrid streams support +85s skip — third-party embeds use in-player Skip controls');
+      };
+      if (typeof skipIntro !== 'undefined') {
+        skipIntro = window.skipIntro;
+      }
+
+      if (navigator.userAgent && (/Android TV|AFT|BRAVIA|Chromecast|GoogleTV|CineAnimeTV/i.test(navigator.userAgent) || window.CineAndroidTV)) {
+        document.body.classList.add('tv-webview-mode');
+      }
+
+      const CARD_SELECTOR = '.anime-card, .schedule-card, .history-card, .relation-card';
+      function upgradeInteractiveCards(root = document) {
+        root.querySelectorAll(CARD_SELECTOR).forEach((card) => {
+          if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+          if (!card.hasAttribute('role')) card.setAttribute('role', 'button');
+          if (!card.hasAttribute('aria-label')) {
+            const titleEl = card.querySelector('.card-title, .schedule-title, .history-card-title, .relation-title');
+            const label = titleEl ? titleEl.textContent.trim() : '';
+            if (label) card.setAttribute('aria-label', label);
+          }
+        });
+      }
+      upgradeInteractiveCards();
+      const mainEl = document.querySelector('main');
+      if (mainEl && typeof MutationObserver !== 'undefined') {
+        let pendingCardSync = false;
+        const cardObserver = new MutationObserver(() => {
+          if (pendingCardSync) return;
+          pendingCardSync = true;
+          requestAnimationFrame(() => {
+            pendingCardSync = false;
+            upgradeInteractiveCards(mainEl);
+          });
+        });
+        cardObserver.observe(mainEl, { childList: true, subtree: true });
+      }
+
+      const MODAL_STACK = [
+        { id: 'syncModal', close: () => closeSyncModal() },
+        { id: 'profileModal', close: () => closeProfileModal() },
+        { id: 'authModal', close: () => closeAuthModal() },
+        { id: 'addonModal', close: () => closeAddonModal() },
+        { id: 'trailerModal', close: () => closeTrailerModal() }
+      ];
+
+      function getTopOpenModal() {
+        for (const entry of MODAL_STACK) {
+          const el = document.getElementById(entry.id);
+          if (el && el.style.display && el.style.display !== 'none' && getComputedStyle(el).display !== 'none') {
+            return { el, close: entry.close };
+          }
+        }
+        return null;
+      }
+
+      window.__cineHandleTvBack = function __cineHandleTvBack() {
+        const openModal = getTopOpenModal();
+        if (openModal) {
+          openModal.close();
+          return true;
+        }
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          const exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+          if (typeof exitFs === 'function') Promise.resolve(exitFs.call(document)).catch(() => {});
+          const container = document.getElementById('theaterPlayerContainer');
+          if (container) container.classList.remove('cinema-fullscreen');
+          if (typeof syncFullscreenUi === 'function') syncFullscreenUi();
+          return true;
+        }
+        const playerContainer = document.getElementById('theaterPlayerContainer');
+        if (playerContainer && playerContainer.classList.contains('cinema-fullscreen')) {
+          playerContainer.classList.remove('cinema-fullscreen');
+          if (typeof syncFullscreenUi === 'function') syncFullscreenUi();
+          return true;
+        }
+        const theater = document.getElementById('theaterSection');
+        if (theater && theater.classList.contains('active')) {
+          closeTheater();
+          return true;
+        }
+        const searchSection = document.getElementById('searchSection');
+        if (searchSection && getComputedStyle(searchSection).display !== 'none') {
+          clearSearchResults();
+          return true;
+        }
+        if (window.scrollY > 240) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const fallback = document.querySelector('#searchInput, .nav-btn');
+          if (fallback) fallback.focus({ preventScroll: true });
+          return true;
+        }
+        return false;
+      };
+
+      window.__cineHandleMediaKey = function __cineHandleMediaKey(action) {
+        const theaterOpen = document.getElementById('theaterSection')?.classList.contains('active');
+        if (action === 'play_pause' || action === 'play' || action === 'pause') {
+          if (isDirectVideoActive()) {
+            if (action === 'play') directVideo.play().catch(() => {});
+            else if (action === 'pause') directVideo.pause();
+            else if (directVideo.paused) directVideo.play().catch(() => {});
+            else directVideo.pause();
+            return true;
+          }
+          if (!theaterOpen && typeof currentHeroAnime !== 'undefined' && currentHeroAnime) {
+            playCurrentHero();
+            return true;
+          }
+          if (theaterOpen) {
+            showAppToast('🎮 Press D-Pad Center (OK) on player or use Back to exit');
+            return true;
+          }
+          return false;
+        }
+        if (!theaterOpen) return false;
+        if (action === 'next') { changeEpisode(1); return true; }
+        if (action === 'prev') { changeEpisode(-1); return true; }
+        if (action === 'skip') { window.skipIntro(); return true; }
+        if (action === 'ff') {
+          if (isDirectVideoActive()) {
+            directVideo.currentTime = Math.min(directVideo.duration || 1e9, directVideo.currentTime + 15);
+            showAppToast(`⏩ +15s (${Math.floor(directVideo.currentTime)}s)`);
+            return true;
+          }
+          window.skipIntro();
+          return true;
+        }
+        if (action === 'rew' && isDirectVideoActive()) {
+          directVideo.currentTime = Math.max(0, directVideo.currentTime - 15);
+          showAppToast(`⏪ -15s (${Math.floor(directVideo.currentTime)}s)`);
+          return true;
+        }
+        return false;
+      };
+
+      const FOCUSABLE_QUERY = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      function getVisibleFocusables(root) {
+        const all = [];
+        const nodes = root.querySelectorAll(FOCUSABLE_QUERY);
+        for (let i = 0; i < nodes.length; i++) {
+          const el = nodes[i];
+          if (el.disabled || el.getAttribute('aria-hidden') === 'true') continue;
+          const style = getComputedStyle(el);
+          if (style.visibility === 'hidden' || style.display === 'none') continue;
+          const rect = el.getBoundingClientRect();
+          if (rect.width < 2 || rect.height < 2) continue;
+          all.push({ el, rect });
+        }
+        return all;
+      }
+
+      function findSpatialCandidate(current, key, root) {
+        const candidates = getVisibleFocusables(root);
+        if (!candidates.length) return null;
+        if (!current || !root.contains(current) || current === document.body) {
+          return candidates[0].el;
+        }
+        const cur = current.getBoundingClientRect();
+        const curCx = cur.left + cur.width / 2;
+        const curCy = cur.top + cur.height / 2;
+        let best = null;
+        let bestScore = Infinity;
+
+        for (let i = 0; i < candidates.length; i++) {
+          const { el, rect } = candidates[i];
+          if (el === current || el.contains(current) || current.contains(el)) continue;
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          let inDir = false;
+          let primaryDist = 0;
+          let crossDist = 0;
+          let overlap = 0;
+
+          if (key === 'ArrowRight') {
+            inDir = cx > curCx + 4 && rect.left >= cur.left - 4;
+            primaryDist = Math.max(0, rect.left - cur.right);
+            crossDist = Math.abs(cy - curCy);
+            overlap = Math.max(0, Math.min(cur.bottom, rect.bottom) - Math.max(cur.top, rect.top));
+          } else if (key === 'ArrowLeft') {
+            inDir = cx < curCx - 4 && rect.right <= cur.right + 4;
+            primaryDist = Math.max(0, cur.left - rect.right);
+            crossDist = Math.abs(cy - curCy);
+            overlap = Math.max(0, Math.min(cur.bottom, rect.bottom) - Math.max(cur.top, rect.top));
+          } else if (key === 'ArrowDown') {
+            inDir = cy > curCy + 4 && rect.top >= cur.top - 4;
+            primaryDist = Math.max(0, rect.top - cur.bottom);
+            crossDist = Math.abs(cx - curCx);
+            overlap = Math.max(0, Math.min(cur.right, rect.right) - Math.max(cur.left, rect.left));
+          } else if (key === 'ArrowUp') {
+            inDir = cy < curCy - 4 && rect.bottom <= cur.bottom + 4;
+            primaryDist = Math.max(0, cur.top - rect.bottom);
+            crossDist = Math.abs(cx - curCx);
+            overlap = Math.max(0, Math.min(cur.right, rect.right) - Math.max(cur.left, rect.left));
+          }
+
+          if (!inDir) continue;
+          const alignmentBonus = overlap > 0 ? 180 : 0;
+          const score = primaryDist + crossDist * 2.5 - alignmentBonus;
+          if (score < bestScore) {
+            bestScore = score;
+            best = el;
+          }
+        }
+        return best;
+      }
+
+      document.addEventListener('keydown', (e) => {
+        const card = e.target && e.target.closest ? e.target.closest(CARD_SELECTOR) : null;
+        if (card && e.target === card) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            card.click();
+            return;
+          }
+          if (e.key === ' ') {
+            e.preventDefault();
+            return;
+          }
+        }
+      });
+
+      document.addEventListener('keyup', (e) => {
+        if (e.key !== ' ') return;
+        const card = e.target && e.target.closest ? e.target.closest(CARD_SELECTOR) : null;
+        if (card && e.target === card) {
+          e.preventDefault();
+          card.click();
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'GoBack' || e.key === 'BrowserBack') {
+          if (window.__cineHandleTvBack()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+          return;
+        }
+        if (e.key === 'MediaPlayPause' || e.key === 'MediaPlay' || e.key === 'MediaPause') {
+          const act = e.key === 'MediaPlay' ? 'play' : (e.key === 'MediaPause' ? 'pause' : 'play_pause');
+          if (window.__cineHandleMediaKey(act)) { e.preventDefault(); e.stopImmediatePropagation(); }
+          return;
+        }
+        if (e.key === 'MediaTrackNext' && window.__cineHandleMediaKey('next')) { e.preventDefault(); return; }
+        if (e.key === 'MediaTrackPrevious' && window.__cineHandleMediaKey('prev')) { e.preventDefault(); return; }
+        if (e.key === 'MediaFastForward' && window.__cineHandleMediaKey('ff')) { e.preventDefault(); return; }
+        if (e.key === 'MediaRewind' && window.__cineHandleMediaKey('rew')) { e.preventDefault(); return; }
+
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing) return;
+
+        const active = document.activeElement;
+        if (active && active !== document.body) {
+          const tag = active.tagName;
+          if (tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'VIDEO' || active.isContentEditable) return;
+          if (tag === 'INPUT') {
+            const t = (active.type || 'text').toLowerCase();
+            if (t === 'range') return;
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') return;
+          }
+        }
+
+        const openModal = getTopOpenModal();
+        const root = openModal ? openModal.el : document.body;
+        const next = findSpatialCandidate(active, e.key, root);
+        if (!next) return;
+
+        e.preventDefault();
+        next.focus({ preventScroll: false });
+        next.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }, true);
+    })();
 
     // Initialize
     (async () => {

@@ -7523,22 +7523,18 @@
         return;
       }
 
+      let nativeWorked = false;
       const req = container.requestFullscreen || container.webkitRequestFullscreen;
       if (typeof req === 'function') {
         try {
-          const reqPromise = req.call(container);
-          if (reqPromise && typeof reqPromise.then === 'function') {
-            await Promise.race([
-              reqPromise,
-              new Promise((resolve) => setTimeout(resolve, 250))
-            ]);
-          }
+          await req.call(container);
+          nativeWorked = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
         } catch (err) {
           console.warn('Native fullscreen unavailable, using cinema fullscreen fallback:', err);
         }
       }
 
-      if (!(document.fullscreenElement || document.webkitFullscreenElement)) {
+      if (!nativeWorked && !(document.fullscreenElement || document.webkitFullscreenElement)) {
         container.classList.add('cinema-fullscreen');
       }
       syncFullscreenUi();

@@ -15,6 +15,11 @@ namespace CineAnime
         private static readonly string PrimaryUrl = "https://crtghoul.github.io/cineanime/";
         private static readonly string BackupMirrorUrl = "https://codeberg.org/crtGhoul/cineanime";
 
+        private Rectangle _normalWindowBounds;
+        private FormBorderStyle _normalFormBorderStyle = FormBorderStyle.Sizable;
+        private FormWindowState _normalWindowState = FormWindowState.Normal;
+        private bool _isAppFullscreen = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -29,6 +34,7 @@ namespace CineAnime
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(1280, 800);
             this.MinimumSize = new Size(800, 600);
+            this.KeyPreview = true;
 
             // Set Form Icon if available
             try
@@ -40,6 +46,60 @@ namespace CineAnime
                 }
             }
             catch { }
+
+            this.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.F11)
+                {
+                    e.Handled = true;
+                    ToggleFullScreen();
+                }
+                else if (e.KeyCode == Keys.Escape && _isAppFullscreen)
+                {
+                    e.Handled = true;
+                    HandleFullscreenToggle(false);
+                }
+            };
+        }
+
+        private void HandleFullscreenToggle(bool fullscreen)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action(() => HandleFullscreenToggle(fullscreen)));
+                return;
+            }
+
+            if (fullscreen && !_isAppFullscreen)
+            {
+                _isAppFullscreen = true;
+                _normalFormBorderStyle = this.FormBorderStyle;
+                _normalWindowState = this.WindowState;
+                _normalWindowBounds = this.Bounds;
+
+                this.SuspendLayout();
+                this.WindowState = FormWindowState.Normal;
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.Bounds = Screen.FromControl(this).Bounds;
+                this.ResumeLayout();
+            }
+            else if (!fullscreen && _isAppFullscreen)
+            {
+                _isAppFullscreen = false;
+                this.SuspendLayout();
+                this.FormBorderStyle = _normalFormBorderStyle;
+                this.WindowState = _normalWindowState;
+                if (_normalWindowState == FormWindowState.Normal)
+                {
+                    this.Bounds = _normalWindowBounds;
+                }
+                this.ResumeLayout();
+            }
+        }
+
+        private void ToggleFullScreen()
+        {
+            HandleFullscreenToggle(!_isAppFullscreen);
         }
 
         private async Task InitializeWebViewAsync()
@@ -60,6 +120,20 @@ namespace CineAnime
                     DefaultBackgroundColor = Color.FromArgb(9, 9, 11)
                 };
 
+                _webView.KeyDown += (s, e) =>
+                {
+                    if (e.KeyCode == Keys.F11)
+                    {
+                        e.Handled = true;
+                        ToggleFullScreen();
+                    }
+                    else if (e.KeyCode == Keys.Escape && _isAppFullscreen)
+                    {
+                        e.Handled = true;
+                        HandleFullscreenToggle(false);
+                    }
+                };
+
                 this.Controls.Add(_webView);
 
                 await _webView.EnsureCoreWebView2Async(env);
@@ -69,6 +143,12 @@ namespace CineAnime
                 settings.IsStatusBarEnabled = false;
                 settings.AreDefaultContextMenusEnabled = true;
                 settings.IsWebMessageEnabled = true;
+
+                // Sync HTML5 video player and web fullscreen with the Windows host window
+                _webView.CoreWebView2.ContainsFullScreenElementChanged += (s, e) =>
+                {
+                    HandleFullscreenToggle(_webView.CoreWebView2.ContainsFullScreenElement);
+                };
 
                 // Open external links (Ko-fi, Codeberg, GitHub, donations) in the user's default desktop browser
                 _webView.CoreWebView2.NewWindowRequested += (s, e) =>

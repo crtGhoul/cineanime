@@ -3594,6 +3594,27 @@
           </div>
         </div>
 
+        <details id="stremioAccountSyncDetails" class="anilist-sync-box" style="margin-top: 1.25rem;">
+          <summary>📥 Import Addons &amp; Watch History from Stremio Account <span id="stremioSyncBadge" style="font-weight:500; color:#a8a8b8; margin-left:0.4rem;">Not connected</span></summary>
+          <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">Sign into your official Stremio account to pull your installed add-ons (including Debrid configs like Torrentio / Cauldron) and Continue Watching history right into CineAnime.</p>
+          <form id="stremioLoginForm" onsubmit="event.preventDefault(); importFromStremioAccount();" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.65rem;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+              <input type="email" id="stremioEmailInput" class="anilist-sync-input" placeholder="Stremio Account Email" autocomplete="email" autocorrect="off" autocapitalize="none">
+              <input type="password" id="stremioPasswordInput" class="anilist-sync-input" placeholder="Stremio Password (or AuthKey)" autocomplete="current-password">
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+              <label style="font-size:0.78rem; color:#d4d4e0; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="stremioWipeTokenCheckbox" checked>
+                1-Time Transfer &amp; Wipe Token (Recommended for privacy)
+              </label>
+              <div style="display:flex; gap:0.45rem;">
+                <button type="button" id="stremioDisconnectBtn" class="ctrl-btn" style="display:none;" onclick="disconnectStremioAccount()">Disconnect</button>
+                <button type="submit" id="stremioImportBtn" class="addon-add-btn" style="padding:0.4rem 0.95rem;">📥 Import From Stremio</button>
+              </div>
+            </div>
+          </form>
+        </details>
+
         <details id="serverOverridesDetails" class="anilist-sync-box" style="margin-top: 1.25rem;" ontoggle="if(this.open) populateServerOverridesForm()">
           <summary>🛰 Custom Source Domains &amp; Remote Mirror Registry</summary>
           <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">If an external source domain ever changes, override its base origin here (synced across devices via Live Sync) or point to a remote JSON config (`{ "server1": "https://...", "server2": "https://...", "server3": "https://...", "server4": "https://..." }`).</p>
@@ -8549,6 +8570,249 @@
       }
     }
 
+    // --- Stremio Official Account Importer & Add-on Sync ---
+    const STREMIO_API_BASE = 'https://api.strem.io/api';
+
+    function getStremioAuthKey() {
+      return localStorage.getItem('cineanime_stremio_authkey') || '';
+    }
+
+    function updateStremioAccountBadge() {
+      const badge = document.getElementById('stremioSyncBadge');
+      const emailInput = document.getElementById('stremioEmailInput');
+      const passInput = document.getElementById('stremioPasswordInput');
+      const discBtn = document.getElementById('stremioDisconnectBtn');
+      const impBtn = document.getElementById('stremioImportBtn');
+      const authKey = getStremioAuthKey();
+      const savedEmail = localStorage.getItem('cineanime_stremio_email') || '';
+
+      if (badge) {
+        badge.textContent = authKey ? (savedEmail ? `🟢 Linked (${savedEmail})` : '🟢 Linked') : 'Not connected';
+        badge.style.color = authKey ? '#10b981' : '#a8a8b8';
+      }
+      if (discBtn) discBtn.style.display = authKey ? 'inline-flex' : 'none';
+      if (impBtn && authKey) impBtn.textContent = '🔄 Re-Sync Stremio';
+      if (emailInput && savedEmail && !emailInput.value) emailInput.value = savedEmail;
+      if (passInput && authKey && !passInput.value) passInput.placeholder = 'Linked (enter password only to re-login)';
+    }
+
+    function disconnectStremioAccount() {
+      localStorage.removeItem('cineanime_stremio_authkey');
+      localStorage.removeItem('cineanime_stremio_email');
+      const passInput = document.getElementById('stremioPasswordInput');
+      if (passInput) {
+        passInput.value = '';
+        passInput.placeholder = 'Stremio Password (or AuthKey)';
+      }
+      updateStremioAccountBadge();
+      showAppToast('Disconnected Stremio account.');
+    }
+
+    async function loginToStremio(email, password) {
+      const isAuthKey = !password && /^[a-zA-Z0-9_\-\.]{32,256}$/.test(email);
+      if (isAuthKey) return email;
+      const trimmedPass = (password || '').trim();
+      if (!trimmedPass && /^[a-zA-Z0-9_\-\.]{32,256}$/.test(email)) return email;
+
+      const res = await fetch(`${STREMIO_API_BASE}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password: trimmedPass })
+      });
+      if (!res.ok) throw new Error(`Stremio login failed (HTTP ${res.status})`);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message || 'Invalid Stremio credentials');
+      const authKey = json.result?.authKey || json.authKey;
+      if (!authKey) throw new Error('Stremio returned empty authentication key');
+      return authKey;
+    }
+
+    async function fetchStremioAddons(authKey) {
+      const res = await fetch(`${STREMIO_API_BASE}/addonCollectionGet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'AddonCollectionGet', authKey })
+      });
+      if (!res.ok) throw new Error(`Addon fetch failed (HTTP ${res.status})`);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message || 'Unable to retrieve Stremio addons');
+      const addons = json.result?.addons || json.addons || [];
+      return Array.isArray(addons) ? addons : [];
+    }
+
+    async function fetchStremioLibrary(authKey) {
+      try {
+        const res = await fetch(`${STREMIO_API_BASE}/datastoreGet`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ authKey, collection: 'libraryItem' })
+        });
+        if (!res.ok) return [];
+        const json = await res.json();
+        const items = json.result?.items || json.result || json.items || [];
+        return Array.isArray(items) ? items : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    async function importFromStremioAccount() {
+      const emailInput = document.getElementById('stremioEmailInput');
+      const passInput = document.getElementById('stremioPasswordInput');
+      const wipeCheckbox = document.getElementById('stremioWipeTokenCheckbox');
+      const impBtn = document.getElementById('stremioImportBtn');
+
+      let email = (emailInput?.value || '').trim();
+      let pass = (passInput?.value || '').trim();
+      let authKey = getStremioAuthKey();
+
+      if (!authKey && !email) {
+        showAppToast('Enter your Stremio email and password (or authKey).');
+        if (emailInput) emailInput.focus();
+        return;
+      }
+
+      if (impBtn) {
+        impBtn.disabled = true;
+        impBtn.textContent = '⏳ Importing…';
+      }
+
+      try {
+        if (!authKey || (email && pass)) {
+          authKey = await loginToStremio(email, pass);
+        }
+
+        // 1. Fetch & Merge Installed Addons
+        const rawAddons = await fetchStremioAddons(authKey);
+        let importedAddonCount = 0;
+        if (rawAddons.length) {
+          const currentAddons = getStoredAddons();
+          const existingIds = new Set(currentAddons.map(a => a?.manifest?.id || a?.transportUrl));
+          const nextList = [...currentAddons];
+
+          for (const item of rawAddons) {
+            const transportUrl = normalizeSafeHttpUrl(item?.transportUrl || item?.url, true);
+            const manifest = item?.manifest || (item?.id && item?.name ? item : null);
+            const id = manifest?.id || item?._id;
+            if (id && id !== 'org.stremio.cinemeta' && !existingIds.has(id)) {
+              existingIds.add(id);
+              nextList.push({
+                transportUrl: transportUrl || `https://${id}/manifest.json`,
+                manifest: manifest || { id, name: item?.name || id, version: '1.0' }
+              });
+              importedAddonCount++;
+            }
+          }
+          if (importedAddonCount > 0) {
+            saveStoredAddons(nextList);
+          }
+        }
+
+        // 2. Fetch & Merge Library / Watch History
+        const libItems = await fetchStremioLibrary(authKey);
+        let importedHistoryCount = 0;
+        let importedWatchlistCount = 0;
+
+        if (libItems.length) {
+          const historySnapshot = [];
+          const watchlistSnapshot = [];
+          const progressMap = {};
+
+          for (const item of libItems) {
+            const id = String(item._id || item.id || '').trim();
+            if (!id) continue;
+            const title = item.name || item.title || id;
+            const type = item.type === 'movie' ? 'movie' : 'series';
+            const poster = item.poster || '';
+            const isFav = !item.removed;
+
+            let season = 1;
+            let episode = 1;
+            if (item.state?.video_id && typeof item.state.video_id === 'string') {
+              const parts = item.state.video_id.split(':');
+              if (parts.length >= 3) {
+                season = Number(parts[1]) || 1;
+                episode = Number(parts[2]) || 1;
+              }
+            }
+
+            const timeOffset = Number(item.state?.timeOffset) || 0;
+            const duration = Number(item.state?.duration) || 0;
+            const lastWatched = item.state?.lastWatched ? new Date(item.state.lastWatched).getTime() : Date.now();
+
+            if (timeOffset > 10) {
+              historySnapshot.push({
+                id,
+                title,
+                poster,
+                backdrop: poster,
+                type,
+                isMovieOrSeries: true,
+                season,
+                episode,
+                totalEpisodes: 12,
+                updatedAt: lastWatched,
+                server: 'server1',
+                track: 'sub'
+              });
+              progressMap[`${id}:${season}:${episode}`] = {
+                time: Math.floor(timeOffset),
+                duration: Math.floor(duration),
+                updatedAt: lastWatched
+              };
+              importedHistoryCount++;
+            }
+
+            if (isFav) {
+              watchlistSnapshot.push(id);
+              importedWatchlistCount++;
+            }
+          }
+
+          if (historySnapshot.length || watchlistSnapshot.length) {
+            mergeSyncSnapshot({
+              v: 2,
+              history: historySnapshot,
+              watchlist: watchlistSnapshot,
+              progressMap
+            }, { manualImport: true, skipUi: false });
+          }
+        }
+
+        // 3. Privacy Choice: Wipe or Keep Token
+        const shouldWipe = wipeCheckbox ? wipeCheckbox.checked : true;
+        if (shouldWipe) {
+          localStorage.removeItem('cineanime_stremio_authkey');
+          localStorage.removeItem('cineanime_stremio_email');
+          if (passInput) passInput.value = '';
+        } else {
+          localStorage.setItem('cineanime_stremio_authkey', authKey);
+          if (email) localStorage.setItem('cineanime_stremio_email', email);
+        }
+
+        updateStremioAccountBadge();
+        if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+
+        const msg = [
+          '✅ Stremio Import Complete!',
+          importedAddonCount > 0 ? `${importedAddonCount} Addons` : null,
+          importedHistoryCount > 0 ? `${importedHistoryCount} History items` : null,
+          importedWatchlistCount > 0 ? `${importedWatchlistCount} Watchlist items` : null,
+          shouldWipe ? '(Token wiped for zero-knowledge privacy)' : '(Linked)'
+        ].filter(Boolean).join(' • ');
+
+        showAppToast(msg);
+      } catch (err) {
+        console.error('Stremio import error:', err);
+        showAppToast(`❌ Stremio import failed: ${err.message}`);
+      } finally {
+        if (impBtn) {
+          impBtn.disabled = false;
+          impBtn.textContent = getStremioAuthKey() ? '🔄 Re-Sync Stremio' : '📥 Import From Stremio';
+        }
+      }
+    }
+
     function deleteAddon(id) {
       if (id === 'community.cauldron') {
         localStorage.setItem('cineanime_cauldron_initialized', 'removed');
@@ -11816,6 +12080,7 @@
       hydrateWatchlistCache();
       applyPlaybackPrefsUi();
       updateAnilistSyncBadge();
+      updateStremioAccountBadge();
       fallbackOfflineCatalog();
       renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
       renderHistory();

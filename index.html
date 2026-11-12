@@ -45,7 +45,7 @@
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow-x: clip;
       display: flex;
       flex-direction: column;
     }
@@ -380,7 +380,10 @@
     .theater-title-group {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 0.75rem;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .shield-pill {
@@ -400,12 +403,16 @@
       font-size: 1.1rem;
       font-weight: 700;
       color: #fff;
+      min-width: 0;
+      word-break: break-word;
     }
 
     .server-switcher {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 0.4rem;
+      max-width: 100%;
     }
 
     .server-btn {
@@ -456,7 +463,7 @@
       position: relative;
       width: 100%;
       border-radius: 12px;
-      overflow: visible;
+      overflow: hidden;
     }
     .ambient-glow-canvas {
       position: absolute;
@@ -466,7 +473,6 @@
       height: 100%;
       filter: blur(48px) saturate(220%);
       opacity: 0.65;
-      transform: scale(1.08);
       z-index: 0;
       pointer-events: none;
       transition: opacity 0.5s ease, background-image 0.5s ease;
@@ -614,7 +620,12 @@
     .ep-nav-controls {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 0.5rem;
+    }
+
+    #currentEpLabel {
+      white-space: nowrap;
     }
 
     .ctrl-btn {
@@ -665,6 +676,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
       margin-bottom: 1rem;
     }
 
@@ -1198,10 +1211,20 @@
 
     @media (max-width: 768px) {
       header {
-        padding: 0.75rem 1rem;
+        position: relative;
+        padding: 0.65rem 0.85rem;
+        gap: 0.55rem;
       }
       .brand-title {
         display: none;
+      }
+      .nav-actions {
+        width: 100%;
+        gap: 0.4rem;
+      }
+      .nav-btn {
+        padding: 0.4rem 0.65rem;
+        font-size: 0.78rem;
       }
       .hero-content {
         padding: 1.5rem;
@@ -1211,6 +1234,18 @@
       }
       main {
         padding: 1rem;
+      }
+      .theater-header {
+        padding: 0.75rem 0.9rem;
+        gap: 0.6rem;
+      }
+      .server-btn {
+        padding: 0.35rem 0.55rem;
+        font-size: 0.75rem;
+      }
+      .player-controls-bar {
+        padding: 0.65rem 0.9rem;
+        gap: 0.6rem;
       }
       .anime-cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -1872,12 +1907,16 @@
       bottom: 1.5rem;
       left: 50%;
       transform: translateX(-50%) translateY(18px);
-      z-index: 9999;
+      z-index: 100001;
       background: rgba(18, 18, 26, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.16);
       color: #fff;
       padding: 0.65rem 1.1rem;
-      border-radius: 9999px;
+      border-radius: 14px;
+      max-width: min(92vw, 520px);
+      text-align: center;
+      white-space: pre-line;
+      line-height: 1.4;
       font-size: 0.84rem;
       font-weight: 700;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
@@ -3072,10 +3111,10 @@
           </form>
         </div>
 
-        <div class="addon-input-group">
+        <form class="addon-input-group" onsubmit="event.preventDefault(); installAddonFromInput();">
           <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="https://... or stremio://.../manifest.json" autocorrect="off" autocapitalize="none" spellcheck="false">
-          <button type="button" class="addon-add-btn" onclick="installAddonFromInput()">+ Add Addon</button>
-        </div>
+          <button type="submit" class="addon-add-btn">+ Add Addon</button>
+        </form>
 
         <div style="margin-top: 1.5rem;">
           <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff;">Installed Addons</h4>
@@ -3088,7 +3127,7 @@
           <div style="font-size: 0.82rem; color: var(--text-muted);">
             Local Stremio Engine (<code>127.0.0.1:11470</code>)
           </div>
-          <a href="http://localhost:8080" target="_blank" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+          <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
             Open Stremio Web ↗
           </a>
         </div>
@@ -3131,33 +3170,33 @@
       </div>
       <div class="addon-modal-body">
         <div class="auth-tab-row">
-          <button id="authTabSignIn" class="auth-tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
-          <button id="authTabRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">Create Account</button>
+          <button type="button" id="authTabSignIn" class="auth-tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
+          <button type="button" id="authTabRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">Create Account</button>
         </div>
 
-        <div id="authFormSignIn">
+        <form id="authFormSignIn" onsubmit="event.preventDefault(); submitSignIn();">
           <div class="auth-field">
-            <label>Username</label>
+            <label for="loginUsername">Username</label>
             <input type="text" id="loginUsername" placeholder="e.g. cesar" autocomplete="username">
           </div>
           <div class="auth-field">
-            <label>Master Password</label>
+            <label for="loginPassword">Master Password</label>
             <input type="password" id="loginPassword" placeholder="Your vault master password" autocomplete="current-password">
           </div>
-          <button class="auth-submit-btn" onclick="submitSignIn()">Unlock My Vault 🔓</button>
-        </div>
+          <button type="submit" class="auth-submit-btn">Unlock My Vault 🔓</button>
+        </form>
 
-        <div id="authFormRegister" style="display: none;">
+        <form id="authFormRegister" style="display: none;" onsubmit="event.preventDefault(); submitRegister();">
           <div class="auth-field">
-            <label>Create Username</label>
+            <label for="regUsername">Create Username</label>
             <input type="text" id="regUsername" placeholder="Choose a username" autocomplete="username">
           </div>
           <div class="auth-field">
-            <label>Create Master Password</label>
+            <label for="regPassword">Create Master Password</label>
             <input type="password" id="regPassword" placeholder="Minimum 6 characters" autocomplete="new-password">
           </div>
-          <button class="auth-submit-btn" onclick="submitRegister()">Create 100% Free Encrypted Vault 🔒</button>
-        </div>
+          <button type="submit" class="auth-submit-btn">Create 100% Free Encrypted Vault 🔒</button>
+        </form>
 
         <div style="margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; background: #0d0d14; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
           <strong style="color: #10b981;">🔒 100% Zero-Knowledge Encryption:</strong> Your password is salted and hashed with PBKDF2 (100,000 rounds of SHA-256) and used to encrypt your history with AES-256-GCM. No one—not even servers or hackers—can view your watch progress without your password.
@@ -3380,6 +3419,23 @@
             <input type="password" id="transferImportPassword" class="addon-text-input" style="width: 100%; margin-top: 0.5rem;" placeholder="Password (only needed if the sender entered one)">
             <button class="auth-submit-btn" style="margin-top: 0.5rem; background: #10b981;" onclick="applyInstantTransferImport()">📥 Merge Into This Device</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-blocking Accessible Confirm Modal -->
+  <div id="confirmModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" style="display: none; z-index: 100000;" onclick="if(event.target===this) resolveConfirmDialog(false)">
+    <div class="addon-modal-dialog" style="max-width: 440px;">
+      <div class="addon-modal-header">
+        <div class="addon-modal-title" id="confirmModalTitle"><span>Confirm Action</span></div>
+        <button type="button" class="addon-modal-close" aria-label="Cancel confirmation" onclick="resolveConfirmDialog(false)">✕</button>
+      </div>
+      <div class="addon-modal-body">
+        <p id="confirmModalMessage" style="color: #e4e4e7; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.25rem;"></p>
+        <div style="display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap;">
+          <button type="button" id="confirmCancelBtn" class="server-btn" style="padding: 0.55rem 1.1rem;" onclick="resolveConfirmDialog(false)">Cancel</button>
+          <button type="button" id="confirmOkBtn" class="auth-submit-btn" style="width: auto; margin: 0; padding: 0.55rem 1.25rem;" onclick="resolveConfirmDialog(true)">Confirm</button>
         </div>
       </div>
     </div>
@@ -3711,13 +3767,106 @@
     let currentDirectStreamUrl = '';
     let _cauldronBootPromise = null;
 
+    function safeJsonParse(raw, fallback) {
+      if (!raw || typeof raw !== 'string') return fallback;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed === null || parsed === undefined) return fallback;
+        if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+        if (fallback && typeof fallback === 'object' && !Array.isArray(fallback) && (typeof parsed !== 'object' || Array.isArray(parsed))) {
+          return fallback;
+        }
+        return parsed;
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function readStorageJson(key, fallback) {
+      try {
+        return safeJsonParse(localStorage.getItem(key), fallback);
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function sanitizeYoutubeId(raw) {
+      let s = String(raw || '').trim();
+      if (!s) return '';
+      try { s = decodeURIComponent(s).trim(); } catch (_) {}
+      const urlMatch = s.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,20})/);
+      const clean = (urlMatch ? urlMatch[1] : s.split(/[?&#\s]/)[0]).trim();
+      return /^[A-Za-z0-9_-]{6,20}$/.test(clean) ? clean : '';
+    }
+
+    function resolveSeasonNumber(val, fallback = 1) {
+      if (val === null || val === undefined || val === '') return fallback;
+      const n = Number(val);
+      return Number.isFinite(n) && n >= 0 ? n : fallback;
+    }
+
+    function isNumericId(val) {
+      return Boolean(val && /^\d+$/.test(String(val).trim()));
+    }
+
     function showAppToast(msg) {
       const el = document.getElementById('appToast');
       if (!el) return;
       el.textContent = msg;
       el.classList.add('show');
       if (appToastTimer) clearTimeout(appToastTimer);
-      appToastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+      appToastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    let _confirmResolver = null;
+    function showConfirmDialog(message, okLabel = 'Confirm') {
+      const modal = document.getElementById('confirmModal');
+      const msgEl = document.getElementById('confirmModalMessage');
+      const okBtn = document.getElementById('confirmOkBtn');
+      if (!modal || !msgEl || !okBtn) {
+        return Promise.resolve(true);
+      }
+      if (_confirmResolver) {
+        _confirmResolver(false);
+        _confirmResolver = null;
+      }
+      msgEl.textContent = message;
+      okBtn.textContent = okLabel;
+      captureModalOpener(modal, '#confirmCancelBtn, #confirmOkBtn');
+      modal.style.display = 'flex';
+      return new Promise(resolve => {
+        _confirmResolver = resolve;
+      });
+    }
+
+    function resolveConfirmDialog(result) {
+      const modal = document.getElementById('confirmModal');
+      if (modal && modal.style.display !== 'none') {
+        modal.style.display = 'none';
+        restoreModalFocus();
+      }
+      if (_confirmResolver) {
+        const fn = _confirmResolver;
+        _confirmResolver = null;
+        fn(!!result);
+      }
+    }
+
+    function closeAllModalsExcept(keepId = '') {
+      const closers = {
+        syncModal: closeSyncModal,
+        profileModal: closeProfileModal,
+        authModal: closeAuthModal,
+        addonModal: closeAddonModal,
+        trailerModal: closeTrailerModal
+      };
+      Object.entries(closers).forEach(([id, closeFn]) => {
+        if (id === keepId) return;
+        const el = document.getElementById(id);
+        if (el && el.style.display && el.style.display !== 'none') {
+          closeFn();
+        }
+      });
     }
 
     let modalReturnFocusEl = null;
@@ -3746,32 +3895,39 @@
     }
 
     function openTrailer(ytId, title = 'Official Trailer') {
-      if (!ytId) return;
+      const cleanId = sanitizeYoutubeId(ytId);
+      if (!cleanId) {
+        showAppToast('Official trailer unavailable for this title — click Watch Now to stream!');
+        return;
+      }
+      closeAllModalsExcept('trailerModal');
       const modal = document.getElementById('trailerModal');
       const iframe = document.getElementById('trailerIframe');
       const titleEl = document.getElementById('trailerModalTitle');
       if (!modal || !iframe) return;
       captureModalOpener(modal, '.addon-modal-close, button');
       if (titleEl) titleEl.textContent = `🎬 ${title} • Official Trailer`;
-      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(cleanId)}?autoplay=1&rel=0`;
       modal.style.display = 'flex';
     }
 
     function closeTrailerModal() {
       const modal = document.getElementById('trailerModal');
       const iframe = document.getElementById('trailerIframe');
-      if (iframe) iframe.src = 'about:blank';
-      if (modal) modal.style.display = 'none';
+      if (iframe && iframe.src !== 'about:blank') iframe.src = 'about:blank';
+      if (!modal || modal.style.display === 'none' || !modal.style.display) return;
+      modal.style.display = 'none';
       restoreModalFocus();
     }
 
     async function openCurrentHeroTrailer() {
       if (!currentHeroAnime) return;
-      if (!currentHeroAnime.trailerId) {
+      if (!sanitizeYoutubeId(currentHeroAnime.trailerId)) {
         await ensureMediaIds(currentHeroAnime);
       }
-      if (currentHeroAnime.trailerId) {
-        openTrailer(currentHeroAnime.trailerId, currentHeroAnime.title);
+      const cleanId = sanitizeYoutubeId(currentHeroAnime.trailerId);
+      if (cleanId) {
+        openTrailer(cleanId, currentHeroAnime.title);
       } else {
         showAppToast('Official trailer unavailable for this title — click Watch Now to stream!');
       }
@@ -3803,16 +3959,16 @@
     function updateServerButtonLabels(isMovieOrSeries) {
       const labels = isMovieOrSeries
         ? {
-            server1: '<span class="pulse-dot"></span> Server 1 (VidLink Pro)',
+            server1: '<span class="pulse-dot"></span> Server 1 (CineSrc HD)',
             server2: '🎬 Server 2 (SmashyStream HD)',
-            server3: '🛡️ Server 3 (VidFast Pro)',
-            server4: '⚡ Server 4 (111Movies HD)'
+            server3: '🛡️ Server 3 (VidZee HD)',
+            server4: '⚡ Server 4 (Smashy IMDb)'
           }
         : {
-            server1: '<span class="pulse-dot"></span> Server 1 (Primary HD)',
-            server2: '🚀 Server 2 (AniList Mirror)',
-            server3: '🛡️ Server 3 (Backup / HardSub)',
-            server4: '⚡ Server 4 (Multi-Embed HD)'
+            server1: '<span class="pulse-dot"></span> Server 1 (ZokoAnime HD)',
+            server2: '🛡️ Server 2 (Zoko HardSub)',
+            server3: '🎬 Server 3 (CineSrc HD)',
+            server4: '⚡ Server 4 (SmashyStream)'
           };
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(btn => {
         const key = btn.dataset.server;
@@ -4202,8 +4358,9 @@
         ? `<div class="theater-next-airing state-${nextInfo.state}" id="theaterNextAiringRow">${nextAiringIcon} ${escapeHtml(nextInfo.bannerText)}</div>`
         : '';
       const fav = isFavorited(item.id);
-      const trailerBtn = item.trailerId
-        ? `<button class="ctrl-btn" style="background: rgba(229,9,20,0.16); border-color: rgba(229,9,20,0.45);" data-yt="${escapeHtml(item.trailerId)}" data-title="${escapeHtml(item.title)}" onclick="openTrailer(this.dataset.yt, this.dataset.title)">🎬 Official Trailer</button>`
+      const cleanTrailerId = sanitizeYoutubeId(item.trailerId);
+      const trailerBtn = cleanTrailerId
+        ? `<button class="ctrl-btn" style="background: rgba(229,9,20,0.16); border-color: rgba(229,9,20,0.45);" data-yt="${escapeHtml(cleanTrailerId)}" data-title="${escapeHtml(item.title)}" onclick="openTrailer(this.dataset.yt, this.dataset.title)">🎬 Official Trailer</button>`
         : '';
 
       strip.classList.add('active');
@@ -4329,7 +4486,11 @@
           resetHeroAutoRotation();
           // Pre-warm metadata (cast/runtime/trailer) silently for the first 3 hero slides
           heroSlides.slice(0, 3).forEach(s => ensureMediaIds(s).then(() => {
-            if (currentHeroAnime && String(currentHeroAnime.id) === String(s.id)) applyHeroSlide(heroSlideIndex);
+            const theaterActive = document.getElementById('theaterSection')?.classList.contains('active');
+            const activeSlide = heroSlides[heroSlideIndex];
+            if (!theaterActive && activeSlide && String(activeSlide.id) === String(s.id) && currentHeroAnime && String(currentHeroAnime.id) === String(s.id)) {
+              applyHeroSlide(heroSlideIndex);
+            }
           }).catch(() => {}));
         }
       } catch (err) {
@@ -4409,10 +4570,8 @@
         return a - b;
       });
 
-      const hasNumberedSeasons = allKeys.some(s => s > 0);
       const seasonNumbers = [];
       allKeys.forEach(sNum => {
-        if (sNum === 0 && hasNumberedSeasons) return;
         const allEps = [...bySeason.get(sNum).values()].sort((a, b) => a.ep - b.ep);
         const futureEps = allEps.filter(e => !e.aired && e.releasedTs > nowTs);
         if (futureEps.length) {
@@ -4420,7 +4579,7 @@
           upcomingEpisodes.push(...futureEps);
         }
         const airedEps = allEps.filter(e => e.aired);
-        if (sNum > 0 && airedEps.length === 0 && seasonNumbers.some(n => n > 0)) return;
+        if (airedEps.length === 0 && seasonNumbers.some(n => n > 0)) return;
         const activeEps = airedEps.length > 0 ? airedEps : allEps;
         if (!activeEps.length) return;
         seasonsMap[sNum] = activeEps;
@@ -4448,6 +4607,20 @@
       return item.episodes || 12;
     }
 
+    function getEffectiveEpisodeCount(item = currentAnime, minEp = currentEpisode) {
+      const safeMin = Math.max(1, Number(minEp) || 1);
+      if (!item) return Math.max(12, safeMin);
+      if (item.type === 'movie') return 1;
+      if (item.isMovieOrSeries && item.type === 'series' && item.seasonsMap?.[Number(currentSeason)]) {
+        return Math.max(getSeasonEpisodeCount(item, currentSeason), safeMin);
+      }
+      const epNum = Number(item.episodes);
+      if (Number.isFinite(epNum) && epNum > 0) {
+        return Math.max(Math.floor(epNum), safeMin);
+      }
+      return Math.max(12, safeMin);
+    }
+
     function getWatchedKey(animeId, season = currentSeason) {
       const base = String(animeId || '');
       const s = Number(season);
@@ -4458,57 +4631,97 @@
 
     const ZOKO_QUERY = 'color=e50914&autoplay=1&asi=1&autonext=1';
 
-    function buildZokoUrl(item, ep, trackOverride, preferAni = false) {
-      const aniId = item.aniId || (item.kitsuId && String(item.id) === String(item.kitsuId) ? null : item.id);
-      const malId = item.idMal || null;
+    function resolveSeasonAndEp(argA, argB) {
+      if (argB !== undefined) {
+        return {
+          s: resolveSeasonNumber(argA, 1),
+          e: Math.max(1, Number(argB) || 1)
+        };
+      }
+      return {
+        s: resolveSeasonNumber(typeof currentSeason !== 'undefined' ? currentSeason : 1, 1),
+        e: Math.max(1, Number(argA) || 1)
+      };
+    }
+
+    function buildZokoUrl(item, ep, trackOverride = null) {
+      const aniId = item?.aniId || (item?.kitsuId && String(item.id) === String(item.kitsuId) ? null : (isNumericId(item?.id) ? item.id : null));
+      const malId = item?.idMal || null;
       const track = trackOverride || (currentTrack === 'dub' ? 'dub' : 'sub');
-      const episode = item.type === 'movie' ? 1 : (ep || 1);
-      let path;
-      if (preferAni && aniId) path = `ani/${aniId}`;
-      else if (malId) path = `mal/${malId}`;
-      else path = `ani/${aniId || item.id}`;
+      const episode = item?.type === 'movie' ? 1 : (ep || 1);
+      // MAL ID is substantially more complete on zokoanime.video than AniList ID; only use ani/ when malId is absent.
+      const path = malId ? `mal/${encodeURIComponent(String(malId))}` : `ani/${encodeURIComponent(String(aniId || item?.id || ''))}`;
       return `https://zokoanime.video/stream/${path}/${episode}/${track}?${ZOKO_QUERY}`;
     }
 
-    function buildSmashyUrl(item, s, e) {
-      const hasNumericTmdb = item.tmdbId && /^\d+$/.test(String(item.tmdbId));
-      const refParam = hasNumericTmdb
-        ? `tmdb=${item.tmdbId}`
-        : `imdb=${item.imdbId || item.id}`;
-      return item.type === 'movie'
+    function buildSmashyUrl(item, s, e, preferImdb = false) {
+      const tmdb = isNumericId(item?.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item?.imdbId || (String(item?.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const refParam = (preferImdb && imdb)
+        ? `imdb=${encodeURIComponent(imdb)}`
+        : (tmdb ? `tmdb=${encodeURIComponent(tmdb)}` : `imdb=${encodeURIComponent(imdb || item?.id || '')}`);
+      return item?.type === 'movie'
         ? `https://embed.smashystream.com/playere.php?${refParam}`
         : `https://embed.smashystream.com/playere.php?${refParam}&season=${s}&episode=${e}`;
     }
 
+    function buildCineSrcUrl(item, s, e) {
+      if (!item) return 'about:blank';
+      if (item.type === 'movie') {
+        const id = isNumericId(item.tmdbId)
+          ? String(item.tmdbId).trim()
+          : (item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null));
+        return id
+          ? `https://cinesrc.st/embed/movie/${encodeURIComponent(id)}?color=%23e50914&autoplay=true`
+          : buildSmashyUrl(item, s, e);
+      }
+      // CineSrc TV requires a numeric TMDB ID (IMDb tt-IDs cause a server error); fall back to SmashyStream when absent.
+      if (isNumericId(item.tmdbId)) {
+        return `https://cinesrc.st/embed/tv/${encodeURIComponent(String(item.tmdbId).trim())}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
+      }
+      return buildSmashyUrl(item, s, e);
+    }
+
+    function buildVidZeeUrl(item, s, e) {
+      if (!item) return 'about:blank';
+      // VidZee v1 only accepts numeric TMDB IDs (IMDb IDs hang on movies or load sandbox-blocked frames on TV).
+      if (!isNumericId(item.tmdbId)) {
+        return buildSmashyUrl(item, s, e, true);
+      }
+      const tmdb = encodeURIComponent(String(item.tmdbId).trim());
+      return item.type === 'movie'
+        ? `https://player.vidzee.wtf/embed/movie/${tmdb}`
+        : `https://player.vidzee.wtf/embed/tv/${tmdb}/${s}/${e}`;
+    }
+
     const SERVERS = {
-      server1: (item, s, e) => {
-        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
-        return buildZokoUrl(item, e, null, false);
+      server1: (item, a, b) => {
+        const { s, e } = resolveSeasonAndEp(a, b);
+        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e);
+        return buildZokoUrl(item, e, null);
       },
-      server2: (item, s, e) => {
-        if (item.isMovieOrSeries) {
-          const imdb = item.imdbId || (String(item.id).startsWith('tt') ? item.id : null);
-          if (imdb) {
-            return item.type === 'movie'
-              ? `https://embed.smashystream.com/playere.php?imdb=${imdb}`
-              : `https://embed.smashystream.com/playere.php?imdb=${imdb}&season=${s}&episode=${e}`;
-          }
-          return buildSmashyUrl(item, s, e);
-        }
-        return buildZokoUrl(item, e, null, true);
-      },
-      server3: (item, s, e) => {
-        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
+      server2: (item, a, b) => {
+        const { s, e } = resolveSeasonAndEp(a, b);
+        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, false);
         const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
-        return buildZokoUrl(item, e, hTrack, false);
+        return buildZokoUrl(item, e, hTrack);
       },
-      server4: (item, s, e) => {
-        if (item.isMovieOrSeries) return buildSmashyUrl(item, s, e);
-        if (item.tmdbId && /^\d+$/.test(String(item.tmdbId))) {
-          return buildSmashyUrl(item, s, e);
+      server3: (item, a, b) => {
+        const { s, e } = resolveSeasonAndEp(a, b);
+        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
+        if (isNumericId(item?.tmdbId) || (item?.type === 'movie' && item?.imdbId)) {
+          return buildCineSrcUrl(item, 1, e);
+        }
+        return buildZokoUrl(item, e, null);
+      },
+      server4: (item, a, b) => {
+        const { s, e } = resolveSeasonAndEp(a, b);
+        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, true);
+        if (isNumericId(item?.tmdbId) || item?.imdbId) {
+          return buildSmashyUrl(item, 1, e, false);
         }
         const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
-        return buildZokoUrl(item, e, hTrack, true);
+        return buildZokoUrl(item, e, hTrack);
       }
     };
 
@@ -4575,16 +4788,34 @@
     document.addEventListener('click', function(e) {
       const link = e.target.closest('a');
       if (!link) return;
-      const href = link.getAttribute('href') || '';
-      
+      const href = (link.getAttribute('href') || '').trim();
+      const lowerHref = href.toLowerCase();
+
+      if (lowerHref.startsWith('javascript:')) {
+        console.warn('[Anti-Ad Shield] Blocked javascript: link:', href);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      let isSafeTrustedHost = false;
+      try {
+        const parsed = new URL(href, location.href);
+        const host = parsed.hostname.toLowerCase();
+        isSafeTrustedHost = host === 'github.com' || host.endsWith('.github.com') || host === 'localhost' || host === '127.0.0.1';
+      } catch (_) {}
+
       const isAllowed = href.startsWith('#') ||
                         href.startsWith('./') ||
                         href.startsWith('/') ||
+                        lowerHref.startsWith('vlc://') ||
+                        lowerHref.startsWith('stremio://') ||
+                        lowerHref.startsWith('magnet:') ||
+                        isSafeTrustedHost ||
                         link.classList.contains('allowed-link') ||
-                        link.closest('.stremio-modal') ||
-                        link.closest('#profileModal');
+                        link.closest('#addonModal, #syncModal, #profileModal, #addonStreamsSection, #streamCodecBanner');
 
-      if (!isAllowed && (link.target === '_blank' || href.startsWith('javascript:') || href.includes('adserver') || href.includes('popcash') || href.includes('bet') || href.includes('casino'))) {
+      if (!isAllowed && (link.target === '_blank' || /\b(adserver|popcash|doubleclick|casino)\b/i.test(lowerHref))) {
         console.warn('[Anti-Ad Shield] Blocked rogue redirect link:', href);
         e.preventDefault();
         e.stopPropagation();
@@ -4664,21 +4895,21 @@
       if (isVaultUnlocked() && Array.isArray(sessionData.history)) {
         return sessionData.history;
       }
-      return JSON.parse(localStorage.getItem('cineanime_history') || '[]');
+      return readStorageJson('cineanime_history', []);
     }
 
     function getWatchlist() {
       if (isVaultUnlocked() && Array.isArray(sessionData.watchlist)) {
         return sessionData.watchlist;
       }
-      return JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]');
+      return readStorageJson('cineanime_watchlist', []);
     }
 
     function getWatchlistMeta() {
       if (isVaultUnlocked() && sessionData.watchlistMeta) {
         return sessionData.watchlistMeta;
       }
-      return JSON.parse(localStorage.getItem('cineanime_watchlist_meta') || '{}');
+      return readStorageJson('cineanime_watchlist_meta', {});
     }
 
     function saveWatchlistMeta(meta) {
@@ -4727,7 +4958,7 @@
     async function persistUserData() {
       if (currentSessionUser && sessionVaultKey) {
         try {
-          const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+          const accounts = readStorageJson('cineanime_accounts', {});
           if (accounts[currentSessionUser]) {
             const enc = await encryptVault(sessionData, sessionVaultKey);
             accounts[currentSessionUser].encryptedData = enc;
@@ -4749,8 +4980,8 @@
       e.stopPropagation();
       let list = [...getWatchlist()];
       const strId = String(id);
-      const tsMap = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
-      const delMap = JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}');
+      const tsMap = readStorageJson('cineanime_watchlist_ts', {});
+      const delMap = readStorageJson('cineanime_deleted_watchlist', {});
       const metaMap = { ...getWatchlistMeta() };
       const now = Date.now();
 
@@ -4782,7 +5013,8 @@
       updateBadges();
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
       // Re-render favorite buttons in place
-      document.querySelectorAll(`.card-fav-btn[data-id="${strId}"]`).forEach(btn => {
+      document.querySelectorAll('.card-fav-btn').forEach(btn => {
+        if (btn.dataset.id !== strId) return;
         const fav = list.includes(strId);
         btn.classList.toggle('favorited', fav);
         btn.innerHTML = fav ? '❤️' : '🤍';
@@ -4859,8 +5091,8 @@
                 if (Array.isArray(meta.cast) && meta.cast.length) item.cast = meta.cast;
                 if (Array.isArray(meta.director) && meta.director.length) item.director = meta.director;
                 if (Array.isArray(meta.trailers) && meta.trailers.length) {
-                  const yt = meta.trailers.find(t => t?.source);
-                  if (yt?.source) item.trailerId = String(yt.source);
+                  const yt = meta.trailers.find(t => sanitizeYoutubeId(t?.source));
+                  if (yt?.source) item.trailerId = sanitizeYoutubeId(yt.source);
                 }
                 if (meta.status) item.seriesStatus = String(meta.status);
                 if (metaType === 'series' && Array.isArray(meta.videos) && meta.videos.length) {
@@ -4922,7 +5154,10 @@
               if (m.format === 'MOVIE') item.type = 'movie';
               if (m.duration && !item.runtime) item.runtime = `${m.duration} min`;
               if (Array.isArray(m.genres) && m.genres.length && !item.genres) item.genres = m.genres;
-              if (m.trailer?.site === 'youtube' && m.trailer?.id) item.trailerId = String(m.trailer.id);
+              if (m.trailer?.site === 'youtube' && m.trailer?.id) {
+                const cleanTrailer = sanitizeYoutubeId(m.trailer.id);
+                if (cleanTrailer) item.trailerId = cleanTrailer;
+              }
               applyNormalizedAniListNextAiring(item, m);
               const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
                 ? (m.nextAiringEpisode.episode - 1)
@@ -5099,7 +5334,7 @@
         if (epSec) epSec.style.display = 'block';
         if (epNav) epNav.style.display = 'flex';
         renderEpisodesSubnote(anime);
-        renderEpisodeGrid(anime.episodes || Math.max(12, currentEpisode));
+        renderEpisodeGrid(getEffectiveEpisodeCount(anime, currentEpisode));
       }
 
       fetchRelations(anime);
@@ -5319,14 +5554,16 @@
 
           const epLabel = rel.type === 'movie' ? 'Movie' : `${rel.episodes || '?'} eps`;
 
+          const safeRelTitle = escapeHtml(rel.title);
+          const safeRelId = escapeHtml(String(rel.id));
           return `
-            <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" onclick="selectAnimeById('${rel.id}', true)">
+            <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" aria-label="${safeRelTitle}" onclick="selectAnimeById('${safeRelId}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${rel.title}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${safeRelTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
               </div>
               <div class="relation-body">
-                <div class="relation-title" title="${rel.title}">${rel.title}</div>
+                <div class="relation-title" title="${safeRelTitle}">${safeRelTitle}</div>
                 <div class="relation-meta">
                   <span>${rel.year ? rel.year + ' • ' : ''}${epLabel}</span>
                 </div>
@@ -5393,19 +5630,24 @@
       const tabs = document.getElementById('epRangeTabs');
       renderSeasonPicker(currentAnime);
 
+      const rawCount = Number(count);
+      const safeCount = (Number.isFinite(rawCount) && rawCount > 0)
+        ? Math.floor(rawCount)
+        : getEffectiveEpisodeCount(currentAnime, currentEpisode);
       const seasonPrefix = (currentAnime?.isMovieOrSeries && currentAnime.type === 'series')
         ? (currentSeason === 0 ? 'Specials • ' : `Season ${currentSeason} • `)
         : '';
-      document.getElementById('epTotalCount').innerText = `${seasonPrefix}(${count} Episodes)`;
+      const plusSuffix = (!currentAnime?.isMovieOrSeries && !currentAnime?.episodes) ? '+' : '';
+      document.getElementById('epTotalCount').innerText = `${seasonPrefix}(${safeCount}${plusSuffix} Episodes)`;
 
-      // Build range tabs if count > 50 (e.g. One Piece, Naruto)
-      if (count > 50) {
+      // Build range tabs if safeCount > 50 (e.g. One Piece, Naruto)
+      if (safeCount > 50) {
         tabs.style.display = 'flex';
         let tabsHtml = '';
-        const rangesCount = Math.ceil(count / 50);
+        const rangesCount = Math.ceil(safeCount / 50);
         for (let r = 0; r < rangesCount; r++) {
           const start = r * 50 + 1;
-          const end = Math.min((r + 1) * 50, count);
+          const end = Math.min((r + 1) * 50, safeCount);
           tabsHtml += `<button class="ep-range-btn ${r === activeEpisodeRange ? 'active' : ''}" onclick="setEpisodeRange(${r})">${start} - ${end}</button>`;
         }
         tabs.innerHTML = tabsHtml;
@@ -5424,7 +5666,7 @@
 
       // Determine next unwatched episode (scoped per season)
       let nextUnwatched = -1;
-      for (let j = 1; j <= count; j++) {
+      for (let j = 1; j <= safeCount; j++) {
         if (!isEpisodeWatched(currentAnime.id, j, currentSeason)) {
           nextUnwatched = j;
           break;
@@ -5433,7 +5675,7 @@
 
       // Render episode buttons for active range
       const startEp = activeEpisodeRange * 50 + 1;
-      const endEp = Math.min((activeEpisodeRange + 1) * 50, count);
+      const endEp = Math.min((activeEpisodeRange + 1) * 50, safeCount);
       let html = '';
       for (let i = startEp; i <= endEp; i++) {
         const isActive = i === currentEpisode;
@@ -5468,13 +5710,13 @@
         html += `<button class="${classes}" onclick="setEpisode(${i})" title="${escapeHtml(tooltip)}">${label}</button>`;
       }
 
-      const lastRangeIdx = Math.max(0, Math.ceil(count / 50) - 1);
+      const lastRangeIdx = Math.max(0, Math.ceil(safeCount / 50) - 1);
       if (activeEpisodeRange >= lastRangeIdx) {
         const nowMs = Date.now();
         let upcomingList = [];
         if (currentAnime?.isMovieOrSeries && Array.isArray(currentAnime?.seasonsUpcoming?.[currentSeason])) {
           upcomingList = currentAnime.seasonsUpcoming[currentSeason]
-            .filter(u => u.releasedTs > nowMs && u.ep > count)
+            .filter(u => u.releasedTs > nowMs && u.ep > safeCount)
             .slice(0, 3)
             .map(u => ({
               season: u.season,
@@ -5487,10 +5729,11 @@
         const na = currentAnime?.nextAiring;
         if (!upcomingList.length && na && Number.isFinite(na.airingAtMs) && na.airingAtMs > nowMs) {
           const matchesSeason = !currentAnime?.isMovieOrSeries
-            || !na.season
+            || na.season === null
+            || na.season === undefined
             || Number(na.season) === Number(currentSeason)
             || Number(na.season) >= 1900;
-          if (matchesSeason && (!na.episode || na.episode > count || na.episode <= 0)) {
+          if (matchesSeason && (!na.episode || na.episode > safeCount || na.episode <= 0)) {
             upcomingList = [na];
           }
         }
@@ -5501,7 +5744,7 @@
           const rawTitle = String(up.title || '').trim();
           const upName = rawTitle && rawTitle.toUpperCase() !== 'TBA' ? rawTitle : '';
           const tip = `Upcoming Ep ${up.episode || ''}${upName ? `: ${upName}` : ''} • Airs ${shortDate} (${cd})`;
-          html += `<button class="ep-card upcoming" data-season="${up.season || ''}" data-ep="${up.episode || ''}" data-ts="${up.airingAtMs}" data-hastime="${up.hasTime !== false ? '1' : '0'}" data-epname="${escapeHtml(upName)}" onclick="showUpcomingEpisodeToast(this)" title="${escapeHtml(tip)}"><span class="ep-card-num">📅 ${epDisplay}</span><span class="ep-card-sub">${escapeHtml(cd)} • ${escapeHtml(shortDate)}</span></button>`;
+          html += `<button class="ep-card upcoming" data-season="${up.season ?? ''}" data-ep="${up.episode || ''}" data-ts="${up.airingAtMs}" data-hastime="${up.hasTime !== false ? '1' : '0'}" data-epname="${escapeHtml(upName)}" onclick="showUpcomingEpisodeToast(this)" title="${escapeHtml(tip)}"><span class="ep-card-num">📅 ${epDisplay}</span><span class="ep-card-sub">${escapeHtml(cd)} • ${escapeHtml(shortDate)}</span></button>`;
         });
       }
 
@@ -5511,7 +5754,7 @@
 
     function setEpisodeRange(rangeIdx) {
       activeEpisodeRange = rangeIdx;
-      renderEpisodeGrid(currentAnime.episodes);
+      renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
     }
 
     function setEpisode(ep) {
@@ -5522,13 +5765,13 @@
       }
       updatePlayerUrl();
       markEpisodeWatched(currentAnime.id, ep, true, currentSeason);
-      renderEpisodeGrid(currentAnime.episodes || Math.max(12, ep));
+      renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, ep));
       saveWatchHistory(currentAnime, ep, activeServer);
     }
 
     function changeEpisode(delta) {
       const target = currentEpisode + delta;
-      const maxEp = currentAnime.episodes || Math.max(999, target);
+      const maxEp = getEffectiveEpisodeCount(currentAnime, target);
       if (target >= 1 && target <= maxEp) {
         setEpisode(target);
         return;
@@ -5654,17 +5897,21 @@
         if (skipOutroBtn) skipOutroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
         const epMeta = currentAnime.seasonsMap?.[currentSeason]?.find(e => Number(e.ep) === Number(currentEpisode));
         const epNameSuffix = epMeta?.title ? ` • ${epMeta.title}` : '';
+        const sLabel = currentSeason === 0 ? 'Specials' : `S${currentSeason}`;
         const titleText = currentAnime.type === 'movie'
           ? `${currentAnime.title} (${currentAnime.year || 'Movie'})`
-          : `${currentAnime.title} • S${currentSeason}:Ep ${currentEpisode}${epNameSuffix}`;
+          : `${currentAnime.title} • ${sLabel}:Ep ${currentEpisode}${epNameSuffix}`;
         document.getElementById('playerTitle').innerText = titleText;
         document.getElementById('currentEpLabel').innerText = currentAnime.type === 'movie'
           ? 'Movie'
-          : `S${currentSeason} • Ep ${currentEpisode}`;
+          : `${sLabel} • Ep ${currentEpisode}`;
         const seasonNums = currentAnime.seasonNumbers || [];
         const sIdx = seasonNums.indexOf(Number(currentSeason));
+        const hasSeasonEps = Array.isArray(currentAnime.seasonsMap?.[Number(currentSeason)]) && currentAnime.seasonsMap[Number(currentSeason)].length > 0;
+        const seasonEpCap = hasSeasonEps ? getSeasonEpisodeCount(currentAnime, currentSeason) : Number(currentAnime.episodes);
+        const atLastSeason = sIdx < 0 || sIdx >= seasonNums.length - 1;
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1 && sIdx <= 0;
-        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes && (sIdx < 0 || sIdx >= seasonNums.length - 1);
+        document.getElementById('nextEpBtn').disabled = currentAnime.type === 'movie' || (Number.isFinite(seasonEpCap) && seasonEpCap > 0 && currentEpisode >= seasonEpCap && atLastSeason);
       } else {
         if (badge) badge.innerText = '⚡ 100% Ad-Free Anime Core';
         if (toggle) toggle.style.display = 'flex';
@@ -5674,8 +5921,9 @@
         const epLabel = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
         document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${epLabel} [${trackLabel}]`;
         document.getElementById('currentEpLabel').innerText = epLabel;
+        const knownMaxEp = Number(currentAnime.episodes);
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
-        document.getElementById('nextEpBtn').disabled = currentAnime.episodes && currentEpisode >= currentAnime.episodes;
+        document.getElementById('nextEpBtn').disabled = currentAnime.type === 'movie' || (Number.isFinite(knownMaxEp) && knownMaxEp > 0 && currentEpisode >= knownMaxEp);
       }
     }
 
@@ -5761,8 +6009,20 @@
       document.getElementById('theaterSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function isDirectVideoActive() {
+      const directVideo = document.getElementById('directVideoPlayer');
+      return !!(directVideo && directVideo.style.display !== 'none' && directVideo.currentSrc);
+    }
+
     function skipIntro() {
-      showAppToast('⏭ Skip Intro (+85s): use player timeline controls to jump ahead cleanly.');
+      const directVideo = document.getElementById('directVideoPlayer');
+      if (directVideo && isDirectVideoActive() && Number.isFinite(directVideo.duration) && directVideo.duration > 0) {
+        const target = Math.min(Math.max(0, directVideo.duration - 1), (directVideo.currentTime || 0) + 85);
+        directVideo.currentTime = target;
+        showAppToast(`⏭ Skipped +85s (${Math.floor(target)}s)`);
+        return;
+      }
+      showAppToast('⏭ Direct MP4/Debrid streams support +85s skip — third-party embeds use in-player Skip controls');
     }
 
     function skipOutro() {
@@ -6171,7 +6431,9 @@
       const yearRaw = m.year || (m.releaseInfo ? String(m.releaseInfo).slice(0, 4) : '');
       const poster = m.poster || (imdbId ? `https://images.metahub.space/poster/small/${imdbId}/img` : '');
       const genres = Array.isArray(m.genres) ? m.genres : (Array.isArray(m.genre) ? m.genre : []);
-      const trailerId = Array.isArray(m.trailers) ? (m.trailers.find(t => t?.source)?.source || null) : null;
+      const trailerId = Array.isArray(m.trailers)
+        ? (sanitizeYoutubeId(m.trailers.find(t => sanitizeYoutubeId(t?.source))?.source) || null)
+        : null;
 
       const firstUpcoming = parsedSeasons?.upcomingEpisodes?.[0] || null;
       const nextAiring = firstUpcoming
@@ -6339,9 +6601,9 @@
       const fav = isFavorited(item.id);
       const safeTitle = escapeHtml(item.title);
       if (item.type === 'series') {
-        const sNum = item.latestSeason || 1;
+        const sNum = resolveSeasonNumber(item.latestSeason, 1);
         const epNum = item.latestEp || 1;
-        const epLabel = `S${sNum} • EP ${epNum}`;
+        const epLabel = sNum === 0 ? `Specials • EP ${epNum}` : `S${sNum} • EP ${epNum}`;
         const agoText = formatAiringAgo(item.airingAt);
         const subTitle = item.latestEpTitle ? `${epLabel}: ${item.latestEpTitle}` : safeTitle;
         return `
@@ -6684,12 +6946,8 @@
     }
 
     function getStoredAddons() {
-      try {
-        const raw = localStorage.getItem('cineanime_stremio_addons');
-        return raw ? JSON.parse(raw) : DEFAULT_ADDONS;
-      } catch (e) {
-        return DEFAULT_ADDONS;
-      }
+      const parsed = readStorageJson('cineanime_stremio_addons', null);
+      return Array.isArray(parsed) ? parsed : DEFAULT_ADDONS;
     }
 
     function saveStoredAddons(addons) {
@@ -6771,19 +7029,31 @@
       return { manifestUrl, manifest, cleanProvider };
     }
 
-    function ensureDefaultCauldronAddon() {
+    let _cauldronBootFailedAt = 0;
+    let _cauldronBootError = '';
+
+    function ensureDefaultCauldronAddon(forceRetry = false) {
       const initFlag = localStorage.getItem('cineanime_cauldron_initialized');
       const hasCauldron = getStoredAddons().some(a => a?.manifest?.id === 'community.cauldron');
       if (hasCauldron || initFlag === 'removed') return Promise.resolve(false);
       if (initFlag === '1' && !hasCauldron) return Promise.resolve(false);
+      if (!forceRetry && _cauldronBootFailedAt && (Date.now() - _cauldronBootFailedAt) < 120000) {
+        return Promise.resolve(false);
+      }
       if (_cauldronBootPromise) return _cauldronBootPromise;
 
       _cauldronBootPromise = provisionCauldronAddon({
         instanceUrl: CAULDRON_DEFAULT_ORIGIN,
         provider: 'p2p',
         apiKey: ''
-      }).then(() => true).catch(err => {
-        console.warn('Cauldron default P2P bootstrap skipped:', err.message);
+      }).then(() => {
+        _cauldronBootFailedAt = 0;
+        _cauldronBootError = '';
+        return true;
+      }).catch(err => {
+        _cauldronBootFailedAt = Date.now();
+        _cauldronBootError = err?.message || 'Bootstrap unavailable';
+        console.warn('Cauldron default P2P bootstrap skipped:', _cauldronBootError);
         return false;
       }).finally(() => {
         _cauldronBootPromise = null;
@@ -6847,20 +7117,27 @@
 
     function openAddonModal() {
       const modal = document.getElementById('addonModal');
+      if (!modal) return;
+      closeAllModalsExcept('addonModal');
       renderAddonsList();
       onCauldronProviderChange();
       captureModalOpener(modal, '.addon-modal-close, select, input, button');
       modal.style.display = 'flex';
       ensureDefaultCauldronAddon().then(added => {
+        const statusEl = document.getElementById('cauldronFormStatus');
+        if (!statusEl) return;
         if (added) {
-          const statusEl = document.getElementById('cauldronFormStatus');
-          if (statusEl) statusEl.textContent = '✅ Free P2P Cauldron addon ready (zero Debrid key needed).';
+          statusEl.textContent = '✅ Free P2P Cauldron addon ready (zero Debrid key needed).';
+        } else if (_cauldronBootError && !getStoredAddons().some(a => a?.manifest?.id === 'community.cauldron')) {
+          statusEl.textContent = `⚠ Auto-setup unavailable (${_cauldronBootError}) — click Install / Update Cauldron to retry.`;
         }
       });
     }
 
     function closeAddonModal() {
-      document.getElementById('addonModal').style.display = 'none';
+      const modal = document.getElementById('addonModal');
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
       restoreModalFocus();
     }
 
@@ -7027,13 +7304,15 @@
         }
       }
 
+      if (statusEl && currentAddonStreams.length) {
+        statusEl.textContent = filtered.length === currentAddonStreams.length
+          ? `${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'} available`
+          : `${filtered.length} of ${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'}`;
+      }
+
       if (!filtered.length) {
         grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; padding:0.4rem 0;">${currentAddonStreams.length ? 'No streams match this quality filter.' : 'No streams returned from installed Stremio addons yet.'}</div>`;
         return;
-      }
-
-      if (statusEl && currentAddonStreams.length) {
-        statusEl.textContent = `${filtered.length} of ${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'}`;
       }
 
       grid.innerHTML = filtered.slice(0, 36).map(s => {
@@ -7100,7 +7379,7 @@
         return;
       }
 
-      const stremioId = mediaType === 'movie' ? imdbId : `${imdbId}:${season || 1}:${ep || 1}`;
+      const stremioId = mediaType === 'movie' ? imdbId : `${imdbId}:${resolveSeasonNumber(season, 1)}:${Math.max(1, Number(ep) || 1)}`;
       const cacheKey = `${mediaType}:${stremioId}`;
       if (cacheKey === lastAddonStreamQueryKey && currentAddonStreams.length) {
         renderAddonStreamsList();
@@ -7147,18 +7426,27 @@
 
       if (reqToken !== addonStreamReqToken) return;
       const merged = [];
+      let rejectedCount = 0;
       results.forEach(r => {
         if (r.status === 'fulfilled' && Array.isArray(r.value)) merged.push(...r.value);
+        else rejectedCount += 1;
       });
       merged.forEach((s, idx) => { s._idx = idx; });
 
       currentAddonStreams = merged;
-      lastAddonStreamQueryKey = cacheKey;
-      addonStreamsCache.set(cacheKey, merged);
+      const allFailed = results.length > 0 && rejectedCount === results.length && !merged.length;
+      if (!allFailed) {
+        lastAddonStreamQueryKey = cacheKey;
+        addonStreamsCache.set(cacheKey, merged);
+      } else {
+        lastAddonStreamQueryKey = '';
+      }
       if (statusEl) {
         statusEl.textContent = merged.length
           ? `${merged.length} stream${merged.length === 1 ? '' : 's'} resolved (${streamAddons.map(a => a.manifest?.name).join(', ')})`
-          : `No streams found on ${stremioId} — use Server 1–4 above.`;
+          : (allFailed
+              ? `⚠ Stremio addon lookup failed for ${stremioId} — use Server 1–4 above.`
+              : `No streams found on ${stremioId} — use Server 1–4 above.`);
       }
       renderAddonStreamsList();
     }
@@ -7281,20 +7569,23 @@
           const rightMeta = (nextInfo && nextInfo.state === 'scheduled')
             ? `<span style="color: #fbbf24; font-weight: 700;" title="${escapeHtml(nextInfo.bannerText)}">⏰ Next ${escapeHtml(nextInfo.countdownLabel)}</span>`
             : `<span style="color: #3b82f6; font-weight: 700;">Simulcast</span>`;
+          const safeId = escapeHtml(String(item.id || '').replace(/[^a-zA-Z0-9_.:-]/g, ''));
+          const safeTitle = escapeHtml(item.title || '');
+          const safePoster = escapeHtml(item.poster || '');
           return `
-            <div class="anime-card" tabindex="0" role="button" aria-label="${item.title.replace(/"/g, '&quot;')}" onclick="selectAnimeById('${item.id}', true, ${epNum})">
+            <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${safeId}', true, ${epNum})">
               <div class="card-poster-wrapper">
-                <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${safeId}" onclick="toggleFavorite(event, '${safeId}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   ${fav ? '❤️' : '🤍'}
                 </button>
-                <img class="card-poster" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
-                <div class="release-ep-badge">${epText}</div>
-                <div class="release-time-tag">⚡ ${agoText}</div>
+                <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                <div class="release-ep-badge">${escapeHtml(epText)}</div>
+                <div class="release-time-tag">⚡ ${escapeHtml(agoText)}</div>
               </div>
               <div class="card-info">
-                <div class="card-title" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
+                <div class="card-title" title="${safeTitle}">${safeTitle}</div>
                 <div class="card-meta">
-                  <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
+                  <span style="color: #10b981; font-weight: 700;">★ ${escapeHtml(item.rating)}</span>
                   ${rightMeta}
                 </div>
               </div>
@@ -7322,20 +7613,23 @@
           grid.innerHTML = latestReleasesList.map(item => {
             const fav = isFavorited(item.id);
             const epText = item.episodes ? `EP ${item.episodes}` : 'NEW';
+            const safeId = escapeHtml(String(item.id || '').replace(/[^a-zA-Z0-9_.:-]/g, ''));
+            const safeTitle = escapeHtml(item.title || '');
+            const safePoster = escapeHtml(item.poster || '');
             return `
-              <div class="anime-card" tabindex="0" role="button" aria-label="${item.title.replace(/"/g, '&quot;')}" onclick="selectAnimeById('${item.id}', true, 1)">
+              <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${safeId}', true, 1)">
                 <div class="card-poster-wrapper">
-                  <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                  <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${safeId}" onclick="toggleFavorite(event, '${safeId}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     ${fav ? '❤️' : '🤍'}
                   </button>
-                  <img class="card-poster" src="${item.poster}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
-                  <div class="release-ep-badge">${epText}</div>
-                  <div class="release-time-tag">⚡ ${item.year || '2026'} Airing</div>
+                  <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                  <div class="release-ep-badge">${escapeHtml(epText)}</div>
+                  <div class="release-time-tag">⚡ ${escapeHtml(item.year || '2026')} Airing</div>
                 </div>
                 <div class="card-info">
-                  <div class="card-title" title="${item.title.replace(/"/g, '&quot;')}">${item.title}</div>
+                  <div class="card-title" title="${safeTitle}">${safeTitle}</div>
                   <div class="card-meta">
-                    <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
+                    <span style="color: #10b981; font-weight: 700;">★ ${escapeHtml(item.rating)}</span>
                     <span style="color: #3b82f6; font-weight: 700;">Simulcast</span>
                   </div>
                 </div>
@@ -7379,7 +7673,7 @@
           buildHeroCarousel();
           renderYearFilterOptions('movie');
           renderYearFilterOptions('series');
-          renderEpisodeGrid(currentHeroAnime.episodes);
+          renderEpisodeGrid(getEffectiveEpisodeCount(currentHeroAnime, 1));
         }
 
         if (seasonalJson && seasonalJson.data && seasonalJson.data.length) {
@@ -7409,17 +7703,9 @@
       document.getElementById('legendaryGrid').innerHTML = LEGENDARY_CATALOG.map(renderCard).join('');
     }
 
-    // Keyboard Shortcuts for TV / Remote
+    // Keyboard Shortcuts for TV / Remote (Escape handled uniformly by __cineHandleTvBack)
     window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-      if (e.key === 'Escape') {
-        if (document.body.classList.contains('cinema-fs-open')) exitCinemaFullscreen();
-        closeTrailerModal();
-        ['syncModal', 'authModal', 'profileModal', 'addonModal'].forEach(mid => {
-          const el = document.getElementById(mid);
-          if (el && el.style.display === 'flex') el.style.display = 'none';
-        });
-      }
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.isContentEditable) return;
       if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
       if (e.key === 'ArrowLeft' && e.shiftKey) changeEpisode(-1);
       if ((e.key === 's' || e.key === 'S') && document.getElementById('theaterSection')?.classList.contains('active')) skipIntro();
@@ -7432,11 +7718,7 @@
     let sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '' };
 
     function getPlaybackPrefs() {
-      try {
-        return JSON.parse(localStorage.getItem('cineanime_prefs') || '{}');
-      } catch (_) {
-        return {};
-      }
+      return readStorageJson('cineanime_prefs', {});
     }
 
     function savePlaybackPrefs(fromRemote = null) {
@@ -7475,7 +7757,7 @@
       if (isVaultUnlocked() && sessionData.watchedEpisodes) {
         return sessionData.watchedEpisodes;
       }
-      return JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}');
+      return readStorageJson('cineanime_watched_eps', {});
     }
 
     function isEpisodeWatched(animeId, ep, season = currentSeason) {
@@ -7506,7 +7788,7 @@
         localStorage.setItem('cineanime_watched_eps', JSON.stringify(map));
       }
       if (currentAnime && String(currentAnime.id) === strId && Number(season) === Number(currentSeason)) {
-        renderEpisodeGrid(currentAnime.episodes || 12);
+        renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
         updateWatchedBtn();
       }
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
@@ -7518,7 +7800,7 @@
     }
 
     function markAllEpisodesWatched() {
-      const count = currentAnime.episodes || 12;
+      const count = getEffectiveEpisodeCount(currentAnime, currentEpisode);
       const key = getWatchedKey(currentAnime.id, currentSeason);
       let map = { ...getWatchedEpisodesMap() };
       let list = [];
@@ -7554,7 +7836,11 @@
     function saveDebridKey() {
       const input = document.getElementById('debridApiKeyInput');
       const val = input ? input.value.trim() : '';
-      if (!val) return alert('Please enter a valid Debrid API key.');
+      if (!val) {
+        showAppToast('Please enter a valid Debrid API key.');
+        if (input) input.focus();
+        return;
+      }
 
       if (isVaultUnlocked()) {
         sessionData.debridKey = val;
@@ -7565,7 +7851,9 @@
       const label = document.getElementById('debridStatusLabel');
       if (label) label.style.display = 'block';
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
-      alert('✅ 4K Debrid API key saved securely into your encrypted vault!');
+      showAppToast(isVaultUnlocked()
+        ? '✅ 4K Debrid API key saved into your encrypted vault!'
+        : '✅ 4K Debrid API key saved locally!');
     }
 
     // Crypto Helpers (PBKDF2 + AES-256-GCM + UTF-8 Safe Base64Url)
@@ -7675,15 +7963,23 @@
     }
 
     async function decryptVault(encObj, key) {
+      if (!encObj || typeof encObj.iv !== 'string' || typeof encObj.ciphertext !== 'string') {
+        throw new Error('Malformed encrypted vault payload.');
+      }
+      const ivMatch = encObj.iv.match(/.{2}/g);
+      const ctMatch = encObj.ciphertext.match(/.{2}/g);
+      if (!ivMatch || ivMatch.length < 12 || !ctMatch || !ctMatch.length) {
+        throw new Error('Corrupt encrypted vault data.');
+      }
       const dec = new TextDecoder();
-      const iv = new Uint8Array(encObj.iv.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-      const ciphertext = new Uint8Array(encObj.ciphertext.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const iv = new Uint8Array(ivMatch.map(byte => parseInt(byte, 16)));
+      const ciphertext = new Uint8Array(ctMatch.map(byte => parseInt(byte, 16)));
       const decrypted = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv },
         key,
         ciphertext
       );
-      return JSON.parse(dec.decode(decrypted));
+      return safeJsonParse(dec.decode(decrypted), {});
     }
 
     async function saveTabVaultKey(u, key) {
@@ -7697,10 +7993,11 @@
       if (!currentSessionUser) return;
       try {
         const rawJwk = sessionStorage.getItem('cineanime_tab_jwk_' + currentSessionUser);
-        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+        const accounts = readStorageJson('cineanime_accounts', {});
         const account = accounts[currentSessionUser];
-        if (!rawJwk || !account) return;
-        const key = await crypto.subtle.importKey('jwk', JSON.parse(rawJwk), { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
+        const jwk = safeJsonParse(rawJwk, null);
+        if (!jwk || !account) return;
+        const key = await crypto.subtle.importKey('jwk', jwk, { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
         const decrypted = await decryptVault(account.encryptedData, key);
         sessionVaultKey = key;
         sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '', ...(decrypted || {}) };
@@ -7718,8 +8015,18 @@
       }
     }
 
+    function clearSensitiveAuthInputs() {
+      ['loginPassword', 'regPassword', 'syncImportPassword'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    }
+
     function openAuthModal() {
       const modal = document.getElementById('authModal');
+      if (!modal) return;
+      closeAllModalsExcept('authModal');
+      clearSensitiveAuthInputs();
       captureModalOpener(modal, '#loginUsername, input, .addon-modal-close');
       modal.style.display = 'flex';
       switchAuthTab('signin');
@@ -7730,11 +8037,19 @@
     }
 
     function closeAuthModal() {
-      document.getElementById('authModal').style.display = 'none';
+      const modal = document.getElementById('authModal');
+      clearSensitiveAuthInputs();
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
       restoreModalFocus();
     }
 
     function openProfileModal() {
+      if (!currentSessionUser || !isVaultUnlocked()) return openAuthModal();
+      const modal = document.getElementById('profileModal');
+      if (!modal) return;
+      closeAllModalsExcept('profileModal');
+      clearSensitiveAuthInputs();
       document.getElementById('profileUsername').innerText = currentSessionUser;
       document.getElementById('profileWatchCount').innerText = getWatchHistory().length;
       document.getElementById('profileFavCount').innerText = getWatchlist().length;
@@ -7742,13 +8057,15 @@
       document.getElementById('syncImportBox').style.display = 'none';
       const debridLabel = document.getElementById('debridStatusLabel');
       if (debridLabel) debridLabel.style.display = getDebridKeyValue() ? 'block' : 'none';
-      const modal = document.getElementById('profileModal');
       captureModalOpener(modal, '.addon-modal-close, button');
       modal.style.display = 'flex';
     }
 
     function closeProfileModal() {
-      document.getElementById('profileModal').style.display = 'none';
+      const modal = document.getElementById('profileModal');
+      clearSensitiveAuthInputs();
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
       restoreModalFocus();
     }
 
@@ -7764,11 +8081,11 @@
       const u = document.getElementById('regUsername').value.trim().toLowerCase();
       const p = document.getElementById('regPassword').value;
 
-      if (!u || u.length < 3) return alert('Username must be at least 3 characters.');
-      if (!p || p.length < 6) return alert('Password must be at least 6 characters.');
+      if (!u || u.length < 3) return showAppToast('Username must be at least 3 characters.');
+      if (!p || p.length < 6) return showAppToast('Password must be at least 6 characters.');
 
-      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
-      if (accounts[u]) return alert('An account with this username already exists on this device.');
+      const accounts = readStorageJson('cineanime_accounts', {});
+      if (accounts[u]) return showAppToast('An account with this username already exists on this device.');
 
       try {
         const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
@@ -7776,11 +8093,15 @@
         const authHash = await hashPassword(p, salt);
         const vaultKey = await deriveVaultKey(p, salt);
 
+        const guestHistory = readStorageJson('cineanime_history', []);
+        const guestWatchlist = readStorageJson('cineanime_watchlist', []);
+        const guestMeta = readStorageJson('cineanime_watchlist_meta', {});
+        const guestWatched = readStorageJson('cineanime_watched_eps', {});
         const initialData = {
-          history: JSON.parse(localStorage.getItem('cineanime_history') || '[]'),
-          watchlist: JSON.parse(localStorage.getItem('cineanime_watchlist') || '[]'),
-          watchlistMeta: JSON.parse(localStorage.getItem('cineanime_watchlist_meta') || '{}'),
-          watchedEpisodes: JSON.parse(localStorage.getItem('cineanime_watched_eps') || '{}'),
+          history: Array.isArray(guestHistory) ? guestHistory : [],
+          watchlist: Array.isArray(guestWatchlist) ? guestWatchlist : [],
+          watchlistMeta: (guestMeta && typeof guestMeta === 'object') ? guestMeta : {},
+          watchedEpisodes: (guestWatched && typeof guestWatched === 'object') ? guestWatched : {},
           debridKey: localStorage.getItem('cineanime_debrid_key') || ''
         };
 
@@ -7803,9 +8124,9 @@
 
         closeAuthModal();
         refreshAllUiAfterSync();
-        alert(`🎉 Account vault created successfully for @${u}!\nYour watch history is now encrypted with AES-256.`);
+        showAppToast(`🎉 Encrypted AES-256 vault created for @${u}!`);
       } catch (err) {
-        alert('Registration error: ' + err.message);
+        showAppToast('Registration error: ' + err.message);
       }
     }
 
@@ -7813,16 +8134,16 @@
       const u = document.getElementById('loginUsername').value.trim().toLowerCase();
       const p = document.getElementById('loginPassword').value;
 
-      if (!u || !p) return alert('Please enter both username and password.');
+      if (!u || !p) return showAppToast('Please enter both username and password.');
 
-      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+      const accounts = readStorageJson('cineanime_accounts', {});
       const account = accounts[u];
-      if (!account) return alert('Account not found on this device. To load an account from another PC, use "🔗 Sync -> Live Auto-Sync" or "Quick Transfer".');
+      if (!account) return showAppToast('Account not found on this device — use 🔗 Sync to transfer.');
 
       try {
         const inputHash = await hashPassword(p, account.salt);
         if (inputHash !== account.authHash) {
-          return alert('Incorrect password. Zero-knowledge vaults cannot be decrypted without the exact password.');
+          return showAppToast('Incorrect password — vault could not be decrypted.');
         }
 
         const vaultKey = await deriveVaultKey(p, account.salt);
@@ -7831,35 +8152,58 @@
         currentSessionUser = u;
         sessionVaultKey = vaultKey;
         sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '', ...(decrypted || {}) };
+
+        // Merge any guest watch activity recorded while signed out
+        const guestHist = readStorageJson('cineanime_history', []);
+        const guestList = readStorageJson('cineanime_watchlist', []);
+        const guestMeta = readStorageJson('cineanime_watchlist_meta', {});
+        const guestWatched = readStorageJson('cineanime_watched_eps', {});
+        const guestDebrid = localStorage.getItem('cineanime_debrid_key') || '';
+        const hasGuestData = (Array.isArray(guestHist) && guestHist.length) ||
+          (Array.isArray(guestList) && guestList.length) ||
+          (guestWatched && Object.keys(guestWatched).length) ||
+          guestDebrid;
+        if (hasGuestData && typeof mergeSyncSnapshot === 'function') {
+          mergeSyncSnapshot({
+            history: Array.isArray(guestHist) ? guestHist : [],
+            watchlist: Array.isArray(guestList) ? guestList : [],
+            watchlistMeta: (guestMeta && typeof guestMeta === 'object') ? guestMeta : {},
+            watchedEpisodes: (guestWatched && typeof guestWatched === 'object') ? guestWatched : {},
+            debridKey: guestDebrid
+          }, { skipCloud: true, skipUi: true });
+        }
+
         localStorage.setItem('cineanime_active_user', u);
         await saveTabVaultKey(u, vaultKey);
 
         closeAuthModal();
         refreshAllUiAfterSync();
-        alert(`🔓 Welcome back, @${u}! Your encrypted vault is unlocked.`);
+        showAppToast(`🔓 Welcome back, @${u}! Encrypted vault unlocked.`);
       } catch (err) {
-        alert('Decryption error: ' + err.message);
+        showAppToast('Decryption error: ' + err.message);
       }
     }
 
-    function logoutUser() {
-      if (confirm('Sign out of your encrypted account vault? Your history will be locked.')) {
-        if (currentSessionUser) sessionStorage.removeItem('cineanime_tab_jwk_' + currentSessionUser);
-        currentSessionUser = null;
-        sessionVaultKey = null;
-        sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '' };
-        localStorage.removeItem('cineanime_active_user');
-        closeProfileModal();
-        refreshAllUiAfterSync();
-      }
+    async function logoutUser() {
+      const ok = await showConfirmDialog('Sign out of your encrypted account vault? Your encrypted watch history will stay locked on this device.', 'Sign Out');
+      if (!ok) return;
+      if (currentSessionUser) sessionStorage.removeItem('cineanime_tab_jwk_' + currentSessionUser);
+      currentSessionUser = null;
+      sessionVaultKey = null;
+      sessionData = { history: [], watchlist: [], watchlistMeta: {}, watchedEpisodes: {}, debridKey: '' };
+      localStorage.removeItem('cineanime_active_user');
+      clearSensitiveAuthInputs();
+      closeProfileModal();
+      refreshAllUiAfterSync();
+      showAppToast('🔒 Signed out of encrypted vault.');
     }
 
     async function generateSyncExport() {
       if (!isVaultUnlocked()) {
-        return alert('Please sign in to export a password-encrypted vault key, or use "🔗 Sync" in the top bar for instant guest/cloud transfer.');
+        return showAppToast('Sign in to export an encrypted vault key, or use 🔗 Sync for guest transfer.');
       }
       try {
-        const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+        const accounts = readStorageJson('cineanime_accounts', {});
         const salt = accounts[currentSessionUser]?.salt;
         const payload = {
           version: '2.0',
@@ -7875,7 +8219,7 @@
         box.style.display = 'block';
         document.getElementById('syncImportBox').style.display = 'none';
       } catch (e) {
-        alert('Sync generation failed: ' + e.message);
+        showAppToast('Sync generation failed: ' + e.message);
       }
     }
 
@@ -7892,23 +8236,29 @@
     async function processSyncImport() {
       const token = document.getElementById('syncImportText').value.trim();
       const p = document.getElementById('syncImportPassword').value;
-      if (!token) return alert('Please paste an encrypted sync key.');
+      if (!token) return showAppToast('Please paste an encrypted sync key.');
       try {
         const snap = await decodeTransferToken(token, p);
         const counts = mergeSyncSnapshot(snap, { manualImport: true });
+        clearSensitiveAuthInputs();
         closeProfileModal();
-        alert(`✅ Cross-device sync complete!\nMerged ${counts.historyCount} watched, ${counts.watchlistCount} saved, and ${counts.watchedShowsCount} progress checkmarks.`);
+        showAppToast(`✅ Synced ${counts.historyCount} watched, ${counts.watchlistCount} saved & ${counts.watchedShowsCount} progress lists!`);
       } catch (err) {
-        alert('Sync import failed: ' + err.message);
+        showAppToast('Sync import failed: ' + err.message);
       }
     }
 
-    // --- Pure-JS Scannable QR Code SVG Generator (Byte mode, ECC Level M, v1..v22) ---
+    // --- Pure-JS Scannable QR Code SVG Generator (Byte mode: Level M v1..v22 + Level L v23..v40) ---
     const QR_ALIGN_TABLE = [
       null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
       [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50], [6, 30, 54], [6, 32, 58], [6, 34, 62],
       [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74], [6, 30, 54, 78], [6, 30, 56, 82],
-      [6, 30, 58, 86], [6, 34, 62, 90], [6, 28, 50, 72, 94], [6, 26, 50, 74, 98]
+      [6, 30, 58, 86], [6, 34, 62, 90], [6, 28, 50, 72, 94], [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102], [6, 28, 54, 80, 106], [6, 32, 58, 84, 110], [6, 30, 58, 86, 114], [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122], [6, 30, 54, 78, 102, 126], [6, 26, 52, 78, 104, 130], [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138], [6, 30, 58, 86, 114, 142], [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150], [6, 24, 50, 76, 102, 128, 154], [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162], [6, 26, 54, 82, 110, 138, 166], [6, 30, 58, 86, 114, 142, 170]
     ];
     const QR_SPEC_M_TABLE = [
       null,
@@ -7919,17 +8269,34 @@
       [28, 10, 46, 1, 47], [26, 9, 43, 4, 44], [26, 3, 44, 11, 45], [26, 3, 41, 13, 42],
       [26, 17, 42, 0, 0], [28, 17, 46, 0, 0]
     ];
+    const QR_SPEC_L_23_40 = [
+      [30, 4, 121, 5, 122], [30, 6, 117, 4, 118], [26, 8, 106, 4, 107], [28, 10, 114, 2, 115],
+      [30, 8, 122, 4, 123], [30, 3, 117, 10, 118], [30, 7, 116, 7, 117], [30, 5, 115, 10, 116],
+      [30, 13, 115, 3, 116], [30, 17, 115, 0, 0], [30, 17, 115, 1, 116], [30, 13, 115, 6, 116],
+      [30, 12, 121, 7, 122], [30, 6, 121, 14, 122], [30, 17, 122, 4, 123], [30, 4, 122, 18, 123],
+      [30, 20, 117, 4, 118], [30, 19, 118, 6, 119]
+    ];
 
     function renderQrSvg(text, px = 216) {
       const bytes = new TextEncoder().encode(text);
-      let ver = 0;
+      let ver = 0, spec = null, ecFmtBits = 0;
       for (let v = 1; v <= 22; v++) {
-        const [, g1c, g1d, g2c, g2d] = QR_SPEC_M_TABLE[v];
-        if (bytes.length <= (g1c * g1d + g2c * g2d) - (v >= 10 ? 3 : 2)) { ver = v; break; }
+        const row = QR_SPEC_M_TABLE[v];
+        if (bytes.length <= (row[1] * row[2] + row[3] * row[4]) - (v >= 10 ? 3 : 2)) {
+          ver = v; spec = row; ecFmtBits = 0; break;
+        }
       }
-      if (!ver) return null;
+      if (!ver) {
+        for (let v = 23; v <= 40; v++) {
+          const row = QR_SPEC_L_23_40[v - 23];
+          if (bytes.length <= (row[1] * row[2] + row[3] * row[4]) - 3) {
+            ver = v; spec = row; ecFmtBits = 8; break;
+          }
+        }
+      }
+      if (!ver || !spec) return null;
 
-      const [ecLen, g1c, g1d, g2c, g2d] = QR_SPEC_M_TABLE[ver];
+      const [ecLen, g1c, g1d, g2c, g2d] = spec;
       const totalData = g1c * g1d + g2c * g2d;
       const bits = [];
       const pushBits = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
@@ -8030,7 +8397,7 @@
         }
       };
       const drawFormat = (mask) => {
-        const dataFmt = mask;
+        const dataFmt = ecFmtBits | mask;
         let rem = dataFmt;
         for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) * 0x537);
         const fmt = ((dataFmt << 10) | rem) ^ 0x5412;
@@ -8069,20 +8436,32 @@
     // --- Cross-Device Snapshot, Smart LWW Merge & Live Cloud Sync Engine ---
     function copyTextWithAlert(text, msg) {
       if (!text) return;
+      const fallbackCopy = () => {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand && document.execCommand('copy');
+          document.body.removeChild(ta);
+          showAppToast(ok ? msg : 'Clipboard blocked — copy manually from the field above.');
+        } catch (_) {
+          showAppToast('Clipboard blocked — copy manually from the field above.');
+        }
+      };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => prompt('Copy this value:', text));
+        navigator.clipboard.writeText(text).then(() => showAppToast(msg)).catch(fallbackCopy);
       } else {
-        prompt('Copy this value:', text);
+        fallbackCopy();
       }
     }
 
     function getSyncScopePrefs() {
       const def = { history: true, watched: true, watchlist: true, addons: true, prefs: true, debrid: false };
-      try {
-        return { ...def, ...JSON.parse(localStorage.getItem('cineanime_sync_scope') || '{}') };
-      } catch (_) {
-        return def;
-      }
+      const stored = readStorageJson('cineanime_sync_scope', {});
+      return (stored && typeof stored === 'object') ? { ...def, ...stored } : def;
     }
 
     function saveSyncScopeFromUi() {
@@ -8121,8 +8500,12 @@
       const scope = getSyncScopePrefs();
       const snap = { v: 2 };
       if (scope.history) {
-        snap.history = getWatchHistory().slice(0, 50);
-        snap.deletedHistory = pruneTombstones(JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}'));
+        snap.history = getWatchHistory().slice(0, 50).map(h => {
+          const compact = { ...h };
+          if (compact.backdrop && compact.backdrop === compact.poster) delete compact.backdrop;
+          return compact;
+        });
+        snap.deletedHistory = pruneTombstones(readStorageJson('cineanime_deleted_history', {}));
       }
       if (scope.watched) {
         snap.watchedEpisodes = getWatchedEpisodesMap();
@@ -8137,8 +8520,8 @@
           if (!histIds.has(sid) && rawMeta[sid]) compactMeta[sid] = rawMeta[sid];
         });
         snap.watchlistMeta = compactMeta;
-        snap.watchlistTs = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
-        snap.deletedWatchlist = pruneTombstones(JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}'));
+        snap.watchlistTs = readStorageJson('cineanime_watchlist_ts', {});
+        snap.deletedWatchlist = pruneTombstones(readStorageJson('cineanime_deleted_watchlist', {}));
       }
       if (scope.addons) {
         snap.stremioAddons = getStoredAddons().filter(a => a?.manifest?.id && a.manifest.id !== 'org.stremio.cinemeta');
@@ -8158,7 +8541,7 @@
       return JSON.stringify(snap);
     }
 
-    function mergeSyncSnapshot(remote, { manualImport = false } = {}) {
+    function mergeSyncSnapshot(remote, { manualImport = false, skipUi = false } = {}) {
       if (!remote || typeof remote !== 'object') throw new Error('Invalid sync snapshot.');
       const scope = getSyncScopePrefs();
       let historyCount = 0;
@@ -8167,7 +8550,7 @@
 
       // 1. Continue Watching & History (Last-Write-Wins per item + tombstones)
       if (scope.history && Array.isArray(remote.history)) {
-        const localDel = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+        const localDel = readStorageJson('cineanime_deleted_history', {});
         const mergedDel = pruneTombstones({ ...localDel });
         if (manualImport) {
           remote.history.forEach(item => { if (item?.id) delete mergedDel[String(item.id)]; });
@@ -8185,13 +8568,14 @@
             const id = String(item.id);
             const itemTs = Number(item.updatedAt) || 0;
             if (!manualImport && (mergedDel[id] || 0) > itemTs) return;
+            const normalized = { ...item, id, backdrop: item.backdrop || item.poster || '', updatedAt: itemTs };
             const prev = byId.get(id);
             if (!prev) {
-              byId.set(id, { ...item, id, updatedAt: itemTs });
+              byId.set(id, normalized);
             } else {
               const prevTs = Number(prev.updatedAt) || 0;
               const newer = itemTs > prevTs || (itemTs === prevTs && (Number(item.episode) || 0) > (Number(prev.episode) || 0));
-              if (newer) byId.set(id, { ...prev, ...item, id, updatedAt: itemTs });
+              if (newer) byId.set(id, { ...prev, ...normalized });
             }
           });
         };
@@ -8219,12 +8603,12 @@
 
       // 3. Watchlist & Card Metadata (Timestamp LWW + metadata hydration)
       if (scope.watchlist && Array.isArray(remote.watchlist)) {
-        const localTs = JSON.parse(localStorage.getItem('cineanime_watchlist_ts') || '{}');
+        const localTs = readStorageJson('cineanime_watchlist_ts', {});
         const mergedTs = { ...localTs };
         Object.entries(remote.watchlistTs || {}).forEach(([id, ts]) => {
           mergedTs[id] = Math.max(Number(mergedTs[id]) || 0, Number(ts) || 1);
         });
-        const localDelW = JSON.parse(localStorage.getItem('cineanime_deleted_watchlist') || '{}');
+        const localDelW = readStorageJson('cineanime_deleted_watchlist', {});
         const mergedDelW = pruneTombstones({ ...localDelW });
         if (manualImport) {
           remote.watchlist.forEach(id => { delete mergedDelW[String(id)]; });
@@ -8294,7 +8678,7 @@
 
       if (isVaultUnlocked()) persistUserData();
       hydrateWatchlistCache();
-      refreshAllUiAfterSync();
+      if (!skipUi) refreshAllUiAfterSync();
       return { historyCount, watchlistCount, watchedShowsCount };
     }
 
@@ -8304,7 +8688,7 @@
       renderWatchlist();
       renderAddonsList();
       if (currentAnime) {
-        renderEpisodeGrid(currentAnime.episodes || 12);
+        renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
         updateWatchedBtn();
       }
       updateBadges();
@@ -8314,7 +8698,10 @@
     function extractSyncTokenFromInput(raw) {
       const s = String(raw || '').trim();
       const idx = s.indexOf('#sync=');
-      if (idx !== -1) return decodeURIComponent(s.slice(idx + 6).split('&')[0]);
+      if (idx !== -1) {
+        const frag = s.slice(idx + 6).split('&')[0];
+        try { return decodeURIComponent(frag); } catch (_) { return frag; }
+      }
       return s;
     }
 
@@ -8392,7 +8779,7 @@
       // Legacy v1 fallback
       if (!password) throw new Error('Please enter the master password used to encrypt this sync key.');
       const parsed = JSON.parse(atob(token));
-      const accounts = JSON.parse(localStorage.getItem('cineanime_accounts') || '{}');
+      const accounts = readStorageJson('cineanime_accounts', {});
       const salt = parsed.salt || (accounts[parsed.u] ? accounts[parsed.u].salt : (parsed.u + '_cine_salt_2026'));
       const key = await deriveVaultKey(password, salt);
       const dec = await decryptVault(parsed.s, key);
@@ -8403,14 +8790,16 @@
     async function applyInstantTransferImport() {
       const raw = document.getElementById('transferImportInput')?.value || '';
       const pass = document.getElementById('transferImportPassword')?.value || '';
-      if (!raw.trim()) return alert('Please paste a Sync Key or Phone Transfer URL.');
+      if (!raw.trim()) return showAppToast('Please paste a Sync Key or Phone Transfer URL.');
       try {
         const snap = await decodeTransferToken(raw, pass);
         const counts = mergeSyncSnapshot(snap, { manualImport: true });
+        const passEl = document.getElementById('transferImportPassword');
+        if (passEl) passEl.value = '';
         closeSyncModal();
-        alert(`✅ Sync complete!\nContinue Watching: ${counts.historyCount} • Watchlist: ${counts.watchlistCount} • Tracked Series: ${counts.watchedShowsCount}`);
+        showAppToast(`✅ Synced! Watching: ${counts.historyCount} • Watchlist: ${counts.watchlistCount} • Tracked: ${counts.watchedShowsCount}`);
       } catch (err) {
-        alert('Transfer import failed: ' + err.message);
+        showAppToast('Transfer import failed: ' + err.message);
       }
     }
 
@@ -8429,12 +8818,8 @@
     };
 
     function getCloudConfig() {
-      try {
-        const cfg = JSON.parse(localStorage.getItem('cineanime_cloud_link') || 'null');
-        return cfg && cfg.provider && cfg.code ? cfg : null;
-      } catch (_) {
-        return null;
-      }
+      const cfg = readStorageJson('cineanime_cloud_link', null);
+      return cfg && cfg.provider && cfg.code ? cfg : null;
     }
 
     function saveCloudConfig(cfg) {
@@ -8595,7 +8980,7 @@
       } catch (err) {
         console.warn('Cloud sync warning:', err);
         setSyncDotState('connected', 'Sync warning: ' + err.message);
-        if (!silent) alert('Cloud sync error: ' + err.message);
+        if (!silent) showAppToast('Cloud sync error: ' + err.message);
         return false;
       } finally {
         cloudSyncInFlight = false;
@@ -8612,20 +8997,28 @@
 
     function manualCloudSyncNow() {
       syncCloudNow({ pushLocal: true, silent: false }).then(ok => {
-        if (ok) alert('✅ All linked devices are now up to date!');
+        if (ok) showAppToast('✅ All linked devices are now up to date!');
       });
     }
 
     async function connectCloudSync() {
-      const rawCode = document.getElementById('syncRoomCodeInput')?.value || '';
+      const codeInput = document.getElementById('syncRoomCodeInput');
+      const rawCode = codeInput?.value || '';
       const code = normalizeRoomCode(rawCode) || generateRandomRoomCode();
-      if (code.length < 8) return alert('Please enter a longer Sync Room Code (at least 8 characters) or click Random.');
+      if (code.length < 8) {
+        if (codeInput) codeInput.focus();
+        return showAppToast('Please enter a longer Sync Room Code (at least 8 characters) or click Random.');
+      }
 
       let cfg;
       if (selectedCloudProvider === 'gist') {
-        const token = document.getElementById('syncGistToken')?.value?.trim();
+        const tokenInput = document.getElementById('syncGistToken');
+        const token = tokenInput?.value?.trim();
         let gistId = document.getElementById('syncGistId')?.value?.trim();
-        if (!token) return alert('Please paste your GitHub Fine-Grained Token (with Gists: Read & Write permission).');
+        if (!token) {
+          if (tokenInput) tokenInput.focus();
+          return showAppToast('Please paste your GitHub Fine-Grained Token (Gists: Read & Write).');
+        }
 
         if (!gistId) {
           const initRes = await fetch('https://api.github.com/gists', {
@@ -8642,16 +9035,18 @@
             })
           });
           if (!initRes.ok) {
-            return alert(`Failed to create GitHub Gist (HTTP ${initRes.status}). Make sure your token has "Gists: Read and write" access.`);
+            return showAppToast(`Failed to create GitHub Gist (HTTP ${initRes.status}). Check Gists Read & Write permission.`);
           }
           const created = await initRes.json();
           gistId = created.id;
         }
         cfg = { provider: 'gist', token, gistId, code };
       } else {
-        const endpoint = (document.getElementById('syncEndpointUrl')?.value || '').trim().replace(/\/+$/, '');
+        const epInput = document.getElementById('syncEndpointUrl');
+        const endpoint = (epInput?.value || '').trim().replace(/\/+$/, '');
         if (!/^https?:\/\//i.test(endpoint)) {
-          return alert('Please paste a valid https:// URL for your Worker or Firebase database.');
+          if (epInput) epInput.focus();
+          return showAppToast('Please paste a valid https:// URL for your Worker or Firebase database.');
         }
         cfg = { provider: selectedCloudProvider, endpoint, code };
       }
@@ -8663,7 +9058,7 @@
         return;
       }
       renderCloudPairingCard();
-      alert('✅ Live Auto-Sync enabled! Now scan the QR code or copy the 1-Tap Pairing Link onto your Phone, AppMaka, or Google TV.');
+      showAppToast('✅ Live Auto-Sync enabled! Scan the QR code or copy the 1-Tap Pairing Link.');
     }
 
     function buildCloudPairUrl(cfg) {
@@ -8709,12 +9104,13 @@
       }
     }
 
-    function unlinkCloudDevice() {
-      if (confirm('Unlink this browser from Live Auto-Sync? Your local watch history stays untouched on this device.')) {
-        saveCloudConfig(null);
-        lastRemoteDigest = '';
-        renderCloudPairingCard();
-      }
+    async function unlinkCloudDevice() {
+      const ok = await showConfirmDialog('Unlink this browser from Live Auto-Sync? Your local watch history stays untouched on this device.', 'Unlink Device');
+      if (!ok) return;
+      saveCloudConfig(null);
+      lastRemoteDigest = '';
+      renderCloudPairingCard();
+      showAppToast('🔌 Device unlinked from Live Auto-Sync.');
     }
 
     function setSyncDotState(mode, subMsg) {
@@ -8752,6 +9148,10 @@
 
     function openSyncModal(defaultTab = 'cloud') {
       const modal = document.getElementById('syncModal');
+      if (!modal) return;
+      closeAllModalsExcept('syncModal');
+      const passEl = document.getElementById('transferImportPassword');
+      if (passEl) passEl.value = '';
       syncScopeCheckboxesUi();
       selectCloudProvider(selectedCloudProvider);
       updateSyncStatusUi();
@@ -8762,7 +9162,11 @@
     }
 
     function closeSyncModal() {
-      document.getElementById('syncModal').style.display = 'none';
+      const modal = document.getElementById('syncModal');
+      const passEl = document.getElementById('transferImportPassword');
+      if (passEl) passEl.value = '';
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
       restoreModalFocus();
     }
 
@@ -8781,7 +9185,7 @@
       document.getElementById('syncIncomingPairBanner').style.display = 'none';
       const ok = await syncCloudNow({ pushLocal: true, silent: false });
       renderCloudPairingCard();
-      if (ok) alert('🎉 Devices linked! Your Continue Watching, checkmarks, Watchlist, and addons are synced live.');
+      if (ok) showAppToast('🎉 Devices linked! Watch history, checkmarks, watchlist & addons are syncing live.');
     }
 
     function dismissIncomingPair() {
@@ -8794,7 +9198,10 @@
       const hash = location.hash || '';
       if (hash.startsWith('#pair=')) {
         try {
-          const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(hash.slice(6))));
+          const payload = JSON.parse(base64UrlToUtf8(decodeURIComponent(hash.slice(6).split('&')[0])));
+          if (!payload || !payload.p || !payload.k || (payload.p === 'gist' ? (!payload.id || !payload.t) : !payload.u)) {
+            throw new Error('Incomplete pairing payload');
+          }
           history.replaceState(null, '', location.pathname + location.search);
           pendingIncomingPairCfg = payload.p === 'gist'
             ? { provider: 'gist', gistId: payload.id, code: payload.k, token: payload.t }
@@ -8803,17 +9210,21 @@
           document.getElementById('syncIncomingPairBanner').style.display = 'block';
           document.getElementById('syncIncomingPairDesc').innerText =
             `Pair this browser to Room ${pendingIncomingPairCfg.code} (${pendingIncomingPairCfg.provider}) so your watches stay synced automatically across PC, Phone & TV?`;
-          return;
         } catch (e) {
           console.warn('Invalid #pair link:', e);
+          showAppToast('⚠ Pairing link is invalid or truncated.');
         }
       } else if (hash.startsWith('#sync=')) {
-        const token = decodeURIComponent(hash.slice(6));
-        history.replaceState(null, '', location.pathname + location.search);
-        openSyncModal('transfer');
-        document.getElementById('transferReceiveWrap').style.display = 'block';
-        document.getElementById('transferImportInput').value = token;
-        return;
+        try {
+          const token = decodeURIComponent(hash.slice(6).split('&')[0]);
+          history.replaceState(null, '', location.pathname + location.search);
+          openSyncModal('transfer');
+          document.getElementById('transferReceiveWrap').style.display = 'block';
+          document.getElementById('transferImportInput').value = token;
+        } catch (e) {
+          console.warn('Invalid #sync link:', e);
+          showAppToast('⚠ Transfer link is invalid or truncated.');
+        }
       }
 
       updateSyncStatusUi();
@@ -8846,7 +9257,7 @@
         title: anime.title,
         poster: anime.poster,
         backdrop: anime.backdrop || anime.poster,
-        season: currentSeason || 1,
+        season: resolveSeasonNumber(currentSeason, 1),
         episode: episode,
         totalEpisodes: anime.episodes || (anime.type === 'movie' ? 1 : 12),
         server: server || activeServer || 'server1',
@@ -8855,7 +9266,7 @@
       });
       if (history.length > 50) history = history.slice(0, 50);
 
-      const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+      const delH = readStorageJson('cineanime_deleted_history', {});
       if (delH[sid]) {
         delete delH[sid];
         localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
@@ -8876,7 +9287,7 @@
       e.stopPropagation();
       const sid = String(id);
       let history = getWatchHistory().filter(h => String(h.id) !== sid);
-      const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
+      const delH = readStorageJson('cineanime_deleted_history', {});
       delH[sid] = Date.now();
       localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
 
@@ -8891,23 +9302,24 @@
       scheduleCloudPush();
     }
 
-    function clearWatchHistory() {
-      if (confirm('Are you sure you want to clear your entire watch history?')) {
-        const delH = JSON.parse(localStorage.getItem('cineanime_deleted_history') || '{}');
-        const now = Date.now();
-        getWatchHistory().forEach(h => { delH[String(h.id)] = now; });
-        localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
+    async function clearWatchHistory() {
+      const ok = await showConfirmDialog('Are you sure you want to clear your entire watch history?', 'Clear History');
+      if (!ok) return;
+      const delH = readStorageJson('cineanime_deleted_history', {});
+      const now = Date.now();
+      getWatchHistory().forEach(h => { delH[String(h.id)] = now; });
+      localStorage.setItem('cineanime_deleted_history', JSON.stringify(delH));
 
-        if (isVaultUnlocked()) {
-          sessionData.history = [];
-          persistUserData();
-        } else {
-          localStorage.removeItem('cineanime_history');
-        }
-        renderHistory();
-        updateBadges();
-        scheduleCloudPush();
+      if (isVaultUnlocked()) {
+        sessionData.history = [];
+        persistUserData();
+      } else {
+        localStorage.removeItem('cineanime_history');
       }
+      renderHistory();
+      updateBadges();
+      scheduleCloudPush();
+      showAppToast('🗑 Watch history cleared.');
     }
 
     function renderHistory() {
@@ -8929,27 +9341,34 @@
       container.innerHTML = history.map(item => {
         const totalEps = Math.max(1, Number(item.totalEpisodes) || 1);
         const epNum = Number(item.episode) || 1;
+        const sNum = resolveSeasonNumber(item.season, 1);
+        const sLabel = sNum === 0 ? 'Specials' : `S${sNum}`;
         const percent = Math.min(100, Math.round((epNum / totalEps) * 100));
         const epText = item.type === 'movie'
           ? 'Movie'
-          : (item.isMovieOrSeries ? `S${item.season || 1} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
+          : (item.isMovieOrSeries ? `${sLabel} • Ep ${epNum} / ${totalEps}` : `Episode ${epNum} / ${totalEps}`);
+        const safeId = escapeHtml(String(item.id || '').replace(/[^a-zA-Z0-9_.:-]/g, ''));
+        const safeTitle = escapeHtml(item.title || '');
+        const safeThumb = escapeHtml(item.backdrop || item.poster || '');
+        const safeServer = escapeHtml(String(item.server || 'server1').replace(/[^a-zA-Z0-9_-]/g, ''));
+        const safeTrack = item.track === 'dub' ? 'dub' : 'sub';
         return `
-          <div class="history-card" tabindex="0" role="button" aria-label="${escapeHtml(item.title)}" onclick="resumeAnime('${item.id}', ${epNum}, '${item.server || 'server1'}', ${item.season || 1}, '${item.track || 'sub'}')">
+          <div class="history-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="resumeAnime('${safeId}', ${epNum}, '${safeServer}', ${sNum}, '${safeTrack}')">
             <div class="history-card-thumb-wrap">
-              <button class="history-remove-btn" onclick="removeHistoryItem(event, '${item.id}')" title="Remove from history">✕</button>
-              <img class="history-card-thumb" src="${item.backdrop || item.poster}" alt="${escapeHtml(item.title)}">
+              <button class="history-remove-btn" onclick="removeHistoryItem(event, '${safeId}')" title="Remove from history">✕</button>
+              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}">
               <div class="history-progress-container">
                 <div class="history-progress-fill" style="width: ${percent}%;"></div>
               </div>
             </div>
             <div class="history-card-body">
-              <div class="history-card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
+              <div class="history-card-title" title="${safeTitle}">${safeTitle}</div>
               <div class="history-card-meta">
-                <span style="color: #10b981; font-weight: 700;">${epText}</span>
+                <span style="color: #10b981; font-weight: 700;">${escapeHtml(epText)}</span>
                 <span>${percent}% completed</span>
               </div>
               <button class="history-resume-btn">
-                <span>▶</span> ${item.type === 'movie' ? 'Resume Movie' : (item.isMovieOrSeries ? `Resume S${item.season || 1} Ep ${epNum}` : `Resume Ep ${epNum}`)}
+                <span>▶</span> ${item.type === 'movie' ? 'Resume Movie' : (item.isMovieOrSeries ? `Resume ${escapeHtml(sLabel)} Ep ${epNum}` : `Resume Ep ${epNum}`)}
               </button>
             </div>
           </div>
@@ -8975,7 +9394,7 @@
     }
 
     async function resumeAnime(id, episode, server, season = 1, track = 'sub') {
-      const targetSeason = Number(season) || 1;
+      const targetSeason = resolveSeasonNumber(season, 1);
       currentSeason = targetSeason;
       if (track === 'dub' || track === 'sub') {
         currentTrack = track;
@@ -9287,21 +9706,25 @@
 
       grid.innerHTML = list.map(item => {
         const epNum = item.scheduleEp || item.episodes || 1;
-        const seasonPrefix = item.isMovieOrSeries ? `S${item.latestSeason || 1} ` : '';
+        const sNum = resolveSeasonNumber(item.latestSeason, 1);
+        const sLabel = sNum === 0 ? 'Specials' : `S${sNum}`;
+        const seasonPrefix = item.isMovieOrSeries ? `${sLabel} ` : '';
         const epLabel = `${seasonPrefix}Ep ${epNum} • ${item.airTimeStr || 'Simulcast'}`;
-        const seasonArg = item.isMovieOrSeries ? `, ${item.latestSeason || 1}` : '';
-        const safeTitle = escapeHtml(item.title);
+        const seasonArg = item.isMovieOrSeries ? `, ${sNum}` : '';
+        const safeId = escapeHtml(String(item.id || '').replace(/[^a-zA-Z0-9_.:-]/g, ''));
+        const safeTitle = escapeHtml(item.title || '');
+        const safePoster = escapeHtml(item.poster || '');
         return `
-          <div class="schedule-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true, ${item.playableEp || 1}${seasonArg})">
-            <img class="schedule-thumb" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+          <div class="schedule-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${safeId}', true, ${item.playableEp || 1}${seasonArg})">
+            <img class="schedule-thumb" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
             <div class="schedule-info">
               <div>
-                <div class="schedule-time-badge">⚡ ${item.dayName || 'This Week'}</div>
+                <div class="schedule-time-badge">⚡ ${escapeHtml(item.dayName || 'This Week')}</div>
                 <div class="schedule-title" style="margin-top: 0.35rem;" title="${safeTitle}">${safeTitle}</div>
               </div>
               <div style="font-size: 0.75rem; color: var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
-                <span style="color: #10b981; font-weight: 700;">★ ${item.rating}</span>
-                <span>${epLabel}</span>
+                <span style="color: #10b981; font-weight: 700;">★ ${escapeHtml(item.rating)}</span>
+                <span>${escapeHtml(epLabel)}</span>
               </div>
             </div>
           </div>
@@ -9327,7 +9750,7 @@
         }
         deferredPrompt = null;
       } else {
-        alert('📱 How to install CineAnime as a standalone native app:\n\n• On iPhone / iPad (Safari): Tap the Share button at the bottom, then scroll down and tap "Add to Home Screen".\n• On Android / Chrome / Brave: Tap the 3 dots menu in the browser, then tap "Install App" or "Add to Home screen".\n• On Windows / Mac (PC): Click the install icon in the URL address bar or browser menu.');
+        showAppToast('📱 Install CineAnime: iOS Safari → Share → Add to Home Screen • Android/Chrome → ⋮ → Install App • Desktop → Address bar Install icon.');
       }
     }
 
@@ -9360,87 +9783,9 @@
       }
     }
 
-    // --- Multi-Provider Servers, Direct Player Auto-Next/Skip & Android TV Spatial D-Pad Navigation ---
+    // --- Direct Player Auto-Next & Android TV Spatial D-Pad Navigation ---
     (function initTvAndPlayerEnhancements() {
-      const origServers = {
-        server1: SERVERS.server1,
-        server2: SERVERS.server2,
-        server3: SERVERS.server3,
-        server4: SERVERS.server4
-      };
-
-      function resolveSeasonAndEp(argA, argB) {
-        if (argB !== undefined) {
-          return {
-            s: Math.max(0, Number(argA) || 1),
-            e: Math.max(1, Number(argB) || 1)
-          };
-        }
-        return {
-          s: Math.max(0, Number(typeof currentSeason !== 'undefined' ? currentSeason : 1) || 1),
-          e: Math.max(1, Number(argA) || 1)
-        };
-      }
-
-      function buildVidLinkUrl(item, s, e) {
-        if (!item) return origServers.server1(item, s, e);
-        if (item.type === 'movie') {
-          const id = item.tmdbId || item.imdbId;
-          return id
-            ? `https://vidlink.pro/movie/${encodeURIComponent(id)}?primaryColor=e50914&autoplay=true`
-            : origServers.server1(item, s, e);
-        }
-        if (item.tmdbId) {
-          return `https://vidlink.pro/tv/${encodeURIComponent(item.tmdbId)}/${s}/${e}?primaryColor=e50914&autoplay=true`;
-        }
-        return origServers.server1(item, s, e);
-      }
-
-      function buildVidFastUrl(item, s, e) {
-        const id = item && (item.tmdbId || item.imdbId);
-        if (!id) return origServers.server3(item, s, e);
-        return item.type === 'movie'
-          ? `https://vidfast.pro/movie/${encodeURIComponent(id)}?autoPlay=true&theme=E50914`
-          : `https://vidfast.pro/tv/${encodeURIComponent(id)}/${s}/${e}?autoPlay=true&theme=E50914`;
-      }
-
-      function build111MoviesUrl(item, s, e) {
-        const id = item && (item.imdbId || item.tmdbId);
-        if (!id) return origServers.server4(item, s, e);
-        return item.type === 'movie'
-          ? `https://111movies.com/movie/${encodeURIComponent(id)}`
-          : `https://111movies.com/tv/${encodeURIComponent(id)}/${s}/${e}`;
-      }
-
-      SERVERS.server1 = function(item, a, b) {
-        if (item && item.isMovieOrSeries) {
-          const { s, e } = resolveSeasonAndEp(a, b);
-          return buildVidLinkUrl(item, s, e);
-        }
-        return origServers.server1(item, a, b);
-      };
-      SERVERS.server2 = function(item, a, b) {
-        return origServers.server2(item, a, b);
-      };
-      SERVERS.server3 = function(item, a, b) {
-        if (item && item.isMovieOrSeries) {
-          const { s, e } = resolveSeasonAndEp(a, b);
-          return buildVidFastUrl(item, s, e);
-        }
-        return origServers.server3(item, a, b);
-      };
-      SERVERS.server4 = function(item, a, b) {
-        if (item && item.isMovieOrSeries) {
-          const { s, e } = resolveSeasonAndEp(a, b);
-          return build111MoviesUrl(item, s, e);
-        }
-        return origServers.server4(item, a, b);
-      };
-
       const directVideo = document.getElementById('directVideoPlayer');
-      function isDirectVideoActive() {
-        return !!(directVideo && directVideo.style.display !== 'none' && directVideo.currentSrc);
-      }
       if (directVideo) {
         directVideo.addEventListener('ended', () => {
           if (!currentAnime || currentAnime.type === 'movie') return;
@@ -9450,19 +9795,6 @@
             changeEpisode(1);
           }
         });
-      }
-
-      window.skipIntro = function skipIntro() {
-        if (isDirectVideoActive() && Number.isFinite(directVideo.duration) && directVideo.duration > 0) {
-          const target = Math.min(Math.max(0, directVideo.duration - 1), (directVideo.currentTime || 0) + 85);
-          directVideo.currentTime = target;
-          showAppToast(`⏭ Skipped +85s (${Math.floor(target)}s)`);
-          return;
-        }
-        showAppToast('⏭ Direct MP4/Debrid streams support +85s skip — third-party embeds use in-player Skip controls');
-      };
-      if (typeof skipIntro !== 'undefined') {
-        skipIntro = window.skipIntro;
       }
 
       if (navigator.userAgent && (/Android TV|AFT|BRAVIA|Chromecast|GoogleTV|CineAnimeTV/i.test(navigator.userAgent) || window.CineAndroidTV)) {
@@ -9497,6 +9829,7 @@
       }
 
       const MODAL_STACK = [
+        { id: 'confirmModal', close: () => resolveConfirmDialog(false) },
         { id: 'syncModal', close: () => closeSyncModal() },
         { id: 'profileModal', close: () => closeProfileModal() },
         { id: 'authModal', close: () => closeAuthModal() },
@@ -9520,18 +9853,14 @@
           openModal.close();
           return true;
         }
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-          const exitFs = document.exitFullscreen || document.webkitExitFullscreen;
-          if (typeof exitFs === 'function') Promise.resolve(exitFs.call(document)).catch(() => {});
-          const container = document.getElementById('theaterPlayerContainer');
-          if (container) container.classList.remove('cinema-fullscreen');
-          if (typeof syncFullscreenUi === 'function') syncFullscreenUi();
-          return true;
-        }
-        const playerContainer = document.getElementById('theaterPlayerContainer');
-        if (playerContainer && playerContainer.classList.contains('cinema-fullscreen')) {
-          playerContainer.classList.remove('cinema-fullscreen');
-          if (typeof syncFullscreenUi === 'function') syncFullscreenUi();
+        const playerContainer = document.getElementById('playerContainer');
+        if (
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          (playerContainer && playerContainer.classList.contains('cinema-fullscreen')) ||
+          document.body.classList.contains('cinema-fs-open')
+        ) {
+          if (typeof exitCinemaFullscreen === 'function') exitCinemaFullscreen();
           return true;
         }
         const theater = document.getElementById('theaterSection');
@@ -9553,7 +9882,18 @@
         return false;
       };
 
+      window.__cineHandleTvMenu = function __cineHandleTvMenu() {
+        const addonEl = document.getElementById('addonModal');
+        if (addonEl && addonEl.style.display === 'flex') closeAddonModal();
+        else openAddonModal();
+      };
+
       window.__cineHandleMediaKey = function __cineHandleMediaKey(action) {
+        if (getTopOpenModal()) return false;
+        const activeEl = document.activeElement;
+        if (!isDirectVideoActive() && activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) {
+          return false;
+        }
         const theaterOpen = document.getElementById('theaterSection')?.classList.contains('active');
         if (action === 'play_pause' || action === 'play' || action === 'pause') {
           if (isDirectVideoActive()) {
@@ -9576,14 +9916,14 @@
         if (!theaterOpen) return false;
         if (action === 'next') { changeEpisode(1); return true; }
         if (action === 'prev') { changeEpisode(-1); return true; }
-        if (action === 'skip') { window.skipIntro(); return true; }
+        if (action === 'skip') { skipIntro(); return true; }
         if (action === 'ff') {
           if (isDirectVideoActive()) {
             directVideo.currentTime = Math.min(directVideo.duration || 1e9, directVideo.currentTime + 15);
             showAppToast(`⏩ +15s (${Math.floor(directVideo.currentTime)}s)`);
             return true;
           }
-          window.skipIntro();
+          skipIntro();
           return true;
         }
         if (action === 'rew' && isDirectVideoActive()) {
@@ -9624,7 +9964,8 @@
 
         for (let i = 0; i < candidates.length; i++) {
           const { el, rect } = candidates[i];
-          if (el === current || el.contains(current) || current.contains(el)) continue;
+          if (el === current || el.contains(current)) continue;
+          const isDescendant = current.contains(el);
           const cx = rect.left + rect.width / 2;
           const cy = rect.top + rect.height / 2;
           let inDir = false;
@@ -9633,23 +9974,23 @@
           let overlap = 0;
 
           if (key === 'ArrowRight') {
-            inDir = cx > curCx + 4 && rect.left >= cur.left - 4;
-            primaryDist = Math.max(0, rect.left - cur.right);
+            inDir = cx > curCx + 4 && (isDescendant || rect.left >= cur.left - 4);
+            primaryDist = isDescendant ? Math.max(0, rect.left - curCx) : Math.max(0, rect.left - cur.right);
             crossDist = Math.abs(cy - curCy);
             overlap = Math.max(0, Math.min(cur.bottom, rect.bottom) - Math.max(cur.top, rect.top));
           } else if (key === 'ArrowLeft') {
-            inDir = cx < curCx - 4 && rect.right <= cur.right + 4;
-            primaryDist = Math.max(0, cur.left - rect.right);
+            inDir = cx < curCx - 4 && (isDescendant || rect.right <= cur.right + 4);
+            primaryDist = isDescendant ? Math.max(0, curCx - rect.right) : Math.max(0, cur.left - rect.right);
             crossDist = Math.abs(cy - curCy);
             overlap = Math.max(0, Math.min(cur.bottom, rect.bottom) - Math.max(cur.top, rect.top));
           } else if (key === 'ArrowDown') {
-            inDir = cy > curCy + 4 && rect.top >= cur.top - 4;
-            primaryDist = Math.max(0, rect.top - cur.bottom);
+            inDir = cy > curCy + 4 && (isDescendant || rect.top >= cur.top - 4);
+            primaryDist = isDescendant ? Math.max(0, rect.top - curCy) : Math.max(0, rect.top - cur.bottom);
             crossDist = Math.abs(cx - curCx);
             overlap = Math.max(0, Math.min(cur.right, rect.right) - Math.max(cur.left, rect.left));
           } else if (key === 'ArrowUp') {
-            inDir = cy < curCy - 4 && rect.bottom <= cur.bottom + 4;
-            primaryDist = Math.max(0, cur.top - rect.bottom);
+            inDir = cy < curCy - 4 && (isDescendant || rect.bottom <= cur.bottom + 4);
+            primaryDist = isDescendant ? Math.max(0, curCy - rect.bottom) : Math.max(0, cur.top - rect.bottom);
             crossDist = Math.abs(cx - curCx);
             overlap = Math.max(0, Math.min(cur.right, rect.right) - Math.max(cur.left, rect.left));
           }
@@ -9738,7 +10079,7 @@
       hydrateWatchlistCache();
       applyPlaybackPrefsUi();
       fallbackOfflineCatalog();
-      renderEpisodeGrid(currentAnime.episodes);
+      renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
       renderHistory();
       renderWatchlist();
       updateBadges();

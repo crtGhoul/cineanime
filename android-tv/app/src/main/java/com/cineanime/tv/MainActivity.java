@@ -3,6 +3,7 @@ package com.cineanime.tv;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -49,6 +50,7 @@ public class MainActivity extends Activity {
     private Button retryButton;
 
     private long lastBackPressMs = 0L;
+    private boolean mainFrameErrorOccurred = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +155,7 @@ public class MainActivity extends Activity {
 
                 // Allow explicit external player or source repository handoffs without trapping WebView.
                 if ("stremio".equals(scheme) || "magnet".equals(scheme) || "vlc".equals(scheme)
-                        || ("https".equals(scheme) && host.endsWith("github.com"))) {
+                        || ("https".equals(scheme) && ("github.com".equals(host) || host.endsWith(".github.com")))) {
                     openExternalIntent(uri);
                     return true;
                 }
@@ -163,9 +165,17 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                if (url != null && url.startsWith("https://" + ALLOWED_HOST)) {
+                    mainFrameErrorOccurred = false;
+                }
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                if (url != null && url.startsWith("https://" + ALLOWED_HOST)) {
+                if (!mainFrameErrorOccurred && url != null && url.startsWith("https://" + ALLOWED_HOST)) {
                     hideErrorOverlay();
                 }
                 webView.evaluateJavascript("document.body && document.body.classList.add('tv-webview-mode');", null);
@@ -175,6 +185,7 @@ public class MainActivity extends Activity {
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 if (request != null && request.isForMainFrame()) {
+                    mainFrameErrorOccurred = true;
                     String desc = error != null && error.getDescription() != null
                             ? error.getDescription().toString()
                             : "Unable to reach CineAnime server.";
@@ -186,6 +197,7 @@ public class MainActivity extends Activity {
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
                 if (request != null && request.isForMainFrame() && errorResponse != null && errorResponse.getStatusCode() >= 400) {
+                    mainFrameErrorOccurred = true;
                     showErrorOverlay("HTTP " + errorResponse.getStatusCode() + " while loading CineAnime.");
                 }
             }
@@ -193,6 +205,7 @@ public class MainActivity extends Activity {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.cancel();
+                mainFrameErrorOccurred = true;
                 showErrorOverlay("TLS certificate verification failed.");
             }
         });
@@ -244,6 +257,7 @@ public class MainActivity extends Activity {
         btnBg.setCornerRadius(18f);
         retryButton.setBackground(btnBg);
         retryButton.setOnClickListener(v -> {
+            mainFrameErrorOccurred = false;
             hideErrorOverlay();
             webView.clearCache(false);
             webView.loadUrl(HOME_URL);
@@ -284,7 +298,7 @@ public class MainActivity extends Activity {
             }
 
             if (code == KeyEvent.KEYCODE_MENU) {
-                dispatchJs("window.openAddonModal && openAddonModal();");
+                dispatchJs("window.__cineHandleTvMenu ? window.__cineHandleTvMenu() : (window.openAddonModal && openAddonModal());");
                 return true;
             }
 

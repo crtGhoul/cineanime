@@ -63,7 +63,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
     }
 
     .brand {
@@ -98,7 +99,8 @@
     }
 
     .search-bar-container {
-      flex: 1;
+      flex: 1 1 220px;
+      min-width: 180px;
       max-width: 540px;
       position: relative;
     }
@@ -134,14 +136,15 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.55rem;
     }
 
     .nav-btn {
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 0.9rem;
       border-radius: 8px;
       font-size: 0.85rem;
       font-weight: 600;
@@ -149,6 +152,8 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      white-space: nowrap;
+      flex-shrink: 0;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -1218,9 +1223,14 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       overflow-x: auto;
       padding-bottom: 0.25rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .filter-tabs-bar::-webkit-scrollbar {
+      display: none;
     }
 
     .filter-tab {
@@ -1455,16 +1465,13 @@
       gap: 0.5rem;
       margin-bottom: 2rem;
       overflow-x: auto;
-      padding-bottom: 0.5rem;
-      scrollbar-width: thin;
+      padding-bottom: 0.35rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
     .genre-pills-bar::-webkit-scrollbar {
-      height: 4px;
-    }
-    .genre-pills-bar::-webkit-scrollbar-thumb {
-      background: var(--surface-light);
-      border-radius: 9999px;
+      display: none;
     }
 
     .genre-pill {

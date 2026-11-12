@@ -7328,7 +7328,15 @@
     }
 
     function scrollToPlayer() {
-      document.getElementById('theaterSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const section = document.getElementById('theaterSection');
+      if (section && !section.classList.contains('active')) {
+        // If theater is currently hidden, launch current hero anime/item or top trending item
+        if (currentHeroAnime) {
+          playAnime(currentHeroAnime, 1);
+          return;
+        }
+      }
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function isDirectVideoActive() {

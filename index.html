@@ -2837,18 +2837,41 @@
       .schedule-card,
       .history-card,
       .relation-card
-    ):focus-visible {
-      outline: 3px solid #e50914;
-      outline-offset: 3px;
+    ):focus-visible,
+    body.tv-mode :where(
+      a:any-link,
+      button,
+      select,
+      input,
+      textarea,
+      [role="button"],
+      .anime-card,
+      .schedule-card,
+      .history-card,
+      .relation-card
+    ):focus,
+    .tv-focused {
+      outline: 3.5px solid #e50914 !important;
+      outline-offset: 3px !important;
     }
     .anime-card:focus-visible,
     .schedule-card:focus-visible,
     .history-card:focus-visible,
-    .relation-card:focus-visible {
-      box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.28), 0 14px 30px rgba(0, 0, 0, 0.75);
-      border-color: #ff4d58;
+    .relation-card:focus-visible,
+    body.tv-mode .anime-card:focus,
+    body.tv-mode .schedule-card:focus,
+    body.tv-mode .history-card:focus,
+    body.tv-mode .relation-card:focus,
+    .anime-card.tv-focused,
+    .schedule-card.tv-focused,
+    .history-card.tv-focused,
+    .relation-card.tv-focused {
+      box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.45), 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+      border-color: #ff4d58 !important;
+      transform: translateY(-4px) scale(1.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
       scroll-margin: 84px;
-      z-index: 3;
+      z-index: 5;
     }
     .nav-btn,
     .filter-tab,
@@ -2863,12 +2886,36 @@
     .addon-stream-btn {
       scroll-margin: 84px;
     }
+    body.tv-mode,
+    body.tv-webview-mode {
+      padding-left: max(20px, env(safe-area-inset-left));
+      padding-right: max(20px, env(safe-area-inset-right));
+      padding-top: max(14px, env(safe-area-inset-top));
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body.tv-mode .nav-btn,
+    body.tv-mode .filter-tab,
+    body.tv-mode .ctrl-btn,
+    body.tv-mode .server-btn,
+    body.tv-mode .season-pill,
     body.tv-webview-mode .nav-btn,
     body.tv-webview-mode .filter-tab,
     body.tv-webview-mode .ctrl-btn,
     body.tv-webview-mode .server-btn {
       padding-top: 0.62rem;
       padding-bottom: 0.62rem;
+      min-height: 44px;
+    }
+    body.tv-mode .fs-hud-bar {
+      bottom: max(28px, env(safe-area-inset-bottom));
+      padding: 0.55rem 1.1rem;
+    }
+    body.tv-mode .fs-hud-btn {
+      padding: 0.45rem 0.95rem;
+      font-size: 0.86rem;
+      min-height: 40px;
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -14984,9 +15031,10 @@
       }
 
       document.addEventListener('keydown', (e) => {
+        const isSelectKey = e.key === 'Enter' || e.key === 'Select' || e.key === 'Accept' || e.keyCode === 13;
         const card = e.target && e.target.closest ? e.target.closest(CARD_SELECTOR) : null;
         if (card && e.target === card) {
-          if (e.key === 'Enter') {
+          if (isSelectKey) {
             e.preventDefault();
             card.click();
             return;
@@ -15007,8 +15055,20 @@
         }
       });
 
+      document.addEventListener('focusin', (e) => {
+        if (document.body.classList.contains('tv-mode') && e.target && e.target.classList) {
+          document.querySelectorAll('.tv-focused').forEach(el => el.classList.remove('tv-focused'));
+          e.target.classList.add('tv-focused');
+        }
+      });
+
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.key === 'GoBack' || e.key === 'BrowserBack') {
+        // Comcast TV, Xfinity XR11/XR15/XR16, Xumo, RDK & WebOS Back Keys
+        const isBackKey = e.key === 'Escape' || e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack'
+          || e.keyCode === 27 || e.keyCode === 461 || e.keyCode === 10009
+          || (e.keyCode === 8 && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName));
+
+        if (isBackKey) {
           const openModal = getTopOpenModal();
           if (e.key === 'Escape' && openModal?.isNativeDialog) {
             return;
@@ -15019,18 +15079,54 @@
           }
           return;
         }
-        if (e.key === 'MediaPlayPause' || e.key === 'MediaPlay' || e.key === 'MediaPause') {
-          const act = e.key === 'MediaPlay' ? 'play' : (e.key === 'MediaPause' ? 'pause' : 'play_pause');
+
+        // TV Remote Select / OK button on body or focusable element
+        const isSelectKey = e.key === 'Select' || e.key === 'Accept' || (e.keyCode === 13 && e.target === document.body);
+        if (isSelectKey) {
+          const focused = document.querySelector('.tv-focused') || document.activeElement;
+          if (focused && focused !== document.body && typeof focused.click === 'function') {
+            e.preventDefault();
+            focused.click();
+            return;
+          }
+        }
+
+        // Comcast TV Media Keys
+        const isPlayPause = e.key === 'MediaPlayPause' || e.key === 'MediaPlay' || e.key === 'MediaPause'
+          || e.keyCode === 179 || e.keyCode === 250 || e.keyCode === 19;
+        if (isPlayPause) {
+          const act = (e.key === 'MediaPlay' || e.keyCode === 250) ? 'play' : ((e.key === 'MediaPause' || e.keyCode === 19) ? 'pause' : 'play_pause');
           if (window.__cineHandleMediaKey(act)) { e.preventDefault(); e.stopImmediatePropagation(); }
           return;
         }
-        if (e.key === 'MediaTrackNext' && window.__cineHandleMediaKey('next')) { e.preventDefault(); return; }
-        if (e.key === 'MediaTrackPrevious' && window.__cineHandleMediaKey('prev')) { e.preventDefault(); return; }
-        if (e.key === 'MediaFastForward' && window.__cineHandleMediaKey('ff')) { e.preventDefault(); return; }
-        if (e.key === 'MediaRewind' && window.__cineHandleMediaKey('rew')) { e.preventDefault(); return; }
+        if ((e.key === 'MediaTrackNext' || e.keyCode === 176) && window.__cineHandleMediaKey('next')) { e.preventDefault(); return; }
+        if ((e.key === 'MediaTrackPrevious' || e.keyCode === 177) && window.__cineHandleMediaKey('prev')) { e.preventDefault(); return; }
+        if ((e.key === 'MediaFastForward' || e.keyCode === 228) && window.__cineHandleMediaKey('ff')) { e.preventDefault(); return; }
+        if ((e.key === 'MediaRewind' || e.keyCode === 227) && window.__cineHandleMediaKey('rew')) { e.preventDefault(); return; }
 
-        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        // Arrow Key D-Pad Spatial Navigation
+        const isArrow = e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight'
+          || e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 37 || e.keyCode === 39;
+        if (!isArrow) return;
         if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing) return;
+
+        // Auto-enable TV mode when D-Pad is touched
+        if (!document.body.classList.contains('tv-mode')) {
+          document.body.classList.add('tv-mode');
+        }
+
+        const arrowKey = e.key && e.key.startsWith('Arrow')
+          ? e.key
+          : ({ 38: 'ArrowUp', 40: 'ArrowDown', 37: 'ArrowLeft', 39: 'ArrowRight' }[e.keyCode]);
+
+        // If theater / fullscreen is active and user presses ArrowDown/Up, reveal Fullscreen HUD
+        const playerContainer = document.getElementById('playerContainer');
+        const isFullscreenActive = document.fullscreenElement || document.webkitFullscreenElement
+          || (playerContainer && playerContainer.classList.contains('cinema-fullscreen'))
+          || document.body.classList.contains('cinema-fs-open');
+        if (isFullscreenActive && (arrowKey === 'ArrowDown' || arrowKey === 'ArrowUp')) {
+          if (typeof showFsHud === 'function') showFsHud();
+        }
 
         const active = document.activeElement;
         if (active && active !== document.body) {
@@ -15039,16 +15135,18 @@
           if (tag === 'INPUT') {
             const t = (active.type || 'text').toLowerCase();
             if (t === 'range') return;
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') return;
+            if (arrowKey === 'ArrowLeft' || arrowKey === 'ArrowRight') return;
           }
         }
 
         const openModal = getTopOpenModal();
         const root = openModal ? openModal.el : document.body;
-        const next = findSpatialCandidate(active, e.key, root);
+        const next = findSpatialCandidate(active, arrowKey, root);
         if (!next) return;
 
         e.preventDefault();
+        document.querySelectorAll('.tv-focused').forEach(el => el.classList.remove('tv-focused'));
+        next.classList.add('tv-focused');
         next.focus({ preventScroll: false });
         next.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       }, true);
@@ -15075,6 +15173,22 @@
       refreshDropAlerts(false);
       await handleWatchDeepLinkFromUrl();
       await initCrossDeviceSync();
+
+      // Auto-detect Comcast TV, Xfinity X1/Flex, Xumo, RDK & 10-foot TV Environments
+      try {
+        const isTvEnv = /TV|SmartTV|GoogleTV|Android TV|X1|Xfinity|Flex|Xumo|RDK|WPE|Metrological|CrKey|AppleTV|HbbTV|NetCast|Tizen|WebOS/i.test(navigator.userAgent)
+          || (window.screen.width >= 1280 && window.screen.height >= 720 && ('ontouchstart' in window === false) && navigator.maxTouchPoints === 0 && !window.matchMedia('(pointer: fine)').matches);
+        if (isTvEnv) {
+          document.body.classList.add('tv-mode');
+          setTimeout(() => {
+            const initialFocus = document.querySelector('.hero-banner .btn-primary, #searchInput, .anime-card');
+            if (initialFocus) {
+              initialFocus.classList.add('tv-focused');
+              initialFocus.focus({ preventScroll: true });
+            }
+          }, 600);
+        }
+      } catch (_) {}
     })();
   </script>
 </body>

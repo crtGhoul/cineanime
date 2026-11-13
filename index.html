@@ -3035,7 +3035,7 @@
           <span class="badge" style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 6px #22c55e;"></span> 0 Ads • Zero Popups</span>
           <button class="server-btn active" data-server="server1"><span class="pulse-dot"></span> Server 1 (Primary HD)</button>
           <button class="server-btn" data-server="server2">🚀 Server 2 (AniList Mirror)</button>
-          <button class="server-btn" data-server="server3">🛡️ Server 3 (Backup / HardSub)</button>
+          <button class="server-btn" data-server="server3">🔤 Server 3 (HardSub)</button>
           <button class="server-btn" data-server="server4">⚡ Server 4 (Multi-Embed HD)</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
@@ -4540,13 +4540,13 @@
       return Boolean(val && /^\d+$/.test(String(val).trim()));
     }
 
-    function showAppToast(msg) {
+    function showAppToast(msg, durationMs = 3200) {
       const el = document.getElementById('appToast');
       if (!el) return;
       el.textContent = msg;
       el.classList.add('show');
       if (appToastTimer) clearTimeout(appToastTimer);
-      appToastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+      appToastTimer = setTimeout(() => el.classList.remove('show'), durationMs);
     }
 
     let _confirmResolver = null;
@@ -5671,8 +5671,8 @@
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
           return buildVidZeeUrl(item, s, e);
         }
-        const track = currentTrack === 'dub' ? 'dub' : 'sub';
-        return buildZokoUrl(item, e, track);
+        // Server 3 = Zoko HardSub — subtitles burned into video (avoids ASS tag artifacts)
+        return buildZokoUrl(item, e, 'hsub');
       },
       server4: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
@@ -6906,50 +6906,82 @@
 
     function srtToVtt(rawText) {
       const cleaned = String(rawText || '')
-        .replace(/^\uFEFF/, '')
-        .replace(/\r\n?/g, '\n');
+        .replace(/^\uFEFF/, '')         // strip BOM
+        .replace(/\r\n?/g, '\n');       // normalize line endings
       const lines = cleaned.split('\n');
       const out = ['WEBVTT', ''];
+      const seenCues = new Set();       // deduplicate identical concurrent cues
       let i = 0;
+      let inDrawingMode = false;        // track ASS vector drawing blocks {\p1}...{\p0}
+
       while (i < lines.length) {
         let line = lines[i].trim();
+
+        // Skip blank lines
+        if (!line) { i++; continue; }
+
         // Skip numeric cue identifier if next line is a timestamp line
         if (/^\d+$/.test(line) && i + 1 < lines.length && lines[i + 1].includes('-->')) {
           i++;
           line = lines[i].trim();
         }
+
         if (line.includes('-->')) {
-          // Standardize timestamp: 00:00:45,000 -> 00:00:45.000
+          // Standardize SRT timestamp commas -> dots and pad missing hour field
           let timeLine = line
-            .replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2')
+            .replace(/(\d{1,2}:\d{2}:\d{2}),(\d{3})/g, (_, t, ms) => {
+              const parts = t.split(':');
+              const hh = String(Number(parts[0])).padStart(2, '0');
+              return `${hh}:${parts[1]}:${parts[2]}.${ms}`;
+            })
             .replace(/(^|\s)(\d{2}:\d{2}),(\d{3})/g, '$100:$2.$3');
           i++;
+
           const cueLines = [];
           while (i < lines.length && lines[i].trim() !== '') {
             cueLines.push(lines[i]);
             i++;
           }
           const rawCueText = cueLines.join('\n');
-          // Parse ASS/SSA alignment tags: \an7, \an8, \an9 = top; \an4, \an5, \an6 = mid
-          const isTop = /\{\\an[789]\b/i.test(rawCueText);
-          const isMid = /\{\\an[456]\b/i.test(rawCueText);
+
+          // --- ASS Vector Drawing Block Filter ---
+          // Any cue text containing {\p1}/{\p2}/{\p4} drawing mode must be dropped entirely;
+          // after tag stripping the polygon coords (m 0 0 l ...) would appear as literal text.
+          if (/\{\\p[1-9]\d*\}/.test(rawCueText)) continue;
+
+          // --- ASS Alignment Tag Detection (must happen BEFORE stripping) ---
+          // {\an7}, {\an8}, {\an9} = top-left/top-center/top-right
+          // {\an4}, {\an5}, {\an6} = mid-left/mid-center/mid-right
+          // Also support stacked tags: {\fad(150,150)\an8\pos(960,100)}
+          const isTop = /\{[^}]*\\an[789][^0-9]/i.test(rawCueText) || /\{\\an[789]\}/i.test(rawCueText);
+          const isMid = /\{[^}]*\\an[456][^0-9]/i.test(rawCueText) || /\{\\an[456]\}/i.test(rawCueText);
           if (isTop && !timeLine.includes('line:')) {
             timeLine += ' line:8% position:50% align:center';
           } else if (isMid && !timeLine.includes('line:')) {
             timeLine += ' line:50% position:50% align:center';
           }
-          // Strip all SSA/ASS override tags {\...} and unneeded HTML formatting
-          const cleanedText = rawCueText
-            .replace(/\{[^}\r\n]*\}/g, '')
-            .replace(/<\/?(?:font|span)[^>]*>/gi, '')
+
+          // --- Strip ALL SSA/ASS override tags and clean text ---
+          let cleanedText = rawCueText
+            .replace(/\{[^}\r\n]*\}/g, '')               // remove {override blocks}
+            .replace(/<\/?(?:font|span)[^>]*>/gi, '')     // strip font/span html tags
+            .replace(/\\N/g, '\n')                        // ASS hard line break -> newline
+            .replace(/\\n/g, ' ')                         // ASS soft line break -> space
+            .replace(/\\h/g, '\u00A0')                    // ASS hard non-breaking space
+            .replace(/[ \t]+$/gm, '')                     // trim trailing spaces per line
             .trim();
-          if (cleanedText) {
-            out.push(timeLine);
-            out.push(cleanedText);
-            out.push('');
-          }
+
+          // Skip empty cues and deduplicate sign/FX typesetting floods
+          if (!cleanedText) continue;
+          const dedupeKey = timeLine.split(' ')[0] + '|' + cleanedText.slice(0, 80);
+          if (seenCues.has(dedupeKey)) continue;
+          seenCues.add(dedupeKey);
+
+          out.push(timeLine);
+          out.push(cleanedText);
+          out.push('');
         } else {
-          // Header or non-cue lines in existing WEBVTT file
+          // Header or non-cue lines in existing WEBVTT file — pass through
           if (line && !/^WEBVTT\b/i.test(line) && out.length <= 2) {
             out.push(line);
           }
@@ -7512,6 +7544,15 @@
         const knownMaxEp = Number(currentAnime.episodes);
         document.getElementById('prevEpBtn').disabled = currentEpisode <= 1;
         document.getElementById('nextEpBtn').disabled = currentAnime.type === 'movie' || (Number.isFinite(knownMaxEp) && knownMaxEp > 0 && currentEpisode >= knownMaxEp);
+        // Server 1 uses Zoko soft-subs (ASS). Some episodes render {tag} artifacts.
+        // Show a one-time hint at boot only on Server 1 (not dub, not HardSub servers).
+        if (activeServer === 'server1' && currentTrack === 'sub') {
+          setTimeout(() => {
+            if (activeServer === 'server1' && document.getElementById('theaterSection')?.classList.contains('active')) {
+              showAppToast('💬 Seeing subtitle tags like {\\an8}? Switch to 🔤 Server 3 (HardSub) for clean burned-in subs!', 7000);
+            }
+          }, 3500);
+        }
       }
     }
 

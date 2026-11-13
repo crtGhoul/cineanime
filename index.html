@@ -5522,9 +5522,11 @@
       });
     }
 
+    const DEFAULT_SERVER_REGISTRY_URL = 'https://raw.githubusercontent.com/crtGhoul/cineanime/main/servers.json';
+
     async function loadRemoteServerRegistry(silent = true) {
       const ov = getServerOverrides();
-      const regUrl = normalizeSafeHttpUrl(ov.registryUrl);
+      const regUrl = normalizeSafeHttpUrl(ov.registryUrl) || DEFAULT_SERVER_REGISTRY_URL;
       if (!regUrl) return;
       try {
         const res = await fetch(regUrl, { cache: 'no-store' });

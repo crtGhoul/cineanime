@@ -1942,6 +1942,18 @@
       background: #000;
       object-fit: contain;
     }
+    .player-video::cue {
+      background: rgba(10, 10, 15, 0.82) !important;
+      color: #ffffff !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+      font-size: 1.15rem !important;
+      font-weight: 600 !important;
+      line-height: 1.45 !important;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.95) !important;
+      padding: 0.25rem 0.75rem !important;
+      border-radius: 6px !important;
+      letter-spacing: 0.02em !important;
+    }
     .stream-codec-banner {
       display: none;
       position: absolute;
@@ -7038,6 +7050,12 @@
         select.innerHTML = '<option value="">Subtitles: Off</option>' + currentSubtitlesList.map((s, idx) =>
           `<option value="${idx}">${escapeHtml(s.label)}</option>`
         ).join('');
+
+        // Auto-select and attach top English subtitle track if subtitles are enabled
+        if (currentTrack === 'sub' && currentSubtitlesList.length > 0) {
+          select.value = '0';
+          selectSubtitleTrack('0');
+        }
       } catch (_) {
         if (token !== latestSubFetchToken) return;
         select.innerHTML = '<option value="">Off (Upload .SRT/.VTT)</option>';
@@ -7275,6 +7293,32 @@
         if (!currentAnime) return;
         saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, vid.duration || vid.currentTime, vid.duration, true);
         if (hasNextEpisodeAvailable()) startUpNextCountdown(5);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (!isDirectVideoActive() || !vid) return;
+        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          if (vid.paused) vid.play().catch(() => {});
+          else vid.pause();
+        } else if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          vid.currentTime = Math.max(0, (vid.currentTime || 0) - 10);
+          showAppToast('⏪ -10s');
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          vid.currentTime = Math.min(vid.duration || vid.currentTime, (vid.currentTime || 0) + 10);
+          showAppToast('⏩ +10s');
+        } else if (e.code === 'KeyM') {
+          e.preventDefault();
+          vid.muted = !vid.muted;
+          showAppToast(vid.muted ? '🔇 Muted' : '🔊 Unmuted');
+        } else if (e.code === 'KeyF') {
+          e.preventDefault();
+          toggleFullscreen();
+        }
       });
     }
 

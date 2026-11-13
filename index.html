@@ -3706,6 +3706,13 @@
           <button type="submit" class="auth-submit-btn">Unlock My Vault 🔓</button>
         </form>
 
+        <div style="margin-top: 0.85rem; padding: 0.65rem 0.85rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; font-size: 0.78rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+          <div style="color: #93c5fd;">
+            <span>📥</span> <strong>Switching from Stremio?</strong> Pull your watch history, progress & addons.
+          </div>
+          <button type="button" class="ctrl-btn" style="padding: 0.35rem 0.7rem; font-size: 0.75rem; background: #2563eb; color: #fff; border: none; font-weight: 600;" onclick="closeAuthModal(); openStremioSyncSection();">Import Stremio Account ↗</button>
+        </div>
+
         <form id="authFormRegister" style="display: none;" onsubmit="event.preventDefault(); submitRegister();">
           <div class="auth-field">
             <label for="regUsername">Create Username</label>
@@ -4119,6 +4126,7 @@
             </label>
             <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="closeSettingsModal(); openSyncModal();">🔗 Cross-Device Sync</button>
             <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="closeSettingsModal(); openAddonModal();">🧩 Stremio Addons</button>
+            <button type="button" class="server-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem; color:#60a5fa;" onclick="closeSettingsModal(); openStremioSyncSection();">📥 Import Stremio Account</button>
             <button type="button" class="addon-delete-btn" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="clearLocalPlayerCache()">🧹 Clear Cache</button>
           </div>
         </div>
@@ -8971,6 +8979,20 @@
         return Array.isArray(items) ? items : [];
       } catch (_) {
         return [];
+      }
+    }
+
+    function openStremioSyncSection() {
+      closeAllModalsExcept('addonModal');
+      openAddonModal();
+      const d = document.getElementById('stremioAccountDetails');
+      if (d) {
+        d.open = true;
+        setTimeout(() => {
+          d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const emailInput = document.getElementById('stremioEmailInput');
+          if (emailInput) emailInput.focus();
+        }, 150);
       }
     }
 

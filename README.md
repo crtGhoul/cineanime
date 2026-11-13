@@ -14,3 +14,20 @@ A portable, zero-backend static Progressive Web App (PWA) & Android TV WebView s
 CineAnime uses strictly relative paths (`./index.html`, `./sw.js`, `./manifest.webmanifest`) so it runs identically on any static host without changes:
 - **GitHub Pages / Codeberg Pages / Cloudflare Pages / Netlify:** Deploy the root directory directly as static assets (no build step required for the web app).
 - **Android TV Shell (`android-tv/`):** Supports multiple backup origins and user-defined mirror URLs directly on TV if a primary host is ever unreachable.
+
+---
+
+## Velazquez Lab
+
+**Live:** https://crtghoul.github.io/cineanime/
+
+---
+
+## Velazquez Lab
+
+More free tools from Cesar Velazquez: [Velazquez Lab](https://velazquez-lab.pages.dev)
+
+- GitHub: https://github.com/crtGhoul
+- Codeberg: https://codeberg.org/crtGhoul
+- YouTube: https://www.youtube.com/@VelazquezLabs
+- Reddit: https://www.reddit.com/user/Manteqaada/

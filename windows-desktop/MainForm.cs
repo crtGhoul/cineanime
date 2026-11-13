@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -12,8 +13,12 @@ namespace CineAnime
     public class MainForm : Form
     {
         private WebView2? _webView;
-        private static readonly string PrimaryUrl = "https://crtghoul.github.io/cineanime/";
-        private static readonly string BackupMirrorUrl = "https://codeberg.org/crtGhoul/cineanime";
+        private readonly List<string> _mirrorUrls = new List<string>
+        {
+            "https://crtghoul.github.io/cineanime/",
+            "https://velazquez-lab.pages.dev/cineanime/"
+        };
+        private int _mirrorIndex = 0;
 
         private Rectangle _normalWindowBounds;
         private FormBorderStyle _normalFormBorderStyle = FormBorderStyle.Sizable;
@@ -36,7 +41,6 @@ namespace CineAnime
             this.MinimumSize = new Size(800, 600);
             this.KeyPreview = true;
 
-            // Set Form Icon if available
             try
             {
                 string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
@@ -102,6 +106,21 @@ namespace CineAnime
             HandleFullscreenToggle(!_isAppFullscreen);
         }
 
+        private string? ResolveBundledOfflineFolder()
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string wwwroot = Path.Combine(baseDir, "wwwroot");
+            if (File.Exists(Path.Combine(wwwroot, "index.html")))
+            {
+                return wwwroot;
+            }
+            if (File.Exists(Path.Combine(baseDir, "index.html")))
+            {
+                return baseDir;
+            }
+            return null;
+        }
+
         private async Task InitializeWebViewAsync()
         {
             try
@@ -138,19 +157,28 @@ namespace CineAnime
 
                 await _webView.EnsureCoreWebView2Async(env);
 
-                // Configure WebView settings for media player
+                // Map local embedded bundle to a secure HTTPS virtual origin so crypto.subtle & HLS work offline forever
+                string? offlineFolder = ResolveBundledOfflineFolder();
+                if (!string.IsNullOrEmpty(offlineFolder))
+                {
+                    _webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                        "offline.cineanime.local",
+                        offlineFolder,
+                        CoreWebView2HostResourceAccessKind.Allow
+                    );
+                    _mirrorUrls.Add("https://offline.cineanime.local/index.html");
+                }
+
                 var settings = _webView.CoreWebView2.Settings;
                 settings.IsStatusBarEnabled = false;
                 settings.AreDefaultContextMenusEnabled = true;
                 settings.IsWebMessageEnabled = true;
 
-                // Sync HTML5 video player and web fullscreen with the Windows host window
                 _webView.CoreWebView2.ContainsFullScreenElementChanged += (s, e) =>
                 {
                     HandleFullscreenToggle(_webView.CoreWebView2.ContainsFullScreenElement);
                 };
 
-                // Open external links (Ko-fi, Codeberg, GitHub, donations) in the user's default desktop browser
                 _webView.CoreWebView2.NewWindowRequested += (s, e) =>
                 {
                     e.Handled = true;
@@ -164,26 +192,37 @@ namespace CineAnime
                     }
                 };
 
-                // Handle navigation failover
+                // Automatic silent multi-mirror + embedded offline failover
                 _webView.CoreWebView2.NavigationCompleted += (s, e) =>
                 {
-                    if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
+                    if (!e.IsSuccess
+                        && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled
+                        && e.WebErrorStatus != CoreWebView2WebErrorStatus.ConnectionAborted)
                     {
-                        var result = MessageBox.Show(
-                            "Unable to reach primary CineAnime server. Would you like to switch to the backup mirror?",
+                        if (_mirrorIndex + 1 < _mirrorUrls.Count)
+                        {
+                            _mirrorIndex++;
+                            _webView.CoreWebView2.Navigate(_mirrorUrls[_mirrorIndex]);
+                            return;
+                        }
+
+                        var retry = MessageBox.Show(
+                            "Unable to reach CineAnime mirrors. Check your internet connection and click Retry to try again.",
                             "CineAnime Network Failover",
-                            MessageBoxButtons.YesNo,
+                            MessageBoxButtons.RetryCancel,
                             MessageBoxIcon.Warning
                         );
 
-                        if (result == DialogResult.Yes && _webView.Source.ToString() != BackupMirrorUrl)
+                        if (retry == DialogResult.Retry)
                         {
-                            _webView.CoreWebView2.Navigate(BackupMirrorUrl);
+                            _mirrorIndex = 0;
+                            _webView.CoreWebView2.Navigate(_mirrorUrls[0]);
                         }
                     }
                 };
 
-                _webView.Source = new Uri(PrimaryUrl);
+                _mirrorIndex = 0;
+                _webView.Source = new Uri(_mirrorUrls[0]);
             }
             catch (Exception ex)
             {

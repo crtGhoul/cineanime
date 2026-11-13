@@ -1,8 +1,16 @@
 {
-  "updatedAt": 1794546600000,
-  "version": "1.0.0",
+  "updatedAt": 1794546600001,
+  "version": "1.1.0",
   "cinesrc": "https://cinesrc.st",
   "vidzee": "https://player.vidzee.wtf",
-  "smashy": "https://embed.smashystream.com",
-  "zoko": "https://zokoanime.video"
+  "zoko": "https://zokoanime.video",
+  "smashy": "https://player.vidzee.wtf",
+  "templates": {
+    "zoko": "{origin}/stream/{path}/{e}/{track}?color=e50914&autoplay=1&asi=1&autonext=1",
+    "cinesrcMovie": "{origin}/embed/movie/{ref}?color=%23e50914&autoplay=true",
+    "cinesrcTv": "{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true",
+    "vidzeeMovie": "{origin}/embed/movie/{ref}",
+    "vidzeeTv": "{origin}/embed/tv/{ref}/{s}/{e}"
+  },
+  "unrestrictedSandboxKeys": ["zoko"]
 }

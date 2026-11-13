@@ -36,22 +36,26 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Hardware-accelerated Android TV & Google TV WebView shell for CineAnime.
- * Supports automatic multi-mirror failover and custom endpoint configuration.
+ * Supports automatic multi-mirror failover, custom endpoint configuration, and an embedded offline bundle.
  */
 public class MainActivity extends Activity {
     private static final String PREFS_NAME = "cineanime_tv_prefs";
     private static final String KEY_ACTIVE_MIRROR = "active_mirror_url";
     private static final String KEY_CUSTOM_MIRROR = "custom_mirror_url";
+    private static final String OFFLINE_HOST = "offline.cineanime.local";
     private static final List<String> DEFAULT_MIRRORS = Arrays.asList(
             "https://crtghoul.github.io/cineanime/",
-            "https://crtghoul.codeberg.page/cineanime/",
-            "https://cineanime.pages.dev/"
+            "https://velazquez-lab.pages.dev/cineanime/",
+            "https://" + OFFLINE_HOST + "/"
     );
 
     private FrameLayout rootLayout;
@@ -111,6 +115,11 @@ public class MainActivity extends Activity {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String custom = normalizeMirrorUrl(prefs.getString(KEY_CUSTOM_MIRROR, ""));
         String lastActive = normalizeMirrorUrl(prefs.getString(KEY_ACTIVE_MIRROR, ""));
+        if (lastActive.contains("crtghoul.codeberg.page")
+                || lastActive.contains("cineanime.pages.dev")
+                || lastActive.contains(OFFLINE_HOST)) {
+            lastActive = "";
+        }
         List<String> list = new ArrayList<>();
         if (!custom.isEmpty()) list.add(custom);
         if (!lastActive.isEmpty() && !list.contains(lastActive)) list.add(lastActive);
@@ -131,6 +140,7 @@ public class MainActivity extends Activity {
         }
         Uri parsed = Uri.parse(t);
         if (parsed == null || parsed.getHost() == null) return "";
+        if (t.endsWith(".html")) return t;
         return t.endsWith("/") ? t : (t + "/");
     }
 
@@ -138,6 +148,7 @@ public class MainActivity extends Activity {
         if (host == null || host.isEmpty()) return false;
         String h = host.toLowerCase();
         if ("crtghoul.github.io".equals(h)
+                || OFFLINE_HOST.equals(h)
                 || "crtghoul.codeberg.page".equals(h)
                 || h.endsWith(".pages.dev")
                 || h.endsWith(".netlify.app")
@@ -244,6 +255,36 @@ public class MainActivity extends Activity {
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                if (request == null || request.getUrl() == null) {
+                    return super.shouldInterceptRequest(view, request);
+                }
+                Uri uri = request.getUrl();
+                String host = uri.getHost();
+                if (host != null && OFFLINE_HOST.equalsIgnoreCase(host)) {
+                    String rawPath = uri.getPath();
+                    if (rawPath == null || rawPath.isEmpty() || "/".equals(rawPath)) {
+                        rawPath = "/index.html";
+                    }
+                    String assetPath = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+                    if (assetPath.contains("..")) {
+                        return new WebResourceResponse("text/plain", "UTF-8", 403, "Forbidden", null, null);
+                    }
+                    try {
+                        InputStream stream = getAssets().open(assetPath);
+                        String mime = guessAssetMimeType(assetPath);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Access-Control-Allow-Origin", "*");
+                        headers.put("Cache-Control", "no-store");
+                        return new WebResourceResponse(mime, "UTF-8", 200, "OK", headers, stream);
+                    } catch (Exception ex) {
+                        return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", null, null);
+                    }
+                }
+                return super.shouldInterceptRequest(view, request);
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 if (uri == null) {
@@ -283,9 +324,11 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 if (!mainFrameErrorOccurred && isAppOriginUrl(url)) {
                     hideErrorOverlay();
-                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
-                            .putString(KEY_ACTIVE_MIRROR, currentHomeUrl)
-                            .apply();
+                    if (!currentHomeUrl.contains(OFFLINE_HOST)) {
+                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                                .putString(KEY_ACTIVE_MIRROR, currentHomeUrl)
+                                .apply();
+                    }
                 }
                 webView.evaluateJavascript("document.body && document.body.classList.add('tv-webview-mode');", null);
             }
@@ -318,6 +361,17 @@ public class MainActivity extends Activity {
                 tryFailoverMirror("TLS certificate verification failed.");
             }
         });
+    }
+
+    private String guessAssetMimeType(String assetPath) {
+        String p = assetPath != null ? assetPath.toLowerCase() : "";
+        if (p.endsWith(".html") || p.endsWith(".htm")) return "text/html";
+        if (p.endsWith(".js") || p.endsWith(".mjs")) return "application/javascript";
+        if (p.endsWith(".json") || p.endsWith(".webmanifest")) return "application/json";
+        if (p.endsWith(".svg")) return "image/svg+xml";
+        if (p.endsWith(".png")) return "image/png";
+        if (p.endsWith(".css")) return "text/css";
+        return "application/octet-stream";
     }
 
     private void openExternalIntent(Uri uri) {

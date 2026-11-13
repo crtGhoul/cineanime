@@ -43,8 +43,21 @@ $Manifest = Join-Path $MainDir "AndroidManifest.xml"
 
 $BuildDir = Join-Path $ProjectDir "build"
 $DistDir = Join-Path $ProjectDir "dist"
+$RepoRoot = Split-Path -Parent $ProjectDir
+$AssetsDir = Join-Path $BuildDir "assets"
 if (Test-Path $BuildDir) { Remove-Item -Recurse -Force $BuildDir }
-New-Item -ItemType Directory -Force -Path $BuildDir, (Join-Path $BuildDir "res-flat"), (Join-Path $BuildDir "gen"), (Join-Path $BuildDir "classes"), (Join-Path $BuildDir "dex"), $DistDir | Out-Null
+New-Item -ItemType Directory -Force -Path $BuildDir, $AssetsDir, (Join-Path $AssetsDir "vendor"), (Join-Path $BuildDir "res-flat"), (Join-Path $BuildDir "gen"), (Join-Path $BuildDir "classes"), (Join-Path $BuildDir "dex"), $DistDir | Out-Null
+
+foreach ($assetFile in @("index.html", "about.html", "servers.json", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png")) {
+    $srcPath = Join-Path $RepoRoot $assetFile
+    if (Test-Path $srcPath) {
+        Copy-Item $srcPath (Join-Path $AssetsDir $assetFile) -Force
+    }
+}
+$hlsSrc = Join-Path $RepoRoot "vendor/hls.min.js"
+if (Test-Path $hlsSrc) {
+    Copy-Item $hlsSrc (Join-Path $AssetsDir "vendor/hls.min.js") -Force
+}
 
 if (-not $KeystorePath) {
     $KeystorePath = Join-Path $ProjectDir "cineanime-release.keystore"
@@ -64,8 +77,8 @@ Write-Host "1/6 Compiling Android resources with aapt2..." -ForegroundColor Cyan
 if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed ($LASTEXITCODE)" }
 
 $BaseApk = Join-Path $BuildDir "base.apk"
-Write-Host "2/6 Linking resources & manifest..." -ForegroundColor Cyan
-& $Aapt2 link -o $BaseApk -I $PlatformJar --manifest $Manifest --java (Join-Path $BuildDir "gen") (Join-Path $BuildDir "res-flat/compiled.flata") --auto-add-overlay
+Write-Host "2/6 Linking resources, offline web bundle & manifest..." -ForegroundColor Cyan
+& $Aapt2 link -o $BaseApk -I $PlatformJar -A $AssetsDir --manifest $Manifest --java (Join-Path $BuildDir "gen") (Join-Path $BuildDir "res-flat/compiled.flata") --auto-add-overlay
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed ($LASTEXITCODE)" }
 
 Write-Host "3/6 Compiling Java sources..." -ForegroundColor Cyan

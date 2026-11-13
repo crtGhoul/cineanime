@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js" integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script defer src="./vendor/hls.min.js" onerror="var s=document.createElement('script');s.defer=true;s.crossOrigin='anonymous';s.referrerPolicy='no-referrer';s.integrity='sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr';s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js';document.head.appendChild(s);"></script>
   <style>
     :root {
       --bg: #09090b;
@@ -2098,6 +2098,131 @@
       background: #ff1f2d;
     }
 
+    /* Best Source spotlight */
+    .best-source-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      overflow: hidden;
+      margin-bottom: 0.8rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.42);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.16), transparent 46%),
+        linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(139, 92, 246, 0.08));
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
+    }
+    .best-source-glow {
+      position: absolute;
+      inset: -40% auto auto -10%;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.18), transparent 65%);
+      pointer-events: none;
+    }
+    .best-source-main {
+      position: relative;
+      min-width: 0;
+      flex: 1 1 320px;
+    }
+    .best-source-kicker {
+      font-size: 0.66rem;
+      font-weight: 900;
+      letter-spacing: 0.09em;
+      color: #34d399;
+      margin-bottom: 0.28rem;
+    }
+    .best-source-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .best-source-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.32rem;
+      margin-top: 0.42rem;
+    }
+    .best-source-reason {
+      margin-top: 0.38rem;
+      font-size: 0.72rem;
+      color: #a7f3d0;
+      font-weight: 600;
+    }
+    .best-source-actions {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .best-source-play {
+      padding: 0.62rem 1.05rem !important;
+      font-size: 0.84rem !important;
+      border-radius: 9px !important;
+      box-shadow: 0 6px 18px rgba(229, 9, 20, 0.35);
+    }
+    .stream-pill-tag.verified {
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+    .stream-pill-tag.unverified {
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      color: #cbd5e1;
+    }
+    .stream-pill-tag.failed {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .stream-pill-tag.quality {
+      background: rgba(59, 130, 246, 0.16);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+    }
+    .stream-pill-tag.source {
+      background: rgba(245, 158, 11, 0.13);
+      border: 1px solid rgba(245, 158, 11, 0.34);
+      color: #fcd34d;
+    }
+    .stream-pill-tag.audio {
+      background: rgba(168, 85, 247, 0.13);
+      border: 1px solid rgba(168, 85, 247, 0.32);
+      color: #d8b4fe;
+    }
+    .addon-stream-card.best-pick {
+      border-color: rgba(16, 185, 129, 0.5);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.1), transparent 50%),
+        #0d0d14;
+    }
+    .addon-stream-card.failed-pick {
+      opacity: 0.58;
+    }
+    .stream-card-score {
+      margin-left: auto;
+      font-size: 0.64rem;
+      font-weight: 900;
+      color: #6ee7b7;
+      letter-spacing: 0.03em;
+    }
+    @media (max-width: 620px) {
+      .best-source-actions { width: 100%; }
+      .best-source-play { flex: 1 1 auto; justify-content: center; }
+    }
+
     /* Cauldron Configurator Box in Stremio Addon Modal */
     .cauldron-box {
       background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(229, 9, 20, 0.08));
@@ -3083,7 +3208,8 @@
         <div class="direct-bar-group">
           <span class="direct-bar-label">Quality:</span>
           <select id="hlsQualitySelect" class="direct-bar-select" onchange="setHlsQuality(this.value)" title="HLS Stream Quality">
-            <option value="-1">Auto Quality</option>
+            <option value="auto-1080">Auto (1080p+ Preferred)</option>
+            <option value="-1">Auto (All Qualities)</option>
           </select>
           <span class="direct-bar-label">Subtitles:</span>
           <select id="subtitleSelect" class="direct-bar-select" onchange="selectSubtitleTrack(this.value)" title="Select Subtitles">
@@ -3119,6 +3245,7 @@
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <button id="skipIntroBtn" class="ctrl-btn skip" onclick="skipIntro()">⏭ Skip Intro (+85s)</button>
           <button id="skipOutroBtn" class="ctrl-btn skip" onclick="skipOutro()">⏭ Next Episode</button>
+          <button id="shareWatchBtn" type="button" class="ctrl-btn" onclick="copyCurrentWatchShareLink()" title="Copy direct shareable link to this title &amp; episode">🔗 Share</button>
           <button id="fullscreenBtn" class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         </div>
       </div>
@@ -3130,21 +3257,40 @@
       <div id="addonStreamsSection" class="addon-streams-section">
         <div class="addon-streams-header">
           <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap;">
-            <span style="font-weight:800; font-size:0.95rem; color:#fff;">🧩 Addon Streams</span>
+            <span style="font-weight:800; font-size:0.95rem; color:#fff;">⚡ Smart Sources</span>
             <span id="addonStreamsStatus" style="font-size:0.78rem; color:var(--text-muted);">Ready</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" id="playBest1080Btn" class="addon-stream-btn primary" style="display:none; padding:0.3rem 0.65rem;" onclick="playBestDirectAddonStream()">▶ Best 1080p+</button>
             <div id="addonStreamFilters" class="addon-stream-filters">
               <button type="button" class="media-subpill active" data-filter="all" onclick="setAddonStreamFilter('all')">All</button>
+              <button type="button" class="media-subpill" data-filter="verified" onclick="setAddonStreamFilter('verified')">✅ Verified</button>
               <button type="button" class="media-subpill" data-filter="direct" onclick="setAddonStreamFilter('direct')">⚡ Direct HTTPS</button>
               <button type="button" class="media-subpill" data-filter="4k" onclick="setAddonStreamFilter('4k')">4K / 2160p</button>
               <button type="button" class="media-subpill" data-filter="1080p" onclick="setAddonStreamFilter('1080p')">1080p</button>
             </div>
+            <button type="button" id="autoDirect1080Btn" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="toggleAutoDirect1080p()" title="Automatically start the best ≥1080p Direct HTTPS stream when available">⚡ Auto 1080p+: OFF</button>
             <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openAddonModal()">⚙ Addons</button>
           </div>
         </div>
         <div id="addonStreamNotice" style="font-size:0.76rem; color:#a1a1aa; margin-bottom:0.65rem; display:none;"></div>
+        <div id="bestSourceCard" class="best-source-card" style="display:none;">
+          <div class="best-source-glow"></div>
+          <div class="best-source-main">
+            <div class="best-source-kicker">✨ BEST SOURCE FOR THIS EPISODE</div>
+            <div id="bestSourceTitle" class="best-source-title">—</div>
+            <div id="bestSourceBadges" class="best-source-badges"></div>
+            <div id="bestSourceReason" class="best-source-reason"></div>
+          </div>
+          <div class="best-source-actions">
+            <button type="button" id="bestSourcePlayBtn" class="addon-stream-btn primary best-source-play" onclick="playBestDirectAddonStream()">▶ Play Best 1080p+</button>
+            <button type="button" class="addon-stream-btn" onclick="recheckBestSource()">↻ Recheck</button>
+          </div>
+        </div>
         <div id="addonStreamsList" class="addon-stream-list"></div>
+        <div id="addonStreamsMoreWrap" style="display:none; justify-content:center; margin-top:0.7rem;">
+          <button type="button" id="addonStreamsMoreBtn" class="addon-stream-btn" onclick="toggleAddonStreamsShowAll()">Show all sources</button>
+        </div>
       </div>
 
       <!-- Episode Matrix under Player -->
@@ -3456,6 +3602,18 @@
       </div>
     </section>
 
+    <!-- 🕒 Continue Watching Home Strip (shown when user has watch history) -->
+    <section id="continueHomeStrip" class="catalog-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #3b82f6;"></div>
+          <span>🕒 Continue Watching</span>
+        </div>
+        <button class="clear-history-btn" onclick="switchTab('history')">See All →</button>
+      </div>
+      <div id="continueHomeGrid" class="history-cards-scroll"></div>
+    </section>
+
     <!-- 🎬 Newly Released Movies & TV Episodes (Real-Life Live Drops) -->
     <section id="latestRealReleasesSection" class="catalog-section">
       <div class="section-header">
@@ -3611,7 +3769,19 @@
           <button type="submit" class="addon-add-btn">+ Add Addon</button>
         </form>
 
-        <div style="margin-top: 1.5rem;">
+        <div style="margin-top: 0.9rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.75rem 0.9rem;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: #e4e4e7; margin-bottom: 0.45rem;">⚡ 1-Click Stremio Ecosystem Addons &amp; Configurators</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <button type="button" class="addon-stream-btn" onclick="installPresetAddon('https://opensubtitles-v3.strem.io/manifest.json')">+ 💬 OpenSubtitles v3</button>
+            <button type="button" class="addon-stream-btn" onclick="installPresetAddon('https://anime-kitsu.strem.fun/manifest.json')">+ 🎌 Anime Kitsu</button>
+            <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure Torrentio ↗</a>
+            <a href="https://comet.elfhosted.com/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure Comet ↗</a>
+            <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure MediaFusion ↗</a>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">Tip: Configure any Debrid/community addon above, copy its <code>manifest.json</code> URL here — or sign into your Stremio account below to sync all your addons &amp; library in 1 click!</div>
+        </div>
+
+        <div style="margin-top: 1.35rem;">
           <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff;">Installed Addons</h4>
           <div id="installedAddonsList" class="installed-addons-list">
             <!-- Rendered by JS -->
@@ -3619,8 +3789,8 @@
         </div>
 
         <details id="stremioAccountSyncDetails" class="anilist-sync-box" style="margin-top: 1.25rem;">
-          <summary>📥 Import Addons &amp; Watch History from Stremio Account <span id="stremioSyncBadge" style="font-weight:500; color:#a8a8b8; margin-left:0.4rem;">Not connected</span></summary>
-          <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">Sign into your official Stremio account to pull your installed add-ons (including Debrid configs like Torrentio / Cauldron) and Continue Watching history right into CineAnime.</p>
+          <summary>🔄 Live Two-Way Stremio Account Sync <span id="stremioSyncBadge" style="font-weight:500; color:#a8a8b8; margin-left:0.4rem;">Not connected</span></summary>
+          <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">Sign into your official Stremio account for live two-way sync of your installed add-ons (Torrentio / Cauldron / Comet / Debrid), Watchlist, and exact episode timestamps across PC, Phone &amp; TV.</p>
           <form id="stremioLoginForm" onsubmit="event.preventDefault(); importFromStremioAccount();" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.65rem;">
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
               <input type="email" id="stremioEmailInput" class="anilist-sync-input" placeholder="Stremio Account Email" autocomplete="email" autocorrect="off" autocapitalize="none">
@@ -3628,12 +3798,12 @@
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
               <label style="font-size:0.78rem; color:#d4d4e0; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
-                <input type="checkbox" id="stremioWipeTokenCheckbox" checked>
-                1-Time Transfer &amp; Wipe Token (Recommended for privacy)
+                <input type="checkbox" id="stremioWipeTokenCheckbox" onchange="syncStremioWipeCheckboxes(this.checked)">
+                1-Time Import Only (Uncheck for automatic 2-way live sync)
               </label>
               <div style="display:flex; gap:0.45rem;">
                 <button type="button" id="stremioDisconnectBtn" class="ctrl-btn" style="display:none;" onclick="disconnectStremioAccount()">Disconnect</button>
-                <button type="submit" id="stremioImportBtn" class="addon-add-btn" style="padding:0.4rem 0.95rem;">📥 Import From Stremio</button>
+                <button type="submit" id="stremioImportBtn" class="addon-add-btn" style="padding:0.4rem 0.95rem;">🔄 Link &amp; Sync Stremio</button>
               </div>
             </div>
           </form>
@@ -3710,7 +3880,7 @@
         <!-- Tab 1: Stremio Official Account -->
         <form id="authFormStremio" onsubmit="event.preventDefault(); importFromStremioAccount();" style="display: block;">
           <p style="font-size: 0.8rem; color: #a8a8b8; margin: 0 0 0.85rem 0; line-height: 1.45;">
-            Sign in with your official Stremio account to automatically pull your <strong>watch history</strong>, <strong>episode progress</strong>, <strong>watchlist</strong>, and <strong>add-ons</strong> (Torrentio / Cauldron / Debrid) into CineAnime.
+            Sign in with your official Stremio account for <strong>live two-way sync</strong> of your <strong>watch history</strong>, <strong>resume timestamps</strong>, <strong>watchlist</strong>, and <strong>add-ons</strong> (Torrentio / Cauldron / Comet / Debrid) across every device.
           </p>
           <div class="auth-field">
             <label for="authStremioEmailInput">Stremio Account Email</label>
@@ -3722,14 +3892,14 @@
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom: 0.85rem;">
             <label style="font-size:0.75rem; color:#d4d4e0; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
-              <input type="checkbox" id="authStremioWipeTokenCheckbox">
-              1-Time Transfer &amp; Wipe Token (Uncheck to stay linked)
+              <input type="checkbox" id="authStremioWipeTokenCheckbox" onchange="syncStremioWipeCheckboxes(this.checked)">
+              1-Time Import Only (Uncheck for automatic 2-way live sync)
             </label>
             <span id="authStremioSyncBadge" style="font-size:0.75rem; font-weight:600; color:#a8a8b8;">Not connected</span>
           </div>
           <div style="display:flex; gap:0.5rem;">
             <button type="button" id="authStremioDisconnectBtn" class="ctrl-btn" style="display:none; padding:0.6rem 1rem;" onclick="disconnectStremioAccount()">Disconnect</button>
-            <button type="submit" id="authStremioImportBtn" class="auth-submit-btn" style="margin:0; flex:1;">📥 Sign In &amp; Sync Stremio Data</button>
+            <button type="submit" id="authStremioImportBtn" class="auth-submit-btn" style="margin:0; flex:1;">🔄 Sign In &amp; Enable Live Stremio Sync</button>
           </div>
         </form>
 
@@ -4497,6 +4667,13 @@
     const addonStreamsCache = new Map();
     let currentDirectStreamUrl = '';
     let _cauldronBootPromise = null;
+    let addonStreamsShowAll = false;
+    let activeAddonStreamRef = null;
+    let activePlaybackHealth = null;
+    let addonFailoverAttempts = 0;
+    let activeStallTimer = null;
+    const SOURCE_HEALTH_KEY = 'cineanime_source_health_v1';
+    const SOURCE_MEMORY_KEY = 'cineanime_source_memory_v1';
 
     function safeJsonParse(raw, fallback) {
       if (!raw || typeof raw !== 'string') return fallback;
@@ -4585,6 +4762,7 @@
 
     function closeAllModalsExcept(keepId = '') {
       const closers = {
+        settingsModal: closeSettingsModal,
         syncModal: closeSyncModal,
         profileModal: closeProfileModal,
         authModal: closeAuthModal,
@@ -4688,18 +4866,20 @@
     }
 
     function updateServerButtonLabels(isMovieOrSeries) {
+      const ov = typeof getServerOverrides === 'function' ? getServerOverrides() : {};
+      const hasCustomSmashy = Boolean(ov.smashy && !String(ov.smashy).includes('embed.smashystream.com'));
       const labels = isMovieOrSeries
         ? {
-            server1: '<span class="pulse-dot"></span> Server 1 (CineSrc HD)',
-            server2: '🎬 Server 2 (SmashyStream HD)',
-            server3: '🛡️ Server 3 (VidZee HD)',
-            server4: '⚡ Server 4 (Smashy IMDb)'
+            server1: '<span class="pulse-dot"></span> Server 1 (CineSrc 1080p)',
+            server2: '🛡️ Server 2 (VidZee 1080p)',
+            server3: '🎬 Server 3 (CineSrc IMDb)',
+            server4: hasCustomSmashy ? '⚡ Server 4 (Custom Mirror)' : '🚀 Server 4 (VidZee IMDb)'
           }
         : {
-            server1: '<span class="pulse-dot"></span> Server 1 (ZokoAnime HD)',
-            server2: '🛡️ Server 2 (Zoko HardSub)',
-            server3: '🎬 Server 3 (CineSrc HD)',
-            server4: '⚡ Server 4 (SmashyStream)'
+            server1: '<span class="pulse-dot"></span> Server 1 (Zoko 1080p)',
+            server2: '🚀 Server 2 (AniList Mirror)',
+            server3: '🔤 Server 3 (HardSub 1080p)',
+            server4: '🎬 Server 4 (Multi-Embed HD)'
           };
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(btn => {
         const key = btn.dataset.server;
@@ -5497,9 +5677,17 @@
 
     const SERVER_DEFAULT_ORIGINS = {
       zoko: 'https://zokoanime.video',
-      smashy: 'https://embed.smashystream.com',
+      smashy: 'https://player.vidzee.wtf',
       cinesrc: 'https://cinesrc.st',
       vidzee: 'https://player.vidzee.wtf'
+    };
+
+    const SERVER_DEFAULT_TEMPLATES = {
+      zoko: `{origin}/stream/{path}/{e}/{track}?${ZOKO_QUERY}`,
+      cinesrcMovie: '{origin}/embed/movie/{ref}?color=%23e50914&autoplay=true',
+      cinesrcTv: '{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true',
+      vidzeeMovie: '{origin}/embed/movie/{ref}',
+      vidzeeTv: '{origin}/embed/tv/{ref}/{s}/{e}'
     };
 
     function getServerOverrides() {
@@ -5516,7 +5704,24 @@
     function getEffectiveServerOrigin(key) {
       const ov = getServerOverrides();
       const def = SERVER_DEFAULT_ORIGINS[key] || '';
-      return ov[key] ? normalizeOriginOverride(ov[key], def) : def;
+      const candidate = ov[key] ? normalizeOriginOverride(ov[key], def) : def;
+      if (key === 'smashy' && candidate.includes('embed.smashystream.com')) {
+        return getEffectiveServerOrigin('vidzee');
+      }
+      return candidate;
+    }
+
+    function formatServerTemplate(templateKey, vars) {
+      const ov = getServerOverrides();
+      const rawTpl = (ov.templates && typeof ov.templates[templateKey] === 'string' && ov.templates[templateKey].includes('{origin}'))
+        ? ov.templates[templateKey]
+        : SERVER_DEFAULT_TEMPLATES[templateKey];
+      if (!rawTpl) return 'about:blank';
+      return rawTpl.replace(/\{(origin|path|ref|s|e|track)\}/g, (_, k) => {
+        if (k === 'origin') return vars.origin || '';
+        if (k === 'path') return vars.path || '';
+        return encodeURIComponent(String(vars[k] ?? ''));
+      });
     }
 
     function populateServerOverridesForm() {
@@ -5524,7 +5729,7 @@
       const map = [
         ['overrideZokoInput', ov.zoko || ''],
         ['overrideCineSrcInput', ov.cinesrc || ''],
-        ['overrideSmashyInput', ov.smashy || ''],
+        ['overrideSmashyInput', (ov.smashy && !String(ov.smashy).includes('embed.smashystream.com')) ? ov.smashy : ''],
         ['overrideVidZeeInput', ov.vidzee || ''],
         ['overrideRegistryUrlInput', ov.registryUrl || '']
       ];
@@ -5534,24 +5739,60 @@
       });
     }
 
-    const DEFAULT_SERVER_REGISTRY_URL = 'https://raw.githubusercontent.com/crtGhoul/cineanime/main/servers.json';
+    const SERVER_REGISTRY_MIRRORS = [
+      'https://raw.githubusercontent.com/crtGhoul/cineanime/main/servers.json',
+      'https://codeberg.org/crtGhoul/cineanime/raw/branch/main/servers.json',
+      './servers.json'
+    ];
+
+    async function fetchRegistryJsonWithTimeout(url, timeoutMs = 4500) {
+      const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+      try {
+        const res = await fetch(url, { cache: 'no-store', ...(ctrl ? { signal: ctrl.signal } : {}) });
+        if (!res.ok) return null;
+        const json = await res.json();
+        return (json && typeof json === 'object') ? json : null;
+      } catch (_) {
+        return null;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
 
     async function loadRemoteServerRegistry(silent = true) {
       const ov = getServerOverrides();
-      const regUrl = normalizeSafeHttpUrl(ov.registryUrl) || DEFAULT_SERVER_REGISTRY_URL;
-      if (!regUrl) return;
+      const customReg = normalizeSafeHttpUrl(ov.registryUrl);
+      const candidates = customReg ? [customReg, ...SERVER_REGISTRY_MIRRORS] : SERVER_REGISTRY_MIRRORS;
+      let json = null;
+      for (const url of candidates) {
+        json = await fetchRegistryJsonWithTimeout(url);
+        if (json) break;
+      }
+      if (!json) return;
+
       try {
-        const res = await fetch(regUrl, { cache: 'no-store' });
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!json || typeof json !== 'object') return;
         const next = { ...ov };
         ['zoko', 'cinesrc', 'smashy', 'vidzee'].forEach(k => {
           const val = json[k] || json[k + 'Origin'];
           if (val && normalizeSafeHttpUrl(val)) {
-            next[k] = new URL(normalizeSafeHttpUrl(val)).origin;
+            const origin = new URL(normalizeSafeHttpUrl(val)).origin;
+            if (k === 'smashy' && origin.includes('embed.smashystream.com')) return;
+            next[k] = origin;
           }
         });
+        if (json.templates && typeof json.templates === 'object') {
+          const safeTemplates = {};
+          Object.entries(json.templates).forEach(([tk, tv]) => {
+            if (typeof tv === 'string' && tv.length < 300 && tv.startsWith('{origin}/')) {
+              safeTemplates[tk] = tv;
+            }
+          });
+          if (Object.keys(safeTemplates).length) next.templates = safeTemplates;
+        }
+        if (Array.isArray(json.unrestrictedSandboxKeys)) {
+          next.unrestrictedSandboxKeys = json.unrestrictedSandboxKeys.filter(k => typeof k === 'string');
+        }
         next.updatedAt = Date.now();
         localStorage.setItem('cineanime_server_overrides_v1', JSON.stringify(next));
         if (!silent) showAppToast('🛰 Synced source domains from remote registry');
@@ -5597,17 +5838,37 @@
       showAppToast('↺ Reset source domains to defaults');
     }
 
-    function buildZokoUrl(item, ep, trackOverride = null) {
+    function hasValidAnimeId(item) {
+      if (!item) return false;
+      if (item.idMal || item.aniId) return true;
+      const rawId = String(item.id || '').trim();
+      return Boolean(rawId && !rawId.startsWith('tt') && isNumericId(rawId));
+    }
+
+    function buildZokoUrl(item, ep, trackOverride = null, preferAni = false) {
       const aniId = item?.aniId || (item?.kitsuId && String(item.id) === String(item.kitsuId) ? null : (isNumericId(item?.id) ? item.id : null));
       const malId = item?.idMal || null;
       const track = trackOverride || (currentTrack === 'dub' ? 'dub' : 'sub');
       const episode = item?.type === 'movie' ? 1 : (ep || 1);
-      // MAL ID is substantially more complete on zokoanime.video than AniList ID; only use ani/ when malId is absent.
-      const path = malId ? `mal/${encodeURIComponent(String(malId))}` : `ani/${encodeURIComponent(String(aniId || item?.id || ''))}`;
-      return `${getEffectiveServerOrigin('zoko')}/stream/${path}/${episode}/${track}?${ZOKO_QUERY}`;
+      const useAni = preferAni && aniId;
+      // MAL ID is primary on zoko; preferAni uses ani/<aniId> as an independent index mirror on Server 2.
+      const path = useAni
+        ? `ani/${encodeURIComponent(String(aniId))}`
+        : (malId ? `mal/${encodeURIComponent(String(malId))}` : `ani/${encodeURIComponent(String(aniId || item?.id || ''))}`);
+      return formatServerTemplate('zoko', {
+        origin: getEffectiveServerOrigin('zoko'),
+        path,
+        e: episode,
+        track
+      });
     }
 
     function buildSmashyUrl(item, s, e, preferImdb = false) {
+      const ov = getServerOverrides();
+      const hasCustomSmashy = Boolean(ov.smashy && !String(ov.smashy).includes('embed.smashystream.com'));
+      if (!hasCustomSmashy) {
+        return buildVidZeeUrl(item, s, e, preferImdb);
+      }
       const tmdb = isNumericId(item?.tmdbId) ? String(item.tmdbId).trim() : null;
       const imdb = item?.imdbId || (String(item?.id || '').startsWith('tt') ? String(item.id).trim() : null);
       const refParam = (preferImdb && imdb)
@@ -5619,68 +5880,69 @@
         : `${origin}/playere.php?${refParam}&season=${s}&episode=${e}`;
     }
 
-    function buildCineSrcUrl(item, s, e) {
+    function buildCineSrcUrl(item, s, e, preferImdb = false) {
       if (!item) return 'about:blank';
       const origin = getEffectiveServerOrigin('cinesrc');
       const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
       const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
-      const ref = tmdb || imdb;
+      const ref = (preferImdb && imdb) ? imdb : (tmdb || imdb);
       if (!ref) return 'about:blank';
 
       if (item.type === 'movie') {
-        return `${origin}/embed/movie/${encodeURIComponent(ref)}?color=%23e50914&autoplay=true`;
+        return formatServerTemplate('cinesrcMovie', { origin, ref });
       }
-      return `${origin}/embed/tv/${encodeURIComponent(ref)}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
+      return formatServerTemplate('cinesrcTv', { origin, ref, s, e });
     }
 
-    function buildVidZeeUrl(item, s, e) {
+    function buildVidZeeUrl(item, s, e, preferImdb = false) {
       if (!item) return 'about:blank';
       const origin = getEffectiveServerOrigin('vidzee');
       const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
       const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
-      const ref = tmdb || imdb;
+      const ref = (preferImdb && imdb) ? imdb : (tmdb || imdb);
       if (!ref) return 'about:blank';
 
       return item.type === 'movie'
-        ? `${origin}/embed/movie/${encodeURIComponent(ref)}`
-        : `${origin}/embed/tv/${encodeURIComponent(ref)}/${s}/${e}`;
+        ? formatServerTemplate('vidzeeMovie', { origin, ref })
+        : formatServerTemplate('vidzeeTv', { origin, ref, s, e });
     }
 
     const SERVERS = {
       server1: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e);
-        if (item?.imdbId || isNumericId(item?.tmdbId)) {
-          return buildCineSrcUrl(item, s, e);
+        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, false);
+        if (hasValidAnimeId(item)) {
+          const track = currentTrack === 'dub' ? 'dub' : 'sub';
+          return buildZokoUrl(item, e, track, false);
         }
-        const track = currentTrack === 'dub' ? 'dub' : 'sub';
-        return buildZokoUrl(item, e, track);
+        return buildCineSrcUrl(item, s, e, false);
       },
       server2: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
-        if (item?.imdbId || isNumericId(item?.tmdbId)) {
-          return buildVidZeeUrl(item, s, e);
+        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e, false);
+        if (hasValidAnimeId(item)) {
+          const track = currentTrack === 'dub' ? 'dub' : 'sub';
+          return buildZokoUrl(item, e, track, true);
         }
-        const track = currentTrack === 'dub' ? 'dub' : 'sub';
-        return buildZokoUrl(item, e, track);
+        return buildVidZeeUrl(item, s, e, false);
       },
       server3: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
-        if (item?.imdbId || isNumericId(item?.tmdbId)) {
-          return buildVidZeeUrl(item, s, e);
+        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, true);
+        if (hasValidAnimeId(item)) {
+          // Server 3 = Zoko HardSub — 1080p subtitles burned into video (avoids ASS tag artifacts)
+          return buildZokoUrl(item, e, 'hsub', false);
         }
-        // Server 3 = Zoko HardSub — subtitles burned into video (avoids ASS tag artifacts)
-        return buildZokoUrl(item, e, 'hsub');
+        return buildVidZeeUrl(item, s, e, true);
       },
       server4: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
+        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, true);
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
-          return buildCineSrcUrl(item, s, e);
+          return buildCineSrcUrl(item, s, e, false);
         }
         const track = currentTrack === 'dub' ? 'dub' : 'sub';
-        return buildZokoUrl(item, e, track);
+        return buildZokoUrl(item, e, track, true);
       }
     };
 
@@ -5689,17 +5951,32 @@
     // ========================================================
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    function isUnrestrictedPlayerUrl(rawUrl) {
+      const url = String(rawUrl || '');
+      if (!url) return false;
+      const zokoOrigin = getEffectiveServerOrigin('zoko');
+      if (zokoOrigin && url.startsWith(zokoOrigin)) return true;
+      if (url.includes('zokoanime.')) return true;
+      const ov = getServerOverrides();
+      if (Array.isArray(ov.unrestrictedSandboxKeys)) {
+        for (const k of ov.unrestrictedSandboxKeys) {
+          const orig = getEffectiveServerOrigin(k);
+          if (orig && url.startsWith(orig)) return true;
+        }
+      }
+      return false;
+    }
+
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
       const url = String(targetUrl || iframe.src || '');
-      const isZoko = url.includes('zokoanime.video');
-      if (isZoko) {
+      if (isUnrestrictedPlayerUrl(url)) {
         // Zoko's player relies on orientation locks and custom worker loops that fail inside sandboxed iframes on mobile
         if (iframe.hasAttribute('sandbox')) {
           iframe.removeAttribute('sandbox');
         }
       } else {
-        // Fortress Sandbox for CineSrc, VidZee, Smashy:
+        // Fortress Sandbox for CineSrc, VidZee, Custom Mirrors:
         // Grants scripts, same-origin, presentation (fullscreen/AirPlay), and media pipelines
         // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, and top redirects!
         const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-encrypted-media';
@@ -6007,7 +6284,7 @@
     }
 
     function toggleFavorite(e, id) {
-      e.stopPropagation();
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
       let list = [...getWatchlist()];
       const strId = String(id);
       const tsMap = readStorageJson('cineanime_watchlist_ts', {});
@@ -6042,6 +6319,9 @@
       renderWatchlist();
       updateBadges();
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      const favItem = ANIME_CACHE.get(strId) || (currentAnime && String(currentAnime.id) === strId ? currentAnime : null) || getWatchlistMeta()[strId];
+      if (favItem && typeof scheduleStremioItemPush === 'function') scheduleStremioItemPush(favItem);
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('watchlist');
       // Re-render favorite buttons in place
       document.querySelectorAll('.card-fav-btn').forEach(btn => {
         if (btn.dataset.id !== strId) return;
@@ -6879,20 +7159,43 @@
       };
     }
 
+    let lastProgressUiSyncAt = 0;
+    let lastProgressCloudScheduleAt = 0;
+
     function saveEpisodeProgress(item, season, episode, currentTime, duration, forcePush = false) {
       if (!item?.id || !Number.isFinite(currentTime) || currentTime < 5) return;
       const key = getEpisodeProgressKey(item, season, episode);
+      const now = Date.now();
       const map = { ...getProgressMap() };
+      const cleanTime = Math.floor(currentTime);
+      const cleanDur = Number.isFinite(duration) && duration > 0 ? Math.floor(duration) : (map[key]?.duration || 0);
       map[key] = {
-        time: Math.floor(currentTime),
-        duration: Number.isFinite(duration) && duration > 0 ? Math.floor(duration) : 0,
-        updatedAt: Date.now()
+        time: cleanTime,
+        duration: cleanDur,
+        updatedAt: now
       };
       const entries = Object.entries(map)
         .sort((a, b) => (Number(b[1]?.updatedAt) || 0) - (Number(a[1]?.updatedAt) || 0))
-        .slice(0, 120);
+        .slice(0, 180);
       localStorage.setItem('cineanime_progress_v1', JSON.stringify(Object.fromEntries(entries)));
-      if (forcePush && typeof scheduleCloudPush === 'function') scheduleCloudPush();
+
+      if (cleanDur > 120 && cleanTime / cleanDur >= 0.88 && !isEpisodeWatched(item.id, episode, season)) {
+        markEpisodeWatched(item.id, episode, true, season);
+      }
+
+      if (forcePush || now - lastProgressUiSyncAt >= 15000) {
+        lastProgressUiSyncAt = now;
+        if (typeof renderHistory === 'function') renderHistory();
+        if (typeof renderContinueHomeStrip === 'function') renderContinueHomeStrip();
+        if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('progress');
+      }
+      if (forcePush || now - lastProgressCloudScheduleAt >= 25000) {
+        lastProgressCloudScheduleAt = now;
+        if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+        if (typeof scheduleStremioItemPush === 'function') {
+          scheduleStremioItemPush(item, season, episode, cleanTime, cleanDur);
+        }
+      }
     }
 
     function formatShortTime(seconds) {
@@ -7167,11 +7470,79 @@
       }
     }
 
+    function getPreferredHlsQualityMode() {
+      const prefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
+      return prefs.hlsQualityMode || 'auto-1080';
+    }
+
+    function applyHlsQualityMode(hls, modeStr = 'auto-1080') {
+      if (!hls || !Array.isArray(hls.levels) || !hls.levels.length) return;
+      const levels = hls.levels;
+      if (modeStr === '-1') {
+        hls.config.minAutoBitrate = 0;
+        hls.autoLevelCapping = -1;
+        hls.currentLevel = -1;
+        return;
+      }
+      if (modeStr === 'auto-1080') {
+        // Find all ≥1080p levels (or highest available resolution if stream maxes below 1080p)
+        const hdIndices = [];
+        let maxIdx = 0;
+        let maxScore = -1;
+        levels.forEach((lvl, idx) => {
+          const h = Number(lvl.height) || 0;
+          const br = Number(lvl.bitrate) || 0;
+          const score = h * 10000000 + br;
+          if (score > maxScore) {
+            maxScore = score;
+            maxIdx = idx;
+          }
+          if (h >= 1080 || (!h && br >= 2500000)) {
+            hdIndices.push(idx);
+          }
+        });
+        hls.autoLevelCapping = -1;
+        if (hdIndices.length) {
+          // Prefer crisp 1080p first (or lowest ≥1080p floor) so ABR stays at ≥1080p without stalling on 40Mbps 4K
+          const exact1080 = hdIndices.filter(i => (Number(levels[i].height) || 0) >= 1080 && (Number(levels[i].height) || 0) <= 1152);
+          const startCandidates = exact1080.length ? exact1080 : hdIndices;
+          startCandidates.sort((a, b) => (Number(levels[b].bitrate) || 0) - (Number(levels[a].bitrate) || 0));
+          const minHdBitrate = Math.min(...hdIndices.map(i => Number(levels[i].bitrate) || 0).filter(b => b > 0));
+          if (Number.isFinite(minHdBitrate) && minHdBitrate > 0) {
+            hls.config.minAutoBitrate = Math.max(0, minHdBitrate - 64000);
+          }
+          hls.currentLevel = -1;
+          hls.nextLevel = startCandidates[0];
+        } else {
+          hls.config.minAutoBitrate = 0;
+          hls.currentLevel = maxIdx;
+        }
+        return;
+      }
+      const explicitIdx = Number(modeStr);
+      if (Number.isFinite(explicitIdx) && explicitIdx >= 0 && explicitIdx < levels.length) {
+        hls.config.minAutoBitrate = 0;
+        hls.autoLevelCapping = -1;
+        hls.currentLevel = explicitIdx;
+      }
+    }
+
     function setHlsQuality(levelStr) {
+      const mode = String(levelStr || 'auto-1080');
+      if (mode === 'auto-1080' || mode === '-1') {
+        const curPrefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
+        localStorage.setItem('cineanime_prefs', JSON.stringify({
+          ...curPrefs,
+          server: activeServer,
+          track: currentTrack,
+          hlsQualityMode: mode,
+          updatedAt: Date.now()
+        }));
+      }
       if (!activeHlsInstance) return;
-      activeHlsInstance.currentLevel = Number(levelStr);
+      applyHlsQualityMode(activeHlsInstance, mode);
       const qSelect = document.getElementById('hlsQualitySelect');
-      const label = qSelect?.selectedOptions?.[0]?.textContent || 'Auto';
+      const label = qSelect?.selectedOptions?.[0]?.textContent || 'Auto (1080p+ Preferred)';
       showAppToast(`🎞 Quality: ${label}`);
     }
 
@@ -7290,9 +7661,14 @@
     function bindDirectVideoEvents(vid) {
       if (!vid || directListenersBound) return;
       directListenersBound = true;
+      let lastHealthTime = 0;
       vid.addEventListener('timeupdate', () => {
         if (!currentAnime || !isDirectVideoActive()) return;
         const t = vid.currentTime || 0;
+        if (t > lastHealthTime + 0.35) {
+          lastHealthTime = t;
+          clearActiveStallTimer();
+        }
         const d = Number.isFinite(vid.duration) ? vid.duration : 0;
         const now = Date.now();
         if (now - lastProgressWriteAt >= 5000 && t >= 5) {
@@ -7315,6 +7691,19 @@
           startUpNextCountdown(10);
         }
       });
+      vid.addEventListener('playing', () => {
+        clearActiveStallTimer();
+        noteActiveStreamPlaying();
+      });
+      vid.addEventListener('waiting', () => {
+        if (!activePlaybackHealth || activePlaybackHealth.recorded || activePlaybackHealth.failed) armActiveStallTimer(vid);
+      });
+      vid.addEventListener('stalled', () => {
+        if (!activePlaybackHealth || activePlaybackHealth.recorded || activePlaybackHealth.failed) armActiveStallTimer(vid);
+      });
+      vid.addEventListener('error', () => {
+        if (isDirectVideoActive()) handleActiveStreamFailure('media');
+      });
       vid.addEventListener('pause', () => {
         if (!currentAnime || !isDirectVideoActive()) return;
         if ((vid.currentTime || 0) >= 5) {
@@ -7323,6 +7712,7 @@
       });
       vid.addEventListener('ended', () => {
         if (!currentAnime) return;
+        clearActiveStallTimer();
         saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, vid.duration || vid.currentTime, vid.duration, true);
         if (hasNextEpisodeAvailable()) startUpNextCountdown(5);
       });
@@ -7356,6 +7746,7 @@
 
     function resetDirectVideoPlayer() {
       cancelUpNextCountdown(false);
+      clearActiveStallTimer();
       clearDirectSubtitleTracks();
       if (activeHlsInstance) {
         try { activeHlsInstance.destroy(); } catch (_) {}
@@ -7366,7 +7757,9 @@
       const directBar = document.getElementById('directPlayerBar');
       if (directBar) directBar.classList.remove('active');
       const qSelect = document.getElementById('hlsQualitySelect');
-      if (qSelect) qSelect.innerHTML = '<option value="-1">Auto Quality</option>';
+      if (qSelect) {
+        qSelect.innerHTML = '<option value="auto-1080">Auto (1080p+ Preferred)</option><option value="-1">Auto (All Qualities)</option>';
+      }
 
       const vid = document.getElementById('directVideoPlayer');
       const codecBanner = document.getElementById('streamCodecBanner');
@@ -7385,7 +7778,12 @@
       currentDirectStreamUrl = '';
     }
 
+    let activeAddonBingePref = null;
+    let activeWatchMarkTimer = null;
+
     function switchToEmbedPlayer() {
+      activeAddonBingePref = null;
+      clearActiveStallTimer();
       resetDirectVideoPlayer();
       const iframe = document.getElementById('playerIframe');
       if (iframe) iframe.style.display = 'block';
@@ -7449,27 +7847,83 @@
       vid.style.display = 'block';
       vid.onerror = () => {
         if (codecBanner) codecBanner.classList.add('active');
+        handleActiveStreamFailure('media');
       };
 
       const looksHls = /\.m3u8(\?|$|#)/i.test(safeUrl) || /\bhls\b/i.test(streamLabel);
       if (looksHls && typeof Hls === 'function' && Hls.isSupported()) {
-        activeHlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false });
+        let hlsMediaRecoveries = 0;
+        let hlsNetRecoveries = 0;
+        activeHlsInstance = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          capLevelToPlayerSize: false,
+          abrEwmaDefaultEstimate: 10000000,
+          maxBufferLength: 60,
+          maxMaxBufferLength: 120,
+          backBufferLength: 30,
+          preferManagedMediaSource: true
+        });
         activeHlsInstance.loadSource(safeUrl);
         activeHlsInstance.attachMedia(vid);
         activeHlsInstance.on(Hls.Events.MANIFEST_PARSED, (_evt, data) => {
+          const prefMode = getPreferredHlsQualityMode();
           if (qSelect && Array.isArray(data?.levels)) {
-            const opts = ['<option value="-1">Auto Quality</option>'];
-            data.levels.forEach((lvl, idx) => {
-              const label = lvl.height ? `${lvl.height}p` : `${Math.round((lvl.bitrate || 0) / 1000)}kbps`;
+            const opts = [
+              '<option value="auto-1080">Auto (1080p+ Preferred)</option>',
+              '<option value="-1">Auto (All Qualities)</option>'
+            ];
+            const sortedLevels = data.levels
+              .map((lvl, idx) => ({ lvl, idx }))
+              .sort((a, b) => {
+                const hDiff = (Number(b.lvl.height) || 0) - (Number(a.lvl.height) || 0);
+                if (hDiff !== 0) return hDiff;
+                return (Number(b.lvl.bitrate) || 0) - (Number(a.lvl.bitrate) || 0);
+              });
+            const heightCounts = {};
+            sortedLevels.forEach(({ lvl }) => {
+              if (lvl.height) heightCounts[lvl.height] = (heightCounts[lvl.height] || 0) + 1;
+            });
+            sortedLevels.forEach(({ lvl, idx }) => {
+              const mbps = lvl.bitrate ? (lvl.bitrate / 1000000).toFixed(1) : '';
+              let label = lvl.height ? `${lvl.height}p` : `${Math.round((lvl.bitrate || 0) / 1000)}kbps`;
+              if (lvl.height && heightCounts[lvl.height] > 1 && mbps) {
+                label += ` (${mbps} Mbps)`;
+              } else if (lvl.height >= 2160) {
+                label += ' UHD';
+              } else if (lvl.height >= 1080) {
+                label += ' FHD';
+              }
               opts.push(`<option value="${idx}">${escapeHtml(label)}</option>`);
             });
             qSelect.innerHTML = opts.join('');
+            qSelect.value = (prefMode === '-1' || prefMode === 'auto-1080') ? prefMode : 'auto-1080';
           }
+          applyHlsQualityMode(activeHlsInstance, prefMode);
           tryRestorePosition();
           vid.play().catch(() => {});
         });
         activeHlsInstance.on(Hls.Events.ERROR, (_evt, data) => {
-          if (data?.fatal && codecBanner) codecBanner.classList.add('active');
+          if (!activeHlsInstance || !data) return;
+          if (!data.fatal && data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR && activeHlsInstance.config.minAutoBitrate > 0) {
+            // Connection cannot sustain 1080p right now — unlock ABR floor so playback never freezes
+            activeHlsInstance.config.minAutoBitrate = 0;
+            return;
+          }
+          if (data.fatal) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR && hlsNetRecoveries < 2) {
+              hlsNetRecoveries += 1;
+              activeHlsInstance.startLoad();
+              return;
+            }
+            if (data.type === Hls.ErrorTypes.MEDIA_ERROR && hlsMediaRecoveries < 2) {
+              hlsMediaRecoveries += 1;
+              activeHlsInstance.recoverMediaError();
+              return;
+            }
+            if (codecBanner) codecBanner.classList.add('active');
+            handleActiveStreamFailure('media');
+          }
         });
       } else {
         vid.onloadedmetadata = tryRestorePosition;
@@ -7483,15 +7937,59 @@
       showAppToast(`Playing direct stream: ${streamLabel}`);
     }
 
+    function appendEmbedStartAt(rawUrl, savedProg) {
+      if (!rawUrl || rawUrl === 'about:blank' || !savedProg || savedProg.time < 15) return rawUrl;
+      if (savedProg.duration > 60 && savedProg.time >= savedProg.duration - 35) return rawUrl;
+      try {
+        const u = new URL(rawUrl);
+        const sec = Math.floor(savedProg.time);
+        if (!u.searchParams.has('startAt')) u.searchParams.set('startAt', String(sec));
+        return u.toString();
+      } catch (_) {
+        return rawUrl;
+      }
+    }
+
+    function scheduleAutoWatchedAfterPlayback() {
+      if (activeWatchMarkTimer) {
+        clearTimeout(activeWatchMarkTimer);
+        activeWatchMarkTimer = null;
+      }
+      if (!currentAnime?.id) return;
+      const targetId = String(currentAnime.id);
+      const targetSeason = currentSeason;
+      const targetEp = currentEpisode;
+      // Estimate episode/movie duration and only auto-complete near the end.
+      // This avoids falsely marking a title watched just because Theater opened.
+      const runtimeMin = Number(String(currentAnime.runtime || '').replace(/[^\d.]/g, '')) || 0;
+      const estSeconds = currentAnime.type === 'movie'
+        ? (runtimeMin > 20 ? runtimeMin * 60 : 6600)
+        : (currentAnime.isMovieOrSeries ? 2700 : 1440);
+      const dwellMs = Math.max(120000, Math.min(estSeconds * 0.85 * 1000, 86400000));
+      activeWatchMarkTimer = setTimeout(() => {
+        activeWatchMarkTimer = null;
+        const theaterOpen = document.getElementById('theaterSection')?.classList.contains('active');
+        if (!theaterOpen || document.visibilityState === 'hidden') return;
+        if (!currentAnime || String(currentAnime.id) !== targetId) return;
+        if (Number(currentSeason) !== Number(targetSeason) || Number(currentEpisode) !== Number(targetEp)) return;
+        if (!isEpisodeWatched(targetId, targetEp, targetSeason)) {
+          markEpisodeWatched(targetId, targetEp, true, targetSeason);
+        }
+      }, dwellMs);
+    }
+
     function updatePlayerUrl() {
       resetDirectVideoPlayer();
       upNextDismissedForEpKey = '';
       const getUrl = SERVERS[activeServer] || SERVERS.server1;
-      const url = getUrl(currentAnime, currentSeason, currentEpisode);
+      const baseUrl = getUrl(currentAnime, currentSeason, currentEpisode);
+      const savedProg = getSavedEpisodeProgress(currentAnime, currentSeason, currentEpisode);
+      const url = appendEmbedStartAt(baseUrl, savedProg);
       const iframe = document.getElementById('playerIframe');
       ensureSandboxedPlayer(iframe, url);
       iframe.style.display = 'block';
       iframe.src = url;
+      scheduleAutoWatchedAfterPlayback();
 
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
         b.classList.toggle('active', b.dataset.server === activeServer);
@@ -7576,11 +8074,14 @@
     }
 
     function switchServer(serverKey) {
+      activeAddonBingePref = null;
       activeServer = serverKey;
       document.querySelectorAll('.server-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.server === serverKey);
       });
+      savePlaybackPrefs();
       updatePlayerUrl();
+      if (currentAnime) saveWatchHistory(currentAnime, currentEpisode, activeServer);
     }
 
     function autoFallbackServer() {
@@ -7597,7 +8098,44 @@
       const section = document.getElementById('theaterSection');
       section.classList.add('active');
       updatePlayerUrl();
+      if (currentAnime) {
+        saveWatchHistory(currentAnime, currentEpisode, activeServer);
+      }
       scrollToPlayer();
+    }
+
+    function copyCurrentWatchShareLink() {
+      if (!currentAnime?.id) return;
+      const base = (location.origin === 'null' || location.hostname === 'offline.cineanime.local')
+        ? 'https://crtghoul.github.io/cineanime/'
+        : (location.origin + location.pathname);
+      const params = new URLSearchParams();
+      params.set('watch', String(currentAnime.id));
+      if (currentAnime.type !== 'movie') {
+        if (currentAnime.isMovieOrSeries && Number(currentSeason) > 0) {
+          params.set('s', String(currentSeason));
+        }
+        params.set('e', String(currentEpisode || 1));
+      }
+      const shareUrl = `${base}?${params.toString()}`;
+      copyTextWithAlert(shareUrl, `🔗 Share link copied for ${currentAnime.title}!`);
+    }
+
+    async function handleWatchDeepLinkFromUrl() {
+      try {
+        const params = new URLSearchParams(location.search || '');
+        const watchId = (params.get('watch') || '').trim();
+        if (!watchId) return false;
+        const sParam = params.get('s');
+        const eParam = params.get('e');
+        const targetS = sParam !== null && sParam !== '' ? Number(sParam) : null;
+        const targetE = Math.max(1, Number(eParam) || 1);
+        history.replaceState(null, '', location.pathname + (location.hash || ''));
+        await selectAnimeById(watchId, true, targetE, targetS);
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
 
     function syncFullscreenUi() {
@@ -7627,11 +8165,20 @@
     }
 
     function closeTheater() {
+      if (activeWatchMarkTimer) {
+        clearTimeout(activeWatchMarkTimer);
+        activeWatchMarkTimer = null;
+      }
+      clearActiveStallTimer();
+      activeAddonStreamRef = null;
+      activePlaybackHealth = null;
+      addonFailoverAttempts = 0;
       exitCinemaFullscreen();
       resetDirectVideoPlayer();
       const section = document.getElementById('theaterSection');
       section.classList.remove('active');
       document.getElementById('playerIframe').src = 'about:blank';
+      if (typeof flushPendingSyncsNow === 'function') flushPendingSyncsNow();
     }
 
     function scrollToPlayer() {
@@ -7639,7 +8186,7 @@
       if (section && !section.classList.contains('active')) {
         // If theater is currently hidden, launch current hero anime/item or top trending item
         if (currentHeroAnime) {
-          playAnime(currentHeroAnime, 1);
+          playCurrentHero();
           return;
         }
       }
@@ -7714,11 +8261,50 @@
       });
     });
 
-    // ZokoAnime Auto-Next PostMessage Listener
+    // Embed Player PostMessage Bridge (Captures live resume timestamps & auto-next from Zoko, CineSrc, VidZee & HTML5 embeds)
+    let lastEmbedProgressWriteAt = 0;
     window.addEventListener('message', (e) => {
       try {
-        if (e.origin === 'https://zokoanime.video' && e.data && e.data.channel === 'zokoanime' && e.data.type === 'ended' && e.data.auto_next) {
+        if (!currentAnime || !document.getElementById('theaterSection')?.classList.contains('active')) return;
+        const iframe = document.getElementById('playerIframe');
+        let activeIframeOrigin = '';
+        try {
+          if (iframe?.src && iframe.src !== 'about:blank') activeIframeOrigin = new URL(iframe.src).origin;
+        } catch (_) {}
+        const trustedOrigins = new Set([
+          activeIframeOrigin,
+          getEffectiveServerOrigin('zoko'),
+          getEffectiveServerOrigin('cinesrc'),
+          getEffectiveServerOrigin('vidzee'),
+          getEffectiveServerOrigin('smashy'),
+          'https://zokoanime.video'
+        ].filter(Boolean));
+        if (!trustedOrigins.has(e.origin)) return;
+
+        const raw = typeof e.data === 'string' ? safeJsonParse(e.data, null) : e.data;
+        if (!raw || typeof raw !== 'object') return;
+
+        if (raw.channel === 'zokoanime' && raw.type === 'ended' && raw.auto_next) {
           changeEpisode(1);
+          return;
+        }
+
+        const inner = (raw.data && typeof raw.data === 'object') ? raw.data : raw;
+        const evtName = String(inner.event || raw.event || raw.type || '').toLowerCase();
+        const curTime = Number(inner.currentTime ?? inner.time ?? inner.progress?.watched ?? raw.currentTime);
+        const dur = Number(inner.duration ?? inner.progress?.duration ?? raw.duration ?? 0);
+
+        if (Number.isFinite(curTime) && curTime >= 5) {
+          const now = Date.now();
+          const isMilestone = evtName === 'pause' || evtName === 'ended';
+          if (isMilestone || now - lastEmbedProgressWriteAt >= 6000) {
+            lastEmbedProgressWriteAt = now;
+            saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, curTime, dur, isMilestone);
+          }
+        }
+
+        if (evtName === 'ended' && hasNextEpisodeAvailable() && !upNextTimer) {
+          startUpNextCountdown(6);
         }
       } catch (_) {}
     });
@@ -7899,7 +8485,38 @@
       return st.genre === 'ALL' && st.format === 'ALL' && st.year === 'ALL' && st.sort === 'TRENDING_DESC';
     }
 
+    function initDynamicYearLabels() {
+      const curYear = new Date().getFullYear();
+      const discoverYearSel = document.getElementById('discoverYearSelect');
+      if (discoverYearSel) {
+        const prevVal = discoverYearSel.value || 'ALL';
+        const recentYears = [curYear, curYear - 1, curYear - 2, curYear - 3];
+        const early2020Cap = Math.max(2020, curYear - 4);
+        const opts = ['<option value="ALL">All Years</option>'];
+        recentYears.forEach(yr => opts.push(`<option value="${yr}">${yr}</option>`));
+        if (early2020Cap >= 2020) {
+          opts.push(`<option value="2020s">${early2020Cap === 2020 ? '2020' : `2020–${early2020Cap}`}</option>`);
+        }
+        opts.push('<option value="2010s">2010s Classics</option>');
+        opts.push('<option value="CLASSIC">Pre-2010</option>');
+        discoverYearSel.innerHTML = opts.join('');
+        if ([...discoverYearSel.options].some(o => o.value === prevVal)) {
+          discoverYearSel.value = prevVal;
+        }
+      }
+      const movTitle = document.getElementById('moviesSectionTitle');
+      if (movTitle && /^🆕 New Movies/.test(movTitle.textContent.trim())) {
+        movTitle.textContent = `🆕 New Movies (${curYear})`;
+      }
+      const movNewPill = document.querySelector('#moviesModePills .media-subpill[data-mode="new"]');
+      if (movNewPill) movNewPill.textContent = `🆕 New Releases (${curYear})`;
+      const serNewPill = document.querySelector('#seriesModePills .media-subpill[data-mode="new"]');
+      if (serNewPill) serNewPill.textContent = `🆕 New Shows (${curYear})`;
+    }
+
     function buildAniListDiscoverQuery(st, page = 1) {
+      const curYear = new Date().getFullYear();
+      const early2020Cap = Math.max(2020, curYear - 4);
       const vars = { page, perPage: 20, sort: [st.sort || 'TRENDING_DESC'] };
       if (st.genre && st.genre !== 'ALL') vars.genre = st.genre;
       if (st.format && st.format !== 'ALL') vars.format = st.format;
@@ -7907,7 +8524,7 @@
         vars.seasonYear = Number(st.year);
       } else if (st.year === '2020s') {
         vars.startGreater = 20200101;
-        vars.startLesser = 20221231;
+        vars.startLesser = early2020Cap * 10000 + 1231;
       } else if (st.year === '2010s') {
         vars.startGreater = 20100101;
         vars.startLesser = 20191231;
@@ -7937,7 +8554,10 @@
       const s = document.getElementById('discoverSortSelect');
       const resetBtn = document.getElementById('discoverResetBtn');
       if (f) f.value = isMovie ? 'MOVIE' : 'TV';
-      if (y) y.value = (year && ['2026', '2025', '2024', '2023', '2020s', '2010s', 'CLASSIC'].includes(year)) ? year : (year || 'ALL');
+      if (y) {
+        const targetYr = year || 'ALL';
+        y.value = [...y.options].some(o => o.value === targetYr) ? targetYr : 'ALL';
+      }
       if (s) {
         if (mode === 'new' || mode === 'latest') s.value = 'START_DATE_DESC';
         else if (mode === 'featured') s.value = 'SCORE_DESC';
@@ -9039,13 +9659,11 @@
       }).join('');
     }
 
-    async function installAddonFromInput() {
-      const input = document.getElementById('addonUrlInput');
-      const rawUrl = (input?.value || '').trim();
-      if (!rawUrl) return;
-
+    async function installAddonByUrl(rawUrl, clearInputEl = null) {
+      const trimmed = String(rawUrl || '').trim();
+      if (!trimmed) return false;
       try {
-        let manifestUrl = normalizeSafeHttpUrl(rawUrl, true);
+        let manifestUrl = normalizeSafeHttpUrl(trimmed, true);
         if (!manifestUrl) {
           throw new Error('Enter a valid https://, http://, or stremio:// addon URL.');
         }
@@ -9065,15 +9683,34 @@
           localStorage.setItem('cineanime_cauldron_initialized', '1');
         }
         saveStoredAddons(addons);
-        input.value = '';
+        if (typeof scheduleStremioAddonSync === 'function') scheduleStremioAddonSync();
+        if (clearInputEl) clearInputEl.value = '';
         showAppToast(`✅ Installed Stremio Addon: ${manifest.name}`);
+        return true;
       } catch (err) {
         showAppToast(`❌ Addon error: ${err.message}`);
+        return false;
       }
     }
 
-    // --- Stremio Official Account Importer & Add-on Sync ---
+    async function installAddonFromInput() {
+      const input = document.getElementById('addonUrlInput');
+      await installAddonByUrl(input?.value || '', input);
+    }
+
+    async function installPresetAddon(manifestUrl) {
+      showAppToast('⏳ Connecting Stremio addon...');
+      await installAddonByUrl(manifestUrl, null);
+    }
+
+    // --- Stremio Official Account Live Two-Way Sync & Add-on Bridge ---
     const STREMIO_API_BASE = 'https://api.strem.io/api';
+    let stremioSyncInFlight = false;
+    let lastStremioPullAt = 0;
+    let stremioPushTimer = null;
+    let stremioAddonPushTimer = null;
+    const pendingStremioItemChanges = new Map();
+    const stremioCtimeCache = new Map();
 
     function getStremioAuthKey() {
       return localStorage.getItem('cineanime_stremio_authkey') || '';
@@ -9087,12 +9724,17 @@
       return (document.getElementById('authStremioPasswordInput')?.value || document.getElementById('stremioPasswordInput')?.value || '').trim();
     }
 
+    function syncStremioWipeCheckboxes(checked) {
+      ['authStremioWipeTokenCheckbox', 'stremioWipeTokenCheckbox'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!checked;
+      });
+    }
+
     function getStremioShouldWipe() {
       const authBox = document.getElementById('authStremioWipeTokenCheckbox');
       const settingsBox = document.getElementById('stremioWipeTokenCheckbox');
-      if (authBox && !authBox.checked) return false;
-      if (settingsBox && !settingsBox.checked) return false;
-      return true;
+      return Boolean(authBox?.checked || settingsBox?.checked);
     }
 
     function updateStremioAccountBadge() {
@@ -9102,7 +9744,7 @@
       ['stremioSyncBadge', 'authStremioSyncBadge'].forEach(id => {
         const badge = document.getElementById(id);
         if (badge) {
-          badge.textContent = authKey ? (savedEmail ? `🟢 Linked (${savedEmail})` : '🟢 Linked') : 'Not connected';
+          badge.textContent = authKey ? (savedEmail ? `🟢 Live 2-Way (${savedEmail})` : '🟢 Live 2-Way Synced') : 'Not connected';
           badge.style.color = authKey ? '#10b981' : '#a8a8b8';
         }
       });
@@ -9114,7 +9756,9 @@
 
       ['stremioImportBtn', 'authStremioImportBtn'].forEach(id => {
         const impBtn = document.getElementById(id);
-        if (impBtn && authKey) impBtn.textContent = '🔄 Re-Sync Stremio';
+        if (impBtn) {
+          impBtn.textContent = authKey ? '🔄 Sync Stremio Now' : (id === 'authStremioImportBtn' ? '🔄 Sign In & Enable Live Stremio Sync' : '🔄 Link & Sync Stremio');
+        }
       });
 
       ['stremioEmailInput', 'authStremioEmailInput'].forEach(id => {
@@ -9124,13 +9768,18 @@
 
       ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
         const input = document.getElementById(id);
-        if (input && authKey && !input.value) input.placeholder = 'Linked (enter password only to re-login)';
+        if (input && authKey && !input.value) input.placeholder = 'Linked (leave blank to sync, or enter password to re-login)';
       });
+
+      if (typeof updateBadges === 'function') updateBadges();
+      if (typeof updateSyncStatusUi === 'function') updateSyncStatusUi();
     }
 
     function disconnectStremioAccount() {
       localStorage.removeItem('cineanime_stremio_authkey');
       localStorage.removeItem('cineanime_stremio_email');
+      localStorage.removeItem('cineanime_last_stremio_sync');
+      pendingStremioItemChanges.clear();
       ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
         const passInput = document.getElementById(id);
         if (passInput) {
@@ -9139,7 +9788,7 @@
         }
       });
       updateStremioAccountBadge();
-      showAppToast('Disconnected Stremio account.');
+      showAppToast('Disconnected Stremio live sync.');
     }
 
     async function loginToStremio(email, password) {
@@ -9192,6 +9841,340 @@
       }
     }
 
+    async function resolveCanonicalStremioId(item) {
+      if (!item) return '';
+      const rawId = String(item.id || '').trim();
+      if (rawId.startsWith('tt') || rawId.startsWith('kitsu:')) return rawId;
+      if (item.imdbId && String(item.imdbId).startsWith('tt')) return String(item.imdbId);
+      const imdb = await resolveImdbIdForAddonLookup(item);
+      if (imdb && imdb.startsWith('tt')) return imdb;
+      if (!item.isMovieOrSeries) {
+        const kitsu = await resolveKitsuIdForAddonLookup(item);
+        if (kitsu) return `kitsu:${kitsu}`;
+      }
+      return '';
+    }
+
+    async function buildStremioLibraryDoc(entry) {
+      const { item, season = 1, episode = 1, timeSec = 0, durationSec = 0, removedOverride = null } = entry;
+      const stremioId = await resolveCanonicalStremioId(item);
+      if (!stremioId) return null;
+
+      const isMovie = item.type === 'movie';
+      const type = isMovie ? 'movie' : 'series';
+      const sNum = isMovie ? 1 : resolveSeasonNumber(season, 1);
+      const eNum = isMovie ? 1 : Math.max(1, Number(episode) || 1);
+      const videoId = isMovie ? stremioId : `${stremioId}:${sNum}:${eNum}`;
+
+      const savedProg = (!timeSec && typeof getSavedEpisodeProgress === 'function')
+        ? getSavedEpisodeProgress(item, sNum, eNum)
+        : null;
+      const effTimeSec = Math.max(0, Math.floor(Number(timeSec || savedProg?.time || 0)));
+      const effDurSec = Math.max(0, Math.floor(Number(durationSec || savedProg?.duration || 0)));
+      const completed = (effDurSec > 120 && effTimeSec / effDurSec >= 0.88) || isEpisodeWatched(item.id, eNum, sNum);
+      const inWatchlist = removedOverride !== null ? !removedOverride : isFavorited(item.id);
+
+      const nowIso = new Date().toISOString();
+      const ctimeIso = stremioCtimeCache.get(stremioId) || nowIso;
+      stremioCtimeCache.set(stremioId, ctimeIso);
+
+      return {
+        _id: stremioId,
+        name: item.title || stremioId,
+        type,
+        poster: item.poster || '',
+        posterShape: 'poster',
+        removed: !inWatchlist,
+        temp: !inWatchlist,
+        _ctime: ctimeIso,
+        _mtime: nowIso,
+        state: {
+          lastWatched: nowIso,
+          timeWatched: effTimeSec * 1000,
+          timeOffset: completed ? 0 : effTimeSec * 1000,
+          overallTimeWatched: Math.max(effTimeSec, 60) * 1000,
+          timesWatched: completed ? 1 : 0,
+          flaggedWatched: completed ? 1 : 0,
+          duration: effDurSec * 1000,
+          video_id: videoId,
+          watched: '',
+          noNotif: false
+        },
+        behaviorHints: {
+          defaultVideoId: isMovie ? stremioId : null,
+          featuredVid: null,
+          hasScheduledVideos: !isMovie
+        }
+      };
+    }
+
+    async function flushStremioPendingPushes(useKeepalive = false) {
+      const authKey = getStremioAuthKey();
+      if (!authKey || !pendingStremioItemChanges.size) return false;
+      const entries = [...pendingStremioItemChanges.values()];
+      pendingStremioItemChanges.clear();
+      try {
+        const docs = (await Promise.all(entries.map(buildStremioLibraryDoc))).filter(Boolean);
+        if (!docs.length) return false;
+        const bodyStr = JSON.stringify({ authKey, collection: 'libraryItem', changes: docs });
+        const res = await fetch(`${STREMIO_API_BASE}/datastorePut`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: bodyStr,
+          ...(useKeepalive && bodyStr.length < 60000 ? { keepalive: true } : {})
+        });
+        if (res.ok) {
+          localStorage.setItem('cineanime_last_stremio_sync', String(Date.now()));
+          if (typeof updateSyncStatusUi === 'function') updateSyncStatusUi();
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function scheduleStremioItemPush(item, season = 1, episode = 1, timeSec = 0, durationSec = 0, removedOverride = null) {
+      if (!getStremioAuthKey() || !item?.id) return;
+      pendingStremioItemChanges.set(String(item.id), {
+        item: { ...item },
+        season,
+        episode,
+        timeSec,
+        durationSec,
+        removedOverride
+      });
+      clearTimeout(stremioPushTimer);
+      stremioPushTimer = setTimeout(() => {
+        flushStremioPendingPushes(false);
+      }, 1600);
+    }
+
+    function scheduleStremioAddonSync() {
+      const authKey = getStremioAuthKey();
+      if (!authKey) return;
+      clearTimeout(stremioAddonPushTimer);
+      stremioAddonPushTimer = setTimeout(async () => {
+        try {
+          const remoteAddons = await fetchStremioAddons(authKey);
+          const localAddons = getStoredAddons();
+          const merged = [];
+          const seen = new Set();
+          // Always preserve Cinemeta and remote system addons first
+          remoteAddons.forEach(a => {
+            const id = a?.manifest?.id || a?.transportUrl;
+            const isCinemeta = id === 'org.stremio.cinemeta';
+            const stillLocal = localAddons.some(l => (l?.manifest?.id || l?.transportUrl) === id);
+            if (id && (isCinemeta || stillLocal) && !seen.has(id)) {
+              seen.add(id);
+              merged.push(a);
+            }
+          });
+          localAddons.forEach(a => {
+            const id = a?.manifest?.id || a?.transportUrl;
+            if (id && !seen.has(id) && a.transportUrl && a.manifest) {
+              seen.add(id);
+              merged.push({ transportUrl: a.transportUrl, manifest: a.manifest });
+            }
+          });
+          if (merged.length) {
+            await fetch(`${STREMIO_API_BASE}/addonCollectionSet`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'AddonCollectionSet', authKey, addons: merged })
+            });
+          }
+        } catch (_) {}
+      }, 2000);
+    }
+
+    async function ingestStremioAccountData(authKey, { manualImport = false } = {}) {
+      let importedAddonCount = 0;
+      let importedHistoryCount = 0;
+      let importedWatchlistCount = 0;
+
+      const [rawAddons, libItems] = await Promise.all([
+        fetchStremioAddons(authKey).catch(err => {
+          if (manualImport) throw err;
+          return [];
+        }),
+        fetchStremioLibrary(authKey)
+      ]);
+
+      if (rawAddons.length) {
+        const currentAddons = getStoredAddons();
+        const existingIds = new Set(currentAddons.map(a => a?.manifest?.id || a?.transportUrl));
+        const nextList = [...currentAddons];
+
+        for (const item of rawAddons) {
+          const transportUrl = normalizeSafeHttpUrl(item?.transportUrl || item?.url, true);
+          const manifest = item?.manifest || (item?.id && item?.name ? item : null);
+          const id = manifest?.id || item?._id;
+          if (id && id !== 'org.stremio.cinemeta' && !existingIds.has(id)) {
+            existingIds.add(id);
+            nextList.push({
+              transportUrl: transportUrl || `https://${id}/manifest.json`,
+              manifest: manifest || { id, name: item?.name || id, version: '1.0' }
+            });
+            importedAddonCount++;
+          }
+        }
+        if (importedAddonCount > 0) {
+          saveStoredAddons(nextList);
+        }
+      }
+
+      if (libItems.length) {
+        const historySnapshot = [];
+        const watchlistSnapshot = [];
+        const watchlistMeta = {};
+        const progressMap = {};
+        const watchedEpisodes = {};
+
+        for (const item of libItems) {
+          const id = String(item._id || item.id || '').trim();
+          if (!id) continue;
+          if (item._ctime) stremioCtimeCache.set(id, item._ctime);
+
+          const title = item.name || item.title || id;
+          const type = item.type === 'movie' ? 'movie' : 'series';
+          const poster = item.poster || (id.startsWith('tt') ? `https://images.metahub.space/poster/small/${id}/img` : '');
+          const isFav = !item.removed && !item.temp;
+
+          let season = 1;
+          let episode = 1;
+          if (item.state?.video_id && typeof item.state.video_id === 'string') {
+            const parts = item.state.video_id.split(':');
+            if (id.startsWith('kitsu:') && parts.length >= 3) {
+              season = 1;
+              episode = Number(parts[2]) || 1;
+            } else if (parts.length >= 3) {
+              season = Number(parts[1]) || 1;
+              episode = Number(parts[2]) || 1;
+            }
+          } else if (item.state?.season || item.state?.episode) {
+            season = Number(item.state.season) || 1;
+            episode = Number(item.state.episode) || 1;
+          }
+
+          const rawTimeOffset = Number(item.state?.timeOffset) || 0;
+          const rawDuration = Number(item.state?.duration) || 0;
+          const isMs = rawDuration > 15000 || rawTimeOffset > 15000;
+          const timeOffsetSec = isMs ? Math.floor(rawTimeOffset / 1000) : Math.floor(rawTimeOffset);
+          const durationSec = isMs ? Math.floor(rawDuration / 1000) : Math.floor(rawDuration);
+
+          const lastWatched = item.state?.lastWatched
+            ? new Date(item.state.lastWatched).getTime()
+            : (item._mtime ? new Date(item._mtime).getTime() : Date.now());
+
+          const hasWatched = Boolean(
+            item.state?.lastWatched ||
+            item.state?.timesWatched > 0 ||
+            item.state?.timeWatched > 0 ||
+            item.state?.overallTimeWatched > 0 ||
+            item.state?.flaggedWatched === 1 ||
+            item.state?.watched ||
+            item.state?.video_id ||
+            timeOffsetSec > 5
+          );
+
+          const cachedKnown = ANIME_CACHE.get(id);
+          const knownTotalEps = cachedKnown?.episodes || (type === 'movie' ? 1 : Math.max(12, episode));
+          const isMovieOrSeries = !id.startsWith('kitsu:');
+
+          watchlistMeta[id] = {
+            id,
+            imdbId: id.startsWith('tt') ? id : null,
+            kitsuId: id.startsWith('kitsu:') ? id.slice(6) : null,
+            title,
+            poster,
+            backdrop: cachedKnown?.backdrop || poster,
+            type,
+            isMovieOrSeries,
+            episodes: knownTotalEps
+          };
+
+          if (hasWatched) {
+            historySnapshot.push({
+              id,
+              imdbId: id.startsWith('tt') ? id : null,
+              kitsuId: id.startsWith('kitsu:') ? id.slice(6) : null,
+              title,
+              poster,
+              backdrop: cachedKnown?.backdrop || poster,
+              type,
+              isMovieOrSeries,
+              season,
+              episode,
+              totalEpisodes: knownTotalEps,
+              updatedAt: lastWatched,
+              server: 'server1',
+              track: 'sub'
+            });
+
+            if (timeOffsetSec > 5) {
+              progressMap[`${id}:${season}:${episode}`] = {
+                time: timeOffsetSec,
+                duration: durationSec,
+                updatedAt: lastWatched
+              };
+            } else if (item.state?.flaggedWatched === 1 || item.state?.timesWatched > 0) {
+              progressMap[`${id}:${season}:${episode}`] = {
+                time: durationSec > 60 ? durationSec : 1440,
+                duration: durationSec > 60 ? durationSec : 1440,
+                updatedAt: lastWatched
+              };
+            }
+
+            const watchedKey = getWatchedKey(id, season);
+            if (!watchedEpisodes[watchedKey]) watchedEpisodes[watchedKey] = [];
+            if (!watchedEpisodes[watchedKey].includes(episode)) watchedEpisodes[watchedKey].push(episode);
+
+            importedHistoryCount++;
+          }
+
+          if (isFav) {
+            watchlistSnapshot.push(id);
+            importedWatchlistCount++;
+          }
+        }
+
+        if (historySnapshot.length || watchlistSnapshot.length) {
+          mergeSyncSnapshot({
+            v: 2,
+            history: historySnapshot,
+            watchlist: watchlistSnapshot,
+            watchlistMeta,
+            watchedEpisodes,
+            progressMap
+          }, { manualImport, skipUi: false });
+        }
+      }
+
+      return { importedAddonCount, importedHistoryCount, importedWatchlistCount };
+    }
+
+    async function syncStremioAccountLive({ silent = true } = {}) {
+      const authKey = getStremioAuthKey();
+      if (!authKey || stremioSyncInFlight) return false;
+      stremioSyncInFlight = true;
+      if (typeof setSyncDotState === 'function') setSyncDotState('syncing', 'Syncing with Stremio...');
+      try {
+        await flushStremioPendingPushes(false);
+        await ingestStremioAccountData(authKey, { manualImport: false });
+        lastStremioPullAt = Date.now();
+        localStorage.setItem('cineanime_last_stremio_sync', String(lastStremioPullAt));
+        updateStremioAccountBadge();
+        if (typeof setSyncDotState === 'function') setSyncDotState('connected', 'Synced with Stremio');
+        return true;
+      } catch (err) {
+        if (typeof setSyncDotState === 'function') setSyncDotState('connected', 'Stremio sync warning');
+        if (!silent) showAppToast(`⚠ Stremio sync warning: ${err.message}`);
+        return false;
+      } finally {
+        stremioSyncInFlight = false;
+        if (typeof updateSyncStatusUi === 'function') updateSyncStatusUi();
+      }
+    }
+
     function openStremioSyncSection() {
       closeAllModalsExcept('authModal');
       openAuthModal();
@@ -9214,7 +10197,7 @@
         const btn = document.getElementById(id);
         if (btn) {
           btn.disabled = true;
-          btn.textContent = '⏳ Importing…';
+          btn.textContent = '⏳ Syncing Stremio…';
         }
       });
 
@@ -9223,146 +10206,9 @@
           authKey = await loginToStremio(email, pass);
         }
 
-        // 1. Fetch & Merge Installed Addons
-        const rawAddons = await fetchStremioAddons(authKey);
-        let importedAddonCount = 0;
-        if (rawAddons.length) {
-          const currentAddons = getStoredAddons();
-          const existingIds = new Set(currentAddons.map(a => a?.manifest?.id || a?.transportUrl));
-          const nextList = [...currentAddons];
+        const { importedAddonCount, importedHistoryCount, importedWatchlistCount } =
+          await ingestStremioAccountData(authKey, { manualImport: true });
 
-          for (const item of rawAddons) {
-            const transportUrl = normalizeSafeHttpUrl(item?.transportUrl || item?.url, true);
-            const manifest = item?.manifest || (item?.id && item?.name ? item : null);
-            const id = manifest?.id || item?._id;
-            if (id && id !== 'org.stremio.cinemeta' && !existingIds.has(id)) {
-              existingIds.add(id);
-              nextList.push({
-                transportUrl: transportUrl || `https://${id}/manifest.json`,
-                manifest: manifest || { id, name: item?.name || id, version: '1.0' }
-              });
-              importedAddonCount++;
-            }
-          }
-          if (importedAddonCount > 0) {
-            saveStoredAddons(nextList);
-          }
-        }
-
-        // 2. Fetch & Merge Library / Watch History
-        const libItems = await fetchStremioLibrary(authKey);
-        let importedHistoryCount = 0;
-        let importedWatchlistCount = 0;
-
-        if (libItems.length) {
-          const historySnapshot = [];
-          const watchlistSnapshot = [];
-          const watchlistMeta = {};
-          const progressMap = {};
-          const watchedEpisodes = {};
-
-          for (const item of libItems) {
-            const id = String(item._id || item.id || '').trim();
-            if (!id) continue;
-            const title = item.name || item.title || id;
-            const type = item.type === 'movie' ? 'movie' : 'series';
-            const poster = item.poster || '';
-            const isFav = !item.removed;
-
-            let season = 1;
-            let episode = 1;
-            if (item.state?.video_id && typeof item.state.video_id === 'string') {
-              const parts = item.state.video_id.split(':');
-              if (parts.length >= 3) {
-                season = Number(parts[1]) || 1;
-                episode = Number(parts[2]) || 1;
-              }
-            } else if (item.state?.season || item.state?.episode) {
-              season = Number(item.state.season) || 1;
-              episode = Number(item.state.episode) || 1;
-            }
-
-            const rawTimeOffset = Number(item.state?.timeOffset) || 0;
-            const rawDuration = Number(item.state?.duration) || 0;
-            // Stremio stores milliseconds. Convert to seconds if > 1000.
-            const timeOffsetSec = rawTimeOffset > 1000 ? Math.floor(rawTimeOffset / 1000) : Math.floor(rawTimeOffset);
-            const durationSec = rawDuration > 1000 ? Math.floor(rawDuration / 1000) : Math.floor(rawDuration);
-
-            const lastWatched = item.state?.lastWatched
-              ? new Date(item.state.lastWatched).getTime()
-              : (item._mtime ? new Date(item._mtime).getTime() : Date.now());
-
-            const hasWatched = Boolean(
-              item.state?.lastWatched ||
-              item.state?.timesWatched > 0 ||
-              item.state?.timeWatched > 0 ||
-              item.state?.overallTimeWatched > 0 ||
-              item.state?.flaggedWatched === 1 ||
-              item.state?.watched ||
-              item.state?.video_id ||
-              timeOffsetSec > 5
-            );
-
-            // Always store metadata for watchlist & history so cards render complete with posters
-            watchlistMeta[id] = {
-              id,
-              title,
-              poster,
-              backdrop: poster,
-              type,
-              isMovieOrSeries: true,
-              episodes: 12
-            };
-
-            if (hasWatched) {
-              historySnapshot.push({
-                id,
-                title,
-                poster,
-                backdrop: poster,
-                type,
-                isMovieOrSeries: true,
-                season,
-                episode,
-                totalEpisodes: 12,
-                updatedAt: lastWatched,
-                server: 'server1',
-                track: 'sub'
-              });
-
-              if (timeOffsetSec > 5) {
-                progressMap[`${id}:${season}:${episode}`] = {
-                  time: timeOffsetSec,
-                  duration: durationSec,
-                  updatedAt: lastWatched
-                };
-              }
-
-              if (!watchedEpisodes[id]) watchedEpisodes[id] = [];
-              if (!watchedEpisodes[id].includes(episode)) watchedEpisodes[id].push(episode);
-
-              importedHistoryCount++;
-            }
-
-            if (isFav) {
-              watchlistSnapshot.push(id);
-              importedWatchlistCount++;
-            }
-          }
-
-          if (historySnapshot.length || watchlistSnapshot.length) {
-            mergeSyncSnapshot({
-              v: 2,
-              history: historySnapshot,
-              watchlist: watchlistSnapshot,
-              watchlistMeta,
-              watchedEpisodes,
-              progressMap
-            }, { manualImport: true, skipUi: false });
-          }
-        }
-
-        // 3. Privacy Choice: Wipe or Keep Token
         const shouldWipe = getStremioShouldWipe();
         if (shouldWipe) {
           localStorage.removeItem('cineanime_stremio_authkey');
@@ -9373,36 +10219,42 @@
           });
         } else {
           localStorage.setItem('cineanime_stremio_authkey', authKey);
-          if (email) localStorage.setItem('cineanime_stremio_email', email);
+          if (email && email.includes('@')) localStorage.setItem('cineanime_stremio_email', email);
+          lastStremioPullAt = Date.now();
+          localStorage.setItem('cineanime_last_stremio_sync', String(lastStremioPullAt));
+          ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
+            const passEl = document.getElementById(id);
+            if (passEl) passEl.value = '';
+          });
         }
 
         updateStremioAccountBadge();
         hydrateWatchlistCache();
         renderHistory();
+        renderContinueHomeStrip();
         renderWatchlist();
         if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
 
         const msg = [
-          '✅ Stremio Import Complete!',
+          shouldWipe ? '✅ Stremio Import Complete!' : '🟢 Stremio Live 2-Way Sync Active!',
           importedAddonCount > 0 ? `${importedAddonCount} Addons` : null,
-          importedHistoryCount > 0 ? `${importedHistoryCount} History items` : null,
-          importedWatchlistCount > 0 ? `${importedWatchlistCount} Watchlist items` : null,
-          shouldWipe ? '(Token wiped for zero-knowledge privacy)' : '(Linked)'
+          importedHistoryCount > 0 ? `${importedHistoryCount} History` : null,
+          importedWatchlistCount > 0 ? `${importedWatchlistCount} Watchlist` : null
         ].filter(Boolean).join(' • ');
 
         closeAuthModal();
         closeSettingsModal();
         closeAddonModal();
-        showAppToast(msg);
+        showAppToast(msg, 4200);
       } catch (err) {
         console.error('Stremio import error:', err);
-        showAppToast(`❌ Stremio import failed: ${err.message}`);
+        showAppToast(`❌ Stremio sync failed: ${err.message}`);
       } finally {
         ['stremioImportBtn', 'authStremioImportBtn'].forEach(id => {
           const btn = document.getElementById(id);
           if (btn) {
             btn.disabled = false;
-            btn.textContent = getStremioAuthKey() ? '🔄 Re-Sync Stremio' : '📥 Import From Stremio';
+            btn.textContent = getStremioAuthKey() ? '🔄 Sync Stremio Now' : '🔄 Link & Sync Stremio';
           }
         });
       }
@@ -9414,17 +10266,49 @@
       }
       const addons = getStoredAddons().filter(a => a?.manifest?.id !== id);
       saveStoredAddons(addons);
+      if (typeof scheduleStremioAddonSync === 'function') scheduleStremioAddonSync();
       showAppToast('Removed Stremio addon.');
     }
 
-    function addonSupportsStreamResource(addon, mediaType) {
+    function addonSupportsStreamResource(addon, mediaType, idPrefix = '') {
       const m = addon?.manifest;
       if (!m || !addon?.transportUrl) return false;
       const resources = m.resources || [];
-      const hasStream = resources.some(r => r === 'stream' || (r && typeof r === 'object' && r.name === 'stream'));
-      if (!hasStream) return false;
-      if (Array.isArray(m.types) && m.types.length && !m.types.includes(mediaType)) return false;
+      const streamRes = resources.find(r => r === 'stream' || (r && typeof r === 'object' && r.name === 'stream'));
+      if (!streamRes) return false;
+      const resObj = typeof streamRes === 'object' ? streamRes : null;
+      const types = (resObj && Array.isArray(resObj.types) && resObj.types.length)
+        ? resObj.types
+        : (Array.isArray(m.types) ? m.types : []);
+      if (types.length && !types.includes(mediaType)) return false;
+      if (idPrefix) {
+        const prefixes = (resObj && Array.isArray(resObj.idPrefixes) && resObj.idPrefixes.length)
+          ? resObj.idPrefixes
+          : (Array.isArray(m.idPrefixes) ? m.idPrefixes : []);
+        if (prefixes.length && !prefixes.some(p => String(p).startsWith(idPrefix) || idPrefix.startsWith(String(p)))) {
+          return false;
+        }
+      }
       return true;
+    }
+
+    async function resolveKitsuIdForAddonLookup(item) {
+      if (!item || item.isMovieOrSeries) return null;
+      if (item.kitsuId && isNumericId(item.kitsuId)) return String(item.kitsuId);
+      const extSite = item.aniId ? 'anilist/anime' : (item.idMal ? 'myanimelist/anime' : '');
+      const extId = item.aniId || item.idMal || '';
+      if (!extSite || !extId) return null;
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/mappings?filter[externalSite]=${encodeURIComponent(extSite)}&filter[externalId]=${encodeURIComponent(String(extId))}&include=item`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        const kitsuItemId = json?.data?.[0]?.relationships?.item?.data?.id || json?.included?.[0]?.id;
+        if (kitsuItemId && isNumericId(kitsuItemId)) {
+          item.kitsuId = String(kitsuItemId);
+          return item.kitsuId;
+        }
+      } catch (_) {}
+      return null;
     }
 
     async function resolveImdbIdForAddonLookup(item) {
@@ -9450,9 +10334,405 @@
       return null;
     }
 
-    function extractStreamQuality(text) {
-      const m = String(text || '').match(/\b(2160p|4k|1080p|720p|480p)\b/i);
-      return m ? m[1].toUpperCase().replace('4K', '2160P') : '';
+    function extractStreamQuality(text, st = null) {
+      const hay = [
+        text || '',
+        st?.behaviorHints?.bingeGroup || '',
+        st?.behaviorHints?.filename || ''
+      ].join(' ');
+      if (/\b(2160p|4k|uhd)\b/i.test(hay)) return '2160P';
+      if (/\b(1440p|2k|qhd)\b/i.test(hay)) return '1440P';
+      if (/\b(1080p|1080i|fhd|full[\s-]?hd)\b/i.test(hay)) return '1080P';
+      if (/\b(720p)\b/i.test(hay)) return '720P';
+      if (/\b(480p|360p|sd)\b/i.test(hay)) return '480P';
+      return '';
+    }
+
+    function describeStreamMetadata(displayTitle, st = null) {
+      const hay = [
+        displayTitle || '',
+        st?.behaviorHints?.filename || '',
+        st?.behaviorHints?.bingeGroup || '',
+        st?.title || '',
+        st?.description || '',
+        st?.name || ''
+      ].filter(Boolean).join(' ');
+      const lower = hay.toLowerCase();
+      const safeUrl = String(st?.url || '');
+
+      let sourceTag = '';
+      if (/\b(remux|blu[\s.-]?ray|bdrip|brrip)\b/i.test(hay)) sourceTag = 'BluRay';
+      else if (/\b(web[\s.-]?dl|webdl)\b/i.test(hay)) sourceTag = 'WEB-DL';
+      else if (/\b(web[\s.-]?rip|webrip)\b/i.test(hay)) sourceTag = 'WEBRip';
+      else if (/\b(hdtv|hdtvrip)\b/i.test(hay)) sourceTag = 'HDTV';
+      else if (/\b(dvdrip|dvd)\b/i.test(hay)) sourceTag = 'DVD';
+
+      const hdr = /\b(hdr10\+?|hdr|dolby[\s.-]?vision|dovi|\bdv\b)\b/i.test(hay);
+      const codec = /\b(av1)\b/i.test(hay) ? 'AV1'
+        : /\b(hevc|h[\s.-]?265|x265)\b/i.test(hay) ? 'HEVC'
+        : /\b(avc|h[\s.-]?264|x264)\b/i.test(hay) ? 'H.264'
+        : '';
+      const audio = /\b(truehd|atmos)\b/i.test(hay) ? 'Atmos/TrueHD'
+        : /\b(dts[\s.-]?hd|dts)\b/i.test(hay) ? 'DTS'
+        : /\b(ddp[\s.-]?5\.1|eac3|dd\+|ddp)\b/i.test(hay) ? 'DDP 5.1'
+        : /\b(ac3|dd[\s.-]?5\.1)\b/i.test(hay) ? 'AC3 5.1'
+        : /\b(aac)\b/i.test(hay) ? 'AAC'
+        : /\b(opus)\b/i.test(hay) ? 'Opus'
+        : '';
+
+      const bitrateMatch = hay.match(/(\d+(?:\.\d+)?)\s*(?:mbps|mb\/s|mbit)/i);
+      const bitrateMbps = bitrateMatch ? Number(bitrateMatch[1]) : null;
+      const sizeMatch = hay.match(/(\d+(?:\.\d+)?)\s*(gb|mb)\b/i);
+      let sizeBytes = null;
+      if (sizeMatch) {
+        const n = Number(sizeMatch[1]);
+        sizeBytes = Math.round(n * (/gb/i.test(sizeMatch[2]) ? 1073741824 : 1048576));
+      }
+
+      return {
+        sourceTag,
+        hdr,
+        codec,
+        audio,
+        bitrateMbps: Number.isFinite(bitrateMbps) && bitrateMbps > 0 ? bitrateMbps : null,
+        sizeBytes,
+        isHls: /\.m3u8(\?|$|#)/i.test(safeUrl) || /\bhls\b/i.test(hay),
+        isMp4: /\.mp4(\?|$|#)/i.test(safeUrl) || /\bmp4\b/i.test(hay),
+        isMkv: /\.mkv(\?|$|#)/i.test(safeUrl) || /\bmkv\b/i.test(hay),
+        isCam: /\b(hdcam|camrip|\bcam\b|telesync|\bts\b|hdts)\b/i.test(lower)
+      };
+    }
+
+    function readSourceHealthStore() {
+      const parsed = safeJsonParse(localStorage.getItem(SOURCE_HEALTH_KEY), {});
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    }
+
+    function getProviderHealth(addonName) {
+      const name = String(addonName || 'Addon');
+      const rec = readSourceHealthStore()[name] || null;
+      const success = Number(rec?.success) || 0;
+      const fail = Number(rec?.fail) || 0;
+      const tries = success + fail;
+      if (!tries) return { score: 68, rate: null, tries: 0, avgMs: null };
+      const rate = success / tries;
+      let score = 42 + rate * 58;
+      if (tries >= 5) score += Math.min(5, Math.log2(tries));
+      const avgMs = Number(rec?.avgMs) || 0;
+      if (avgMs > 0 && avgMs < 1200) score += 4;
+      else if (avgMs > 6000) score -= 6;
+      return { score: Math.max(0, Math.min(100, Math.round(score))), rate, tries, avgMs: avgMs || null };
+    }
+
+    function recordProviderOutcome(addonName, ok, elapsedMs = 0) {
+      const name = String(addonName || '').trim();
+      if (!name) return;
+      const all = readSourceHealthStore();
+      const rec = all[name] && typeof all[name] === 'object' ? { ...all[name] } : {
+        success: 0, fail: 0, avgMs: 0, lastOk: 0, lastFail: 0
+      };
+      const ms = Math.max(0, Math.min(90000, Number(elapsedMs) || 0));
+      if (ok) {
+        const prev = Number(rec.success) || 0;
+        rec.success = prev + 1;
+        rec.avgMs = prev > 0 && rec.avgMs
+          ? Math.round((Number(rec.avgMs) * prev + ms) / (prev + 1))
+          : Math.round(ms);
+        rec.lastOk = Date.now();
+      } else {
+        rec.fail = (Number(rec.fail) || 0) + 1;
+        rec.lastFail = Date.now();
+      }
+      rec.updatedAt = Date.now();
+      all[name] = rec;
+      const entries = Object.entries(all)
+        .sort((a, b) => (Number(b[1]?.updatedAt) || 0) - (Number(a[1]?.updatedAt) || 0))
+        .slice(0, 80);
+      localStorage.setItem(SOURCE_HEALTH_KEY, JSON.stringify(Object.fromEntries(entries)));
+    }
+
+    function readSourceMemoryStore() {
+      const parsed = safeJsonParse(localStorage.getItem(SOURCE_MEMORY_KEY), {});
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    }
+
+    function getSourceMemoryKey() {
+      if (!currentAnime?.id) return '';
+      const s = currentAnime.type === 'movie' ? 1 : resolveSeasonNumber(currentSeason, 1);
+      const e = currentAnime.type === 'movie' ? 1 : Math.max(1, Number(currentEpisode) || 1);
+      return `${currentAnime.id}:${s}:${e}`;
+    }
+
+    function getSourceMemoryBonus(stream) {
+      const key = getSourceMemoryKey();
+      if (!key) return 0;
+      const rec = readSourceMemoryStore()[key];
+      if (!rec) return 0;
+      let bonus = 0;
+      if (rec.addonName && rec.addonName === stream.addonName) bonus += 650;
+      if (rec.bingeGroup && rec.bingeGroup === stream.bingeGroup) bonus += 500;
+      if (rec.quality && rec.quality === stream.quality) bonus += 220;
+      try {
+        if (rec.host && stream.url && new URL(stream.url).host === rec.host) bonus += 180;
+      } catch (_) {}
+      return bonus;
+    }
+
+    function rememberWinningSource(stream) {
+      const key = getSourceMemoryKey();
+      if (!key || !stream) return;
+      let host = '';
+      try { if (stream.url) host = new URL(stream.url).host; } catch (_) {}
+      const all = readSourceMemoryStore();
+      all[key] = {
+        addonName: stream.addonName || '',
+        bingeGroup: stream.bingeGroup || '',
+        quality: stream.quality || '',
+        host,
+        updatedAt: Date.now()
+      };
+      const entries = Object.entries(all)
+        .sort((a, b) => (Number(b[1]?.updatedAt) || 0) - (Number(a[1]?.updatedAt) || 0))
+        .slice(0, 600);
+      try { localStorage.setItem(SOURCE_MEMORY_KEY, JSON.stringify(Object.fromEntries(entries))); } catch (_) {}
+    }
+
+    function getStreamPreflightBadge(stream) {
+      if (!stream?.url) return { cls: 'p2p', label: 'P2P Torrent' };
+      if (stream.preflight === 'verified') return { cls: 'verified', label: stream.latencyMs ? `✅ Verified • ${stream.latencyMs}ms` : '✅ Verified' };
+      if (stream.preflight === 'checking') return { cls: 'unverified', label: '⏳ Checking' };
+      if (stream.preflight === 'failed') return { cls: 'failed', label: '⚠ Failed check' };
+      return { cls: 'unverified', label: '◇ Untested' };
+    }
+
+    async function checkStreamReachability(stream, timeoutMs = 3200) {
+      if (!stream?.url || !/^https?:\/\//i.test(stream.url)) {
+        if (stream) stream.preflight = stream?.url ? 'unknown' : 'p2p';
+        return stream?.preflight || 'unknown';
+      }
+      stream.preflight = 'checking';
+      const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+      const started = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      try {
+        const res = await fetch(stream.url, {
+          method: 'GET',
+          headers: { Range: 'bytes=0-1' },
+          signal: ctrl ? ctrl.signal : undefined,
+          cache: 'no-store'
+        });
+        const ended = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        try { if (res.body && typeof res.body.cancel === 'function') res.body.cancel().catch(() => {}); } catch (_) {}
+        stream.latencyMs = Math.max(0, Math.round(ended - started));
+        if (res.ok || res.status === 206) stream.preflight = 'verified';
+        else if ([401, 403, 404, 410, 451].includes(res.status)) stream.preflight = 'failed';
+        else stream.preflight = 'unknown';
+      } catch (_) {
+        // CORS, mixed-content or a timeout does not mean the video is dead: <video> can
+        // still load media from origins that block fetch(). Keep it playable but untested.
+        stream.preflight = 'unknown';
+        stream.latencyMs = null;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+      return stream.preflight;
+    }
+
+    function rankAddonStreams() {
+      currentAddonStreams.sort((a, b) => scoreAddonStream(b) - scoreAddonStream(a));
+      currentAddonStreams.forEach((s, idx) => { s._idx = idx; });
+    }
+
+    function scoreAddonStream(s) {
+      let score = 0;
+      const meta = `${s.displayTitle || ''} ${s.filename || ''} ${s.url || ''}`.toLowerCase();
+      const isHlsOrMp4 = s.isHls || s.isMp4 || /\.m3u8(\?|$|#)/i.test(s.url || '') || /\.mp4(\?|$|#)/i.test(s.url || '') || /\b(hls|mp4)\b/i.test(meta);
+
+      if (s.url) score += 12000;
+      if (s.cached) score += 900;
+
+      // Strict resolution priority so 1080p/4K always ranks above 720p/480p.
+      if (s.quality === '2160P') score += 4300;
+      else if (s.quality === '1440P') score += 4050;
+      else if (s.quality === '1080P') score += 3900;
+      else if (s.quality === '720P') score += 1200;
+      else if (s.quality === '480P') score += 150;
+      else score += 850;
+
+      if (s.sourceTag === 'BluRay') score += 520;
+      else if (s.sourceTag === 'WEB-DL') score += 400;
+      else if (s.sourceTag === 'WEBRip') score += 240;
+      else if (s.sourceTag === 'HDTV') score += 120;
+      if (s.codec === 'H.264') score += 260;
+      else if (s.codec === 'HEVC') score += 90;
+      else if (s.codec === 'AV1') score += 30;
+      if (s.audio === 'AAC' || s.audio === 'Opus') score += 100;
+      else if (s.audio === 'DDP 5.1' || s.audio === 'AC3 5.1') score += 70;
+      else if (s.audio === 'DTS' || s.audio === 'Atmos/TrueHD') score -= 260;
+      if (s.hdr) score += s.quality === '2160P' ? 180 : 60;
+      if (s.bitrateMbps) score += Math.min(520, Math.round(s.bitrateMbps * 45));
+
+      if (s.isHls) score += 300;
+      else if (s.isMp4) score += 230;
+      else if (s.isMkv) score -= 180;
+      if (s.isCam) score -= 6000;
+
+      const health = getProviderHealth(s.addonName);
+      score += Math.round((health.score - 65) * 6);
+      score += getSourceMemoryBonus(s);
+      if (s.preflight === 'verified') score += 420;
+      else if (s.preflight === 'failed') score -= 7000;
+      if (s._failedOnce) score -= 9000;
+      if (!isHlsOrMp4) score -= 60;
+      return score;
+    }
+
+    function getSourceQualityLabel(quality) {
+      if (quality === '2160P') return '4K UHD';
+      if (quality === '1440P') return '1440p QHD';
+      if (quality === '1080P') return '1080p FHD';
+      if (quality === '720P') return '720p HD';
+      if (quality === '480P') return '480p SD';
+      return 'HD';
+    }
+
+    function buildBestSourceReason(stream) {
+      if (!stream) return '';
+      const bits = [];
+      bits.push(getSourceQualityLabel(stream.quality));
+      if (stream.sourceTag) bits.push(stream.sourceTag);
+      if (stream.codec) bits.push(stream.codec);
+      if (stream.audio) bits.push(stream.audio);
+      if (stream.bitrateMbps) bits.push(`${stream.bitrateMbps.toFixed(1)} Mbps`);
+      if (stream.cached) bits.push('⚡ cached');
+      if (stream.preflight === 'verified') bits.push(stream.latencyMs ? `✅ ${stream.latencyMs}ms` : '✅ verified');
+      const health = getProviderHealth(stream.addonName);
+      if (health.tries >= 2 && health.rate !== null) {
+        bits.push(`${Math.round(health.rate * 100)}% reliable`);
+      }
+      return bits.join(' • ');
+    }
+
+    function getAutoDirect1080pEnabled() {
+      const prefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
+      return Boolean(prefs.autoDirect1080p);
+    }
+
+    function syncAutoDirect1080pUi() {
+      const btn = document.getElementById('autoDirect1080Btn');
+      if (!btn) return;
+      const on = getAutoDirect1080pEnabled();
+      btn.textContent = on ? '⚡ Auto 1080p+: ON' : '⚡ Auto 1080p+: OFF';
+      btn.style.borderColor = on ? 'rgba(16,185,129,0.55)' : '';
+      btn.style.color = on ? '#34d399' : '';
+    }
+
+    function toggleAutoDirect1080p() {
+      const curPrefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
+      const nextVal = !Boolean(curPrefs.autoDirect1080p);
+      localStorage.setItem('cineanime_prefs', JSON.stringify({
+        ...curPrefs,
+        server: activeServer,
+        track: currentTrack,
+        autoDirect1080p: nextVal,
+        updatedAt: Date.now()
+      }));
+      syncAutoDirect1080pUi();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (nextVal) {
+        const played = playBestDirectAddonStream(true);
+        if (!played) {
+          showAppToast('⚡ Auto 1080p+ enabled — Direct ≥1080p addon streams will launch automatically when available!');
+        }
+      } else {
+        showAppToast('⚡ Auto 1080p+ turned off — Theater will start on Server 1–4 embeds.');
+      }
+    }
+
+    function findBestDirectAddonStream() {
+      const directs = currentAddonStreams.filter(s => !!s.url);
+      if (!directs.length) return null;
+      return directs.find(s => s.quality === '1080P' || s.quality === '2160P' || s.quality === '1440P') || directs[0];
+    }
+
+    async function playBestAvailableStream({ silentIfMissing = false } = {}) {
+      const allDirects = currentAddonStreams.filter(s => !!s.url && !s._failedOnce);
+      if (!allDirects.length) {
+        if (!silentIfMissing) showAppToast('No Direct HTTPS addon stream available for this episode yet.');
+        return false;
+      }
+
+      const btn = document.getElementById('bestSourcePlayBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Checking sources…';
+      }
+      showAppToast('⚡ Checking the health of the top sources…');
+
+      try {
+        const candidates = allDirects.slice(0, 4);
+        const needCheck = candidates.filter(s =>
+          s.preflight !== 'verified' || !s.verifiedAt || (Date.now() - s.verifiedAt) > 300000
+        );
+        if (needCheck.length) {
+          await Promise.allSettled(needCheck.map(s => checkStreamReachability(s)));
+        }
+        rankAddonStreams();
+        renderAddonStreamsList();
+
+        const healthy = currentAddonStreams.filter(s => s.url && s.preflight !== 'failed' && !s._failedOnce);
+        const pick = healthy.find(s => s.preflight === 'verified')
+          || healthy[0]
+          || currentAddonStreams.find(s => s.url && s.preflight !== 'failed');
+        if (!pick) {
+          showAppToast('⚠ Every checked source failed its health check. Try another addon or Server 1–4.');
+          return false;
+        }
+        playAddonStreamByIndex(pick._idx);
+        return true;
+      } catch (err) {
+        const fallback = findBestDirectAddonStream();
+        if (fallback) {
+          playAddonStreamByIndex(fallback._idx);
+          return true;
+        }
+        return false;
+      } finally {
+        renderAddonStreamsList();
+      }
+    }
+
+    function playBestDirectAddonStream(silentIfMissing = false) {
+      if (!currentAddonStreams.some(s => s.url)) {
+        if (!silentIfMissing) showAppToast('No Direct HTTPS addon stream available for this episode yet.');
+        return false;
+      }
+      playBestAvailableStream({ silentIfMissing });
+      return true;
+    }
+
+    function recheckBestSource() {
+      const candidates = currentAddonStreams.filter(s => s.url && !s._failedOnce).slice(0, 6);
+      if (!candidates.length) {
+        showAppToast('No direct sources to check yet.');
+        return;
+      }
+      candidates.forEach(s => { s.preflight = 'checking'; s.verifiedAt = 0; });
+      renderAddonStreamsList();
+      showAppToast('🔎 Rechecking source health…');
+      Promise.allSettled(candidates.map(s => checkStreamReachability(s))).then(() => {
+        rankAddonStreams();
+        renderAddonStreamsList();
+        const verified = currentAddonStreams.filter(s => s.preflight === 'verified').length;
+        showAppToast(verified
+          ? `✅ ${verified} source${verified === 1 ? '' : 's'} verified and ready.`
+          : '◇ Sources are reachable but blocked browser checks. You can still press Play.');
+      });
+    }
+
+    function toggleAddonStreamsShowAll() {
+      addonStreamsShowAll = !addonStreamsShowAll;
+      renderAddonStreamsList();
     }
 
     function setAddonStreamFilter(filterKey) {
@@ -9463,10 +10743,97 @@
       renderAddonStreamsList();
     }
 
-    function playAddonStreamByIndex(idx) {
+    function findBestBingeMatchStream(pref) {
+      const directs = currentAddonStreams.filter(s => !!s.url && !s._failedOnce);
+      if (!directs.length) return null;
+      if (pref?.bingeGroup) {
+        const exactGroup = directs.find(s => s.bingeGroup && s.bingeGroup === pref.bingeGroup);
+        if (exactGroup) return exactGroup;
+      }
+      if (pref?.addonName) {
+        const sameAddonQuality = directs.find(s => s.addonName === pref.addonName && pref.quality && s.quality === pref.quality);
+        if (sameAddonQuality) return sameAddonQuality;
+        const sameAddonHd = directs.find(s => s.addonName === pref.addonName && (s.quality === '1080P' || s.quality === '2160P' || s.quality === '1440P'));
+        if (sameAddonHd) return sameAddonHd;
+      }
+      return findBestDirectAddonStream();
+    }
+
+    function clearActiveStallTimer() {
+      if (activeStallTimer) {
+        clearTimeout(activeStallTimer);
+        activeStallTimer = null;
+      }
+    }
+
+    function armActiveStallTimer(vid) {
+      clearActiveStallTimer();
+      if (!vid || !activePlaybackHealth || activePlaybackHealth.failed) return;
+      const startedAtPlayback = (Number(vid.currentTime) || 0);
+      activeStallTimer = setTimeout(() => {
+        activeStallTimer = null;
+        if (!isDirectVideoActive() || !vid || vid.paused || document.visibilityState === 'hidden') return;
+        const moved = Math.abs((Number(vid.currentTime) || 0) - startedAtPlayback) > 0.4;
+        if (!moved) handleActiveStreamFailure('stall');
+      }, 15000);
+    }
+
+    function noteActiveStreamPlaying() {
+      if (!activePlaybackHealth || activePlaybackHealth.recorded) return;
+      activePlaybackHealth.recorded = true;
+      const elapsed = Date.now() - (activePlaybackHealth.startedAt || Date.now());
+      recordProviderOutcome(activePlaybackHealth.addonName, true, elapsed);
+      rememberWinningSource(activeAddonStreamRef);
+      renderAddonStreamsList();
+    }
+
+    function handleActiveStreamFailure(reason = 'error') {
+      if (!activeAddonStreamRef || !activePlaybackHealth || activePlaybackHealth.failed) return;
+      activePlaybackHealth.failed = true;
+      clearActiveStallTimer();
+      const elapsed = Date.now() - (activePlaybackHealth.startedAt || Date.now());
+      recordProviderOutcome(activePlaybackHealth.addonName, false, elapsed);
+      activeAddonStreamRef._failedOnce = true;
+      activeAddonStreamRef.preflight = 'failed';
+
+      if (addonFailoverAttempts < 2) {
+        const next = currentAddonStreams.find(s =>
+          s.url && s !== activeAddonStreamRef && !s._failedOnce && s.preflight !== 'failed'
+        );
+        if (next) {
+          addonFailoverAttempts += 1;
+          showAppToast(`⚠ ${reason === 'stall' ? 'Source stalled' : 'Source failed'} — switching to ${next.quality || 'another'} source…`);
+          playAddonStreamByIndex(next._idx, { failover: true });
+          return;
+        }
+      }
+
+      renderAddonStreamsList();
+      showAppToast('⚠ This source failed. Press Play Best or choose another source.');
+    }
+
+    function playAddonStreamByIndex(idx, { failover = false } = {}) {
       const stream = currentAddonStreams[idx];
       if (!stream || !stream.url) return;
+      if (!failover) addonFailoverAttempts = 0;
+      activeAddonStreamRef = stream;
+      activePlaybackHealth = {
+        addonName: stream.addonName || 'Addon',
+        startedAt: Date.now(),
+        recorded: false,
+        failed: false
+      };
+      if (currentAnime?.id) {
+        activeAddonBingePref = {
+          itemId: String(currentAnime.id),
+          bingeGroup: stream.bingeGroup || '',
+          addonName: stream.addonName || '',
+          quality: stream.quality || ''
+        };
+      }
       playDirectStreamUrl(stream.url, `${stream.quality || 'HD'} • ${stream.addonName}`);
+      scheduleAutoWatchedAfterPlayback();
+      if (currentAnime) saveWatchHistory(currentAnime, currentEpisode, activeServer);
     }
 
     function copyAddonMagnetByIndex(idx) {
@@ -9479,9 +10846,59 @@
       const grid = document.getElementById('addonStreamsList');
       const notice = document.getElementById('addonStreamNotice');
       const statusEl = document.getElementById('addonStreamsStatus');
+      const bestBtn = document.getElementById('playBest1080Btn');
+      const bestCard = document.getElementById('bestSourceCard');
+      const bestTitle = document.getElementById('bestSourceTitle');
+      const bestBadges = document.getElementById('bestSourceBadges');
+      const bestReason = document.getElementById('bestSourceReason');
+      const bestPlay = document.getElementById('bestSourcePlayBtn');
+      const moreWrap = document.getElementById('addonStreamsMoreWrap');
+      const moreBtn = document.getElementById('addonStreamsMoreBtn');
+      syncAutoDirect1080pUi();
       if (!grid) return;
 
+      const bestDirect = currentAddonStreams.find(s => s.url && !s._failedOnce && s.preflight !== 'failed')
+        || currentAddonStreams.find(s => s.url && s.preflight !== 'failed');
+      if (bestBtn) {
+        if (bestDirect) {
+          bestBtn.style.display = 'inline-flex';
+          bestBtn.textContent = bestDirect.quality ? `▶ Best ${bestDirect.quality}` : '▶ Best Direct HD';
+        } else {
+          bestBtn.style.display = 'none';
+        }
+      }
+
+      if (bestCard) {
+        if (bestDirect) {
+          bestCard.style.display = 'flex';
+          if (bestTitle) bestTitle.textContent = bestDirect.displayTitle || bestDirect.filename || 'Direct HTTPS Stream';
+          if (bestBadges) {
+            const pre = getStreamPreflightBadge(bestDirect);
+            const badges = [];
+            badges.push(`<span class="stream-pill-tag">${escapeHtml(bestDirect.addonName)}</span>`);
+            if (bestDirect.quality) badges.push(`<span class="stream-pill-tag quality">${escapeHtml(getSourceQualityLabel(bestDirect.quality))}</span>`);
+            if (bestDirect.sourceTag) badges.push(`<span class="stream-pill-tag source">${escapeHtml(bestDirect.sourceTag)}</span>`);
+            if (bestDirect.codec) badges.push(`<span class="stream-pill-tag">${escapeHtml(bestDirect.codec)}</span>`);
+            if (bestDirect.audio) badges.push(`<span class="stream-pill-tag audio">${escapeHtml(bestDirect.audio)}</span>`);
+            if (bestDirect.cached) badges.push('<span class="stream-pill-tag cached">⚡ Cached</span>');
+            badges.push(`<span class="stream-pill-tag ${pre.cls}">${escapeHtml(pre.label)}</span>`);
+            bestBadges.innerHTML = badges.join('');
+          }
+          if (bestReason) bestReason.textContent = buildBestSourceReason(bestDirect);
+          if (bestPlay) {
+            bestPlay.disabled = false;
+            bestPlay.textContent = bestDirect.quality
+              ? `▶ Play Best ${getSourceQualityLabel(bestDirect.quality)}`
+              : '▶ Play Best Source';
+          }
+        } else {
+          bestCard.style.display = 'none';
+        }
+      }
+
+      const isVerifiedFilter = currentAddonStreamFilter === 'verified';
       const filtered = currentAddonStreams.filter(s => {
+        if (isVerifiedFilter) return s.preflight === 'verified';
         if (currentAddonStreamFilter === 'direct') return !!s.url;
         if (currentAddonStreamFilter === '4k') return s.quality === '2160P';
         if (currentAddonStreamFilter === '1080p') return s.quality === '1080P';
@@ -9498,27 +10915,55 @@
         }
       }
 
+      const verifiedCount = currentAddonStreams.filter(s => s.preflight === 'verified').length;
       if (statusEl && currentAddonStreams.length) {
+        const suffix = verifiedCount ? ` • ${verifiedCount} verified` : '';
         statusEl.textContent = filtered.length === currentAddonStreams.length
-          ? `${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'} available`
-          : `${filtered.length} of ${currentAddonStreams.length} stream${currentAddonStreams.length === 1 ? '' : 's'}`;
+          ? `${currentAddonStreams.length} source${currentAddonStreams.length === 1 ? '' : 's'} ranked${suffix}`
+          : `${filtered.length} of ${currentAddonStreams.length} sources${suffix}`;
       }
 
       if (!filtered.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; padding:0.4rem 0;">${currentAddonStreams.length ? 'No streams match this quality filter.' : 'No streams returned from installed Stremio addons yet.'}</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; padding:0.4rem 0;">${currentAddonStreams.length
+          ? (isVerifiedFilter ? 'No verified sources yet — press ↻ Recheck to test them.' : 'No streams match this quality filter.')
+          : 'No streams returned from installed Stremio addons yet.'}</div>`;
+        if (moreWrap) moreWrap.style.display = 'none';
         return;
       }
 
-      grid.innerHTML = filtered.slice(0, 36).map(s => {
+      const visible = addonStreamsShowAll ? filtered.slice(0, 36) : filtered.slice(0, 8);
+      grid.innerHTML = visible.map(s => {
+        const rank = currentAddonStreams.indexOf(s) + 1;
+        const pre = getStreamPreflightBadge(s);
         const qualityBadge = s.quality
-          ? `<span class="stream-pill-tag ${s.quality === '2160P' ? 'uhd' : ''}">${escapeHtml(s.quality)}</span>`
+          ? `<span class="stream-pill-tag quality">${escapeHtml(getSourceQualityLabel(s.quality))}</span>`
+          : '';
+        const sourceBadge = s.sourceTag
+          ? `<span class="stream-pill-tag source">${escapeHtml(s.sourceTag)}</span>`
+          : '';
+        const codecBadge = s.codec
+          ? `<span class="stream-pill-tag">${escapeHtml(s.codec)}</span>`
+          : '';
+        const audioBadge = s.audio
+          ? `<span class="stream-pill-tag audio">${escapeHtml(s.audio)}</span>`
+          : '';
+        const bitrateBadge = s.bitrateMbps
+          ? `<span class="stream-pill-tag">${s.bitrateMbps.toFixed(1)} Mbps</span>`
           : '';
         const modeBadge = s.url
           ? `<span class="stream-pill-tag cached">${s.cached ? '⚡ Cached Direct' : '▶ Direct HTTPS'}</span>`
           : '<span class="stream-pill-tag p2p">P2P Torrent</span>';
+        const preflightBadge = s.url
+          ? `<span class="stream-pill-tag ${pre.cls}">${escapeHtml(pre.label)}</span>`
+          : '';
+        const cardCls = [
+          'addon-stream-card',
+          s === bestDirect ? 'best-pick' : '',
+          s.preflight === 'failed' ? 'failed-pick' : ''
+        ].filter(Boolean).join(' ');
         const actions = s.url
           ? `
-            <button type="button" class="addon-stream-btn primary" onclick="playAddonStreamByIndex(${s._idx})">▶ Play Direct</button>
+            <button type="button" class="addon-stream-btn primary" onclick="playAddonStreamByIndex(${s._idx})">${rank === 1 ? '▶ Play Best' : '▶ Play Direct'}</button>
             <button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy Link</button>
             <a href="vlc://${escapeHtml(s.url)}" target="_blank" rel="noopener" class="addon-stream-btn">VLC ↗</a>
           `
@@ -9528,26 +10973,45 @@
             ${s.magnet ? `<button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy</button>` : ''}
           `;
         return `
-          <div class="addon-stream-card">
+          <div class="${cardCls}">
             <div class="addon-stream-badges">
               <span class="stream-pill-tag">${escapeHtml(s.addonName)}</span>
               ${qualityBadge}
+              ${sourceBadge}
+              ${codecBadge}
+              ${audioBadge}
+              ${bitrateBadge}
               ${modeBadge}
+              ${preflightBadge}
+              <span class="stream-card-score">${rank === 1 ? '🏆 #1' : '#' + rank}</span>
             </div>
             <div class="addon-stream-title" title="${escapeHtml(s.displayTitle)}">${escapeHtml(s.displayTitle)}</div>
             <div class="addon-stream-actions">${actions}</div>
           </div>
         `;
       }).join('');
+
+      if (moreWrap && moreBtn) {
+        const hiddenCount = filtered.length - visible.length;
+        moreWrap.style.display = (filtered.length > 8 || addonStreamsShowAll) ? 'flex' : 'none';
+        moreBtn.textContent = addonStreamsShowAll
+          ? 'Show top 8 only'
+          : `Show all ${filtered.length} sources${hiddenCount > 0 ? ` (+${hiddenCount})` : ''}`;
+      }
     }
+
+    let lastAutoLaunchedEpisodeKey = '';
 
     async function refreshTheaterAddonStreams(item, season = 1, ep = 1) {
       const section = document.getElementById('addonStreamsSection');
       const statusEl = document.getElementById('addonStreamsStatus');
       const grid = document.getElementById('addonStreamsList');
+      const bestBtn = document.getElementById('playBest1080Btn');
+      syncAutoDirect1080pUi();
       if (!section || !item) return;
 
       section.classList.add('active');
+      if (bestBtn) bestBtn.style.display = 'none';
       const reqToken = ++addonStreamReqToken;
       if (statusEl) statusEl.textContent = 'Checking Stremio addons (Cauldron)...';
 
@@ -9555,8 +11019,9 @@
       if (reqToken !== addonStreamReqToken) return;
 
       const mediaType = item.type === 'movie' ? 'movie' : 'series';
-      const streamAddons = getStoredAddons().filter(a => addonSupportsStreamResource(a, mediaType));
-      if (!streamAddons.length) {
+      const allAddons = getStoredAddons();
+      const anyStreamAddons = allAddons.filter(a => addonSupportsStreamResource(a, mediaType) || (!item.isMovieOrSeries && addonSupportsStreamResource(a, 'anime')));
+      if (!anyStreamAddons.length) {
         currentAddonStreams = [];
         lastAddonStreamQueryKey = '';
         if (statusEl) statusEl.textContent = 'No stream addons active — click Addons to enable Cauldron.';
@@ -9564,70 +11029,135 @@
         return;
       }
 
-      const imdbId = await resolveImdbIdForAddonLookup(item);
+      const [imdbId, kitsuId] = await Promise.all([
+        resolveImdbIdForAddonLookup(item),
+        !item.isMovieOrSeries ? resolveKitsuIdForAddonLookup(item) : Promise.resolve(null)
+      ]);
       if (reqToken !== addonStreamReqToken) return;
-      if (!imdbId) {
+      if (!imdbId && !kitsuId) {
         currentAddonStreams = [];
-        if (statusEl) statusEl.textContent = 'IMDb ID unavailable for this title — use Server 1–4 above.';
+        if (statusEl) statusEl.textContent = 'External stream ID unavailable for this title — use Server 1–4 above.';
         if (grid) grid.innerHTML = '';
         return;
       }
 
-      const stremioId = mediaType === 'movie' ? imdbId : `${imdbId}:${resolveSeasonNumber(season, 1)}:${Math.max(1, Number(ep) || 1)}`;
-      const cacheKey = `${mediaType}:${stremioId}`;
+      const safeS = resolveSeasonNumber(season, 1);
+      const safeEp = Math.max(1, Number(ep) || 1);
+      const ttQueryId = imdbId ? (mediaType === 'movie' ? imdbId : `${imdbId}:${safeS}:${safeEp}`) : '';
+      const kitsuQueryId = kitsuId ? (mediaType === 'movie' ? `kitsu:${kitsuId}` : `kitsu:${kitsuId}:${safeEp}`) : '';
+      const cacheKey = `${mediaType}:${ttQueryId || kitsuQueryId}:${kitsuQueryId}`;
+      const epAutoKey = getEpisodeProgressKey(item, safeS, safeEp);
+      if (cacheKey !== lastAddonStreamQueryKey) addonStreamsShowAll = false;
+
+      const maybeTriggerAuto1080p = () => {
+        if (isDirectVideoActive() || lastAutoLaunchedEpisodeKey === epAutoKey) return;
+        const hasActiveBinge = Boolean(activeAddonBingePref && activeAddonBingePref.itemId === String(item.id));
+        if (hasActiveBinge) {
+          const match = findBestBingeMatchStream(activeAddonBingePref);
+          if (match) {
+            lastAutoLaunchedEpisodeKey = epAutoKey;
+            playAddonStreamByIndex(match._idx);
+            return;
+          }
+        }
+        if (getAutoDirect1080pEnabled()) {
+          const best = findBestDirectAddonStream();
+          if (best && (best.quality === '1080P' || best.quality === '2160P' || best.quality === '1440P' || !best.quality)) {
+            lastAutoLaunchedEpisodeKey = epAutoKey;
+            playBestDirectAddonStream(true);
+          }
+        }
+      };
+
       if (cacheKey === lastAddonStreamQueryKey && currentAddonStreams.length) {
         renderAddonStreamsList();
+        maybeTriggerAuto1080p();
         return;
       }
       if (addonStreamsCache.has(cacheKey)) {
         lastAddonStreamQueryKey = cacheKey;
         currentAddonStreams = addonStreamsCache.get(cacheKey);
         renderAddonStreamsList();
+        maybeTriggerAuto1080p();
         return;
       }
 
-      const stremioLink = mediaType === 'movie'
-        ? `stremio://detail/movie/${imdbId}`
-        : `stremio://detail/series/${imdbId}/${stremioId}`;
+      const stremioLink = imdbId
+        ? (mediaType === 'movie' ? `stremio://detail/movie/${imdbId}` : `stremio://detail/series/${imdbId}/${ttQueryId}`)
+        : '';
 
       if (grid) {
-        grid.innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; display:flex; align-items:center; gap:0.5rem;"><div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Scraping Cauldron & installed Stremio addons...</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.82rem; display:flex; align-items:center; gap:0.5rem;"><div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Resolving 1080p+ streams from installed Stremio addons...</div>';
       }
 
-      const results = await Promise.allSettled(streamAddons.map(async addon => {
+      const lookupTasks = [];
+      anyStreamAddons.forEach(addon => {
         const base = String(addon.transportUrl).replace(/\/manifest\.json\/?$/i, '');
-        const url = `${base}/stream/${mediaType}/${encodeURIComponent(stremioId)}.json`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        const rawStreams = Array.isArray(json?.streams) ? json.streams : [];
-        return rawStreams.map(st => {
-          const safeUrl = normalizeSafeHttpUrl(st?.url);
-          const displayTitle = [st?.name, st?.title || st?.description].filter(Boolean).join(' — ') || 'Unnamed Stream';
-          const magnet = safeUrl ? '' : sanitizeMagnetUrl(st?.infoHash, st?.sources, st?.title || item.title);
-          if (!safeUrl && !magnet) return null;
-          return {
-            addonName: addon.manifest?.name || 'Addon',
-            displayTitle,
-            quality: extractStreamQuality(displayTitle),
-            cached: /⚡|cached|\[\+\]/i.test(displayTitle),
-            url: safeUrl,
-            magnet,
-            stremioLink
-          };
-        }).filter(Boolean);
+        if (ttQueryId && addonSupportsStreamResource(addon, mediaType, 'tt')) {
+          lookupTasks.push({ addon, url: `${base}/stream/${mediaType}/${encodeURIComponent(ttQueryId)}.json` });
+        }
+        if (kitsuQueryId) {
+          const kitsuType = addonSupportsStreamResource(addon, 'anime', 'kitsu')
+            ? 'anime'
+            : (addonSupportsStreamResource(addon, mediaType, 'kitsu') ? mediaType : '');
+          if (kitsuType) {
+            lookupTasks.push({ addon, url: `${base}/stream/${kitsuType}/${encodeURIComponent(kitsuQueryId)}.json` });
+          }
+        }
+      });
+
+      const results = await Promise.allSettled(lookupTasks.map(async ({ addon, url }) => {
+        const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), 8500) : null;
+        try {
+          const res = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = await res.json();
+          const rawStreams = Array.isArray(json?.streams) ? json.streams : [];
+          return rawStreams.map(st => {
+            const safeUrl = normalizeSafeHttpUrl(st?.url);
+            const displayTitle = [st?.name, st?.title || st?.description].filter(Boolean).join(' — ') || 'Unnamed Stream';
+            const magnet = safeUrl ? '' : sanitizeMagnetUrl(st?.infoHash, st?.sources, st?.title || item.title);
+            if (!safeUrl && !magnet) return null;
+            return {
+              addonName: addon.manifest?.name || 'Addon',
+              displayTitle,
+              filename: st?.behaviorHints?.filename || '',
+              bingeGroup: String(st?.behaviorHints?.bingeGroup || '').trim(),
+              quality: extractStreamQuality(displayTitle, st),
+              cached: /⚡|cached|\[\+\]|\b(rd|tb|ad|pm|oc)\+/i.test(displayTitle),
+              url: safeUrl,
+              magnet,
+              stremioLink,
+              preflight: safeUrl ? 'unknown' : 'p2p',
+              verifiedAt: 0,
+              latencyMs: null,
+              ...describeStreamMetadata(displayTitle, st)
+            };
+          }).filter(Boolean);
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
       }));
 
       if (reqToken !== addonStreamReqToken) return;
-      const merged = [];
+      const rawMerged = [];
       let rejectedCount = 0;
       results.forEach(r => {
-        if (r.status === 'fulfilled' && Array.isArray(r.value)) merged.push(...r.value);
+        if (r.status === 'fulfilled' && Array.isArray(r.value)) rawMerged.push(...r.value);
         else rejectedCount += 1;
       });
-      merged.forEach((s, idx) => { s._idx = idx; });
 
+      const seenKeys = new Set();
+      const merged = rawMerged.filter(s => {
+        const k = s.url || s.magnet || s.displayTitle;
+        if (seenKeys.has(k)) return false;
+        seenKeys.add(k);
+        return true;
+      });
       currentAddonStreams = merged;
+      rankAddonStreams();
+
       const allFailed = results.length > 0 && rejectedCount === results.length && !merged.length;
       if (!allFailed) {
         lastAddonStreamQueryKey = cacheKey;
@@ -9635,14 +11165,16 @@
       } else {
         lastAddonStreamQueryKey = '';
       }
+      const primaryRefLabel = ttQueryId || kitsuQueryId;
       if (statusEl) {
         statusEl.textContent = merged.length
-          ? `${merged.length} stream${merged.length === 1 ? '' : 's'} resolved (${streamAddons.map(a => a.manifest?.name).join(', ')})`
+          ? `${merged.length} source${merged.length === 1 ? '' : 's'} ranked (${anyStreamAddons.map(a => a.manifest?.name).join(', ')})`
           : (allFailed
-              ? `⚠ Stremio addon lookup failed for ${stremioId} — use Server 1–4 above.`
-              : `No streams found on ${stremioId} — use Server 1–4 above.`);
+              ? `⚠ Stremio addon lookup failed for ${primaryRefLabel} — use Server 1–4 above.`
+              : `No streams found on ${primaryRefLabel} — use Server 1–4 above.`);
       }
       renderAddonStreamsList();
+      maybeTriggerAuto1080p();
     }
 
     // --- Live Simulcast & Newly Released Episodes Feed (Kitsu High-Speed Core) ---
@@ -9672,7 +11204,7 @@
         title: m.title?.english || m.title?.romaji || 'Anime',
         romaji: m.title?.romaji || m.title?.english || '',
         rating: m.averageScore ? (m.averageScore / 10).toFixed(1) : '8.5',
-        year: m.startDate?.year ? String(m.startDate.year) : '2026',
+        year: m.startDate?.year ? String(m.startDate.year) : String(new Date().getFullYear()),
         episodes: Math.max(airedTotal, latestEp),
         latestAiredEp: latestEp,
         airingAt: sched.airingAt || 0,
@@ -9818,7 +11350,7 @@
                   </button>
                   <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
                   <div class="release-ep-badge">${escapeHtml(epText)}</div>
-                  <div class="release-time-tag">⚡ ${escapeHtml(item.year || '2026')} Airing</div>
+                  <div class="release-time-tag">⚡ ${escapeHtml(item.year || String(new Date().getFullYear()))} Airing</div>
                 </div>
                 <div class="card-info">
                   <div class="card-title" title="${safeTitle}">${safeTitle}</div>
@@ -9991,11 +11523,15 @@
     }
 
     function savePlaybackPrefs(fromRemote = null) {
-      const next = fromRemote || {
-        server: activeServer,
-        track: currentTrack,
-        updatedAt: Date.now()
-      };
+      const existing = getPlaybackPrefs();
+      const next = fromRemote
+        ? { ...existing, ...fromRemote }
+        : {
+            ...existing,
+            server: activeServer,
+            track: currentTrack,
+            updatedAt: Date.now()
+          };
       localStorage.setItem('cineanime_prefs', JSON.stringify(next));
       if (!fromRemote && typeof scheduleCloudPush === 'function') scheduleCloudPush();
     }
@@ -10015,6 +11551,7 @@
         if (sBtn) sBtn.classList.toggle('active', currentTrack === 'sub');
         if (dBtn) dBtn.classList.toggle('active', currentTrack === 'dub');
       }
+      if (typeof syncAutoDirect1080pUi === 'function') syncAutoDirect1080pUi();
     }
 
     function getDebridKeyValue() {
@@ -10065,6 +11602,12 @@
         if (targetItem) pushAnilistProgress(targetItem, epNum);
       }
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      const stremioItem = (currentAnime && String(currentAnime.id) === strId) ? currentAnime : ANIME_CACHE.get(strId);
+      if (stremioItem && typeof scheduleStremioItemPush === 'function') {
+        const prog = typeof getSavedEpisodeProgress === 'function' ? getSavedEpisodeProgress(stremioItem, season, epNum) : null;
+        scheduleStremioItemPush(stremioItem, season, epNum, prog?.time || 0, prog?.duration || 0);
+      }
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('watched');
     }
 
     function toggleCurrentEpWatched() {
@@ -10089,6 +11632,10 @@
       renderEpisodeGrid(count);
       updateWatchedBtn();
       if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (currentAnime && typeof scheduleStremioItemPush === 'function') {
+        scheduleStremioItemPush(currentAnime, currentSeason, count);
+      }
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('watched');
     }
 
     function updateWatchedBtn() {
@@ -11016,6 +12563,7 @@
     function refreshAllUiAfterSync() {
       applyPlaybackPrefsUi();
       renderHistory();
+      renderContinueHomeStrip();
       renderWatchlist();
       renderAddonsList();
       if (currentAnime) {
@@ -11025,6 +12573,79 @@
       updateBadges();
       if (typeof refreshDropAlerts === 'function') refreshDropAlerts(false);
     }
+
+    // Instant cross-tab / cross-window UI refresh so a change on your phone mirror or second tab
+    // appears immediately without waiting for the next cloud poll.
+    let localSyncChannel = null;
+    let localSyncBroadcastTimer = null;
+    function broadcastLocalSyncChange(kind = 'update') {
+      const payload = { kind, ts: Date.now() };
+      try {
+        if ('BroadcastChannel' in window) {
+          if (!localSyncChannel) localSyncChannel = new BroadcastChannel('cineanime_live_sync');
+          localSyncChannel.postMessage(payload);
+        }
+      } catch (_) {}
+      try {
+        localStorage.setItem('cineanime_sync_ping', JSON.stringify(payload));
+      } catch (_) {}
+    }
+
+    function applyIncomingLocalSyncNotice(kind = 'update') {
+      clearTimeout(localSyncBroadcastTimer);
+      localSyncBroadcastTimer = setTimeout(() => {
+        hydrateWatchlistCache();
+        refreshAllUiAfterSync();
+        if (kind === 'progress' && currentAnime && isDirectVideoActive()) {
+          // Live playback owns its own clock; just refresh surrounding cards.
+          renderContinueHomeStrip();
+        }
+        if (typeof updateStremioAccountBadge === 'function') updateStremioAccountBadge();
+        if (typeof updateSyncStatusUi === 'function') updateSyncStatusUi();
+      }, 120);
+    }
+
+    function initLocalSyncBridge() {
+      try {
+        if ('BroadcastChannel' in window && !localSyncChannel) {
+          localSyncChannel = new BroadcastChannel('cineanime_live_sync');
+          localSyncChannel.onmessage = (event) => {
+            const kind = String(event?.data?.kind || 'update');
+            applyIncomingLocalSyncNotice(kind);
+          };
+        }
+      } catch (_) {}
+      window.addEventListener('storage', (event) => {
+        if (event.key !== 'cineanime_sync_ping' || !event.newValue) return;
+        try {
+          const payload = JSON.parse(event.newValue);
+          applyIncomingLocalSyncNotice(String(payload?.kind || 'update'));
+        } catch (_) {}
+      });
+    }
+
+    // Flush every queued change immediately. Called when closing the player, switching tabs,
+    // backgrounding the app, and on pagehide — so watches never sit unsynced.
+    function flushPendingSyncsNow(useKeepalive = false) {
+      clearTimeout(cloudPushTimer);
+      let didWork = false;
+      try {
+        if (getCloudConfig()) {
+          didWork = true;
+          syncCloudNow({ pushLocal: true, silent: true });
+        }
+      } catch (_) {}
+      try {
+        if (typeof getStremioAuthKey === 'function' && getStremioAuthKey()) {
+          didWork = true;
+          flushStremioPendingPushes(!!useKeepalive);
+        }
+      } catch (_) {}
+      return didWork;
+    }
+
+    window.addEventListener('pagehide', () => { try { flushPendingSyncsNow(true); } catch (_) {} });
+    window.addEventListener('beforeunload', () => { try { flushPendingSyncsNow(true); } catch (_) {} });
 
     // --- Instant Transfer (CINE2: / #sync= / QR / Legacy Sync Key) ---
     function extractSyncTokenFromInput(raw) {
@@ -11191,8 +12812,14 @@
     }
 
     function saveCloudConfig(cfg) {
-      if (cfg) localStorage.setItem('cineanime_cloud_link', JSON.stringify(cfg));
-      else localStorage.removeItem('cineanime_cloud_link');
+      if (cfg) {
+        localStorage.setItem('cineanime_cloud_link', JSON.stringify(cfg));
+        if ((cfg.provider === 'cloudflare' || cfg.provider === 'firebase') && cfg.endpoint) {
+          localStorage.setItem('cineanime_last_sync_relay', JSON.stringify({ provider: cfg.provider, endpoint: cfg.endpoint }));
+        }
+      } else {
+        localStorage.removeItem('cineanime_cloud_link');
+      }
       updateSyncStatusUi();
     }
 
@@ -11367,8 +12994,17 @@
     }
 
     function manualCloudSyncNow() {
-      syncCloudNow({ pushLocal: true, silent: false }).then(ok => {
-        if (ok) showAppToast('✅ All linked devices are now up to date!');
+      Promise.all([
+        syncCloudNow({ pushLocal: true, silent: false }),
+        getStremioAuthKey() ? syncStremioAccountLive({ silent: false }) : Promise.resolve(false)
+      ]).then(([cloudOk, stremioOk]) => {
+        if (cloudOk || stremioOk) {
+          showAppToast('✅ All linked devices are now up to date!');
+        } else if (!getCloudConfig() && !getStremioAuthKey()) {
+          showAppToast('Link a cloud vault or Stremio account first to enable live sync.');
+        } else {
+          showAppToast('⚠ Sync finished with warnings — check your connection.');
+        }
       });
     }
 
@@ -11520,6 +13156,7 @@
 
     function updateSyncStatusUi() {
       const cfg = getCloudConfig();
+      const stremioKey = typeof getStremioAuthKey === 'function' ? getStremioAuthKey() : '';
       const navBtn = document.getElementById('syncNavBtn');
       const head = document.getElementById('cloudStatusHeadline');
       const sub = document.getElementById('cloudStatusSub');
@@ -11528,12 +13165,18 @@
         const ago = lastTs ? ('Last synced ' + formatAiringAgo(Math.floor(lastTs / 1000))) : 'Connected & ready';
         const provName = cfg.provider === 'gist' ? 'GitHub Gist' : (cfg.provider === 'cloudflare' ? 'Cloudflare Worker' : 'Firebase RTDB');
         if (navBtn) navBtn.innerHTML = `<span id="syncNavDot" class="sync-live-dot connected"></span>🔗 Linked`;
-        if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot connected"></span>Live Auto-Sync Active (${provName})`;
-        if (sub) sub.innerText = `Room ${cfg.code} • ${ago}`;
+        if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot connected"></span>Live Auto-Sync Active (${provName}${stremioKey ? ' + Stremio' : ''})`;
+        if (sub) sub.innerText = `Room ${cfg.code} • ${ago}${stremioKey ? ' • Stremio 2-way on' : ''}`;
+      } else if (stremioKey) {
+        const lastTs = Number(localStorage.getItem('cineanime_last_stremio_sync') || 0);
+        const ago = lastTs ? ('Synced ' + formatAiringAgo(Math.floor(lastTs / 1000))) : 'Connected';
+        if (navBtn) navBtn.innerHTML = `<span id="syncNavDot" class="sync-live-dot connected"></span>🔗 Linked`;
+        if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot connected"></span>Stremio Two-Way Sync Active`;
+        if (sub) sub.innerText = `Watching, watchlist & addons stay in sync • ${ago}`;
       } else {
         if (navBtn) navBtn.innerHTML = `<span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync`;
         if (head) head.innerHTML = `<span id="cloudStatusDot" class="sync-live-dot"></span>Not linked yet`;
-        if (sub) sub.innerText = 'Connect a 100% free cloud store once, then scan the QR on your phone or TV.';
+        if (sub) sub.innerText = 'Sign into Stremio in one tap, or connect a free cloud vault for PC + phone + TV sync.';
       }
     }
 
@@ -11641,10 +13284,10 @@
 
     function openSettingsModal() {
       const modal = document.getElementById('settingsModal');
-      if (modal) {
-        modal.style.display = 'flex';
-        trapModalFocus(modal);
-      }
+      if (!modal) return;
+      closeAllModalsExcept('settingsModal');
+      captureModalOpener(modal, '.addon-modal-close, a, button');
+      modal.style.display = 'flex';
     }
 
     function closeSettingsModal() {
@@ -11696,17 +13339,24 @@
         if (input) input.focus();
         return showAppToast('Please enter the Sync Room Code from your PC (e.g. CINE-XXXX-XXXX)');
       }
+      const typedEndpoint = (document.getElementById('syncEndpointUrl')?.value || '').trim().replace(/\/+$/, '');
+      const savedRelay = readStorageJson('cineanime_last_sync_relay', null);
+      let provider = 'firebase';
+      let endpoint = 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com';
+      if (/^https?:\/\//i.test(typedEndpoint) && !typedEndpoint.includes('gen-lang-client-0975647328')) {
+        provider = selectedCloudProvider === 'cloudflare' ? 'cloudflare' : 'firebase';
+        endpoint = typedEndpoint;
+      } else if (savedRelay?.endpoint && !String(savedRelay.endpoint).includes('gen-lang-client-0975647328')) {
+        provider = savedRelay.provider || 'cloudflare';
+        endpoint = savedRelay.endpoint;
+      }
       showAppToast('⏳ Connecting to room ' + code + '...');
-      const cfg = {
-        provider: 'firebase',
-        endpoint: 'https://gen-lang-client-0975647328-default-rtdb.firebaseio.com',
-        code: code
-      };
+      const cfg = { provider, endpoint, code };
       saveCloudConfig(cfg);
-      const ok = await syncCloudNow({ pushLocal: true, silent: false });
+      const ok = await syncCloudNow({ pushLocal: true, silent: true });
       if (!ok) {
         saveCloudConfig(null);
-        return showAppToast('⚠ Unable to link. Verify Room Code and try again.');
+        return showAppToast('⚠ Relay endpoint required — scan the QR code or paste the 1-Tap Pairing Link (#pair=...) from your PC instead!', 5500);
       }
       renderCloudPairingCard();
       showAppToast('🎉 Connected! Devices linked and synced live.');
@@ -11787,15 +13437,42 @@
       }
 
       updateSyncStatusUi();
+      initLocalSyncBridge();
+      if (getStremioAuthKey()) {
+        setTimeout(() => syncStremioAccountLive({ silent: true }), 1200);
+      }
       if (getCloudConfig()) {
         setTimeout(() => syncCloudNow({ pushLocal: true, silent: true }), 450);
       }
 
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && getCloudConfig() && Date.now() - lastCloudPullAt > 20000) {
+        if (document.visibilityState !== 'visible') {
+          flushPendingSyncsNow(true);
+          return;
+        }
+        if (getCloudConfig() && Date.now() - lastCloudPullAt > 20000) {
           syncCloudNow({ pushLocal: false, silent: true });
         }
+        if (getStremioAuthKey() && Date.now() - lastStremioPullAt > 30000) {
+          syncStremioAccountLive({ silent: true });
+        }
       });
+
+      window.addEventListener('online', () => {
+        if (getCloudConfig()) syncCloudNow({ pushLocal: true, silent: true });
+        if (getStremioAuthKey()) syncStremioAccountLive({ silent: true });
+      });
+
+      clearInterval(window.__cineLiveSyncTimer);
+      window.__cineLiveSyncTimer = setInterval(() => {
+        if (document.visibilityState !== 'visible') return;
+        if (getStremioAuthKey() && Date.now() - lastStremioPullAt > 240000) {
+          syncStremioAccountLive({ silent: true });
+        }
+        if (getCloudConfig() && Date.now() - lastCloudPullAt > 240000) {
+          syncCloudNow({ pushLocal: false, silent: true });
+        }
+      }, 60000);
     }
 
     // --- Watch History & Storage Management ---
@@ -11838,8 +13515,16 @@
         localStorage.setItem('cineanime_history', JSON.stringify(history));
       }
       renderHistory();
+      renderContinueHomeStrip();
       updateBadges();
       scheduleCloudPush();
+      if (typeof scheduleStremioItemPush === 'function') {
+        const prog = typeof getSavedEpisodeProgress === 'function'
+          ? getSavedEpisodeProgress(anime, currentSeason, episode)
+          : null;
+        scheduleStremioItemPush(anime, currentSeason, episode, prog?.time || 0, prog?.duration || 0);
+      }
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('history');
     }
 
     function removeHistoryItem(e, id) {
@@ -11857,8 +13542,10 @@
         localStorage.setItem('cineanime_history', JSON.stringify(history));
       }
       renderHistory();
+      renderContinueHomeStrip();
       updateBadges();
       scheduleCloudPush();
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('history');
     }
 
     async function clearWatchHistory() {
@@ -11876,8 +13563,10 @@
         localStorage.removeItem('cineanime_history');
       }
       renderHistory();
+      renderContinueHomeStrip();
       updateBadges();
       scheduleCloudPush();
+      if (typeof broadcastLocalSyncChange === 'function') broadcastLocalSyncChange('history');
       showAppToast('🗑 Watch history cleared.');
     }
 
@@ -11938,6 +13627,68 @@
           </div>
         `;
       }).join('');
+    }
+
+    // --- Continue Watching Home Strip (top of home page, max 10 items) ---
+    function renderContinueHomeStrip() {
+      const history = getWatchHistory();
+      const strip = document.getElementById('continueHomeStrip');
+      const grid = document.getElementById('continueHomeGrid');
+      if (!strip || !grid) return;
+
+      // Only show when there's actual history and we're on the home tab
+      if (!history.length || currentTab !== 'all') {
+        strip.style.display = 'none';
+        return;
+      }
+
+      strip.style.display = 'block';
+      const items = history.slice(0, 10); // Show up to 10 most recent
+      grid.innerHTML = items.map(item => {
+        const epNum = Number(item.episode) || 1;
+        const sNum = resolveSeasonNumber(item.season, 1);
+        const sLabel = sNum === 0 ? 'Specials' : `S${sNum}`;
+        const epText = item.type === 'movie'
+          ? 'Movie'
+          : (item.isMovieOrSeries ? `${sLabel}:E${epNum}` : `Ep ${epNum}`);
+        const totalEps = Math.max(1, Number(item.totalEpisodes) || 1);
+        const percent = Math.min(100, Math.round((epNum / totalEps) * 100));
+        const savedProg = typeof getSavedEpisodeProgress === 'function' ? getSavedEpisodeProgress(item, sNum, epNum) : null;
+        const timeLabel = savedProg && savedProg.time >= 10 ? formatShortTime(savedProg.time) : '';
+        const safeId = escapeHtml(String(item.id || '').replace(/[^a-zA-Z0-9_.:-]/g, ''));
+        const safeTitle = escapeHtml(item.title || '');
+        const safeThumb = escapeHtml(item.backdrop || item.poster || '');
+        const safeServer = escapeHtml(String(item.server || 'server1').replace(/[^a-zA-Z0-9_-]/g, ''));
+        const safeTrack = item.track === 'dub' ? 'dub' : 'sub';
+        return `
+          <div class="history-card" tabindex="0" role="button" aria-label="Resume ${safeTitle}" onclick="resumeAnime('${safeId}', ${epNum}, '${safeServer}', ${sNum}, '${safeTrack}')">
+            <div class="history-card-thumb-wrap">
+              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}" loading="lazy">
+              <div class="history-progress-container">
+                <div class="history-progress-fill" style="width: ${percent}%;"></div>
+              </div>
+              ${timeLabel ? `<div class="card-progress-pill">⏱ ${timeLabel}</div>` : ''}
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.18s; background:rgba(0,0,0,0.45);" class="history-card-hover-play">
+                <span style="font-size:2.2rem; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,0.7);">▶</span>
+              </div>
+            </div>
+            <div class="history-card-body">
+              <div class="history-card-title" title="${safeTitle}">${safeTitle}</div>
+              <div class="history-card-meta">
+                <span style="color:#10b981; font-weight:700;">${escapeHtml(epText)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Show play overlay on hover via delegation
+      grid.querySelectorAll('.history-card').forEach(card => {
+        const overlay = card.querySelector('.history-card-hover-play');
+        if (!overlay) return;
+        card.addEventListener('mouseenter', () => overlay.style.opacity = '1');
+        card.addEventListener('mouseleave', () => overlay.style.opacity = '0');
+      });
     }
 
     // --- Watchlist Statuses, Drop Alerts Bell, Shortcuts Dialog & Optional AniList Sync ---
@@ -12237,9 +13988,13 @@
       if (seriesSection) seriesSection.style.display = 'none';
       if (genrePillsBar) genrePillsBar.style.display = 'none';
       if (animeDiscoverBar) animeDiscoverBar.style.display = 'none';
+      // Always hide continue strip when leaving home tab
+      const continueStrip = document.getElementById('continueHomeStrip');
+      if (continueStrip && tab !== 'all') continueStrip.style.display = 'none';
 
       if (tab === 'all') {
         renderHistory();
+        renderContinueHomeStrip();
         if (latestReleasesSection) latestReleasesSection.style.display = 'block';
         if (latestRealReleasesSection) latestRealReleasesSection.style.display = 'block';
         if (seasonalSection) seasonalSection.style.display = 'block';
@@ -12896,6 +14651,7 @@
     // Initialize
     (async () => {
       initNativeDialogs();
+      initDynamicYearLabels();
       loadRemoteServerRegistry(true);
       await restoreTabVaultSession();
       hydrateWatchlistCache();
@@ -12905,11 +14661,13 @@
       fallbackOfflineCatalog();
       renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, currentEpisode));
       renderHistory();
+      renderContinueHomeStrip();
       renderWatchlist();
       updateBadges();
       refreshDropAlerts(false);
       await loadDynamicCatalog();
       refreshDropAlerts(false);
+      await handleWatchDeepLinkFromUrl();
       await initCrossDeviceSync();
     })();
   </script>

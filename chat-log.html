@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session log — Building CineAnime's source engine</title>
+<meta name="description" content="The complete conversation behind CineAnime's Smart Sources, from the first 1080p request to a ranked source engine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* Hallmark · v2.0.0 · custom (night session) · genre: editorial · shape: session ledger
+   hero: Ledge — the title sits left of the ledger row
+   nav: utility bar, search and print only
+   footer: colophon, no link columns
+   signature: the numbered turn ledger, each user turn dated and linked
+   theme: custom, not dealt; the prompt asks for a record of this session
+   critique: pre-emit critique: P5 H4 E4 S5 R4 V4 — weakest E, the renderer covers only the markdown in the log
+   copy: verbatim — the transcript is the material; dashes, emoji and straight quotes are the speakers'
+*/
+
+:root {
+  --paper: oklch(17% 0.012 32);
+  --surface: oklch(21% 0.013 34);
+  --surface-2: oklch(24% 0.014 36);
+  --ink: oklch(93% 0.012 82);
+  --muted: oklch(70% 0.015 60);
+  --faint: oklch(55% 0.014 50);
+  --line: oklch(33% 0.012 40);
+  --accent: oklch(63% 0.185 33);
+  --accent-ink: oklch(94% 0.018 82);
+  --serif: "Newsreader", Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  --space-1: 0.35rem;
+  --space-2: 0.7rem;
+  --space-3: 1.1rem;
+  --space-4: 1.7rem;
+  --space-5: 2.6rem;
+  --space-6: 4rem;
+  --measure: 66ch;
+  --radius: 3px;
+  --bar: 3.6rem;
+  --z-bar: 30;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--bar) + 1.5rem); }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.68;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 0.18em; }
+a:hover { text-decoration-color: var(--accent); }
+
+.wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, 3.5rem); }
+
+.skip { position: absolute; left: 1rem; top: -4rem; background: var(--accent); color: var(--accent-ink); padding: 0.55rem 0.9rem; z-index: 100; }
+.skip:focus-visible { top: 0.75rem; }
+
+/* Utility bar */
+.bar {
+  position: sticky; top: 0; z-index: var(--z-bar);
+  height: var(--bar);
+  background: color-mix(in oklch, var(--paper) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.bar-inner { height: 100%; display: flex; align-items: center; gap: var(--space-3); }
+.bar-title { font-family: var(--display); font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; margin: 0; white-space: nowrap; }
+.bar-title span { color: var(--muted); font-weight: 400; }
+.bar-spacer { flex: 1 1 auto; }
+.search { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.search label { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+.search input {
+  width: clamp(9rem, 22vw, 16rem); min-width: 0;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 0.4rem 0.6rem; font: inherit; font-size: 0.9rem;
+}
+.search input::placeholder { color: var(--faint); }
+.btn {
+  font: inherit; font-size: 0.88rem; line-height: 1.2;
+  padding: 0.45rem 0.8rem; border-radius: var(--radius);
+  border: 1px solid var(--line); background: transparent; color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn-primary:hover { background: color-mix(in oklch, var(--accent) 86%, var(--ink)); border-color: transparent; }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Hero */
+.hero { padding-block: var(--space-6) var(--space-5); border-bottom: 1px solid var(--line); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: var(--space-5); align-items: end; }
+.hero h1 {
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(2.5rem, 6.2vw, 4.4rem); line-height: 1.02;
+  letter-spacing: -0.028em; margin: 0 0 var(--space-3);
+  overflow-wrap: break-word; min-width: 0; max-width: 15ch;
+  text-wrap: balance;
+}
+.hero p { margin: 0 0 var(--space-4); max-width: 42ch; color: var(--muted); font-size: clamp(1.02rem, 1.6vw, 1.16rem); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ledger { border-top: 1px solid var(--line); }
+.ledger div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); padding-block: var(--space-2); border-bottom: 1px solid var(--line); }
+.ledger dt { color: var(--muted); font-size: 0.86rem; margin: 0; }
+.ledger dd { margin: 0; font-family: var(--display); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.ledger span.unit { font-family: var(--serif); font-size: 0.8rem; color: var(--faint); margin-left: 0.2rem; }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: var(--space-5); padding-block: var(--space-5); align-items: start; }
+.rail { position: sticky; top: calc(var(--bar) + 1.4rem); max-height: calc(100dvh - var(--bar) - 2.8rem); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.rail h2 { font-size: 0.8rem; font-weight: 500; color: var(--muted); margin: 0 0 var(--space-2); }
+.index { display: grid; gap: 1px; }
+.index-item {
+  display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); gap: var(--space-2);
+  text-decoration: none; padding: 0.5rem 0.4rem 0.5rem 0;
+  border-left: 2px solid transparent; padding-left: var(--space-2);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.index-item:hover { border-left-color: var(--line); background: var(--surface); }
+.index-item[aria-current="true"] { border-left-color: var(--accent); }
+.index-n { font-family: var(--display); font-size: 0.9rem; color: var(--faint); font-variant-numeric: tabular-nums; }
+.index-item[aria-current="true"] .index-n { color: var(--accent); }
+.index-body { min-width: 0; display: grid; gap: 0.1rem; }
+.index-label { font-size: 0.84rem; line-height: 1.35; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.index-time { font-size: 0.74rem; color: var(--faint); font-variant-numeric: tabular-nums; }
+.rail-note { margin-top: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--line); font-size: 0.76rem; color: var(--faint); line-height: 1.5; }
+.mobile-jump { display: none; }
+
+/* Transcript */
+.log { min-width: 0; }
+.search-state { min-height: 1.4rem; margin: 0 0 var(--space-3); font-size: 0.84rem; color: var(--muted); }
+.turn { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: clamp(0.9rem, 2.5vw, 1.8rem); padding-block: var(--space-4); border-top: 1px solid var(--line); }
+.turn:first-of-type { border-top: 0; padding-top: 0; }
+.turn-head { display: grid; gap: var(--space-1); align-content: start; position: sticky; top: calc(var(--bar) + 1rem); height: fit-content; }
+.turn-n { font-family: var(--display); font-size: 1.15rem; font-weight: 600; color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; }
+.turn-meta { display: grid; gap: 0.1rem; font-size: 0.72rem; color: var(--faint); }
+.turn-meta time { font-variant-numeric: tabular-nums; }
+.turn-role { color: var(--muted); font-size: 0.76rem; }
+.turn-body { min-width: 0; }
+.user-words { margin: 0 0 var(--space-3); padding: 0.15rem 0 0.15rem var(--space-3); border-left: 2px solid var(--accent); }
+.user-words p { margin: 0; font-size: clamp(1.14rem, 2vw, 1.32rem); line-height: 1.5; font-weight: 500; max-width: 58ch; overflow-wrap: break-word; }
+
+.reply { max-width: var(--measure); }
+.reply + .reply { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px dashed var(--line); }
+.reply > :first-child { margin-top: 0; }
+.reply > :last-child { margin-bottom: 0; }
+.reply p { margin: 0 0 0.85em; }
+.reply strong { font-weight: 600; }
+.reply h3, .reply h4, .reply h5, .reply h6 { font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin: 1.5em 0 0.45em; text-wrap: balance; overflow-wrap: break-word; min-width: 0; }
+.reply h3 { font-size: 1.3rem; }
+.reply h4 { font-size: 1.13rem; }
+.reply h5, .reply h6 { font-size: 1rem; }
+.reply ul, .reply ol { margin: 0 0 0.9em; padding-left: 1.15rem; }
+.reply li { margin-bottom: 0.28em; }
+.reply li::marker { color: var(--accent); }
+.reply a { text-decoration-color: var(--accent); }
+.reply code { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2); padding: 0.08em 0.32em; border-radius: 2px; overflow-wrap: break-word; }
+.reply pre { margin: 0 0 1em; padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+.reply pre code { background: transparent; padding: 0; font-size: 0.84rem; line-height: 1.6; }
+.reply blockquote { margin: 0 0 1em; padding-left: var(--space-3); border-left: 2px solid var(--line); color: var(--muted); }
+.reply hr { border: 0; border-top: 1px solid var(--line); margin: var(--space-3) 0; }
+.reply .table-scroll { overflow-x: auto; margin: 0 0 1em; }
+.reply table { border-collapse: collapse; font-size: 0.9rem; min-width: 100%; }
+.reply th, .reply td { border-bottom: 1px solid var(--line); padding: var(--space-1) var(--space-2) var(--space-1) 0; text-align: left; vertical-align: top; }
+.reply th { color: var(--muted); font-weight: 600; }
+
+.silent { font-size: 0.9rem; color: var(--faint); font-style: italic; margin: 0 0 var(--space-2); }
+.activity { margin-top: var(--space-3); }
+.activity summary { cursor: pointer; font-size: 0.82rem; color: var(--muted); width: fit-content; padding: 0.2rem 0; }
+.activity summary:hover { color: var(--ink); }
+.tools { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2); }
+.tool { font-size: 0.76rem; color: var(--muted); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.14rem 0.45rem; }
+.tool-n { color: var(--faint); font-variant-numeric: tabular-nums; }
+.turn-model { margin: var(--space-2) 0 0; font-size: 0.72rem; color: var(--faint); }
+
+.compaction { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); margin-top: var(--space-4); padding: 0.55rem 0.8rem; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); font-size: 0.8rem; }
+.compaction-label { color: var(--ink); font-weight: 600; }
+.compaction + .turn { border-top: 0; padding-top: var(--space-3); }
+
+.foot { border-top: 1px solid var(--line); padding-block: var(--space-4); color: var(--faint); font-size: 0.8rem; }
+.foot p { margin: 0 0 var(--space-1); max-width: 62ch; }
+.foot a { color: var(--muted); }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .hero h1 { max-width: 18ch; }
+  .layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  .rail { display: none; }
+  .mobile-jump { display: block; margin-bottom: var(--space-2); }
+  .mobile-jump summary { cursor: pointer; font-size: 0.86rem; color: var(--muted); padding: 0.5rem 0; }
+  .mobile-jump .index { margin-top: var(--space-2); }
+  .bar { height: auto; min-height: var(--bar); }
+  .bar-inner { flex-wrap: wrap; padding-block: 0.5rem; gap: var(--space-2); }
+  .search { order: 3; width: 100%; }
+  .search input { width: 100%; }
+  .bar .btn { margin-left: auto; }
+  .turn { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .turn-head { position: static; display: flex; align-items: baseline; gap: var(--space-2); }
+  .turn-meta { display: flex; gap: var(--space-2); align-items: baseline; }
+  .turn-body { padding-left: 0; }
+  .user-words { padding-left: var(--space-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
+@media print {
+  :root { --paper: oklch(99% 0.003 80); --ink: oklch(22% 0.01 40); --muted: #555; --faint: #777; --line: #ccc; --surface: #f4f4f4; --surface-2: #eee; --accent: #a32213; --accent-ink: oklch(96% 0.012 80); }
+  .bar, .rail, .hero-actions, .mobile-jump, .activity, .skip { display: none !important; }
+  .layout { display: block; padding-block: 1rem; }
+  .hero { border-bottom: 0; }
+  .turn { break-inside: avoid; }
+  .reply { max-width: none; }
+  a { text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#log">Skip to the conversation</a>
+
+<header class="bar">
+  <div class="wrap bar-inner">
+    <p class="bar-title">CineAnime session log</p>
+    <div class="bar-spacer"></div>
+    <div class="search">
+      <label for="q">Search this log</label>
+      <input id="q" type="search" placeholder="source, sync, APK…" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="btn" type="button" id="printBtn">Print</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <h1 id="hero-title">The conversation behind Smart Sources</h1>
+        <p>Thirteen turns from a 1080p request to a ranked source engine.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#turn-1">Start at the first turn</a>
+          <a class="btn" href="#turn-12">Jump to the source engine</a>
+        </div>
+      </div>
+      <dl class="ledger" aria-label="Session at a glance">
+        <div><dt>Turns</dt><dd>13</dd></div>
+        <div><dt>Written replies</dt><dd>10</dd></div>
+        <div><dt>Tool calls</dt><dd>299</dd></div>
+        <div><dt>Words exchanged</dt><dd>3,986</dd></div>
+        <div><dt>Duration</dt><dd>4<span class="unit">h</span> 03<span class="unit">m</span></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <aside class="rail" aria-label="Turn index">
+      <h2>Turn index</h2>
+      <nav class="index">
+        <a class="index-item" href="#turn-1" data-target="turn-1">
+    <span class="index-n">01</span>
+    <span class="index-body"><span class="index-label">no</span><span class="index-time">13:05</span></span>
+  </a>
+<a class="index-item" href="#turn-2" data-target="turn-2">
+    <span class="index-n">02</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:16</span></span>
+  </a>
+<a class="index-item" href="#turn-3" data-target="turn-3">
+    <span class="index-n">03</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:16</span></span>
+  </a>
+<a class="index-item" href="#turn-4" data-target="turn-4">
+    <span class="index-n">04</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:19</span></span>
+  </a>
+<a class="index-item" href="#turn-5" data-target="turn-5">
+    <span class="index-n">05</span>
+    <span class="index-body"><span class="index-label">I want you to analyze a repo for me and see the best wa…</span><span class="index-time">14:20</span></span>
+  </a>
+<a class="index-item" href="#turn-6" data-target="turn-6">
+    <span class="index-n">06</span>
+    <span class="index-body"><span class="index-label">okay yeah</span><span class="index-time">14:41</span></span>
+  </a>
+<a class="index-item" href="#turn-7" data-target="turn-7">
+    <span class="index-n">07</span>
+    <span class="index-body"><span class="index-label">okay and can we make sure our sync is mor fluent and so…</span><span class="index-time">15:27</span></span>
+  </a>
+<a class="index-item" href="#turn-8" data-target="turn-8">
+    <span class="index-n">08</span>
+    <span class="index-body"><span class="index-label">continue</span><span class="index-time">15:59</span></span>
+  </a>
+<a class="index-item" href="#turn-9" data-target="turn-9">
+    <span class="index-n">09</span>
+    <span class="index-body"><span class="index-label">continue what carbon was doing</span><span class="index-time">15:59</span></span>
+  </a>
+<a class="index-item" href="#turn-10" data-target="turn-10">
+    <span class="index-n">10</span>
+    <span class="index-body"><span class="index-label">so how do i open it here so i can test it out before co…</span><span class="index-time">16:12</span></span>
+  </a>
+<a class="index-item" href="#turn-11" data-target="turn-11">
+    <span class="index-n">11</span>
+    <span class="index-body"><span class="index-label">Https://github.com/sherazi5110/stream-goat now how woul…</span><span class="index-time">16:59</span></span>
+  </a>
+<a class="index-item" href="#turn-12" data-target="turn-12">
+    <span class="index-n">12</span>
+    <span class="index-body"><span class="index-label">since he has features that work and all so lets build o…</span><span class="index-time">17:00</span></span>
+  </a>
+<a class="index-item" href="#turn-13" data-target="turn-13">
+    <span class="index-n">13</span>
+    <span class="index-body"><span class="index-label">make a page of this whole chat</span><span class="index-time">17:09</span></span>
+  </a>
+      </nav>
+      <p class="rail-note">Recorded 13 November 2026. Times are local.</p>
+    </aside>
+
+    <section class="log" id="log" aria-label="Conversation">
+      <details class="mobile-jump">
+        <summary>Jump to a turn</summary>
+        <nav class="index" aria-label="Turn index">
+          <a class="index-item" href="#turn-1" data-target="turn-1">
+    <span class="index-n">01</span>
+    <span class="index-body"><span class="index-label">no</span><span class="index-time">13:05</span></span>
+  </a>
+<a class="index-item" href="#turn-2" data-target="turn-2">
+    <span class="index-n">02</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:16</span></span>
+  </a>
+<a class="index-item" href="#turn-3" data-target="turn-3">
+    <span class="index-n">03</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:16</span></span>
+  </a>
+<a class="index-item" href="#turn-4" data-target="turn-4">
+    <span class="index-n">04</span>
+    <span class="index-body"><span class="index-label">hi</span><span class="index-time">14:19</span></span>
+  </a>
+<a class="index-item" href="#turn-5" data-target="turn-5">
+    <span class="index-n">05</span>
+    <span class="index-body"><span class="index-label">I want you to analyze a repo for me and see the best wa…</span><span class="index-time">14:20</span></span>
+  </a>
+<a class="index-item" href="#turn-6" data-target="turn-6">
+    <span class="index-n">06</span>
+    <span class="index-body"><span class="index-label">okay yeah</span><span class="index-time">14:41</span></span>
+  </a>
+<a class="index-item" href="#turn-7" data-target="turn-7">
+    <span class="index-n">07</span>
+    <span class="index-body"><span class="index-label">okay and can we make sure our sync is mor fluent and so…</span><span class="index-time">15:27</span></span>
+  </a>
+<a class="index-item" href="#turn-8" data-target="turn-8">
+    <span class="index-n">08</span>
+    <span class="index-body"><span class="index-label">continue</span><span class="index-time">15:59</span></span>
+  </a>
+<a class="index-item" href="#turn-9" data-target="turn-9">
+    <span class="index-n">09</span>
+    <span class="index-body"><span class="index-label">continue what carbon was doing</span><span class="index-time">15:59</span></span>
+  </a>
+<a class="index-item" href="#turn-10" data-target="turn-10">
+    <span class="index-n">10</span>
+    <span class="index-body"><span class="index-label">so how do i open it here so i can test it out before co…</span><span class="index-time">16:12</span></span>
+  </a>
+<a class="index-item" href="#turn-11" data-target="turn-11">
+    <span class="index-n">11</span>
+    <span class="index-body"><span class="index-label">Https://github.com/sherazi5110/stream-goat now how woul…</span><span class="index-time">16:59</span></span>
+  </a>
+<a class="index-item" href="#turn-12" data-target="turn-12">
+    <span class="index-n">12</span>
+    <span class="index-body"><span class="index-label">since he has features that work and all so lets build o…</span><span class="index-time">17:00</span></span>
+  </a>
+<a class="index-item" href="#turn-13" data-target="turn-13">
+    <span class="index-n">13</span>
+    <span class="index-body"><span class="index-label">make a page of this whole chat</span><span class="index-time">17:09</span></span>
+  </a>
+        </nav>
+      </details>
+      <p class="search-state" id="searchState" role="status" aria-live="polite"></p>
+      
+  <article class="turn" id="turn-1" aria-label="Turn 1">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-1" aria-label="Link to turn 1">01</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T19:05:59.089Z">13:05</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>no</p></blockquote>
+      
+      
+      
+      
+    </div>
+  </article>
+
+  <article class="turn" id="turn-2" aria-label="Turn 2">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-2" aria-label="Link to turn 2">02</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T20:16:17.389Z">14:16</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>hi</p></blockquote>
+      
+      
+      
+      
+    </div>
+  </article>
+
+  <article class="turn" id="turn-3" aria-label="Turn 3">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-3" aria-label="Link to turn 3">03</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T20:16:55.399Z">14:16</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>hi</p></blockquote>
+      
+      
+      
+      
+    </div>
+  </article>
+
+  <article class="turn" id="turn-4" aria-label="Turn 4">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-4" aria-label="Link to turn 4">04</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T20:19:53.877Z">14:19</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>hi</p></blockquote>
+      <div class="reply"><p>Hi! How can I help you today?</p></div>
+      
+      
+      <p class="turn-model">answered by google-vertex/gemini-4-carbon</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-5" aria-label="Turn 5">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-5" aria-label="Link to turn 5">05</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T20:20:51.851Z">14:20</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>I want you to analyze a repo for me and see the best way to improve its longetivy making sure the videos play atleast in 108p if possible https://github.com/crtGhoul/cineanime.git</p></blockquote>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="reply"><p>I cloned and audited <strong><code>crtGhoul/cineanime</code></strong> across the web PWA (<code>index.html</code>, <code>sw.js</code>, <code>servers.json</code>), native wrappers (<code>android-tv/</code>, <code>windows-desktop/</code>), sync relay (<code>sync-worker/</code>), and live endpoints.</p>
+<p>CineAnime already has a strong zero-backend foundation (static relative paths, <code>Kitsu</code> → <code>AniList</code> catalog failover, encrypted vaults, Stremio addon protocol, and a remote <code>servers.json</code> registry). However, several <strong>live infrastructure issues, server-routing bugs, and player defaults</strong> currently hurt both <strong>1080p playback</strong> and <strong>long-term survivability</strong>.</p>
+<hr>
+<h3>1. Ensuring Videos Play in ≥1080p</h3>
+<p>CineAnime plays video in two ways: <strong>Third-Party Embed Iframes</strong> (Servers 1–4) and the <strong>Direct HTML5 / <code>hls.js</code> Player</strong> (Stremio addons). Right now, both paths leave 1080p on the table:</p>
+<h4>A. Fix the Broken <code>SERVERS</code> Routing &amp; Duplicate Buttons (<code>index.html:4690–4708</code>, <code>5649–5685</code>)</h4>
+<p>There is a major mismatch between what the UI server buttons say and what <code>SERVERS</code> actually loads:</p>
+<ul><li><strong>Only 2 providers are actually wired for Movies/TV:</strong> <code>server1</code> and <code>server4</code> both return the exact same <code>buildCineSrcUrl(...)</code>, while <code>server2</code> and <code>server3</code> both return <code>buildVidZeeUrl(...)</code>.</li><li><strong><code>buildSmashyUrl</code> is dead code (and its domain is blocked):</strong> <code>buildSmashyUrl</code> (<code>index.html:5610</code>) is never called in <code>SERVERS</code>, and <code>https://embed.smashystream.com</code> in <code>servers.json</code> currently returns <strong>HTTP 451 (Unavailable For Legal Reasons)</strong>.</li><li><strong>Anime gets hijacked away from ZokoAnime (breaking 1080p SUB/DUB &amp; multi-season anime):</strong> In <code>SERVERS.server1</code>–<code>server4</code> (<code>index.html:5653</code>), any item with an <code>imdbId</code> or <code>tmdbId</code> is routed to <code>CineSrc</code> or <code>VidZee</code> instead of <code>ZokoAnime</code>—even though the Anime UI buttons say <code>ZokoAnime HD</code> and <code>Zoko HardSub</code>! Because <code>ANIME_CATALOG</code> includes <code>tmdbId</code> and <code>selectAnime()</code> asynchronously populates <code>anime.imdbId</code> (<code>index.html:6375</code>), clicking <code>SUB</code>/<code>DUB</code> or <code>Server 2 (Zoko HardSub)</code> on popular anime silently loads <code>CineSrc</code>/<code>VidZee</code> with <code>?s=1&amp;e=&lt;ep&gt;</code>, which also breaks absolute-numbered anime (<em>One Piece</em>, <em>Bleach</em>, <em>Attack on Titan</em>).</li></ul>
+<p><strong>How to fix for reliable 1080p:</strong></p>
+<ol><li>Route Anime <code>server1</code> (<code>sub</code>/<code>dub</code>) and <code>server2</code> (<code>hsub</code>) unconditionally to <code>ZokoAnime</code> (when <code>idMal</code>/<code>aniId</code> is present), and keep <code>server3</code> (<code>CineSrc</code>) + <code>server4</code> (<code>VidZee</code> or a new anime embed mirror) as distinct fallbacks.</li><li>Replace dead <code>smashystream</code> in <code>servers.json</code> so all 4 Movie/TV buttons hit <strong>4 distinct 1080p multi-CDN aggregators</strong> rather than 2 duplicated URLs.</li></ol>
+<h4>B. Tune <code>hls.js</code> to Lock Onto ≥1080p Immediately (<code>index.html:7455–7473</code>)</h4>
+<p>Currently, <code>hls.js</code> is initialized with minimal defaults:</p>
+<pre><code class="language-js">activeHlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false });</code></pre>
+<p>By default, <code>hls.js</code> starts with a low bandwidth estimate (~500 kbps), causing streams to open in 360p/480p/720p before ramping up, and can cap resolution on high-DPR mobile/TV WebViews if player CSS dimensions are smaller than 1920×1080.</p>
+<p><strong>How to guarantee ≥1080p when available:</strong></p>
+<ul><li>Set <code>capLevelToPlayerSize: false</code> and raise <code>abrEwmaDefaultEstimate: 8_000_000</code> (8 Mbps) so <code>hls.js</code> immediately qualifies 1080p segments from frame 1.</li><li>In <code>Hls.Events.MANIFEST_PARSED</code>, sort <code>data.levels</code> descending (<code>2160p</code>, <code>1080p</code>, <code>720p</code>) with bitrate labels, and set <code>activeHlsInstance.startLevel</code> (or <code>minAutoBitrate</code>) to the best <strong>≥1080p</strong> level by default—falling back to lower resolutions <strong>only</strong> if a buffer stall (<code>BUFFER_STALLED_ERROR</code>) occurs or if the stream&#39;s max resolution is 720p.</li><li>Persist the user&#39;s preferred quality target (<code>Auto 1080p+</code>, <code>2160p</code>, <code>1080p</code>, <code>Data Saver</code>) in <code>cineanime_prefs</code>.</li></ul>
+<h4>C. Upgrade Stremio Addon Stream Ranking, Codecs &amp; Anime IDs (<code>index.html:9430–9646</code>)</h4>
+<p>Direct Stremio streams (via Debrid or HTTP addons) are the single best way to guarantee true high-bitrate <strong>1080p / 4K</strong> long-term because CineAnime controls the <code>&lt;video&gt;</code> element directly:</p>
+<ol><li><strong>Smart 1080p + Browser-Safe Codec Sorting:</strong> Currently <code>refreshTheaterAddonStreams</code> renders streams in raw addon order (<code>index.html:9622</code>), and <code>extractStreamQuality</code> (<code>index.html:9454</code>) only checks <code>2160p|4k|1080p|720p|480p</code>. Many 4K/1080p <code>.mkv</code> torrents use <code>EAC3</code>/<code>DTS</code>/<code>TrueHD</code> audio or <code>HEVC</code> profiles that trigger the browser codec failure banner (<code>#streamCodecBanner</code>). Scoring streams by <strong><code>Cached Direct HTTPS</code> → <code>1080p/2160p</code> → <code>MP4/HLS/H.264/AAC</code> over <code>MKV/DTS</code></strong> puts playable 1080p streams first.</li><li><strong>Support <code>kitsu:&lt;id&gt;:&lt;ep&gt;</code> for Anime Addons:</strong> <code>resolveImdbIdForAddonLookup</code> (<code>index.html:9430</code>) only looks up IMDb <code>tt...</code> IDs via Cinemeta title search. Anime Stremio addons (Torrentio, Comet, MediaFusion, AnimeTosho) index seasonal anime primarily by <code>kitsu:&lt;kitsuId&gt;:&lt;ep&gt;</code>. Querying both <code>kitsu:</code> and <code>tt:</code> unlocks 1080p SubsPlease / Blu-ray streams for anime that lack clean IMDb season mappings.</li><li><strong>&quot;Auto-Play Best ≥1080p Direct Stream&quot; Toggle:</strong> Currently <code>updatePlayerUrl()</code> always loads iframe embeds first, forcing users to scroll down and manually click a direct addon stream on every episode. Adding an auto-play preference lets Theater launch the best ≥1080p direct stream automatically and fall back to iframe embeds only if none exist.</li></ol>
+<hr>
+<h3>2. Improving Multi-Year Longevity &amp; Survivability</h3>
+<p>Live checks against the URLs hardcoded in the repo exposed several silent single points of failure:</p>
+<h4>A. Make <code>servers.json</code> Fully Data-Driven + Multi-Mirror Registry Failover</h4>
+<ul><li><strong>Problem:</strong> <code>DEFAULT_SERVER_REGISTRY_URL</code> (<code>index.html:5537</code>) only checks <code>https://raw.githubusercontent.com/crtGhoul/cineanime/main/servers.json</code>. If the GitHub repo is ever rate-limited, renamed, or DMCA-disabled, remote server updates die. Furthermore, <code>servers.json</code> only swaps base origins (<code>https://cinesrc.st</code>) while URL path structures (<code>/embed/tv/...</code>, <code>/stream/mal/...</code>) are hardcoded in <code>index.html</code>.</li><li><strong>Also hardcoded:</strong> <code>ensureSandboxedPlayer</code> (<code>index.html:5695</code>) and the auto-next <code>postMessage</code> listener (<code>index.html:7720</code>) hardcode <code>&#39;zokoanime.video&#39;</code> instead of checking <code>getEffectiveServerOrigin(&#39;zoko&#39;)</code>—meaning if <code>zoko</code> ever changes domain in <code>servers.json</code>, mobile playback and auto-next will break!</li><li><strong>Fix:</strong> 1. Fetch <code>servers.json</code> with automatic fallback across:</li><li><code>./servers.json</code> (same-origin mirror)</li><li><code>https://raw.githubusercontent.com/crtGhoul/cineanime/main/servers.json</code></li><li><code>https://codeberg.org/crtGhoul/cineanime/raw/branch/main/servers.json</code> 2. Support <strong>URL templates</strong> inside <code>servers.json</code> (e.g. <code>&quot;movieTemplate&quot;: &quot;{origin}/embed/movie/{tmdb}&quot;</code>, <code>&quot;tvTemplate&quot;: &quot;{origin}/embed/tv/{tmdb}?s={s}&amp;e={e}&quot;</code>, <code>&quot;sandbox&quot;: true</code>) so you can replace dead embed providers in seconds by editing <code>servers.json</code> without rebuilding or redeploying app code. 3. Add automatic iframe error/timeout detection: if an embed fails or stalls, offer/trigger automatic switchover to the next healthy server.</li></ul>
+<h4>B. Fix Broken Backup Mirrors in Android TV, Windows Desktop &amp; Mirror Script</h4>
+<p>Live HTTP probes against the configured failover mirrors right now show:</p>
+<ul><li><code>https://crtghoul.github.io/cineanime/</code> → <strong>200 OK</strong></li><li><code>https://velazquez-lab.pages.dev/cineanime/</code> → <strong>200 OK</strong> <em>(working, but missing from both native apps!)</em></li><li><code>https://crtghoul.codeberg.page/cineanime/</code> (in <code>MainActivity.java:53</code>) → <strong>HTTP 400</strong> <em>(Codeberg Pages isn&#39;t active on that subdomain/branch)</em></li><li><code>https://cineanime.pages.dev/</code> (in <code>MainActivity.java:54</code>) → <strong>DNS <code>ENOTFOUND</code></strong></li><li><code>https://codeberg.org/crtGhoul/cineanime</code> (in <code>windows-desktop/MainForm.cs:16</code>) → <strong>Points to the Git repository source code UI instead of a playable web mirror!</strong></li><li><code>backup-cineanime-mirror.bat</code> (<code>lines 11–16</code>) copies <code>index.html</code> and <code>sw.js</code> to <code>velazquez-lab\cineanime\</code>, <strong>but forgets <code>servers.json</code> and <code>about.html</code></strong>.</li></ul>
+<p><strong>Best longevity upgrade for Native Apps:</strong><br>Update both <code>MainActivity.java</code> and <code>MainForm.cs</code> to include <code>https://velazquez-lab.pages.dev/cineanime/</code>, <strong>and bundle <code>index.html</code> locally inside the APK (<code>assets/index.html</code>) and Windows <code>.exe</code> as the final fallback</strong>. Because CineAnime is a single-file app, bundling a local copy means the TV and Windows apps will <strong>never brick</strong> even if every web host goes offline simultaneously.</p>
+<h4>C. Vendor <code>hls.min.js</code> Locally &amp; Harden <code>sw.js</code> (<code>index.html:22</code>, <code>sw.js:1–9</code>)</h4>
+<ul><li>Right now <code>hls.js</code> (<code>cdn.jsdelivr.net</code>) and <code>html5-qrcode</code> are loaded solely from jsDelivr CDN, and <code>sw.js</code> ignores cross-origin requests (<code>if (url.origin !== self.location.origin) return;</code>). If <code>cdn.jsdelivr.net</code> is ISP-blocked, rate-limited, or offline, direct 1080p <code>.m3u8</code> playback fails completely.</li><li><strong>Fix:</strong> Commit <code>vendor/hls.min.js</code> locally in the repo, add <code>./vendor/hls.min.js</code> and <code>./about.html</code> to <code>PRECACHE_URLS</code> in <code>sw.js</code>, and only use CDN as a secondary fallback.</li></ul>
+<h4>D. Replace the Expired Default Firebase Sync Endpoint (<code>index.html:11234</code>, <code>11702</code>)</h4>
+<ul><li><code>applyQuickRoomCode()</code> (<code>index.html:11702</code>) hardcodes <code>https://gen-lang-client-0975647328-default-rtdb.firebaseio.com</code>, which currently returns <strong>HTTP 401 Unauthorized</strong> (Firebase test-mode rules expire after 30 days). Anyone typing a <code>CINE-XXXX-XXXX</code> Room Code on TV/Phone hits a connection failure.</li><li><strong>Fix:</strong> Deploy the repo&#39;s own <code>sync-worker/worker.js</code> (Cloudflare Worker + KV free tier doesn&#39;t expire after 30 days, and consider adding KV TTL expiration like <code>expirationTtl: 60 * 60 * 24 * 180</code> so stale rooms never fill up the 1 GB free KV quota), or apply permanent path-scoped Firebase rules on <code>/cineanime_sync/$roomId</code>.</li></ul>
+<h4>E. Eliminate Hardcoded <code>&quot;2026&quot;</code> Date Decay &amp; Clean Up CI Deployment</h4>
+<ul><li><strong>Date decay:</strong> <code>index.html</code> hardcodes <code>2026</code> in <code>#discoverYearSelect</code> (<code>line 3282</code>), <code>&#x1F195; New Movies (2026)</code> (<code>line 3396</code>, <code>3401</code>), and <code>&#x1F195; New Shows (2026)</code> (<code>line 3427</code>). Generating those from <code>new Date().getFullYear()</code> keeps the app evergreen in 2027 and beyond without manual commits.</li><li><strong>GitHub Pages artifact hygiene:</strong> <code>.github/workflows/deploy.yml</code> (<code>line 33</code>) deploys <code>path: &quot;.&quot;</code>, which publishes <code>windows-desktop/obj/</code> (tracked in git), <code>sync-worker/</code>, <code>android-tv/</code>, and <code>backup-cineanime-mirror.bat</code> to your live public website. Staging only the web files (<code>index.html</code>, <code>about.html</code>, <code>sw.js</code>, <code>servers.json</code>, <code>manifest.webmanifest</code>, icons, <code>vendor/</code>, and release binaries if desired) keeps deployments clean and fast.</li></ul>
+<hr>
+<h3>3. Three Live JavaScript Bugs Worth Fixing Immediately</h3>
+<p>While auditing <code>index.html</code>, I also found three runtime crashes in the current live build:</p>
+<ol><li><strong><code>index.html:7642</code> — Header <code>&quot;&#x26A1; Watch Online&quot;</code> button crashes when Theater is closed:</strong> <code>scrollToPlayer()</code> calls <code>playAnime(currentHeroAnime, 1)</code>, which does not exist (<code>ReferenceError: playAnime is not defined</code>; should be <code>selectAnime(currentHeroAnime, true, 1)</code> or <code>playCurrentHero()</code>).</li><li><strong><code>index.html:11646</code> — <code>&quot;&#x2699;&#xFE0F; Settings&quot;</code> button throws an uncaught <code>ReferenceError</code>:</strong> <code>openSettingsModal()</code> calls <code>trapModalFocus(modal)</code>, which is undefined (should use <code>closeAllModalsExcept(&#39;settingsModal&#39;)</code> + <code>captureModalOpener(...)</code>), and <code>settingsModal</code> is missing from <code>closeAllModalsExcept</code> (<code>line 4587</code>).</li><li><strong><code>index.html:11970</code> — Theater watchlist status dropdown crashes on unsaved titles:</strong> <code>onTheaterStatusChange()</code> calls <code>toggleFavorite(null, currentAnime.id)</code>, and <code>toggleFavorite(e, id)</code> (<code>line 6010</code>) immediately calls <code>e.stopPropagation()</code> without null-checking <code>e</code> (<code>TypeError</code>).</li></ol>
+<hr>
+<h4>Suggested Priority Order</h4>
+<ol><li><strong>Immediate (High Impact):</strong> Fix <code>SERVERS</code> routing + replace dead SmashyStream in <code>servers.json</code>, add ≥1080p <code>hls.js</code> startup/ABR config + Stremio stream quality/codec sorting (<code>kitsu:</code> + <code>tt:</code>), and fix the 3 JS runtime crashes.</li><li><strong>Durability Layer:</strong> Upgrade <code>servers.json</code> to URL templates with multi-mirror fallback (<code>./servers.json</code> → GitHub → Codeberg), vendor <code>hls.min.js</code> locally in <code>sw.js</code>, and remove hardcoded <code>2026</code> labels.</li><li><strong>Native &amp; Sync Hardening:</strong> Fix Android TV &amp; Windows failover URLs (<code>velazquez-lab.pages.dev</code> + offline bundled <code>index.html</code>), update <code>backup-cineanime-mirror.bat</code>, and switch default Room Code sync off the expired Firebase URL to <code>sync-worker</code>.</li></ol>
+<p>Would you like me to implement these 1080p playback and longevity upgrades for you? (I also noticed <code>backup-cineanime-mirror.bat</code> references a local checkout at <code>C:\Users\velaz\Documents\antigravity\cineanime</code>—if that&#39;s your working repo, I can apply and verify the changes right there!)</p></div>
+      
+      <details class="activity">
+        <summary>35 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">35</span></span></div>
+      </details>
+      <p class="turn-model">answered by google-vertex/gemini-4-carbon</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-6" aria-label="Turn 6">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-6" aria-label="Link to turn 6">06</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T20:41:24.035Z">14:41</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>okay yeah</p></blockquote>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="reply"><p>All of the <strong>1080p+ playback</strong> and <strong>long-term longevity</strong> upgrades have been implemented and verified in <code>C:\Users\velaz\Documents\antigravity\cineanime</code> (with your existing uncommitted <strong>Continue Watching Home Strip</strong> preserved and wired into <code>removeHistoryItem</code>, <code>clearWatchHistory</code>, and initial boot).</p>
+<h4>Summary of What Was Implemented</h4>
+<h5>1. 1080p+ Playback &amp; Stream Quality (<code>index.html</code>, <code>servers.json</code>)</h5>
+<ul><li><strong>Fixed <code>SERVERS</code> Routing &amp; Deduplicated All 4 Server Slots:</strong></li><li><strong>Anime:</strong> <code>Server 1</code> (<code>Zoko 1080p</code> via MAL ID), <code>Server 2</code> (<code>Zoko AniList Mirror</code> via <code>ani/</code> ID), and <code>Server 3</code> (<code>Zoko HardSub 1080p</code> burned-in subtitles) now route to Zoko properly instead of getting hijacked to <code>CineSrc</code> whenever <code>tmdbId</code>/<code>imdbId</code> exists, while <code>Server 4</code> provides a <code>CineSrc</code> fallback.</li><li><strong>Movies &amp; TV:</strong> Replaced the duplicated 2-server setup and dead <code>embed.smashystream.com</code> (<strong>HTTP 451</strong>) with 4 distinct routes (<code>CineSrc TMDB</code>, <code>VidZee TMDB</code>, <code>CineSrc IMDb</code>, <code>VidZee IMDb</code> / custom mirror).</li><li><strong>1080p-First <code>hls.js</code> Engine:</strong></li><li>Configured <code>hls.js</code> with <code>capLevelToPlayerSize: false</code>, a 10 Mbps initial ABR estimate, larger forward/back buffers, and <code>preferManagedMediaSource: true</code>.</li><li>Added <strong><code>Auto (1080p+ Preferred)</code></strong> as the default HLS mode: cues the best <code>1080p</code> stream immediately on <code>MANIFEST_PARSED</code>, sets a <code>minAutoBitrate</code> floor to hold ≥1080p, automatically unlocks the floor if a <code>BUFFER_STALLED_ERROR</code> occurs on a slow connection, and auto-recovers from transient fatal network/media errors.</li><li>Sorted the quality dropdown highest-to-lowest with bitrate/FHD/UHD labels.</li><li><strong>Smart Stremio Addon ≥1080p Ranking, <code>kitsu:</code> Lookup &amp; Auto-Play:</strong></li><li>Ranked addon streams by <strong>Direct HTTPS → Cached → 1080p/2160p → Browser-native codecs (<code>HLS</code>/<code>MP4</code>/<code>H.264</code>/<code>AAC</code> above <code>MKV</code>/<code>DTS</code>/<code>TrueHD</code>/<code>DV</code>, while demoting <code>CAM</code>/<code>TS</code>)</strong>.</li><li>Added <strong><code>kitsu:&lt;id&gt;:&lt;ep&gt;</code></strong> resolution alongside <code>tt&lt;imdbId&gt;:&lt;s &gt;:&lt;ep&gt;</code> so anime Stremio addons resolve 1080p anime episodes reliably.</li><li>Added <strong><code>▶ Best 1080p+</code></strong> quick-play and <strong><code>&#x26A1; Auto 1080p+</code></strong> auto-launch controls to the Addon Streams bar.</li></ul>
+<h5>2. Multi-Year Longevity &amp; Infrastructure Hardening</h5>
+<ul><li><strong>Multi-Mirror + Template-Driven <code>servers.json</code>:</strong> <code>loadRemoteServerRegistry()</code> now fails over with 4.5s timeouts across GitHub Raw → Codeberg Raw → <code>./servers.json</code>, supports remote URL templates (<code>templates</code>), and checks Zoko&#39;s sandbox/postMessage origin dynamically via <code>getEffectiveServerOrigin(&#39;zoko&#39;)</code>.</li><li><strong>Vendored <code>hls.min.js</code> Locally + Service Worker v9 (<code>vendor/hls.min.js</code>, <code>sw.js</code>):</strong> Bundled <code>vendor/hls.min.js</code> (verified matching SRI <code>sha384-V5ruNBgmYc...</code>) with automatic CDN fallback, and updated <code>sw.js</code> (<code>cineanime-shell-v9</code>) to cache <code>./about.html</code>, <code>./servers.json</code>, and <code>./vendor/hls.min.js</code>.</li><li><strong>Native Android TV &amp; Windows Desktop Immortal Offline Bundle:</strong></li><li>Updated <code>android-tv/app/src/main/java/com/cineanime/tv/MainActivity.java</code>, <code>android-tv/build.ps1</code>, <code>windows-desktop/MainForm.cs</code>, and <code>windows-desktop/CineAnime.csproj</code> to fail over across <code>crtghoul.github.io/cineanime/</code> → <code>velazquez-lab.pages.dev/cineanime/</code> → an <strong>embedded local HTTPS origin (<code>https://offline.cineanime.local/</code>)</strong> bundled directly inside the APK (<code>CineAnime-v1.0.0-tv.apk</code>, rebuilt &amp; signed with your existing release certificate) and Windows build.</li><li><strong>Evergreen Dynamic Years &amp; Clean Deployment:</strong></li><li>Replaced hardcoded <code>2026</code> filters/titles with dynamic <code>new Date().getFullYear()</code> generation (<code>initDynamicYearLabels()</code>).</li><li>Updated <code>backup-cineanime-mirror.bat</code> to include <code>about.html</code>, <code>servers.json</code>, and <code>vendor\</code>.</li><li>Updated <code>.github/workflows/deploy.yml</code> to stage only static web/release files instead of publishing build/source folders, and added a rolling 365-day KV lease to <code>sync-worker/worker.js</code>.</li><li><strong>Fixed All 3 Runtime Crashes:</strong> Fixed <code>scrollToPlayer()</code> (<code>playCurrentHero()</code>), <code>openSettingsModal()</code> (<code>closeAllModalsExcept</code> + <code>captureModalOpener</code>), and <code>toggleFavorite(null, id)</code> null-event guard.</li></ul>
+<h4>Verification Run</h4>
+<ul><li><code>index.html</code>, <code>sw.js</code>, and <code>servers.json</code> passed Node VM syntax checks and behavioral assertions (server routing, 4-way distinct URLs, 1080p stream scoring, HLS 1080p floor selection, dynamic sandbox checks, and modal/watchlist handlers).</li><li><code>android-tv/build.ps1</code> compiled, packaged the offline web assets, signed, and passed <code>apksigner verify</code>.</li><li><code>dotnet build -c Release</code> succeeded on <code>windows-desktop/CineAnime.csproj</code> with 0 errors.</li></ul>
+<p>Whenever you&#39;re ready, let me know if you want me to commit and push these updates (or run your multi-mirror sync)!</p></div>
+      
+      <details class="activity">
+        <summary>94 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">94</span></span></div>
+      </details>
+      <p class="turn-model">answered by google-vertex/gemini-4-carbon</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-7" aria-label="Turn 7">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-7" aria-label="Link to turn 7">07</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T21:27:41.349Z">15:27</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>okay and can we make sure our sync is mor fluent and so that this site can replace stremio and make others switch becuase of how good it is</p></blockquote>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <details class="activity">
+        <summary>55 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">55</span></span></div>
+      </details>
+      <p class="turn-model">answered by google-vertex/gemini-4-carbon</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-8" aria-label="Turn 8">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-8" aria-label="Link to turn 8">08</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T21:59:09.812Z">15:59</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>continue</p></blockquote>
+      
+      
+      
+      
+    </div>
+  </article>
+<div class="compaction" role="note"><span class="compaction-label">Context compacted</span><span class="compaction-note">The conversation was summarised and the session continued from that summary.</span></div>
+  <article class="turn" id="turn-9" aria-label="Turn 9">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-9" aria-label="Link to turn 9">09</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T21:59:37.223Z">15:59</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>continue what carbon was doing</p></blockquote>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="reply"><p>Continued from where the sync work left off. Here’s what I finished:</p>
+<p><strong>Sync now behaves like a live service</strong></p>
+<ul><li>Added the missing <code>broadcastLocalSyncChange</code> / <code>initLocalSyncBridge</code> functions — open tabs/windows now refresh instantly via <code>BroadcastChannel</code> plus a <code>localStorage</code> fallback.</li><li>Added <code>flushPendingSyncsNow()</code> and wired it to:</li><li>closing Theater</li><li>tab/app backgrounding</li><li><code>pagehide</code> / <code>beforeunload</code></li><li>network reconnect</li><li>Stremio two-way sync now runs:</li><li>on boot when linked</li><li>when the app regains focus</li><li>every 60s check, with a 4-minute pull interval</li><li>with visible <code>Syncing with Stremio…</code> status</li><li>Manual “&#x1F504; Sync Now” now syncs <strong>both</strong> cloud vault and Stremio and reports correctly.</li><li>Watch history, favorites, watched episodes, and batch-marking now queue Stremio pushes and broadcast local updates.</li><li>Sync status card now recognizes Stremio-only connections instead of saying “Not linked.”</li></ul>
+<p><strong>Stremio-replacement polish</strong></p>
+<ul><li>Added a <code>&#x1F517; Share</code> button in Theater that copies a deep link like <code>?watch=tt123&amp;s=1&amp;e=4</code>.</li><li>Added boot-time deep-link handling so shared links open the exact title/season/episode.</li><li>Embed playback now resumes via <code>startAt</code> when saved progress exists.</li><li>Auto-“watched” marking is no longer triggered after 25 seconds; it now waits until near the estimated end of the episode/movie. Accurate direct-stream progress still uses the real 88% threshold.</li><li>Per-title binge preference is carried into the next episode when using addon streams.</li></ul>
+<p><strong>Verification</strong></p>
+<ul><li>Inline JavaScript syntax check passed.</li><li>Behavioral harness passed 12/12 checks covering local broadcast, history/watchlist persistence, safe flush, resume offsets, deep links, and Stremio millisecond library writes.</li><li>Rebuilt and signed the Android TV APK; verified the bundled <code>assets/index.html</code> contains the new sync code.</li><li>Rebuilt Windows desktop; <code>wwwroot</code> includes the updated <code>index.html</code>.</li><li><code>git diff --check</code> clean.</li></ul>
+<p>Everything is still uncommitted in <code>C:\Users\velaz\Documents\antigravity\cineanime</code> (including <code>vendor/</code>). I have <strong>not</strong> pushed. Say the word and I’ll commit everything and push to both GitHub and Codeberg, then run the mirror backup script.</p></div>
+      
+      <details class="activity">
+        <summary>58 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">58</span></span></div>
+      </details>
+      <p class="turn-model">answered by opencode/deepseek-v4.1-flash-free</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-10" aria-label="Turn 10">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-10" aria-label="Link to turn 10">10</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T22:12:00.315Z">16:12</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>so how do i open it here so i can test it out before commiting</p></blockquote>
+      
+
+
+
+<div class="reply"><p>It’s running locally now.</p>
+<p><strong>Open on this PC:</strong><br>&#x1F449; <a href="http://localhost:4173/" rel="noopener noreferrer">http://localhost:4173/</a></p>
+<p><strong>Open on your phone / TV on the same Wi‑Fi:</strong><br>&#x1F449; <a href="http://192.168.68.103:4173/" rel="noopener noreferrer">http://192.168.68.103:4173/</a></p>
+<p>The server is serving your local working copy directly from:<br><code>C:\Users\velaz\Documents\antigravity\cineanime</code></p>
+<p>Quick things worth testing:</p>
+<ol><li><strong>Live local sync</strong> — open the site in two browser tabs, add something to Watchlist in one, and watch the other tab update.</li><li><strong>Stremio sync</strong> — Settings/Account → Stremio tab → sign in. Check the sync badge changes to “Live 2-Way.”</li><li><strong>Addon hub</strong> — open the addon modal and try the one-click OpenSubtitles / Anime Kitsu buttons.</li><li><strong>Share links</strong> — play something → click <code>&#x1F517; Share</code>, then paste the copied link into a new tab. It should reopen that exact title/season/episode.</li><li><strong>Resume</strong> — play a title for a minute, close Theater, reopen it. It should resume via <code>startAt</code>.</li><li><strong>1080p floor</strong> — with a direct addon stream, check the quality/auto behavior.</li></ol>
+<p>If you see an old cached version, use <strong>Ctrl+Shift+R</strong> or an incognito window — the service worker normally updates itself, but a hard refresh forces it.</p>
+<p>When you’re done testing, tell me and I’ll either fix anything you found or commit and push everything.</p></div>
+      
+      <details class="activity">
+        <summary>5 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">5</span></span></div>
+      </details>
+      <p class="turn-model">answered by opencode/deepseek-v4.1-flash-free</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-11" aria-label="Turn 11">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-11" aria-label="Link to turn 11">11</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T22:59:42.785Z">16:59</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>Https://github.com/sherazi5110/stream-goat now how would we be able to make something better than this guys</p></blockquote>
+      
+<div class="reply"><p>Short answer: <strong>don’t try to beat Stream Goat at its own game.</strong> It’s a native JVM/Android app with libVLC, CloudStream extension compatibility, downloads, Live TV, profiles, HDR, and a huge feature list. Matching all of that in a browser is a multi-month project and still wouldn’t win.</p>
+<p>Beat it where it’s structurally weak: <strong>zero-install access, source quality intelligence, instant sync, and simplicity.</strong></p>
+<h3>Where Stream Goat is genuinely ahead</h3>
+<ul><li>Native playback through VLC: codecs, HDR, subtitles, audio tracks, downloads.</li><li>Runs real CloudStream extensions, not just Stremio addons.</li><li>Live TV with M3U/XMLTV, Xtream, TV guide.</li><li>Profiles, kids mode, PINs, downloads, offline playback.</li><li>Android TV / Fire TV remote-first UI.</li><li>Mature metadata stack: TMDB, IMDb/Cinemeta, AniList, “wrong match?” correction.</li></ul>
+<h3>Where CineAnime can beat it</h3>
+<h4>1. Zero-install, open-a-link-and-watch</h4>
+<p>Stream Goat requires an <code>.apk</code>, <code>.msi</code>, <code>.deb</code>, or Flatpak. That kills casual sharing.</p>
+<p>CineAnime already wins here:</p>
+<ul><li>Send one link.</li><li>Works on phone, laptop, TV browser, and the native shells.</li><li>No Java, no VLC, no installer.</li><li>Instant updates via the service worker.</li></ul>
+<p>Make this the headline: <strong>“No install. No setup. Send a link and press play.”</strong></p>
+<h4>2. Better source selection than Stream Goat</h4>
+<p>This is the real moat. Most apps list sources; almost none pick the <em>right</em> one intelligently.</p>
+<p>Build a <strong>Source Health Engine</strong>:</p>
+<ul><li>Score every stream by resolution, bitrate, codec, cached/debrid status, provider reliability, and last measured latency.</li><li>Preflight the top 2–3 sources with a quick range request before showing them.</li><li>Remember which provider worked for each title/episode.</li><li>Auto-play the best 1080p+ source and fall back silently.</li><li>Show honest badges: <code>1080p &middot; HDR &middot; Cached &middot; 42ms &middot; Verified</code>.</li><li>Never dump 40 raw links on the user.</li></ul>
+<p>You already have pieces of this: 1080p floor, addon ranking, codec scoring, failover. Finish it into a visible, trustworthy system.</p>
+<h4>3. Sync that feels instant</h4>
+<p>Stream Goat is device-local. CineAnime already has:</p>
+<ul><li>Stremio two-way sync</li><li>encrypted cloud vault</li><li>QR pairing</li><li>local tab-to-tab sync</li><li>deep links</li></ul>
+<p>Turn that into a feature people talk about:</p>
+<p><strong>“Handoff”</strong> — start on your phone, scan a QR on the TV, continue at the exact second.<br><strong>“Watch together”</strong> — shared room code, synced play/pause/seek, chat.<br><strong>“Send to TV”</strong> — cast a deep link without installing anything on the TV.</p>
+<p>That is something Stream Goat does not do well, and it’s very demoable.</p>
+<h4>4. Anime-first, not everything-first</h4>
+<p>Stream Goat is general movies/TV/anime. CineAnime can be the best anime experience:</p>
+<ul><li>AniList/Kitsu metadata</li><li>airing schedule</li><li>sub/dub switching</li><li>AniSkip intro/outro</li><li>filler/recap awareness</li><li>seasonal charts</li><li>studio/genre rails</li><li>MAL import</li><li>“next episode in 4d 6h” countdowns</li></ul>
+<p>Own the anime niche first, then expand.</p>
+<h4>5. Speed and taste</h4>
+<p>Stream Goat’s README sells features. Win on feel:</p>
+<ul><li>instant search with prefetch</li><li>no 3-second intro animation</li><li>keyboard/remote navigation that actually works</li><li>clean source picker</li><li>resume in one click</li><li>no modal overload</li><li>consistent design system</li></ul>
+<p>People switch for “this feels faster and cleaner,” not for a longer feature list.</p>
+<h3>The killer feature I’d build</h3>
+<p><strong>One-tap “Play Best.”</strong></p>
+<p>User taps a title. CineAnime:</p>
+<ol><li>Searches all installed addons/providers in parallel.</li><li>Dedupes identical sources.</li><li>Scores quality, bitrate, cache, provider health, and latency.</li><li>Preflights the best 1080p+ candidate.</li><li>Starts playback immediately.</li><li>Falls back automatically if it stalls.</li><li>Saves exact progress everywhere.</li></ol>
+<p>No source list unless the user asks. That is the experience Stremio and Stream Goat still make people think about. CineAnime can make it disappear.</p>
+<h3>Practical roadmap</h3>
+<p><strong>Phase 1 — win the player (highest impact)</strong></p>
+<ul><li>Source Health Engine + verified badges</li><li>“Play Best 1080p+” as the default action</li><li>real quality/bitrate/audio/subtitle controls</li><li>subtitle translation and styling</li><li>resume + next-episode countdown polish</li></ul>
+<p><strong>Phase 2 — win sharing</strong></p>
+<ul><li>deep links for title/season/episode</li><li>QR handoff phone → TV</li><li>watch-party rooms</li><li>public/shareable lists</li></ul>
+<p><strong>Phase 3 — parity features</strong></p>
+<ul><li>PWA downloads/offline</li><li>Live TV via M3U + XMLTV</li><li>profiles and kids mode</li><li>TMDB “wrong match?” correction</li></ul>
+<p><strong>Phase 4 — durability</strong></p>
+<ul><li>multi-provider health dashboard</li><li>automatic mirror/addon failover</li><li>self-healing source registry</li><li>no-account local-first privacy</li></ul>
+<h3>What I’d do next in your repo</h3>
+<p>I’d start with <strong>Phase 1</strong>, because it directly improves the “replace Stremio” goal and is achievable in the current web app:</p>
+<ol><li>Add a real <strong>source scoring + preflight</strong> layer.</li><li>Replace the current addon stream list with a <strong>“Best source” card</strong> plus an optional “Show all sources.”</li><li>Add <strong>quality/bitrate/HDR/cached/verified</strong> badges.</li><li>Persist the winning provider per title.</li><li>Add a <strong>“Play Best”</strong> button everywhere.</li></ol>
+<p>That would make CineAnime feel more premium than Stream Goat in the one moment that matters: pressing play.</p>
+<p>If you want, I can implement that source-ranking and “Play Best” flow next.</p></div>
+      
+      <details class="activity">
+        <summary>1 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">1</span></span></div>
+      </details>
+      <p class="turn-model">answered by opencode/deepseek-v4.1-flash-free</p>
+    </div>
+  </article>
+
+  <article class="turn" id="turn-12" aria-label="Turn 12">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-12" aria-label="Link to turn 12">12</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T23:00:08.677Z">17:00</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>since he has features that work and all so lets build ours so ours is better </p></blockquote>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="reply"><p>The harness couldn&#39;t see the script&#39;s top-level <code>let</code> bindings (setting <code>context.currentAddonStreams</code> just created a shadow property). Let me rewrite it to run assertions inside the VM context.</p></div>
+
+<div class="reply"><p>All 13 behavioral checks pass. Now the repo hygiene checks and a quick check that the local test server is still up.</p></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="reply"><p>Everything is validated and rebuilt. Current state:</p>
+<p><strong>Verified</strong></p>
+<ul><li>Source-engine harness: <strong>13/13 passed</strong> (1080p beating 720p/CAM, dead-source demotion, best-source card, provider health, 404 → failed, 206 → verified, Play Best skips dead links, failure memory + one-hop failover).</li><li>Inline JS syntax OK; <code>sw.js</code> and sync worker parse cleanly; <code>git diff --check</code> clean (only CRLF notices).</li><li>Local server <code>http://localhost:4173/</code> is live and already serving the new build (<code>Smart Sources</code> present).</li></ul>
+<p><strong>Rebuilt</strong></p>
+<ul><li><code>CineAnime-v1.0.0-tv.apk</code> — signed, <code>apksigner verify</code> passed, embedded <code>assets/index.html</code> confirmed to contain the new source engine.</li><li>Windows desktop — published to <code>windows-desktop/publish/</code> (ignored by git) with the updated <code>wwwroot/index.html</code>. Removed the accidental top-level <code>CineAnime-Windows/</code> so the repo stays clean.</li><li>Bumped service-worker cache to <code>cineanime-shell-v10</code> so installed/offline shells pick up this build.</li></ul>
+<p><strong>Working tree</strong> (all still uncommitted): <code>index.html</code>, <code>servers.json</code>, <code>sw.js</code>, both desktop/TV shells, <code>sync-worker</code>, <code>deploy.yml</code>, backup script, APK, plus untracked <code>vendor/</code>.</p>
+<p>Before I publish anything, please do a quick visual pass at <code>http://localhost:4173/</code> (hard refresh): open any episode, then check the <strong>Smart Sources</strong> shelf — Best Source spotlight, <strong>Play Best 1080p+</strong>, <strong>↻ Recheck</strong>, <strong>&#x2705; Verified</strong> filter, <strong>Show all sources</strong>, and let one stream fail to see failover.</p></div>
+<div class="reply"><p>Test it right here — the server is already running:</p>
+<h3>&#x1F310; Open in your browser</h3>
+<p><strong>This PC:</strong> <a href="http://localhost:4173/" rel="noopener noreferrer">http://localhost:4173/</a><br><strong>Phone / TV on the same Wi-Fi:</strong> <a href="http://192.168.68.103:4173/" rel="noopener noreferrer">http://192.168.68.103:4173/</a></p>
+<blockquote><p>Do a hard refresh once (<code>Ctrl+Shift+R</code>, or <code>Ctrl+F5</code>) so the old cached page is replaced.</p></blockquote>
+<h3>What to click</h3>
+<ol><li>Open any anime → pick an episode → <strong>Watch</strong> so the theater/player opens.</li><li>Scroll to the <strong>&#x26A1; Smart Sources</strong> shelf.</li><li>Check these, top to bottom: - <strong>Best Source spotlight</strong> — shows the top pick with quality/source/codec/audio badges and a short reason. - <strong>▶ Play Best 1080p+</strong> — should preflight the top sources and start the healthiest ≥1080p one. - <strong>↻ Recheck</strong> — status should go “Checking…” then report how many sources verified. - <strong>&#x2705; Verified</strong> filter — shows only sources that passed the reachability check. - <strong>Show all sources</strong> — expands beyond the top 8.</li><li>To test failover: play a source, then (on desktop) press <code>F12</code> → Network → set <strong>Offline</strong> for ~15s. It should toast “Source stalled — switching…” and jump to the next source.</li></ol>
+<h3>Notes</h3>
+<ul><li>Sources that block browser <code>fetch</code> will show <strong>◇ Untested</strong> rather than <strong>&#x2705; Verified</strong> — that&#39;s expected; they can still play via the video element.</li><li>If the page looks unchanged, close the tab and reopen the URL — the service worker just moved to <code>cineanime-shell-v10</code>.</li></ul>
+<p>Tell me what you see (or if anything looks off) and I&#39;ll fix it before committing. When you&#39;re happy, say the word and I&#39;ll commit, push to GitHub/Codeberg, and run the mirror backup.</p></div>
+      
+      <details class="activity">
+        <summary>51 tool calls</summary>
+        <div class="tools"><span class="tool"><span class="tool-name">tool</span> <span class="tool-n">51</span></span></div>
+      </details>
+      <p class="turn-model">answered by opencode/deepseek-v4.1-flash-free</p>
+    </div>
+  </article>
+<div class="compaction" role="note"><span class="compaction-label">Context compacted</span><span class="compaction-note">A second summary was applied before the final request.</span></div>
+  <article class="turn" id="turn-13" aria-label="Turn 13">
+    <header class="turn-head">
+      <a class="turn-n" href="#turn-13" aria-label="Link to turn 13">13</a>
+      <div class="turn-meta">
+        <time datetime="2026-11-13T23:09:06.104Z">17:09</time>
+        <span class="turn-role">you</span>
+      </div>
+    </header>
+    <div class="turn-body">
+      <blockquote class="user-words"><p>make a page of this whole chat</p></blockquote>
+      
+      
+      
+      
+    </div>
+  </article>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Generated from the OpenCode session record on 13 November 2026. Reasoning traces and tool output are omitted; written replies and user messages appear as they were sent.</p>
+    <p>Session <span>Analyze cineanime longevity &amp; 1080p playback</span>. <a href="http://localhost:4173/">Return to CineAnime</a>.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const q = document.getElementById('q');
+  const state = document.getElementById('searchState');
+  const articles = [...document.querySelectorAll('.turn')];
+  const indexLinks = [...document.querySelectorAll('.index-item')];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function filter() {
+    const needle = q.value.trim().toLowerCase();
+    if (!needle) {
+      articles.forEach(a => { a.hidden = false; });
+      state.textContent = '';
+      return;
+    }
+    let shown = 0;
+    articles.forEach(a => {
+      const hit = a.textContent.toLowerCase().includes(needle);
+      a.hidden = !hit;
+      if (hit) shown++;
+    });
+    state.textContent = shown
+      ? shown + (shown === 1 ? ' turn matches ' : ' turns match ') + '“' + q.value.trim() + '”'
+      : 'No turn mentions “' + q.value.trim() + '”.';
+  }
+  q.addEventListener('input', filter);
+  q.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { q.value = ''; filter(); q.blur(); }
+  });
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) {
+      e.preventDefault(); q.focus(); q.select();
+    }
+  });
+
+  if ('IntersectionObserver' in window) {
+    const byId = new Map(indexLinks.map(a => [a.dataset.target, a]));
+    const obs = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        indexLinks.forEach(a => a.removeAttribute('aria-current'));
+        const link = byId.get(entry.target.id);
+        if (link) link.setAttribute('aria-current', 'true');
+      }
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    articles.forEach(a => obs.observe(a));
+  }
+
+  indexLinks.forEach(a => a.addEventListener('click', () => {
+    const jump = document.querySelector('.mobile-jump');
+    if (jump) jump.open = false;
+  }));
+
+  // Deep links keep working after filtering.
+  if (location.hash) {
+    const target = document.querySelector(location.hash);
+    if (target) requestAnimationFrame(() => target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }));
+  }
+})();
+</script>
+</body>
+</html>

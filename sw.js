@@ -1,16 +1,24 @@
-const CACHE_NAME = 'cineanime-shell-v8';
-const PRECACHE_URLS = [
+const CACHE_NAME = 'cineanime-shell-v10';
+const CORE_PRECACHE_URLS = [
   './',
   './index.html',
+  './about.html',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
   './icon-512.png'
 ];
+const OPTIONAL_PRECACHE_URLS = [
+  './servers.json',
+  './vendor/hls.min.js'
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(CORE_PRECACHE_URLS);
+      await Promise.allSettled(OPTIONAL_PRECACHE_URLS.map((u) => cache.add(u)));
+    }).then(() => self.skipWaiting())
   );
 });
 
@@ -32,7 +40,13 @@ self.addEventListener('fetch', (event) => {
   }
 
   const accept = req.headers.get('accept') || '';
-  if (req.mode === 'navigate' || accept.includes('text/html') || url.pathname.endsWith('/manifest.webmanifest')) {
+  const isNetworkFirst =
+    req.mode === 'navigate' ||
+    accept.includes('text/html') ||
+    url.pathname.endsWith('/manifest.webmanifest') ||
+    url.pathname.endsWith('/servers.json');
+
+  if (isNetworkFirst) {
     event.respondWith(
       fetch(req, { cache: 'no-store' })
         .then((res) => {
@@ -42,7 +56,15 @@ self.addEventListener('fetch', (event) => {
           }
           return res;
         })
-        .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
+        .catch(() =>
+          caches.match(req).then((r) => {
+            if (r) return r;
+            if (req.mode === 'navigate' || accept.includes('text/html')) {
+              return caches.match('./index.html');
+            }
+            return Response.error();
+          })
+        )
     );
     return;
   }

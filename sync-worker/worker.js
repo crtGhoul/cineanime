@@ -87,7 +87,9 @@ export default {
         iv: parsed.iv,
         ciphertext: parsed.ciphertext
       });
-      await env.SYNC_KV.put(key, record);
+      // Renew a 365-day rolling lease on every write so active vaults persist indefinitely
+      // while abandoned rooms expire automatically to protect free KV storage limits.
+      await env.SYNC_KV.put(key, record, { expirationTtl: 60 * 60 * 24 * 365 });
       return jsonResponse({ ok: true, updatedAt: Date.now() }, 200, origin);
     }
 

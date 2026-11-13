@@ -3701,23 +3701,23 @@
             Sign in with your official Stremio account to automatically pull your <strong>watch history</strong>, <strong>episode progress</strong>, <strong>watchlist</strong>, and <strong>add-ons</strong> (Torrentio / Cauldron / Debrid) into CineAnime.
           </p>
           <div class="auth-field">
-            <label for="stremioEmailInput">Stremio Account Email</label>
-            <input type="email" id="stremioEmailInput" class="anilist-sync-input" placeholder="e.g. user@example.com" autocomplete="email" autocorrect="off" autocapitalize="none">
+            <label for="authStremioEmailInput">Stremio Account Email</label>
+            <input type="email" id="authStremioEmailInput" class="anilist-sync-input" placeholder="e.g. user@example.com" autocomplete="email" autocorrect="off" autocapitalize="none">
           </div>
           <div class="auth-field">
-            <label for="stremioPasswordInput">Stremio Password (or AuthKey)</label>
-            <input type="password" id="stremioPasswordInput" class="anilist-sync-input" placeholder="Your Stremio password" autocomplete="current-password">
+            <label for="authStremioPasswordInput">Stremio Password (or AuthKey)</label>
+            <input type="password" id="authStremioPasswordInput" class="anilist-sync-input" placeholder="Your Stremio password" autocomplete="current-password">
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom: 0.85rem;">
             <label style="font-size:0.75rem; color:#d4d4e0; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
-              <input type="checkbox" id="stremioWipeTokenCheckbox">
+              <input type="checkbox" id="authStremioWipeTokenCheckbox">
               1-Time Transfer &amp; Wipe Token (Uncheck to stay linked)
             </label>
-            <span id="stremioSyncBadge" style="font-size:0.75rem; font-weight:600; color:#a8a8b8;">Not connected</span>
+            <span id="authStremioSyncBadge" style="font-size:0.75rem; font-weight:600; color:#a8a8b8;">Not connected</span>
           </div>
           <div style="display:flex; gap:0.5rem;">
-            <button type="button" id="stremioDisconnectBtn" class="ctrl-btn" style="display:none; padding:0.6rem 1rem;" onclick="disconnectStremioAccount()">Disconnect</button>
-            <button type="submit" id="stremioImportBtn" class="auth-submit-btn" style="margin:0; flex:1;">📥 Sign In &amp; Sync Stremio Data</button>
+            <button type="button" id="authStremioDisconnectBtn" class="ctrl-btn" style="display:none; padding:0.6rem 1rem;" onclick="disconnectStremioAccount()">Disconnect</button>
+            <button type="submit" id="authStremioImportBtn" class="auth-submit-btn" style="margin:0; flex:1;">📥 Sign In &amp; Sync Stremio Data</button>
           </div>
         </form>
 
@@ -5636,16 +5636,20 @@
       server1: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
         if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e);
-        return buildZokoUrl(item, e, null);
+        if (item?.imdbId || isNumericId(item?.tmdbId)) {
+          return buildCineSrcUrl(item, s, e);
+        }
+        const track = currentTrack === 'dub' ? 'dub' : 'sub';
+        return buildZokoUrl(item, e, track);
       },
       server2: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
         if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
-          return buildCineSrcUrl(item, s, e);
+          return buildVidZeeUrl(item, s, e);
         }
-        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
-        return buildZokoUrl(item, e, hTrack);
+        const track = currentTrack === 'dub' ? 'dub' : 'sub';
+        return buildZokoUrl(item, e, track);
       },
       server3: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
@@ -5653,16 +5657,16 @@
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
           return buildVidZeeUrl(item, s, e);
         }
-        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
-        return buildZokoUrl(item, e, hTrack);
+        const track = currentTrack === 'dub' ? 'dub' : 'sub';
+        return buildZokoUrl(item, e, track);
       },
       server4: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
           return buildCineSrcUrl(item, s, e);
         }
-        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
-        return buildZokoUrl(item, e, hTrack);
+        const track = currentTrack === 'dub' ? 'dub' : 'sub';
+        return buildZokoUrl(item, e, track);
       }
     };
 
@@ -5671,26 +5675,35 @@
     // ========================================================
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    function ensureSandboxedPlayer(iframe) {
+    function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
-      // All video stream providers (Zoko, CineSrc, VidZee, Stremio) require unrestricted
-      // MSE, orientation locks, HLS media pipeline, and cross-origin worker access.
-      // Enforcing iframe sandbox triggers Zoko's anti-embed probe on mobile ("Embed blocked")
-      // and causes iOS Safari Error 232403.
-      if (iframe.hasAttribute('sandbox')) {
-        iframe.removeAttribute('sandbox');
+      const url = String(targetUrl || iframe.src || '');
+      const isZoko = url.includes('zokoanime.video');
+      if (isZoko) {
+        // Zoko's player relies on orientation locks and custom worker loops that fail inside sandboxed iframes on mobile
+        if (iframe.hasAttribute('sandbox')) {
+          iframe.removeAttribute('sandbox');
+        }
+      } else {
+        // Fortress Sandbox for CineSrc, VidZee, Smashy:
+        // Grants scripts, same-origin, presentation (fullscreen/AirPlay), and media pipelines
+        // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, and top redirects!
+        const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-encrypted-media';
+        if (iframe.getAttribute('sandbox') !== desired) {
+          iframe.setAttribute('sandbox', desired);
+        }
       }
     }
 
-    // 1. Permanently watch and ensure player iframe operates without restrictive sandbox
+    // 1. Permanently watch and ensure player iframe operates with optimal anti-ad sandbox
     window.addEventListener('DOMContentLoaded', () => {
       const pIframe = document.getElementById('playerIframe');
       if (pIframe) {
         ensureSandboxedPlayer(pIframe);
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
-            if (m.attributeName === 'sandbox' && pIframe.hasAttribute('sandbox')) {
-              pIframe.removeAttribute('sandbox');
+            if (m.attributeName === 'sandbox') {
+              ensureSandboxedPlayer(pIframe);
             }
           }
         });
@@ -6342,6 +6355,17 @@
 
       fetchRelations(anime);
 
+      if (!anime.imdbId) {
+        const ttMatch = String(anime.poster || '').match(/tt\d+/) || String(anime.backdrop || '').match(/tt\d+/);
+        if (ttMatch) anime.imdbId = ttMatch[0];
+        resolveImdbIdForAddonLookup(anime).then(id => {
+          if (id && currentAnime?.id === anime.id) {
+            anime.imdbId = id;
+            updateServerButtonLabels(!!anime.isMovieOrSeries);
+          }
+        });
+      }
+
       if (autoPlay) {
         openTheater();
       }
@@ -6869,12 +6893,56 @@
     function srtToVtt(rawText) {
       const cleaned = String(rawText || '')
         .replace(/^\uFEFF/, '')
-        .replace(/\r\n?/g, '\n')
-        .replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2')
-        .replace(/(^|\s)(\d{2}:\d{2}),(\d{3})/g, '$100:$2.$3');
-      const trimmed = cleaned.trim();
-      if (!trimmed) return '';
-      return /^WEBVTT\b/i.test(trimmed) ? trimmed : `WEBVTT\n\n${trimmed}`;
+        .replace(/\r\n?/g, '\n');
+      const lines = cleaned.split('\n');
+      const out = ['WEBVTT', ''];
+      let i = 0;
+      while (i < lines.length) {
+        let line = lines[i].trim();
+        // Skip numeric cue identifier if next line is a timestamp line
+        if (/^\d+$/.test(line) && i + 1 < lines.length && lines[i + 1].includes('-->')) {
+          i++;
+          line = lines[i].trim();
+        }
+        if (line.includes('-->')) {
+          // Standardize timestamp: 00:00:45,000 -> 00:00:45.000
+          let timeLine = line
+            .replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2')
+            .replace(/(^|\s)(\d{2}:\d{2}),(\d{3})/g, '$100:$2.$3');
+          i++;
+          const cueLines = [];
+          while (i < lines.length && lines[i].trim() !== '') {
+            cueLines.push(lines[i]);
+            i++;
+          }
+          const rawCueText = cueLines.join('\n');
+          // Parse ASS/SSA alignment tags: \an7, \an8, \an9 = top; \an4, \an5, \an6 = mid
+          const isTop = /\{\\an[789]\b/i.test(rawCueText);
+          const isMid = /\{\\an[456]\b/i.test(rawCueText);
+          if (isTop && !timeLine.includes('line:')) {
+            timeLine += ' line:8% position:50% align:center';
+          } else if (isMid && !timeLine.includes('line:')) {
+            timeLine += ' line:50% position:50% align:center';
+          }
+          // Strip all SSA/ASS override tags {\...} and unneeded HTML formatting
+          const cleanedText = rawCueText
+            .replace(/\{[^}\r\n]*\}/g, '')
+            .replace(/<\/?(?:font|span)[^>]*>/gi, '')
+            .trim();
+          if (cleanedText) {
+            out.push(timeLine);
+            out.push(cleanedText);
+            out.push('');
+          }
+        } else {
+          // Header or non-cue lines in existing WEBVTT file
+          if (line && !/^WEBVTT\b/i.test(line) && out.length <= 2) {
+            out.push(line);
+          }
+          i++;
+        }
+      }
+      return out.join('\n');
     }
 
     function formatVttTimestamp(msTotal) {
@@ -7343,7 +7411,7 @@
       const getUrl = SERVERS[activeServer] || SERVERS.server1;
       const url = getUrl(currentAnime, currentSeason, currentEpisode);
       const iframe = document.getElementById('playerIframe');
-      ensureSandboxedPlayer(iframe);
+      ensureSandboxedPlayer(iframe, url);
       iframe.style.display = 'block';
       iframe.src = url;
 
@@ -8924,33 +8992,65 @@
       return localStorage.getItem('cineanime_stremio_authkey') || '';
     }
 
+    function getStremioEmail() {
+      return (document.getElementById('authStremioEmailInput')?.value || document.getElementById('stremioEmailInput')?.value || '').trim();
+    }
+
+    function getStremioPassword() {
+      return (document.getElementById('authStremioPasswordInput')?.value || document.getElementById('stremioPasswordInput')?.value || '').trim();
+    }
+
+    function getStremioShouldWipe() {
+      const authBox = document.getElementById('authStremioWipeTokenCheckbox');
+      const settingsBox = document.getElementById('stremioWipeTokenCheckbox');
+      if (authBox && !authBox.checked) return false;
+      if (settingsBox && !settingsBox.checked) return false;
+      return true;
+    }
+
     function updateStremioAccountBadge() {
-      const badge = document.getElementById('stremioSyncBadge');
-      const emailInput = document.getElementById('stremioEmailInput');
-      const passInput = document.getElementById('stremioPasswordInput');
-      const discBtn = document.getElementById('stremioDisconnectBtn');
-      const impBtn = document.getElementById('stremioImportBtn');
       const authKey = getStremioAuthKey();
       const savedEmail = localStorage.getItem('cineanime_stremio_email') || '';
 
-      if (badge) {
-        badge.textContent = authKey ? (savedEmail ? `🟢 Linked (${savedEmail})` : '🟢 Linked') : 'Not connected';
-        badge.style.color = authKey ? '#10b981' : '#a8a8b8';
-      }
-      if (discBtn) discBtn.style.display = authKey ? 'inline-flex' : 'none';
-      if (impBtn && authKey) impBtn.textContent = '🔄 Re-Sync Stremio';
-      if (emailInput && savedEmail && !emailInput.value) emailInput.value = savedEmail;
-      if (passInput && authKey && !passInput.value) passInput.placeholder = 'Linked (enter password only to re-login)';
+      ['stremioSyncBadge', 'authStremioSyncBadge'].forEach(id => {
+        const badge = document.getElementById(id);
+        if (badge) {
+          badge.textContent = authKey ? (savedEmail ? `🟢 Linked (${savedEmail})` : '🟢 Linked') : 'Not connected';
+          badge.style.color = authKey ? '#10b981' : '#a8a8b8';
+        }
+      });
+
+      ['stremioDisconnectBtn', 'authStremioDisconnectBtn'].forEach(id => {
+        const discBtn = document.getElementById(id);
+        if (discBtn) discBtn.style.display = authKey ? 'inline-flex' : 'none';
+      });
+
+      ['stremioImportBtn', 'authStremioImportBtn'].forEach(id => {
+        const impBtn = document.getElementById(id);
+        if (impBtn && authKey) impBtn.textContent = '🔄 Re-Sync Stremio';
+      });
+
+      ['stremioEmailInput', 'authStremioEmailInput'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input && savedEmail && !input.value) input.value = savedEmail;
+      });
+
+      ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input && authKey && !input.value) input.placeholder = 'Linked (enter password only to re-login)';
+      });
     }
 
     function disconnectStremioAccount() {
       localStorage.removeItem('cineanime_stremio_authkey');
       localStorage.removeItem('cineanime_stremio_email');
-      const passInput = document.getElementById('stremioPasswordInput');
-      if (passInput) {
-        passInput.value = '';
-        passInput.placeholder = 'Stremio Password (or AuthKey)';
-      }
+      ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
+        const passInput = document.getElementById(id);
+        if (passInput) {
+          passInput.value = '';
+          passInput.placeholder = 'Stremio Password (or AuthKey)';
+        }
+      });
       updateStremioAccountBadge();
       showAppToast('Disconnected Stremio account.');
     }
@@ -9012,25 +9112,24 @@
     }
 
     async function importFromStremioAccount() {
-      const emailInput = document.getElementById('stremioEmailInput');
-      const passInput = document.getElementById('stremioPasswordInput');
-      const wipeCheckbox = document.getElementById('stremioWipeTokenCheckbox');
-      const impBtn = document.getElementById('stremioImportBtn');
-
-      let email = (emailInput?.value || '').trim();
-      let pass = (passInput?.value || '').trim();
+      let email = getStremioEmail();
+      let pass = getStremioPassword();
       let authKey = getStremioAuthKey();
 
       if (!authKey && !email) {
         showAppToast('Enter your Stremio email and password (or authKey).');
-        if (emailInput) emailInput.focus();
+        const activeInput = document.getElementById('authStremioEmailInput') || document.getElementById('stremioEmailInput');
+        if (activeInput) activeInput.focus();
         return;
       }
 
-      if (impBtn) {
-        impBtn.disabled = true;
-        impBtn.textContent = '⏳ Importing…';
-      }
+      ['stremioImportBtn', 'authStremioImportBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '⏳ Importing…';
+        }
+      });
 
       try {
         if (!authKey || (email && pass)) {
@@ -9071,6 +9170,7 @@
         if (libItems.length) {
           const historySnapshot = [];
           const watchlistSnapshot = [];
+          const watchlistMeta = {};
           const progressMap = {};
           const watchedEpisodes = {};
 
@@ -9116,6 +9216,17 @@
               timeOffsetSec > 5
             );
 
+            // Always store metadata for watchlist & history so cards render complete with posters
+            watchlistMeta[id] = {
+              id,
+              title,
+              poster,
+              backdrop: poster,
+              type,
+              isMovieOrSeries: true,
+              episodes: 12
+            };
+
             if (hasWatched) {
               historySnapshot.push({
                 id,
@@ -9157,6 +9268,7 @@
               v: 2,
               history: historySnapshot,
               watchlist: watchlistSnapshot,
+              watchlistMeta,
               watchedEpisodes,
               progressMap
             }, { manualImport: true, skipUi: false });
@@ -9164,17 +9276,23 @@
         }
 
         // 3. Privacy Choice: Wipe or Keep Token
-        const shouldWipe = wipeCheckbox ? wipeCheckbox.checked : true;
+        const shouldWipe = getStremioShouldWipe();
         if (shouldWipe) {
           localStorage.removeItem('cineanime_stremio_authkey');
           localStorage.removeItem('cineanime_stremio_email');
-          if (passInput) passInput.value = '';
+          ['stremioPasswordInput', 'authStremioPasswordInput'].forEach(id => {
+            const passEl = document.getElementById(id);
+            if (passEl) passEl.value = '';
+          });
         } else {
           localStorage.setItem('cineanime_stremio_authkey', authKey);
           if (email) localStorage.setItem('cineanime_stremio_email', email);
         }
 
         updateStremioAccountBadge();
+        hydrateWatchlistCache();
+        renderHistory();
+        renderWatchlist();
         if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
 
         const msg = [
@@ -9193,10 +9311,13 @@
         console.error('Stremio import error:', err);
         showAppToast(`❌ Stremio import failed: ${err.message}`);
       } finally {
-        if (impBtn) {
-          impBtn.disabled = false;
-          impBtn.textContent = getStremioAuthKey() ? '🔄 Re-Sync Stremio' : '📥 Import From Stremio';
-        }
+        ['stremioImportBtn', 'authStremioImportBtn'].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = getStremioAuthKey() ? '🔄 Re-Sync Stremio' : '📥 Import From Stremio';
+          }
+        });
       }
     }
 

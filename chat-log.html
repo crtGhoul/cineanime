@@ -123,7 +123,8 @@ a:hover { text-decoration-color: var(--accent); }
 
 /* Layout */
 .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: var(--space-5); padding-block: var(--space-5); align-items: start; }
-.rail { position: sticky; top: calc(var(--bar) + 1.4rem); max-height: calc(100dvh - var(--bar) - 2.8rem); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.rail { position: sticky; top: calc(var(--bar) + 1.4rem); max-height: calc(100dvh - var(--bar) - 2.8rem); overflow-y: auto; scrollbar-width: none; }
+.rail::-webkit-scrollbar { width: 0; height: 0; }
 .rail h2 { font-size: 0.8rem; font-weight: 500; color: var(--muted); margin: 0 0 var(--space-2); }
 .index { display: grid; gap: 1px; }
 .index-item {
@@ -967,7 +968,7 @@ a:hover { text-decoration-color: var(--accent); }
 <footer class="foot">
   <div class="wrap">
     <p>Generated from the OpenCode session record on 13 November 2026. Reasoning traces and tool output are omitted; written replies and user messages appear as they were sent.</p>
-    <p>Session <span>Analyze cineanime longevity &amp; 1080p playback</span>. <a href="http://localhost:4173/">Return to CineAnime</a>.</p>
+    <p>Session <span>Analyze cineanime longevity &amp; 1080p playback</span>. <a href="./">Return to CineAnime</a>.</p>
   </div>
 </footer>
 
@@ -983,7 +984,9 @@ a:hover { text-decoration-color: var(--accent); }
     const needle = q.value.trim().toLowerCase();
     if (!needle) {
       articles.forEach(a => { a.hidden = false; });
+      indexLinks.forEach(a => { a.hidden = false; });
       state.textContent = '';
+      markActive();
       return;
     }
     let shown = 0;
@@ -992,9 +995,14 @@ a:hover { text-decoration-color: var(--accent); }
       a.hidden = !hit;
       if (hit) shown++;
     });
+    indexLinks.forEach(a => {
+      const article = document.getElementById(a.dataset.target);
+      a.hidden = !!(article && article.hidden);
+    });
     state.textContent = shown
       ? shown + (shown === 1 ? ' turn matches ' : ' turns match ') + '“' + q.value.trim() + '”'
       : 'No turn mentions “' + q.value.trim() + '”.';
+    markActive();
   }
   q.addEventListener('input', filter);
   q.addEventListener('keydown', e => {
@@ -1007,18 +1015,37 @@ a:hover { text-decoration-color: var(--accent); }
     }
   });
 
-  if ('IntersectionObserver' in window) {
-    const byId = new Map(indexLinks.map(a => [a.dataset.target, a]));
-    const obs = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        indexLinks.forEach(a => a.removeAttribute('aria-current'));
-        const link = byId.get(entry.target.id);
-        if (link) link.setAttribute('aria-current', 'true');
+  const rail = document.querySelector('.rail');
+  const byId = new Map(indexLinks.map(a => [a.dataset.target, a]));
+  let ticking = false;
+
+  function markActive() {
+    ticking = false;
+    if (document.body.contains(articles[0]) && articles[0].hidden) return;
+    const marker = window.scrollY + 170;
+    let current = articles[0];
+    for (const article of articles) {
+      if (article.offsetTop <= marker) current = article;
+    }
+    if (!current) return;
+    indexLinks.forEach(a => a.removeAttribute('aria-current'));
+    const link = byId.get(current.id);
+    if (link) {
+      link.setAttribute('aria-current', 'true');
+      if (rail && rail.offsetParent !== null) {
+        const top = link.offsetTop;
+        if (top < rail.scrollTop || top + link.offsetHeight > rail.scrollTop + rail.clientHeight) {
+          rail.scrollTop = Math.max(0, top - rail.clientHeight / 2);
+        }
       }
-    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
-    articles.forEach(a => obs.observe(a));
+    }
   }
+
+  addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(markActive); }
+  }, { passive: true });
+  addEventListener('resize', markActive, { passive: true });
+  markActive();
 
   indexLinks.forEach(a => a.addEventListener('click', () => {
     const jump = document.querySelector('.mobile-jump');

@@ -599,6 +599,142 @@
       }
     }
 
+    /* Fullscreen Floating Controls HUD */
+    .fs-hud-bar {
+      display: none;
+      position: absolute;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      width: min(94%, 680px);
+      z-index: 100001;
+      background: rgba(14, 15, 23, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      padding: 0.42rem 0.85rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(99, 102, 241, 0.15);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s ease;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .player-container:fullscreen .fs-hud-bar,
+    .player-container.cinema-fullscreen .fs-hud-bar,
+    body.cinema-fs-open .fs-hud-bar {
+      display: flex;
+    }
+
+    .player-container:fullscreen.fs-hud-visible .fs-hud-bar,
+    .player-container.cinema-fullscreen.fs-hud-visible .fs-hud-bar,
+    body.cinema-fs-open .player-container.fs-hud-visible .fs-hud-bar,
+    .player-container:fullscreen:hover .fs-hud-bar,
+    .player-container.cinema-fullscreen:hover .fs-hud-bar,
+    .fs-hud-bar:hover,
+    .fs-hud-bar:focus-within {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .fs-hud-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .fs-hud-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .fs-hud-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+
+    .fs-hud-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .fs-hud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f3f4f6;
+      border-radius: 9999px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .fs-hud-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .fs-hud-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .fs-hud-btn.primary:hover {
+      background: #4f46e5;
+    }
+
+    .fs-hud-btn.highlight {
+      background: rgba(234, 179, 8, 0.2);
+      border-color: rgba(234, 179, 8, 0.5);
+      color: #fde047;
+    }
+
+    .fs-hud-btn.highlight:hover {
+      background: rgba(234, 179, 8, 0.35);
+    }
+
+    .fs-hud-btn.exit {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .fs-hud-btn.exit:hover {
+      background: rgba(239, 68, 68, 0.35);
+      color: #fff;
+    }
+
+    .player-container:fullscreen .floating-skip-btn,
+    .player-container.cinema-fullscreen .floating-skip-btn {
+      bottom: 5.5rem;
+    }
+
     .player-iframe {
       display: block;
       position: absolute;
@@ -3193,6 +3329,19 @@
             </div>
           </div>
           <button id="floatingSkipBtn" type="button" class="floating-skip-btn" onclick="triggerFloatingSkip()">⏭ Skip Intro</button>
+          <!-- Fullscreen Floating Controls HUD -->
+          <div id="fsHudBar" class="fs-hud-bar" role="toolbar" aria-label="Fullscreen Controls">
+            <div class="fs-hud-meta">
+              <span id="fsHudEpBadge" class="fs-hud-badge">EP 1</span>
+              <span id="fsHudTitle" class="fs-hud-title">CineAnime</span>
+            </div>
+            <div class="fs-hud-controls">
+              <button type="button" id="fsHudPrevBtn" class="fs-hud-btn" onclick="changeEpisode(-1)" title="Previous Episode (Shift+Left)">⏮ Prev</button>
+              <button type="button" id="fsHudSkipBtn" class="fs-hud-btn highlight" onclick="triggerFloatingSkip()" title="Skip Intro / +85s (S)">⏭ Skip Intro</button>
+              <button type="button" id="fsHudNextBtn" class="fs-hud-btn primary" onclick="changeEpisode(1)" title="Next Episode (Shift+Right)">Next Ep ⏭</button>
+            </div>
+            <button type="button" class="fs-hud-btn exit" onclick="exitCinemaFullscreen()" title="Exit Fullscreen (Esc)">✕ Exit</button>
+          </div>
           <div id="upNextOverlay" class="up-next-overlay" aria-live="polite">
             <span id="upNextKicker" class="up-next-kicker">Up Next in 10s</span>
             <div id="upNextTitle" class="up-next-title">Next Episode</div>
@@ -5119,6 +5268,66 @@
       showAppToast(`📅 ${seasonPart}${epPart}${namePart} airs ${datePart} (${cdPart})`);
     }
 
+    const KITSU_MAPPINGS_CACHE = new Map();
+    async function fetchKitsuMappings(kitsuId) {
+      const kId = String(kitsuId || '').trim();
+      if (!kId || !/^\d+$/.test(kId)) return null;
+      if (KITSU_MAPPINGS_CACHE.has(kId)) return KITSU_MAPPINGS_CACHE.get(kId);
+      try {
+        const res = await fetch(`https://kitsu.io/api/edge/anime/${encodeURIComponent(kId)}/mappings`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        const data = Array.isArray(json?.data) ? json.data : [];
+        let malId = null;
+        let aniId = null;
+        for (const m of data) {
+          const site = m.attributes?.externalSite;
+          const extId = String(m.attributes?.externalId || '');
+          if (site === 'myanimelist/anime' && /^\d+$/.test(extId)) malId = extId;
+          if (site === 'anilist/anime' && /^\d+$/.test(extId)) aniId = extId;
+        }
+        const result = { malId, aniId };
+        KITSU_MAPPINGS_CACHE.set(kId, result);
+        return result;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function computeTitleSimilarity(str1, str2) {
+      if (!str1 || !str2) return 0;
+      const clean = s => s.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+      const s1 = clean(str1);
+      const s2 = clean(str2);
+      if (s1 === s2) return 1.0;
+
+      const getSeason = s => {
+        const m = s.match(/(?:season|s)\s*(\d+)|(\d+)(?:nd|rd|th)?\s*season/i);
+        return m ? (m[1] || m[2]) : null;
+      };
+      const sea1 = getSeason(str1);
+      const sea2 = getSeason(str2);
+      const seasonMismatch = (sea1 && sea2 && sea1 !== sea2) || (sea1 && !sea2 && sea1 !== '1') || (!sea1 && sea2 && sea2 !== '1');
+
+      const w1 = s1.split(' ').filter(w => w.length > 1);
+      const w2 = s2.split(' ').filter(w => w.length > 1);
+      const set1 = new Set(w1);
+      const set2 = new Set(w2);
+      if (!set1.size || !set2.size) return 0;
+
+      let match = 0;
+      for (const w of set1) { if (set2.has(w)) match++; }
+      let score = (2 * match) / (set1.size + set2.size);
+
+      if (s1.includes(s2) || s2.includes(s1)) {
+        const lenRatio = Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length);
+        score = Math.max(score, lenRatio >= 0.65 ? 0.88 : (0.45 * lenRatio));
+      }
+
+      if (seasonMismatch) score *= 0.2;
+      return score;
+    }
+
     async function hydrateNextAiringMeta(item) {
       if (!item || item.type === 'movie') return item;
       const cacheKey = `${item.isMovieOrSeries ? 'tv' : 'ani'}:${item.imdbId || item.aniId || item.id}`;
@@ -5194,13 +5403,21 @@
             const hasFreshFuture = item.seriesStatus && (!item.nextAiring || item.nextAiring.airingAtMs > Date.now());
             const statusUpper = String(item.seriesStatus || '').toUpperCase();
             if (!hasFreshFuture || ((statusUpper === 'RELEASING' || statusUpper === 'NOT_YET_RELEASED') && !item.nextAiring)) {
-              const hasAniId = item.aniId || (item.kitsuId ? String(item.id) !== String(item.kitsuId) : /^\d+$/.test(String(item.id)));
+              if (item.kitsuId && (!item.aniId || !item.idMal)) {
+                const maps = await fetchKitsuMappings(item.kitsuId);
+                if (maps) {
+                  if (maps.aniId && !item.aniId) item.aniId = maps.aniId;
+                  if (maps.malId && !item.idMal) item.idMal = maps.malId;
+                }
+              }
+              const hasAniId = Boolean(item.aniId && /^\d+$/.test(String(item.aniId)))
+                || (item._source === 'anilist' && isNumericId(item.id));
               const variables = hasAniId
                 ? { id: parseInt(item.aniId || item.id, 10) }
                 : { search: item.romaji || item.title };
               const q = hasAniId
                 ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal status episodes nextAiringEpisode { episode airingAt } } }`
-                : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal status episodes nextAiringEpisode { episode airingAt } } }`;
+                : `query($search: String) { Page(page: 1, perPage: 6) { media(search: $search, type: ANIME) { id idMal status episodes title { romaji english userPreferred } nextAiringEpisode { episode airingAt } } } }`;
               const res = await fetch(ANILIST_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -5208,7 +5425,21 @@
               });
               if (res.ok) {
                 const json = await res.json();
-                const m = json?.data?.Media;
+                let m = json?.data?.Media;
+                if (!m && Array.isArray(json?.data?.Page?.media)) {
+                  const sTitle = item.romaji || item.title;
+                  let top = null;
+                  let topScore = 0;
+                  for (const cand of json.data.Page.media) {
+                    const cTitles = [cand.title?.romaji, cand.title?.english, cand.title?.userPreferred].filter(Boolean);
+                    let cScore = 0;
+                    for (const ct of cTitles) {
+                      cScore = Math.max(cScore, computeTitleSimilarity(sTitle, ct));
+                    }
+                    if (cScore > topScore) { topScore = cScore; top = cand; }
+                  }
+                  if (top && topScore >= 0.52) m = top;
+                }
                 if (m) {
                   if (!item.aniId && m.id) item.aniId = String(m.id);
                   if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
@@ -5840,21 +6071,34 @@
 
     function hasValidAnimeId(item) {
       if (!item) return false;
-      if (item.idMal || item.aniId) return true;
-      const rawId = String(item.id || '').trim();
-      return Boolean(rawId && !rawId.startsWith('tt') && isNumericId(rawId));
+      if (item.idMal && /^\d+$/.test(String(item.idMal))) return true;
+      if (item.aniId && /^\d+$/.test(String(item.aniId))) return true;
+      if (item._source === 'anilist' && isNumericId(item.id)) return true;
+      return false;
     }
 
     function buildZokoUrl(item, ep, trackOverride = null, preferAni = false) {
-      const aniId = item?.aniId || (item?.kitsuId && String(item.id) === String(item.kitsuId) ? null : (isNumericId(item?.id) ? item.id : null));
-      const malId = item?.idMal || null;
+      const verifiedAniId = (item?.aniId && /^\d+$/.test(String(item.aniId)))
+        ? String(item.aniId)
+        : (item?._source === 'anilist' && isNumericId(item?.id) ? String(item.id) : null);
+      const malId = (item?.idMal && /^\d+$/.test(String(item.idMal))) ? String(item.idMal) : null;
       const track = trackOverride || (currentTrack === 'dub' ? 'dub' : 'sub');
       const episode = item?.type === 'movie' ? 1 : (ep || 1);
-      const useAni = preferAni && aniId;
-      // MAL ID is primary on zoko; preferAni uses ani/<aniId> as an independent index mirror on Server 2.
-      const path = useAni
-        ? `ani/${encodeURIComponent(String(aniId))}`
-        : (malId ? `mal/${encodeURIComponent(String(malId))}` : `ani/${encodeURIComponent(String(aniId || item?.id || ''))}`);
+
+      let path = '';
+      if (preferAni && verifiedAniId) {
+        path = `ani/${encodeURIComponent(verifiedAniId)}`;
+      } else if (malId) {
+        path = `mal/${encodeURIComponent(malId)}`;
+      } else if (verifiedAniId) {
+        path = `ani/${encodeURIComponent(verifiedAniId)}`;
+      }
+
+      if (!path) {
+        // Do not guess or send unverified Kitsu/Cinemeta IDs to Zoko
+        return '';
+      }
+
       return formatServerTemplate('zoko', {
         origin: getEffectiveServerOrigin('zoko'),
         path,
@@ -5913,7 +6157,8 @@
         if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, false);
         if (hasValidAnimeId(item)) {
           const track = currentTrack === 'dub' ? 'dub' : 'sub';
-          return buildZokoUrl(item, e, track, false);
+          const zoko = buildZokoUrl(item, e, track, false);
+          if (zoko) return zoko;
         }
         return buildCineSrcUrl(item, s, e, false);
       },
@@ -5922,7 +6167,8 @@
         if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e, false);
         if (hasValidAnimeId(item)) {
           const track = currentTrack === 'dub' ? 'dub' : 'sub';
-          return buildZokoUrl(item, e, track, true);
+          const zoko = buildZokoUrl(item, e, track, true);
+          if (zoko) return zoko;
         }
         return buildVidZeeUrl(item, s, e, false);
       },
@@ -5931,7 +6177,8 @@
         if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, true);
         if (hasValidAnimeId(item)) {
           // Server 3 = Zoko HardSub — 1080p subtitles burned into video (avoids ASS tag artifacts)
-          return buildZokoUrl(item, e, 'hsub', false);
+          const zoko = buildZokoUrl(item, e, 'hsub', false);
+          if (zoko) return zoko;
         }
         return buildVidZeeUrl(item, s, e, true);
       },
@@ -5942,7 +6189,9 @@
           return buildCineSrcUrl(item, s, e, false);
         }
         const track = currentTrack === 'dub' ? 'dub' : 'sub';
-        return buildZokoUrl(item, e, track, true);
+        const zoko = buildZokoUrl(item, e, track, true);
+        if (zoko) return zoko;
+        return buildSmashyUrl(item, s, e, true);
       }
     };
 
@@ -6442,39 +6691,101 @@
         }
 
         if (!item.idMal || !item.aniId || item.episodeCountUnknown || !item.trailerId) {
-          const hasAniId = item.aniId || (item.kitsuId ? String(item.id) !== String(item.kitsuId) : /^\d+$/.test(String(item.id)));
-          const variables = hasAniId
-            ? { id: parseInt(item.aniId || item.id, 10) }
-            : { search: item.romaji || item.title };
-          const q = hasAniId
-            ? `query($id: Int) { Media(id: $id, type: ANIME) { id idMal status episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`
-            : `query($search: String) { Media(search: $search, type: ANIME, sort: POPULARITY_DESC) { id idMal status episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`;
+          // Step 1: If item has Kitsu ID, fetch deterministic mappings first
+          if (item.kitsuId && (!item.idMal || !item.aniId)) {
+            const mappings = await fetchKitsuMappings(item.kitsuId);
+            if (mappings) {
+              if (mappings.malId && !item.idMal) item.idMal = mappings.malId;
+              if (mappings.aniId && !item.aniId) item.aniId = mappings.aniId;
+            }
+          }
 
-          const res = await fetch(ANILIST_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: q, variables })
-          });
-          if (res.ok) {
-            const json = await res.json();
-            const m = json.data?.Media;
-            if (m) {
-              if (!item.aniId && m.id) item.aniId = String(m.id);
-              if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
-              if (m.format === 'MOVIE') item.type = 'movie';
-              if (m.duration && !item.runtime) item.runtime = `${m.duration} min`;
-              if (Array.isArray(m.genres) && m.genres.length && !item.genres) item.genres = m.genres;
-              if (m.trailer?.site === 'youtube' && m.trailer?.id) {
-                const cleanTrailer = sanitizeYoutubeId(m.trailer.id);
-                if (cleanTrailer) item.trailerId = cleanTrailer;
+          // Step 2: Query AniList with verified ID or verified search
+          const hasVerifiedAniId = Boolean(item.aniId && /^\d+$/.test(String(item.aniId)))
+            || (item._source === 'anilist' && isNumericId(item.id));
+
+          if (hasVerifiedAniId) {
+            const aniIdNum = parseInt(item.aniId || item.id, 10);
+            const q = `query($id: Int) { Media(id: $id, type: ANIME) { id idMal status episodes format duration genres trailer { id site } nextAiringEpisode { episode airingAt } } }`;
+            const res = await fetch(ANILIST_API, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query: q, variables: { id: aniIdNum } })
+            });
+            if (res.ok) {
+              const json = await res.json();
+              const m = json.data?.Media;
+              if (m) {
+                if (!item.aniId && m.id) item.aniId = String(m.id);
+                if (!item.idMal && m.idMal) item.idMal = String(m.idMal);
+                if (m.format === 'MOVIE') item.type = 'movie';
+                if (m.duration && !item.runtime) item.runtime = `${m.duration} min`;
+                if (Array.isArray(m.genres) && m.genres.length && !item.genres) item.genres = m.genres;
+                if (m.trailer?.site === 'youtube' && m.trailer?.id) {
+                  const cleanTrailer = sanitizeYoutubeId(m.trailer.id);
+                  if (cleanTrailer) item.trailerId = cleanTrailer;
+                }
+                applyNormalizedAniListNextAiring(item, m);
+                const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
+                  ? (m.nextAiringEpisode.episode - 1)
+                  : (m.episodes || null);
+                if (aired && (item.episodeCountUnknown || !item.episodes || item.episodes < aired)) {
+                  item.episodes = aired;
+                  item.episodeCountUnknown = false;
+                }
               }
-              applyNormalizedAniListNextAiring(item, m);
-              const aired = (m.nextAiringEpisode && m.nextAiringEpisode.episode > 1)
-                ? (m.nextAiringEpisode.episode - 1)
-                : (m.episodes || null);
-              if (aired && (item.episodeCountUnknown || !item.episodes || item.episodes < aired)) {
-                item.episodes = aired;
-                item.episodeCountUnknown = false;
+            }
+          } else {
+            // Step 3: Search AniList by title with candidates scoring to prevent random anime mismatch
+            const searchTitle = item.romaji || item.title;
+            const q = `query($search: String) { Page(page: 1, perPage: 8) { media(search: $search, type: ANIME) { id idMal status episodes format seasonYear duration genres title { romaji english userPreferred } synonyms trailer { id site } nextAiringEpisode { episode airingAt } } } }`;
+            const res = await fetch(ANILIST_API, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query: q, variables: { search: searchTitle } })
+            });
+            if (res.ok) {
+              const json = await res.json();
+              const list = Array.isArray(json?.data?.Page?.media) ? json.data.Page.media : [];
+              let best = null;
+              let bestScore = 0;
+              for (const cand of list) {
+                const candTitles = [cand.title?.romaji, cand.title?.english, cand.title?.userPreferred, ...(cand.synonyms || [])].filter(Boolean);
+                let candMaxScore = 0;
+                for (const t of candTitles) {
+                  candMaxScore = Math.max(
+                    candMaxScore,
+                    computeTitleSimilarity(searchTitle, t),
+                    computeTitleSimilarity(item.title, t)
+                  );
+                }
+                if (item.type === 'movie' && cand.format === 'MOVIE') candMaxScore += 0.1;
+                if (item.year && cand.seasonYear && String(cand.seasonYear) === String(item.year)) candMaxScore += 0.1;
+                if (candMaxScore > bestScore) {
+                  bestScore = candMaxScore;
+                  best = cand;
+                }
+              }
+
+              // Only accept candidate if confident match (>= 0.52 score)
+              if (best && bestScore >= 0.52) {
+                if (!item.aniId && best.id) item.aniId = String(best.id);
+                if (!item.idMal && best.idMal) item.idMal = String(best.idMal);
+                if (best.format === 'MOVIE') item.type = 'movie';
+                if (best.duration && !item.runtime) item.runtime = `${best.duration} min`;
+                if (Array.isArray(best.genres) && best.genres.length && !item.genres) item.genres = best.genres;
+                if (best.trailer?.site === 'youtube' && best.trailer?.id) {
+                  const cleanTrailer = sanitizeYoutubeId(best.trailer.id);
+                  if (cleanTrailer) item.trailerId = cleanTrailer;
+                }
+                applyNormalizedAniListNextAiring(item, best);
+                const aired = (best.nextAiringEpisode && best.nextAiringEpisode.episode > 1)
+                  ? (best.nextAiringEpisode.episode - 1)
+                  : (best.episodes || null);
+                if (aired && (item.episodeCountUnknown || !item.episodes || item.episodes < aired)) {
+                  item.episodes = aired;
+                  item.episodeCountUnknown = false;
+                }
               }
             }
           }
@@ -7088,6 +7399,7 @@
         activeEpisodeRange = neededRange;
       }
       updatePlayerUrl();
+      if (typeof updateFsHud === 'function') updateFsHud();
       markEpisodeWatched(currentAnime.id, ep, true, currentSeason);
       renderEpisodeGrid(getEffectiveEpisodeCount(currentAnime, ep));
       saveWatchHistory(currentAnime, ep, activeServer);
@@ -7655,6 +7967,7 @@
         if (op && skipIntroBtn) {
           skipIntroBtn.textContent = `⏭ Skip OP (${formatShortTime(op.startTime)}–${formatShortTime(op.endTime)})`;
         }
+        if (typeof updateFsHud === 'function') updateFsHud();
       } catch (_) {}
     }
 
@@ -8138,6 +8451,76 @@
       }
     }
 
+    let fsHudHideTimer = null;
+
+    function updateFsHud() {
+      const hud = document.getElementById('fsHudBar');
+      if (!hud) return;
+      const epBadge = document.getElementById('fsHudEpBadge');
+      const titleEl = document.getElementById('fsHudTitle');
+      const skipBtn = document.getElementById('fsHudSkipBtn');
+      const prevBtn = document.getElementById('fsHudPrevBtn');
+      const nextBtn = document.getElementById('fsHudNextBtn');
+
+      if (currentAnime) {
+        if (titleEl) titleEl.textContent = currentAnime.title || 'Anime';
+        if (epBadge) {
+          if (currentAnime.type === 'movie') {
+            epBadge.textContent = 'MOVIE';
+          } else if (currentAnime.isMovieOrSeries && currentAnime.seasonNumbers?.length > 1) {
+            epBadge.textContent = `S${currentSeason}:E${currentEpisode}`;
+          } else {
+            epBadge.textContent = `EP ${currentEpisode}`;
+          }
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.disabled = Boolean(currentEpisode <= 1 && (!currentAnime?.isMovieOrSeries || currentSeason <= 1));
+        prevBtn.style.opacity = prevBtn.disabled ? '0.4' : '1';
+      }
+      if (nextBtn) {
+        const hasNext = typeof hasNextEpisodeAvailable === 'function' ? hasNextEpisodeAvailable() : true;
+        nextBtn.disabled = !hasNext;
+        nextBtn.style.opacity = hasNext ? '1' : '0.4';
+      }
+
+      if (skipBtn) {
+        const op = (activeAniSkipSegments || []).find(s => s.skipType === 'op');
+        if (op) {
+          skipBtn.textContent = '⏭ Skip OP';
+        } else {
+          skipBtn.textContent = '⏭ Skip 85s';
+        }
+      }
+    }
+
+    function showFsHud() {
+      const container = document.getElementById('playerContainer');
+      if (!container) return;
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      const isCssFs = container.classList.contains('cinema-fullscreen') || document.body.classList.contains('cinema-fs-open');
+      if (!fsEl && !isCssFs) return;
+
+      updateFsHud();
+      container.classList.add('fs-hud-visible');
+      if (fsHudHideTimer) clearTimeout(fsHudHideTimer);
+      fsHudHideTimer = setTimeout(() => {
+        container.classList.remove('fs-hud-visible');
+      }, 3500);
+    }
+
+    function initFsHudListeners() {
+      const container = document.getElementById('playerContainer');
+      if (!container || container._fsHudBound) return;
+      container._fsHudBound = true;
+      ['mousemove', 'pointermove', 'touchstart', 'click'].forEach(evt => {
+        container.addEventListener(evt, () => {
+          showFsHud();
+        }, { passive: true });
+      });
+    }
+
     function syncFullscreenUi() {
       const container = document.getElementById('playerContainer');
       const btn = document.getElementById('fullscreenBtn');
@@ -8149,6 +8532,17 @@
       document.body.classList.toggle('cinema-fs-open', active);
       if (btn) {
         btn.textContent = active ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+      }
+      if (active) {
+        initFsHudListeners();
+        updateFsHud();
+        showFsHud();
+      } else if (container) {
+        container.classList.remove('fs-hud-visible');
+        if (fsHudHideTimer) {
+          clearTimeout(fsHudHideTimer);
+          fsHudHideTimer = null;
+        }
       }
     }
 
@@ -11828,7 +12222,9 @@
     }
 
     function handleAuthClick() {
-      if (isVaultUnlocked()) {
+      if (typeof getStremioAuthKey === 'function' && getStremioAuthKey()) {
+        openStremioSyncSection();
+      } else if (isVaultUnlocked()) {
         openProfileModal();
       } else {
         openAuthModal();
@@ -14335,15 +14731,25 @@
 
       const authBtn = document.getElementById('authBtn');
       if (authBtn) {
-        if (isVaultUnlocked()) {
+        const stremioKey = typeof getStremioAuthKey === 'function' ? getStremioAuthKey() : '';
+        const stremioEmail = typeof getStremioEmail === 'function' ? getStremioEmail() : '';
+        if (stremioKey) {
+          const uName = stremioEmail ? stremioEmail.split('@')[0] : 'Stremio';
+          authBtn.innerHTML = `📺 ${uName}`;
+          authBtn.classList.add('primary');
+          authBtn.title = `Stremio sync active (${stremioEmail}) — click to manage`;
+        } else if (isVaultUnlocked()) {
           authBtn.innerHTML = `🛡️ ${currentSessionUser}`;
           authBtn.classList.add('primary');
+          authBtn.title = `Encrypted Vault @${currentSessionUser} unlocked`;
         } else if (currentSessionUser) {
           authBtn.innerHTML = `🔒 Unlock ${currentSessionUser}`;
           authBtn.classList.remove('primary');
+          authBtn.title = `Click to unlock AES-256 Vault`;
         } else {
           authBtn.innerHTML = `👤 Sign In`;
           authBtn.classList.remove('primary');
+          authBtn.title = `Sign in with Stremio or Encrypted Vault to sync watch history`;
         }
       }
     }

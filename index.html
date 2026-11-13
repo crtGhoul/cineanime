@@ -3046,11 +3046,6 @@
             referrerpolicy="no-referrer"
             src="about:blank"
           ></iframe>
-          <script>
-            if (!(/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))) {
-              document.getElementById('playerIframe').setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads allow-storage-access-by-user-activation');
-            }
-          </script>
           <video id="directVideoPlayer" class="player-video" controls autoplay playsinline webkit-playsinline></video>
           <div id="streamCodecBanner" class="stream-codec-banner">
             <span id="streamCodecMessage">Browser cannot decode this MKV/HEVC stream directly. Open in VLC / Stremio or switch back to Server 1–4.</span>
@@ -5584,32 +5579,28 @@
     function buildCineSrcUrl(item, s, e) {
       if (!item) return 'about:blank';
       const origin = getEffectiveServerOrigin('cinesrc');
+      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const ref = tmdb || imdb;
+      if (!ref) return 'about:blank';
+
       if (item.type === 'movie') {
-        const id = isNumericId(item.tmdbId)
-          ? String(item.tmdbId).trim()
-          : (item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null));
-        return id
-          ? `${origin}/embed/movie/${encodeURIComponent(id)}?color=%23e50914&autoplay=true`
-          : buildSmashyUrl(item, s, e);
+        return `${origin}/embed/movie/${encodeURIComponent(ref)}?color=%23e50914&autoplay=true`;
       }
-      // CineSrc TV requires a numeric TMDB ID (IMDb tt-IDs cause a server error); fall back to SmashyStream when absent.
-      if (isNumericId(item.tmdbId)) {
-        return `${origin}/embed/tv/${encodeURIComponent(String(item.tmdbId).trim())}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
-      }
-      return buildSmashyUrl(item, s, e);
+      return `${origin}/embed/tv/${encodeURIComponent(ref)}?s=${s}&e=${e}&color=%23e50914&autoplay=true`;
     }
 
     function buildVidZeeUrl(item, s, e) {
       if (!item) return 'about:blank';
-      // VidZee v1 only accepts numeric TMDB IDs (IMDb IDs hang on movies or load sandbox-blocked frames on TV).
-      if (!isNumericId(item.tmdbId)) {
-        return buildSmashyUrl(item, s, e, true);
-      }
-      const tmdb = encodeURIComponent(String(item.tmdbId).trim());
       const origin = getEffectiveServerOrigin('vidzee');
+      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const ref = tmdb || imdb;
+      if (!ref) return 'about:blank';
+
       return item.type === 'movie'
-        ? `${origin}/embed/movie/${tmdb}`
-        : `${origin}/embed/tv/${tmdb}/${s}/${e}`;
+        ? `${origin}/embed/movie/${encodeURIComponent(ref)}`
+        : `${origin}/embed/tv/${encodeURIComponent(ref)}/${s}/${e}`;
     }
 
     const SERVERS = {
@@ -5620,23 +5611,26 @@
       },
       server2: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, false);
+        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
+        if (item?.imdbId || isNumericId(item?.tmdbId)) {
+          return buildCineSrcUrl(item, s, e);
+        }
         const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
         return buildZokoUrl(item, e, hTrack);
       },
       server3: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
         if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e);
-        if (isNumericId(item?.tmdbId) || (item?.type === 'movie' && item?.imdbId)) {
-          return buildCineSrcUrl(item, 1, e);
+        if (item?.imdbId || isNumericId(item?.tmdbId)) {
+          return buildVidZeeUrl(item, s, e);
         }
-        return buildZokoUrl(item, e, null);
+        const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
+        return buildZokoUrl(item, e, hTrack);
       },
       server4: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, true);
-        if (isNumericId(item?.tmdbId) || item?.imdbId) {
-          return buildSmashyUrl(item, 1, e, false);
+        if (item?.imdbId || isNumericId(item?.tmdbId)) {
+          return buildCineSrcUrl(item, s, e);
         }
         const hTrack = currentTrack === 'dub' ? 'dub' : 'hsub';
         return buildZokoUrl(item, e, hTrack);
@@ -5648,41 +5642,26 @@
     // ========================================================
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // Required tokens for Android Chrome, Windows, Desktop & WebKit video playback
-    const REQUIRED_IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-downloads allow-storage-access-by-user-activation';
-
     function ensureSandboxedPlayer(iframe) {
       if (!iframe) return;
-      // On iOS Safari / WebKit (iPhone/iPad), sandboxed cross-origin iframes strictly break MSE / HLS
-      // streaming and media token storage, triggering "Error code: 232403".
-      // iOS Safari already enforces native popup blocking ("Block Pop-ups" is enabled by default in iOS Settings).
-      if (IS_APPLE_DEVICE) {
-        if (iframe.hasAttribute('sandbox')) {
-          iframe.removeAttribute('sandbox');
-        }
-        return;
-      }
-      if (iframe.getAttribute('sandbox') !== REQUIRED_IFRAME_SANDBOX) {
-        iframe.setAttribute('sandbox', REQUIRED_IFRAME_SANDBOX);
+      // All video stream providers (Zoko, CineSrc, VidZee, Stremio) require unrestricted
+      // MSE, orientation locks, HLS media pipeline, and cross-origin worker access.
+      // Enforcing iframe sandbox triggers Zoko's anti-embed probe on mobile ("Embed blocked")
+      // and causes iOS Safari Error 232403.
+      if (iframe.hasAttribute('sandbox')) {
+        iframe.removeAttribute('sandbox');
       }
     }
 
-    // 1. Permanently watch and lock player iframe sandbox
+    // 1. Permanently watch and ensure player iframe operates without restrictive sandbox
     window.addEventListener('DOMContentLoaded', () => {
       const pIframe = document.getElementById('playerIframe');
       if (pIframe) {
         ensureSandboxedPlayer(pIframe);
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
-            if (m.attributeName === 'sandbox') {
-              if (IS_APPLE_DEVICE) {
-                if (pIframe.hasAttribute('sandbox')) {
-                  pIframe.removeAttribute('sandbox');
-                }
-              } else if (pIframe.getAttribute('sandbox') !== REQUIRED_IFRAME_SANDBOX) {
-                console.warn('[Anti-Ad Shield] Tamper attempt caught: Restoring strict sandbox!');
-                pIframe.setAttribute('sandbox', REQUIRED_IFRAME_SANDBOX);
-              }
+            if (m.attributeName === 'sandbox' && pIframe.hasAttribute('sandbox')) {
+              pIframe.removeAttribute('sandbox');
             }
           }
         });

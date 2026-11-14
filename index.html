@@ -542,6 +542,8 @@
     body.cinema-fs-open .addon-streams-section,
     body.cinema-fs-open .episodes-section,
     body.cinema-fs-open .relations-section,
+    body.cinema-fs-open .theater-hub-nav,
+    body.cinema-fs-open .theater-hub-content,
     body.cinema-fs-open .ambient-glow-canvas {
       visibility: hidden;
     }
@@ -824,13 +826,74 @@
       background: rgba(245, 158, 11, 0.3);
     }
 
+    /* Theater Cinema Hub Tabs & Layout (NovaHD / Netflix Style) */
+    .theater-hub-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.85rem 0 0.5rem 0;
+      margin-top: 0.85rem;
+      margin-bottom: 1.1rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .theater-hub-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .theater-hub-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #a1a1aa;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      white-space: nowrap;
+    }
+    .theater-hub-tab:hover,
+    .theater-hub-tab:focus-visible {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .theater-hub-tab.active {
+      color: #ffffff;
+      background: rgba(229, 9, 20, 0.18);
+      border-color: rgba(229, 9, 20, 0.45);
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.2);
+    }
+    .hub-tab-badge {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 9999px;
+      font-weight: 800;
+    }
+    .theater-hub-tab.active .hub-tab-badge {
+      background: #e50914;
+    }
+    .theater-tab-pane {
+      display: none;
+    }
+    .theater-tab-pane.active {
+      display: block;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
     /* Episode Selector Grid */
     .episodes-section {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 1.25rem 1.5rem;
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.5rem;
     }
 
     .episodes-header {
@@ -1268,6 +1331,102 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 1.25rem;
+    }
+
+    /* Horizontal Content Rails (Netflix / NovaHD Style) */
+    .anime-cards-rail {
+      display: flex !important;
+      gap: 1.15rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 0.35rem 0.2rem 1rem 0.2rem;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    }
+    .anime-cards-rail::-webkit-scrollbar {
+      height: 6px;
+    }
+    .anime-cards-rail::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 9999px;
+    }
+    .anime-cards-rail::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 9999px;
+    }
+    .anime-cards-rail::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    .anime-cards-rail .anime-card {
+      flex: 0 0 190px !important;
+      width: 190px !important;
+      max-width: 190px !important;
+      scroll-snap-align: start;
+    }
+    @media (max-width: 768px) {
+      .anime-cards-rail {
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .anime-cards-rail .anime-card {
+        flex: 0 0 142px !important;
+        width: 142px !important;
+        max-width: 142px !important;
+      }
+      .rail-header-actions {
+        display: none !important;
+      }
+    }
+    .rail-header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-left: auto;
+    }
+    .rail-arrow-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+      line-height: 1;
+      padding: 0;
+    }
+    .rail-arrow-btn:hover,
+    .rail-arrow-btn:focus-visible {
+      background: var(--accent);
+      border-color: #ff4d57;
+      transform: scale(1.08);
+    }
+    .rail-view-toggle {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #d4d4e0;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.32rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .rail-view-toggle:hover,
+    .rail-view-toggle:focus-visible {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    body.tv-mode .rail-header-actions {
+      display: none !important;
     }
 
     .anime-card {
@@ -3479,92 +3638,115 @@
         </div>
       </div>
 
-      <!-- Theater Media Details & Official Trailer Strip -->
-      <div id="theaterInfoStrip" class="theater-info-strip"></div>
-
-      <!-- Stremio Addon Streams Shelf (Cauldron & Community Resolvers) -->
-      <div id="addonStreamsSection" class="addon-streams-section">
-        <div class="addon-streams-header">
-          <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap;">
-            <span style="font-weight:800; font-size:0.95rem; color:#fff;">⚡ Smart Sources</span>
-            <span id="addonStreamsStatus" style="font-size:0.78rem; color:var(--text-muted);">Ready</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-            <button type="button" id="playBest1080Btn" class="addon-stream-btn primary" style="display:none; padding:0.3rem 0.65rem;" onclick="playBestDirectAddonStream()">▶ Best 1080p+</button>
-            <div id="addonStreamFilters" class="addon-stream-filters">
-              <button type="button" class="media-subpill active" data-filter="all" onclick="setAddonStreamFilter('all')">All</button>
-              <button type="button" class="media-subpill" data-filter="verified" onclick="setAddonStreamFilter('verified')">✅ Verified</button>
-              <button type="button" class="media-subpill" data-filter="direct" onclick="setAddonStreamFilter('direct')">⚡ Direct HTTPS</button>
-              <button type="button" class="media-subpill" data-filter="4k" onclick="setAddonStreamFilter('4k')">4K / 2160p</button>
-              <button type="button" class="media-subpill" data-filter="1080p" onclick="setAddonStreamFilter('1080p')">1080p</button>
-            </div>
-            <button type="button" id="autoDirect1080Btn" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="toggleAutoDirect1080p()" title="Automatically start the best ≥1080p Direct HTTPS stream when available">⚡ Auto 1080p+: OFF</button>
-            <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openAddonModal()">⚙ Addons</button>
-          </div>
-        </div>
-        <div id="addonStreamNotice" style="font-size:0.76rem; color:#a1a1aa; margin-bottom:0.65rem; display:none;"></div>
-        <div id="bestSourceCard" class="best-source-card" style="display:none;">
-          <div class="best-source-glow"></div>
-          <div class="best-source-main">
-            <div class="best-source-kicker">✨ BEST SOURCE FOR THIS EPISODE</div>
-            <div id="bestSourceTitle" class="best-source-title">—</div>
-            <div id="bestSourceBadges" class="best-source-badges"></div>
-            <div id="bestSourceReason" class="best-source-reason"></div>
-          </div>
-          <div class="best-source-actions">
-            <button type="button" id="bestSourcePlayBtn" class="addon-stream-btn primary best-source-play" onclick="playBestDirectAddonStream()">▶ Play Best 1080p+</button>
-            <button type="button" class="addon-stream-btn" onclick="recheckBestSource()">↻ Recheck</button>
-          </div>
-        </div>
-        <div id="addonStreamsList" class="addon-stream-list"></div>
-        <div id="addonStreamsMoreWrap" style="display:none; justify-content:center; margin-top:0.7rem;">
-          <button type="button" id="addonStreamsMoreBtn" class="addon-stream-btn" onclick="toggleAddonStreamsShowAll()">Show all sources</button>
-        </div>
+      <!-- Theater Cinema Hub Navigation Tabs (NovaHD / Netflix Style) -->
+      <div class="theater-hub-nav" role="tablist" aria-label="Theater Navigation">
+        <button type="button" class="theater-hub-tab active" data-tab="episodes" onclick="switchTheaterTab('episodes')">
+          📺 Episodes <span id="theaterEpBadgeCount" class="hub-tab-badge">0</span>
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="sources" onclick="switchTheaterTab('sources')">
+          ⚡ Streams & Sources <span id="theaterSourceBadgeCount" class="hub-tab-badge">HD</span>
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="overview" onclick="switchTheaterTab('overview')">
+          ℹ️ Details & Trailer
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="related" onclick="switchTheaterTab('related')">
+          ✨ More Like This
+        </button>
       </div>
 
-      <!-- Episode Matrix under Player -->
-      <div class="episodes-section">
-        <div class="episodes-header">
-          <div class="episodes-title">
-            📺 Select Episode
-            <span id="epTotalCount" class="ep-count">(12 Episodes)</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-            <button class="ctrl-btn" style="font-size:0.75rem; padding: 3px 8px;" onclick="markAllEpisodesWatched()">✔ Mark All Watched</button>
-            <div id="episodesSubnote" style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
-              ● Japanese SUB & English DUB • Auto-Skip Intro
+      <div class="theater-hub-content">
+        <!-- Tab 1: Episodes (Default) -->
+        <div id="theaterTab_episodes" class="theater-tab-pane active">
+          <div class="episodes-section" style="margin-top: 0; margin-bottom: 1rem;">
+            <div class="episodes-header">
+              <div class="episodes-title">
+                📺 Select Episode
+                <span id="epTotalCount" class="ep-count">(12 Episodes)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                <button class="ctrl-btn" style="font-size:0.75rem; padding: 3px 8px;" onclick="markAllEpisodesWatched()">✔ Mark All Watched</button>
+                <div id="episodesSubnote" style="font-size: 0.8rem; color: #10b981; font-weight: 700;">
+                  ● Japanese SUB & English DUB • Auto-Skip Intro
+                </div>
+              </div>
+            </div>
+            <div id="seasonPickerBar" class="season-picker-bar" style="display: none;" role="tablist" aria-label="Seasons"></div>
+            <div id="epRangeTabs" class="ep-range-tabs"></div>
+            <div id="episodeGrid" class="episode-grid">
+              <!-- Populated by JS -->
             </div>
           </div>
         </div>
-        <div id="seasonPickerBar" class="season-picker-bar" style="display: none;" role="tablist" aria-label="Seasons"></div>
-        <div id="epRangeTabs" class="ep-range-tabs"></div>
-        <div id="episodeGrid" class="episode-grid">
-          <!-- Populated by JS -->
-        </div>
-      </div>
 
-      <!-- Franchise Watch Order & Relations Sequence -->
-      <div id="relationsSection" class="relations-section" style="display: none;">
-        <div class="relations-header">
-          <div class="relations-title">
-            <span id="relationsHeading">🔗 Franchise Watch Order & Sequels</span>
-            <span id="relationsCount" class="badge badge-subdub" style="font-size: 0.72rem; padding: 2px 8px;">0 Parts</span>
-          </div>
-          <div id="relationsSubheading" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">
-            Chronological storyline & spin-offs
+        <!-- Tab 2: Streams & Sources -->
+        <div id="theaterTab_sources" class="theater-tab-pane">
+          <div id="addonStreamsSection" class="addon-streams-section" style="margin-top: 0; margin-bottom: 1rem;">
+            <div class="addon-streams-header">
+              <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap;">
+                <span style="font-weight:800; font-size:0.95rem; color:#fff;">⚡ Smart Sources</span>
+                <span id="addonStreamsStatus" style="font-size:0.78rem; color:var(--text-muted);">Ready</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <button type="button" id="playBest1080Btn" class="addon-stream-btn primary" style="display:none; padding:0.3rem 0.65rem;" onclick="playBestDirectAddonStream()">▶ Best 1080p+</button>
+                <div id="addonStreamFilters" class="addon-stream-filters">
+                  <button type="button" class="media-subpill active" data-filter="all" onclick="setAddonStreamFilter('all')">All</button>
+                  <button type="button" class="media-subpill" data-filter="verified" onclick="setAddonStreamFilter('verified')">✅ Verified</button>
+                  <button type="button" class="media-subpill" data-filter="direct" onclick="setAddonStreamFilter('direct')">⚡ Direct HTTPS</button>
+                  <button type="button" class="media-subpill" data-filter="4k" onclick="setAddonStreamFilter('4k')">4K / 2160p</button>
+                  <button type="button" class="media-subpill" data-filter="1080p" onclick="setAddonStreamFilter('1080p')">1080p</button>
+                </div>
+                <button type="button" id="autoDirect1080Btn" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="toggleAutoDirect1080p()" title="Automatically start the best ≥1080p Direct HTTPS stream when available">⚡ Auto 1080p+: OFF</button>
+                <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openAddonModal()">⚙ Addons</button>
+              </div>
+            </div>
+            <div id="addonStreamNotice" style="font-size:0.76rem; color:#a1a1aa; margin-bottom:0.65rem; display:none;"></div>
+            <div id="bestSourceCard" class="best-source-card" style="display:none;">
+              <div class="best-source-glow"></div>
+              <div class="best-source-main">
+                <div class="best-source-kicker">✨ BEST SOURCE FOR THIS EPISODE</div>
+                <div id="bestSourceTitle" class="best-source-title">—</div>
+                <div id="bestSourceBadges" class="best-source-badges"></div>
+                <div id="bestSourceReason" class="best-source-reason"></div>
+              </div>
+              <div class="best-source-actions">
+                <button type="button" id="bestSourcePlayBtn" class="addon-stream-btn primary best-source-play" onclick="playBestDirectAddonStream()">▶ Play Best 1080p+</button>
+                <button type="button" class="addon-stream-btn" onclick="recheckBestSource()">↻ Recheck</button>
+              </div>
+            </div>
+            <div id="addonStreamsList" class="addon-stream-list"></div>
+            <div id="addonStreamsMoreWrap" style="display:none; justify-content:center; margin-top:0.7rem;">
+              <button type="button" id="addonStreamsMoreBtn" class="addon-stream-btn" onclick="toggleAddonStreamsShowAll()">Show all sources</button>
+            </div>
           </div>
         </div>
-        <div id="relationsGrid" class="relations-grid">
-          <!-- Populated by JS -->
-        </div>
-      </div>
 
-      <!-- More Like This / Recommendations -->
-      <div id="recommendationsSection" class="recommendations-section">
-        <div class="episodes-header" style="margin-bottom: 0.75rem;">
-          <div class="episodes-title">✨ More Like This</div>
+        <!-- Tab 3: Details & Trailer -->
+        <div id="theaterTab_overview" class="theater-tab-pane">
+          <div id="theaterInfoStrip" class="theater-info-strip" style="margin-top: 0; margin-bottom: 1rem;"></div>
         </div>
-        <div id="recommendationsGrid" class="anime-cards-grid"></div>
+
+        <!-- Tab 4: Relations & Recommendations -->
+        <div id="theaterTab_related" class="theater-tab-pane">
+          <div id="relationsSection" class="relations-section" style="display: none; margin-top: 0; margin-bottom: 1rem;">
+            <div class="relations-header">
+              <div class="relations-title">
+                <span id="relationsHeading">🔗 Franchise Watch Order & Sequels</span>
+                <span id="relationsCount" class="badge badge-subdub" style="font-size: 0.72rem; padding: 2px 8px;">0 Parts</span>
+              </div>
+              <div id="relationsSubheading" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">
+                Chronological storyline & spin-offs
+              </div>
+            </div>
+            <div id="relationsGrid" class="relations-grid"></div>
+          </div>
+
+          <div id="recommendationsSection" class="recommendations-section" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+            <div class="episodes-header" style="margin-bottom: 0.75rem;">
+              <div class="episodes-title">✨ More Like This</div>
+            </div>
+            <div id="recommendationsGrid" class="anime-cards-grid anime-cards-rail"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -3822,9 +4004,13 @@
           <span>⚡ Newly Released Anime</span>
           <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color:#10b981; border: 1px solid rgba(16,185,129,0.4); padding: 2px 8px; border-radius: 9999px; margin-left: 0.5rem; font-weight: 800;">LIVE SIMULCAST</span>
         </div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">Updated in real-time as episodes air in Japan</span>
+        <div class="rail-header-actions">
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('latestReleasesGrid', -1)" aria-label="Previous">‹</button>
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('latestReleasesGrid', 1)" aria-label="Next">›</button>
+          <button type="button" class="rail-view-toggle" onclick="toggleRailView('latestReleasesGrid', this)">☷ Grid</button>
+        </div>
       </div>
-      <div id="latestReleasesGrid" class="anime-cards-grid">
+      <div id="latestReleasesGrid" class="anime-cards-grid anime-cards-rail">
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Fetching today's freshly aired episodes...
         </div>
@@ -3856,8 +4042,13 @@
           <button class="media-subpill" data-real-mode="tv" onclick="setRealReleaseMode('tv')">📺 New TV Episodes</button>
           <button class="media-subpill" data-real-mode="movie" onclick="setRealReleaseMode('movie')">🎬 New Movies</button>
         </div>
+        <div class="rail-header-actions">
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('latestRealReleasesGrid', -1)" aria-label="Previous">‹</button>
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('latestRealReleasesGrid', 1)" aria-label="Next">›</button>
+          <button type="button" class="rail-view-toggle" onclick="toggleRailView('latestRealReleasesGrid', this)">☷ Grid</button>
+        </div>
       </div>
-      <div id="latestRealReleasesGrid" class="anime-cards-grid">
+      <div id="latestRealReleasesGrid" class="anime-cards-grid anime-cards-rail">
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Fetching new movies & freshly aired TV episodes...
         </div>
@@ -3871,8 +4062,13 @@
           <div class="section-pip" style="background: #3b82f6;"></div>
           ❄️ Top Airing This Season
         </div>
+        <div class="rail-header-actions">
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('seasonalGrid', -1)" aria-label="Previous">‹</button>
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('seasonalGrid', 1)" aria-label="Next">›</button>
+          <button type="button" class="rail-view-toggle" onclick="toggleRailView('seasonalGrid', this)">☷ Grid</button>
+        </div>
       </div>
-      <div id="seasonalGrid" class="anime-cards-grid">
+      <div id="seasonalGrid" class="anime-cards-grid anime-cards-rail">
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Loading seasonal catalog from AniList...
         </div>
@@ -3889,8 +4085,13 @@
           <div class="section-pip"></div>
           <span id="trendingSectionTitle">🔥 Trending Anime</span>
         </div>
+        <div class="rail-header-actions">
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('trendingGrid', -1)" aria-label="Previous">‹</button>
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('trendingGrid', 1)" aria-label="Next">›</button>
+          <button type="button" class="rail-view-toggle" onclick="toggleRailView('trendingGrid', this)">☷ Grid</button>
+        </div>
       </div>
-      <div id="trendingGrid" class="anime-cards-grid">
+      <div id="trendingGrid" class="anime-cards-grid anime-cards-rail">
         <div style="padding: 2rem 0; color: var(--text-muted); display:flex; align-items:center; gap:0.75rem;">
           <div class="loading-spinner"></div> Loading trending anime from AniList...
         </div>
@@ -3907,8 +4108,13 @@
           <div class="section-pip" style="background: #f59e0b;"></div>
           ⭐ Masterpiece & All-Time Popular
         </div>
+        <div class="rail-header-actions">
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('legendaryGrid', -1)" aria-label="Previous">‹</button>
+          <button type="button" class="rail-arrow-btn" onclick="scrollRail('legendaryGrid', 1)" aria-label="Next">›</button>
+          <button type="button" class="rail-view-toggle" onclick="toggleRailView('legendaryGrid', this)">☷ Grid</button>
+        </div>
       </div>
-      <div id="legendaryGrid" class="anime-cards-grid">
+      <div id="legendaryGrid" class="anime-cards-grid anime-cards-rail">
         <!-- Rendered by JS -->
       </div>
       <div id="legendaryLoadMoreBox" class="load-more-container" style="display: none;">
@@ -8408,6 +8614,13 @@
       const skipOutroBtn = document.getElementById('skipOutroBtn');
 
       updateServerButtonLabels(!!currentAnime.isMovieOrSeries);
+      const epBadge = document.getElementById('theaterEpBadgeCount');
+      if (epBadge && currentAnime) {
+        const epCount = currentAnime.isMovieOrSeries
+          ? (currentAnime.type === 'movie' ? 1 : (getSeasonEpisodeCount(currentAnime, currentSeason) || currentAnime.episodes || 1))
+          : (currentAnime.type === 'movie' ? 1 : (currentAnime.episodes || 1));
+        epBadge.textContent = String(epCount);
+      }
       renderTheaterInfoStrip(currentAnime);
       refreshTheaterAddonStreams(currentAnime, currentSeason, currentEpisode);
       fetchAniSkipTimes(currentAnime, currentEpisode);
@@ -8500,9 +8713,33 @@
       if (assist) assist.style.display = 'none';
     }
 
+    function switchTheaterTab(tabName) {
+      document.querySelectorAll('.theater-hub-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.theater-tab-pane').forEach(p => {
+        p.classList.toggle('active', p.id === `theaterTab_${tabName}`);
+      });
+    }
+
+    function scrollRail(gridId, direction) {
+      const el = document.getElementById(gridId);
+      if (!el) return;
+      const amount = Math.max(280, Math.floor(el.clientWidth * 0.72));
+      el.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    }
+
+    function toggleRailView(gridId, btn) {
+      const el = document.getElementById(gridId);
+      if (!el) return;
+      const isRail = el.classList.toggle('anime-cards-rail');
+      if (btn) btn.textContent = isRail ? '☷ Grid' : '↔ Rail';
+    }
+
     function openTheater() {
       const section = document.getElementById('theaterSection');
       section.classList.add('active');
+      switchTheaterTab('episodes');
       updatePlayerUrl();
       if (currentAnime) {
         saveWatchHistory(currentAnime, currentEpisode, activeServer);
@@ -11394,6 +11631,10 @@
       const moreWrap = document.getElementById('addonStreamsMoreWrap');
       const moreBtn = document.getElementById('addonStreamsMoreBtn');
       syncAutoDirect1080pUi();
+      const sourceBadge = document.getElementById('theaterSourceBadgeCount');
+      if (sourceBadge) {
+        sourceBadge.textContent = currentAddonStreams.length ? String(currentAddonStreams.length) : 'HD';
+      }
       if (!grid) return;
 
       const bestDirect = currentAddonStreams.find(s => s.url && !s._failedOnce && s.preflight !== 'failed')

@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="./vendor/hls.min.js" onerror="var s=document.createElement('script');s.defer=true;s.crossOrigin='anonymous';s.referrerPolicy='no-referrer';s.integrity='sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr';s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js';document.head.appendChild(s);"></script>
+  <script defer src="./vendor/webtorrent.min.js" onerror="var s=document.createElement('script');s.defer=true;s.crossOrigin='anonymous';s.referrerPolicy='no-referrer';s.src='https://cdn.jsdelivr.net/npm/webtorrent@2.5.11/webtorrent.min.js';document.head.appendChild(s);"></script>
   <style>
     :root {
       --bg: #09090b;
@@ -602,20 +603,30 @@
     }
 
     /* Fullscreen Floating Controls HUD & Sensor */
-    .fs-bottom-sensor {
+    .fs-bottom-sensor,
+    .fs-top-sensor {
       display: none;
       position: absolute;
-      bottom: 0;
       left: 0;
       right: 0;
-      height: 96px;
       z-index: 100001;
       background: transparent;
       pointer-events: auto;
     }
+    .fs-bottom-sensor {
+      bottom: 0;
+      height: 140px;
+    }
+    .fs-top-sensor {
+      top: 0;
+      height: 80px;
+    }
     .player-container:fullscreen .fs-bottom-sensor,
     .player-container.cinema-fullscreen .fs-bottom-sensor,
-    body.cinema-fs-open .fs-bottom-sensor {
+    body.cinema-fs-open .fs-bottom-sensor,
+    .player-container:fullscreen .fs-top-sensor,
+    .player-container.cinema-fullscreen .fs-top-sensor,
+    body.cinema-fs-open .fs-top-sensor {
       display: block;
     }
 
@@ -3515,7 +3526,8 @@
       <button id="shortcutsBtn" type="button" class="nav-btn" onclick="openShortcutsDialog()" title="Keyboard &amp; TV Remote Shortcuts (?)">⌨ ?</button>
       <button id="syncNavBtn" class="nav-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History"><span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync</button>
       <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
-      <button id="settingsBtn" type="button" class="nav-btn" onclick="openSettingsModal()" title="Settings, About, Downloads &amp; Support">⚙️ Settings</button>
+      <button id="addTorrentNavBtn" class="nav-btn" onclick="openTorrentModal()" title="Add Magnet or Torrent Stream to Watch Anywhere">🧲 Add Torrent</button>
+      <button id="settingsBtn" type="button" class="nav-btn" onclick="openSettingsModal()" title="Settings, About, Downloads & Support">⚙️ Settings</button>
       <button class="nav-btn primary" onclick="scrollToPlayer()">
         ⚡ Watch Online
       </button>
@@ -3590,6 +3602,7 @@
             </div>
           </div>
           <button id="floatingSkipBtn" type="button" class="floating-skip-btn" onclick="triggerFloatingSkip()">⏭ Skip Intro</button>
+          <div id="fsTopSensor" class="fs-top-sensor" aria-hidden="true"></div>
           <div id="fsBottomSensor" class="fs-bottom-sensor" aria-hidden="true"></div>
           <!-- Fullscreen Floating Controls HUD -->
           <div id="fsHudBar" class="fs-hud-bar" role="toolbar" aria-label="Fullscreen Controls">
@@ -3622,6 +3635,7 @@
             <option value="auto-1080">Auto (1080p+ Preferred)</option>
             <option value="-1">Auto (All Qualities)</option>
           </select>
+          <span id="webtorrentStatusPill" class="stream-pill-tag cached" style="display:none; font-size:0.75rem; margin-left:0.35rem;"></span>
           <span class="direct-bar-label">Subtitles:</span>
           <select id="subtitleSelect" class="direct-bar-select" onchange="selectSubtitleTrack(this.value)" title="Select Subtitles">
             <option value="">Off / Loading…</option>
@@ -3703,6 +3717,7 @@
                   <button type="button" class="media-subpill" data-filter="1080p" onclick="setAddonStreamFilter('1080p')">1080p</button>
                 </div>
                 <button type="button" id="autoDirect1080Btn" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="toggleAutoDirect1080p()" title="Automatically start the best ≥1080p Direct HTTPS stream when available">⚡ Auto 1080p+: OFF</button>
+                <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openTorrentModal()" title="Paste a custom Magnet link or torrent infohash">🧲 Add Torrent</button>
                 <button type="button" class="ctrl-btn" style="font-size:0.74rem; padding:0.3rem 0.65rem;" onclick="openAddonModal()">⚙ Addons</button>
               </div>
             </div>
@@ -4784,6 +4799,53 @@
     </div>
   </div>
 
+  <!-- Add Torrent / Magnet Modal -->
+  <div id="torrentModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="torrentModalTitle" style="display: none;" onclick="if(event.target===this) closeTorrentModal()">
+    <div class="addon-modal-dialog" style="max-width: 640px;">
+      <div class="addon-modal-header">
+        <div>
+          <h3 id="torrentModalTitle" class="addon-modal-title">🧲 Add Magnet / Torrent Stream</h3>
+          <p class="addon-modal-subtitle">Paste any Magnet link, infohash, or direct media URL to stream instantly in CineAnime with zero install and sync across all your linked devices.</p>
+        </div>
+        <button type="button" class="addon-modal-close" onclick="closeTorrentModal()" aria-label="Close">✕</button>
+      </div>
+
+      <div class="addon-modal-body" style="padding: 1.25rem;">
+        <form id="torrentStreamForm" onsubmit="handleTorrentSubmit(event)" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div>
+            <label for="torrentInput" style="display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">Magnet Link, InfoHash, or Direct Stream URL</label>
+            <textarea id="torrentInput" class="addon-text-input" rows="3" placeholder="magnet:?xt=urn:btih:... or 40-character infohash or https://...mp4" required style="resize: vertical; font-family: monospace; font-size: 0.82rem;"></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 0.35rem;">
+              <button type="button" class="addon-stream-btn" onclick="pasteTorrentFromClipboard()" style="font-size: 0.78rem;">📋 Paste from Clipboard</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="torrentTitleInput" style="display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">Custom Title (Optional)</label>
+            <input type="text" id="torrentTitleInput" class="addon-text-input" placeholder="e.g. Bleach: Thousand-Year Blood War Ep 27 (Auto-detected from magnet if blank)">
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem;">
+            <div id="torrentPlaybackMethod" style="font-size: 0.8rem; color: #a8a8b8;">
+              <span id="torrentEngineNotice">⚡ In-Browser WebTorrent (P2P) + Debrid Supported</span>
+            </div>
+            <button type="submit" id="playTorrentBtn" class="addon-add-btn" style="min-width: 140px;">▶ Play Stream Now</button>
+          </div>
+        </form>
+
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
+            <h4 style="font-size: 0.88rem; color: #fff; margin: 0;">Recent Custom Streams</h4>
+            <button type="button" class="addon-stream-btn" onclick="clearCustomTorrents()" style="font-size: 0.72rem; padding: 2px 8px;">Clear All</button>
+          </div>
+          <div id="recentCustomTorrentsList" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 220px; overflow-y: auto;">
+            <div style="color: var(--text-muted); font-size: 0.8rem;">No custom torrents added yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Curated Anime Database with AniList, MAL & TMDB IDs
     const ANIME_CATALOG = [
@@ -5229,7 +5291,8 @@
         profileModal: closeProfileModal,
         authModal: closeAuthModal,
         addonModal: closeAddonModal,
-        trailerModal: closeTrailerModal
+        trailerModal: closeTrailerModal,
+        torrentModal: closeTorrentModal
       };
       Object.entries(closers).forEach(([id, closeFn]) => {
         if (id === keepId) return;
@@ -5615,12 +5678,23 @@
       if (s1 === s2) return 1.0;
 
       const getSeason = s => {
-        const m = s.match(/(?:season|s)\s*(\d+)|(\d+)(?:nd|rd|th)?\s*season/i);
+        const lower = s.toLowerCase();
+        if (/\b(?:the\s+)?final\s+season\b/i.test(lower)) return 'final';
+        const romMatch = lower.match(/\b(?:season|part|cour)?\s*(ii|iii|iv|v|vi)\b/i);
+        if (romMatch) {
+          const map = { ii: '2', iii: '3', iv: '4', v: '5', vi: '6' };
+          return map[romMatch[1].toLowerCase()] || romMatch[1];
+        }
+        const m = lower.match(/(?:season|s|part|cour)\s*(\d+)|(\d+)(?:nd|rd|th)?\s*season/i);
         return m ? (m[1] || m[2]) : null;
       };
       const sea1 = getSeason(str1);
       const sea2 = getSeason(str2);
       const seasonMismatch = (sea1 && sea2 && sea1 !== sea2) || (sea1 && !sea2 && sea1 !== '1') || (!sea1 && sea2 && sea2 !== '1');
+
+      const isMovie1 = /\b(?:movie|film|gekijouban)\b/i.test(str1);
+      const isMovie2 = /\b(?:movie|film|gekijouban)\b/i.test(str2);
+      const formatMismatch = (isMovie1 !== isMovie2);
 
       const w1 = s1.split(' ').filter(w => w.length > 1);
       const w2 = s2.split(' ').filter(w => w.length > 1);
@@ -5634,10 +5708,15 @@
 
       if (s1.includes(s2) || s2.includes(s1)) {
         const lenRatio = Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length);
-        score = Math.max(score, lenRatio >= 0.65 ? 0.88 : (0.45 * lenRatio));
+        if (s1.startsWith(s2) || s2.startsWith(s1)) {
+          score = Math.max(score, 0.82);
+        } else {
+          score = Math.max(score, lenRatio >= 0.65 ? 0.88 : (0.45 * lenRatio));
+        }
       }
 
-      if (seasonMismatch) score *= 0.2;
+      if (seasonMismatch) score *= 0.15;
+      if (formatMismatch) score *= 0.2;
       return score;
     }
 
@@ -5751,7 +5830,7 @@
                     }
                     if (cScore > topScore) { topScore = cScore; top = cand; }
                   }
-                  if (top && topScore >= 0.52) m = top;
+                  if (top && topScore >= 0.70) m = top;
                 }
                 if (m) {
                   if (!item.aniId && m.id) item.aniId = String(m.id);
@@ -6581,6 +6660,7 @@
 
     // 1. Permanently watch and ensure player iframe operates with optimal anti-ad sandbox
     window.addEventListener('DOMContentLoaded', () => {
+      if (typeof initFsHudListeners === 'function') initFsHudListeners();
       const pIframe = document.getElementById('playerIframe');
       if (pIframe) {
         ensureSandboxedPlayer(pIframe);
@@ -7103,7 +7183,9 @@
                     computeTitleSimilarity(item.title, t)
                   );
                 }
-                if (item.type === 'movie' && cand.format === 'MOVIE') candMaxScore += 0.1;
+                if (item.type === 'movie' && cand.format === 'MOVIE') candMaxScore += 0.12;
+                else if (item.type === 'movie' && cand.format && cand.format !== 'MOVIE') candMaxScore -= 0.35;
+                else if (item.type !== 'movie' && cand.format === 'MOVIE') candMaxScore -= 0.35;
                 if (item.year && cand.seasonYear && String(cand.seasonYear) === String(item.year)) candMaxScore += 0.1;
                 if (candMaxScore > bestScore) {
                   bestScore = candMaxScore;
@@ -7111,8 +7193,8 @@
                 }
               }
 
-              // Only accept candidate if confident match (>= 0.52 score)
-              if (best && bestScore >= 0.52) {
+              // Only accept candidate if confident match (>= 0.70 score)
+              if (best && bestScore >= 0.70) {
                 if (!item.aniId && best.id) item.aniId = String(best.id);
                 if (!item.idMal && best.idMal) item.idMal = String(best.idMal);
                 if (best.format === 'MOVIE') item.type = 'movie';
@@ -8441,6 +8523,7 @@
       cancelUpNextCountdown(false);
       clearActiveStallTimer();
       clearDirectSubtitleTracks();
+      if (typeof stopWebTorrent === 'function') stopWebTorrent();
       if (activeHlsInstance) {
         try { activeHlsInstance.destroy(); } catch (_) {}
         activeHlsInstance = null;
@@ -8736,6 +8819,7 @@
         if (toggle) toggle.style.display = 'flex';
         if (skipIntroBtn) skipIntroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
         if (skipOutroBtn) skipOutroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
+        if (currentAnime.type !== 'movie') showFloatingSkipBtn();
         const trackLabel = currentTrack.toUpperCase();
         const epLabel = currentAnime.type === 'movie' ? 'Movie' : `Ep ${currentEpisode}`;
         document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${epLabel} [${trackLabel}]`;
@@ -8994,15 +9078,24 @@
           showFsHud();
         }, { passive: true });
       });
-      const sensor = document.getElementById('fsBottomSensor');
-      if (sensor && !sensor._fsSensorBound) {
-        sensor._fsSensorBound = true;
-        ['mouseenter', 'mousemove', 'touchstart', 'pointerenter', 'pointermove'].forEach(evt => {
-          sensor.addEventListener(evt, () => {
-            showFsHud();
-          }, { passive: true });
-        });
-      }
+      ['fsBottomSensor', 'fsTopSensor'].forEach(id => {
+        const sensor = document.getElementById(id);
+        if (sensor && !sensor._fsSensorBound) {
+          sensor._fsSensorBound = true;
+          ['mouseenter', 'mousemove', 'touchstart', 'pointerenter', 'pointermove'].forEach(evt => {
+            sensor.addEventListener(evt, () => {
+              showFsHud();
+            }, { passive: true });
+          });
+        }
+      });
+      window.addEventListener('mousemove', (e) => {
+        const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+        const isCssFs = container.classList.contains('cinema-fullscreen') || document.body.classList.contains('cinema-fs-open');
+        if ((fsEl || isCssFs) && (e.clientY > window.innerHeight - 150 || e.clientY < 90)) {
+          showFsHud();
+        }
+      }, { passive: true });
     }
 
     function syncFullscreenUi() {
@@ -10302,6 +10395,19 @@
 
     // --- Stremio Addon Protocol Manager & Cauldron Resolver ---
     const CAULDRON_DEFAULT_ORIGIN = 'https://cauldron.forthewizards.uk';
+    const TORRENTIO_DEFAULT_ADDON = {
+      transportUrl: 'https://torrentio.strem.fun/manifest.json',
+      manifest: {
+        id: 'com.stremio.torrentio.addon',
+        name: 'Torrentio (Torrents & Debrid)',
+        version: '0.0.15',
+        description: 'Multi-source torrent & cached Debrid streams for movies, TV series and anime',
+        types: ['movie', 'series', 'anime'],
+        resources: [
+          { name: 'stream', types: ['movie', 'series', 'anime'], idPrefixes: ['tt', 'kitsu'] }
+        ]
+      }
+    };
     const DEFAULT_ADDONS = [
       {
         transportUrl: 'https://v3-cinemeta.strem.io/manifest.json',
@@ -10312,8 +10418,19 @@
           description: 'Official IMDb movies and TV series metadata and catalogs',
           types: ['movie', 'series']
         }
-      }
+      },
+      TORRENTIO_DEFAULT_ADDON
     ];
+
+    function getEffectiveTorrentioTransportUrl() {
+      const debridKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
+      const debridProvider = localStorage.getItem('cineanime_debrid_provider') || 'realdebrid';
+      if (debridKey) {
+        const cleanKey = encodeURIComponent(debridKey.trim());
+        return `https://torrentio.strem.fun/${debridProvider}=${cleanKey}|sort=qualitysize/manifest.json`;
+      }
+      return 'https://torrentio.strem.fun/manifest.json';
+    }
 
     function normalizeSafeHttpUrl(raw, allowStremio = false) {
       if (!raw || typeof raw !== 'string') return '';
@@ -10352,7 +10469,13 @@
 
     function getStoredAddons() {
       const parsed = readStorageJson('cineanime_stremio_addons', null);
-      return Array.isArray(parsed) ? parsed : DEFAULT_ADDONS;
+      let list = Array.isArray(parsed) ? parsed : [...DEFAULT_ADDONS];
+      const hasTorrentio = list.some(a => a?.manifest?.id === 'com.stremio.torrentio.addon');
+      const removedTorrentio = localStorage.getItem('cineanime_torrentio_removed');
+      if (!hasTorrentio && !removedTorrentio) {
+        list.push(TORRENTIO_DEFAULT_ADDON);
+      }
+      return list;
     }
 
     function saveStoredAddons(addons) {
@@ -11783,6 +11906,376 @@
       copyStreamText(stream.magnet || stream.url, stream.magnet ? '🧲 Magnet link copied!' : '📋 Stream URL copied!');
     }
 
+    // --- In-Browser WebTorrent & Custom Magnet Resolver Engine ---
+    let activeWebTorrentClient = null;
+    let activeWebTorrentTorrent = null;
+
+    const WEBTORRENT_TRACKERS = [
+      'wss://tracker.openwebtorrent.com',
+      'wss://tracker.btorrent.xyz',
+      'wss://tracker.webtorrent.dev',
+      'wss://tracker.fastcast.nz',
+      'wss://tracker.files.fm:7073/announce'
+    ];
+
+    function stopWebTorrent() {
+      if (activeWebTorrentClient) {
+        try {
+          activeWebTorrentClient.destroy();
+        } catch (_) {}
+        activeWebTorrentClient = null;
+        activeWebTorrentTorrent = null;
+      }
+      const pill = document.getElementById('webtorrentStatusPill');
+      if (pill) {
+        pill.style.display = 'none';
+        pill.textContent = '';
+      }
+    }
+
+    function formatBytesRate(bytes) {
+      if (!bytes || bytes <= 0) return '0 KB/s';
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB/s`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB/s`;
+    }
+
+    function streamTorrentByIndex(idx) {
+      const s = currentAddonStreams[idx];
+      if (!s) return;
+      const targetMagnet = s.magnet || (s.infoHash ? sanitizeMagnetUrl(s.infoHash, s.sources, s.displayTitle) : '');
+      if (!targetMagnet) {
+        showAppToast('No valid magnet link or infohash found for this stream.');
+        return;
+      }
+      streamTorrentWithWebTorrent(targetMagnet, s.displayTitle, s.fileIdx);
+    }
+
+    function streamTorrentWithWebTorrent(magnetOrHash, streamTitle = '', fileIdx = undefined) {
+      if (typeof WebTorrent === 'undefined') {
+        showAppToast('WebTorrent library loading... please retry in a moment.');
+        return;
+      }
+
+      resetDirectVideoPlayer();
+      stopWebTorrent();
+
+      const vid = document.getElementById('directVideoPlayer');
+      const iframe = document.getElementById('playerIframe');
+      const directBar = document.getElementById('directPlayerBar');
+      const badge = document.getElementById('playerCoreBadge');
+      const statusPill = document.getElementById('webtorrentStatusPill');
+      const codecBanner = document.getElementById('streamCodecBanner');
+      const vlcBtn = document.getElementById('streamCodecVlcBtn');
+
+      if (!vid) return;
+
+      bindDirectVideoEvents(vid);
+      if (iframe) {
+        iframe.src = 'about:blank';
+        iframe.style.display = 'none';
+      }
+      vid.style.display = 'block';
+      if (directBar) directBar.classList.add('active');
+      if (badge) badge.innerText = '🧲 WebTorrent P2P Stream';
+      if (currentAnime) {
+        document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${streamTitle || 'Torrent P2P Stream'}`;
+      } else if (streamTitle) {
+        document.getElementById('playerTitle').innerText = streamTitle;
+      }
+
+      let magnetUri = String(magnetOrHash || '').trim();
+      if (/^[a-fA-F0-9]{40}$/i.test(magnetUri)) {
+        magnetUri = `magnet:?xt=urn:btih:${magnetUri.toLowerCase()}&dn=${encodeURIComponent(streamTitle || 'CineAnime Stream')}`;
+      }
+
+      WEBTORRENT_TRACKERS.forEach(tr => {
+        if (!magnetUri.includes(encodeURIComponent(tr)) && !magnetUri.includes(tr)) {
+          magnetUri += `&tr=${encodeURIComponent(tr)}`;
+        }
+      });
+
+      if (vlcBtn) vlcBtn.href = magnetUri;
+
+      if (statusPill) {
+        statusPill.style.display = 'inline-block';
+        statusPill.textContent = '🧲 Connecting to swarm...';
+      }
+      showAppToast('🧲 Connecting to WebTorrent swarm...');
+
+      try {
+        const client = new WebTorrent({
+          tracker: {
+            announce: WEBTORRENT_TRACKERS
+          }
+        });
+        activeWebTorrentClient = client;
+
+        client.on('error', (err) => {
+          console.warn('[WebTorrent Error]', err);
+          if (statusPill) statusPill.textContent = '⚠ Swarm error';
+        });
+
+        const torrent = client.add(magnetUri, {
+          announce: WEBTORRENT_TRACKERS
+        }, (t) => {
+          activeWebTorrentTorrent = t;
+          let file = null;
+          if (fileIdx !== undefined && t.files[fileIdx]) {
+            file = t.files[fileIdx];
+          } else {
+            const mediaFiles = t.files.filter(f => /\.(mp4|webm|mkv|m4v|mov|avi)$/i.test(f.name));
+            if (mediaFiles.length) {
+              file = mediaFiles.sort((a, b) => (b.length || 0) - (a.length || 0))[0];
+            } else {
+              file = t.files.sort((a, b) => (b.length || 0) - (a.length || 0))[0];
+            }
+          }
+
+          if (!file) {
+            showAppToast('⚠ No streamable video found in this torrent.');
+            if (statusPill) statusPill.textContent = 'No media file';
+            return;
+          }
+
+          showAppToast(`▶ Streaming ${file.name} in browser...`);
+
+          file.renderTo(vid, { autoplay: true }, (err) => {
+            if (err) {
+              console.warn('[WebTorrent Render Error]', err);
+              if (codecBanner) codecBanner.classList.add('active');
+              showAppToast('⚠ Browser cannot decode this container directly — click VLC ↗ to open.');
+            }
+          });
+
+          t.on('download', () => {
+            if (statusPill) {
+              const peers = t.numPeers || 0;
+              const speed = formatBytesRate(t.downloadSpeed);
+              const pct = (t.progress * 100).toFixed(0);
+              statusPill.textContent = `🧲 ${peers} peer${peers === 1 ? '' : 's'} • ${speed} (${pct}%)`;
+            }
+          });
+        });
+
+        torrent.on('error', (err) => {
+          console.warn('[Torrent Error]', err);
+          if (statusPill) statusPill.textContent = 'Torrent error';
+        });
+      } catch (err) {
+        console.error('[WebTorrent Init Error]', err);
+        showAppToast(`WebTorrent failed: ${err.message}`);
+      }
+    }
+
+    // --- Custom Torrents & Magnets Persistence (Sync Anywhere) ---
+    function getCustomTorrents() {
+      return readStorageJson('cineanime_custom_torrents', []);
+    }
+
+    function saveCustomTorrents(list) {
+      localStorage.setItem('cineanime_custom_torrents', JSON.stringify(list || []));
+      renderRecentCustomTorrents();
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+    }
+
+    function mergeCustomTorrents(incoming) {
+      if (!Array.isArray(incoming)) return;
+      const current = getCustomTorrents();
+      const map = new Map();
+      current.forEach(item => { if (item?.id) map.set(item.id, item); });
+      incoming.forEach(item => {
+        if (!item?.id) return;
+        const existing = map.get(item.id);
+        if (!existing || (item.addedAt || 0) >= (existing.addedAt || 0)) {
+          map.set(item.id, item);
+        }
+      });
+      const merged = Array.from(map.values())
+        .sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0))
+        .slice(0, 30);
+      localStorage.setItem('cineanime_custom_torrents', JSON.stringify(merged));
+      renderRecentCustomTorrents();
+    }
+
+    function openTorrentModal() {
+      const modal = document.getElementById('torrentModal');
+      if (!modal) return;
+      closeAllModalsExcept('torrentModal');
+      renderRecentCustomTorrents();
+      const debridKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
+      const methodEl = document.getElementById('torrentEngineNotice');
+      if (methodEl) {
+        methodEl.innerHTML = debridKey
+          ? '<span style="color:#34d399; font-weight:700;">⚡ Debrid Active</span> — Instant unthrottled HTTPS playback'
+          : '<span style="color:#60a5fa; font-weight:700;">🌐 WebTorrent Active</span> — Free P2P streaming in browser';
+      }
+      captureModalOpener(modal, '.addon-modal-close, textarea, input, button');
+      modal.style.display = 'flex';
+    }
+
+    function closeTorrentModal() {
+      const modal = document.getElementById('torrentModal');
+      if (!modal || modal.style.display === 'none') return;
+      modal.style.display = 'none';
+      restoreModalFocus();
+    }
+
+    function pasteTorrentFromClipboard() {
+      if (!navigator.clipboard?.readText) {
+        showAppToast('Clipboard permission blocked — paste with Ctrl+V / Cmd+V.');
+        return;
+      }
+      navigator.clipboard.readText().then(text => {
+        if (!text) return;
+        const input = document.getElementById('torrentInput');
+        if (input) {
+          input.value = text.trim();
+          showAppToast('📋 Pasted from clipboard!');
+        }
+      }).catch(() => {
+        showAppToast('Clipboard read access blocked — paste directly into the box.');
+      });
+    }
+
+    function handleTorrentSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('torrentInput');
+      const titleInput = document.getElementById('torrentTitleInput');
+      const raw = (input?.value || '').trim();
+      const customTitle = (titleInput?.value || '').trim();
+      if (!raw) return;
+
+      const dnMatch = raw.match(/[?&]dn=([^&]+)/i);
+      const title = customTitle || (dnMatch ? decodeURIComponent(dnMatch[1].replace(/\+/g, ' ')) : 'Custom Stream');
+
+      // Check if it's direct HTTP/HTTPS stream
+      if (/^https?:\/\//i.test(raw) && !raw.includes('torrent')) {
+        const id = `custom:${Date.now()}`;
+        const item = {
+          id,
+          title,
+          type: 'movie',
+          isMovieOrSeries: true,
+          isCustomStream: true,
+          poster: './icon-512.png',
+          backdrop: './icon-512.png',
+          episodes: 1,
+          url: raw
+        };
+        const currentList = getCustomTorrents();
+        saveCustomTorrents([{ id, title, url: raw, addedAt: Date.now() }, ...currentList.filter(x => x.url !== raw)].slice(0, 30));
+        closeTorrentModal();
+        ANIME_CACHE.set(id, item);
+        currentAnime = item;
+        currentEpisode = 1;
+        currentSeason = 1;
+        document.getElementById('theaterSection').classList.add('active');
+        playDirectStreamUrl(raw, title);
+        scrollToPlayer();
+        return;
+      }
+
+      // It's a Magnet link or InfoHash
+      const hashMatch = raw.match(/xt=urn:btih:([a-zA-Z0-9]{32,64})/i);
+      const hash = hashMatch ? hashMatch[1].toLowerCase() : (raw.replace(/[^a-fA-F0-9]/g, '').slice(0, 40).toLowerCase());
+      const cleanMagnet = sanitizeMagnetUrl(hash, [], title) || raw;
+      const id = `torrent:${hash || Date.now()}`;
+
+      const newEntry = { id, title, magnet: cleanMagnet, hash, addedAt: Date.now() };
+      const currentList = getCustomTorrents();
+      saveCustomTorrents([newEntry, ...currentList.filter(x => x.hash !== hash && x.id !== id)].slice(0, 30));
+
+      const customItem = {
+        id,
+        title,
+        type: 'movie',
+        isMovieOrSeries: true,
+        isCustomTorrent: true,
+        poster: './icon-512.png',
+        backdrop: './icon-512.png',
+        episodes: 1,
+        magnet: cleanMagnet
+      };
+      ANIME_CACHE.set(id, customItem);
+      currentAnime = customItem;
+      currentEpisode = 1;
+      currentSeason = 1;
+
+      closeTorrentModal();
+      document.getElementById('theaterSection').classList.add('active');
+      streamTorrentWithWebTorrent(cleanMagnet, title);
+      scrollToPlayer();
+    }
+
+    function playCustomTorrentByIdx(idx) {
+      const list = getCustomTorrents();
+      const item = list[idx];
+      if (!item) return;
+      closeTorrentModal();
+      if (item.url) {
+        playDirectStreamUrl(item.url, item.title || 'Direct Stream');
+      } else if (item.magnet || item.hash) {
+        const customItem = {
+          id: item.id || `torrent:${item.hash || Date.now()}`,
+          title: item.title || 'Custom Torrent',
+          type: 'movie',
+          isMovieOrSeries: true,
+          isCustomTorrent: true,
+          poster: './icon-512.png',
+          episodes: 1
+        };
+        ANIME_CACHE.set(customItem.id, customItem);
+        currentAnime = customItem;
+        currentEpisode = 1;
+        currentSeason = 1;
+        document.getElementById('theaterSection').classList.add('active');
+        streamTorrentWithWebTorrent(item.magnet || item.hash, item.title);
+      }
+      scrollToPlayer();
+    }
+
+    function deleteCustomTorrentByIdx(idx) {
+      const list = getCustomTorrents();
+      list.splice(idx, 1);
+      saveCustomTorrents(list);
+      showAppToast('Removed stream from history.');
+    }
+
+    function clearCustomTorrents() {
+      localStorage.removeItem('cineanime_custom_torrents');
+      renderRecentCustomTorrents();
+      showAppToast('Cleared all custom torrents.');
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+    }
+
+    function renderRecentCustomTorrents() {
+      const container = document.getElementById('recentCustomTorrentsList');
+      if (!container) return;
+      const items = getCustomTorrents();
+      if (!items.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 0.4rem 0;">No custom torrents added yet. Paste any magnet link above!</div>';
+        return;
+      }
+      container.innerHTML = items.map((item, idx) => {
+        const safeTitle = escapeHtml(item.title || 'Custom Stream');
+        const safeMagnet = escapeHtml(item.magnet || item.url || '');
+        const timeAgo = formatAiringAgo ? formatAiringAgo(Math.floor((item.addedAt || Date.now()) / 1000)) : 'Recently';
+        return `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.45rem 0.65rem;">
+            <div style="min-width: 0; flex: 1;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${safeTitle}">${safeTitle}</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${timeAgo}</div>
+            </div>
+            <div style="display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0;">
+              <button type="button" class="addon-stream-btn primary" onclick="playCustomTorrentByIdx(${idx})" style="padding: 2px 8px; font-size: 0.75rem;">▶ Play</button>
+              <button type="button" class="addon-stream-btn" onclick="copyStreamText('${safeMagnet}', 'Magnet copied!')" style="padding: 2px 6px; font-size: 0.75rem;">📋</button>
+              <button type="button" class="addon-delete-btn" onclick="deleteCustomTorrentByIdx(${idx})" style="padding: 2px 6px; font-size: 0.75rem;">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderAddonStreamsList() {
       const grid = document.getElementById('addonStreamsList');
       const notice = document.getElementById('addonStreamNotice');
@@ -11854,7 +12347,7 @@
       if (notice) {
         if (currentAddonStreams.length && !hasDirect) {
           notice.style.display = 'block';
-          notice.innerHTML = '💡 <strong>Free P2P Torrents Found:</strong> Web browsers cannot torrent raw P2P swarms directly — watch free instantly on <strong>Server 1–4</strong> above, click <strong>Stremio App / Magnet</strong> below, or add a Debrid key inside <button type="button" class="addon-stream-btn" style="padding:1px 6px;" onclick="openAddonModal()">⚙ Addons</button> to unlock direct 4K HTTPS browser playback.';
+          notice.innerHTML = '🧲 <strong>P2P Torrents Available:</strong> Click <strong>▶ WebTorrent</strong> to stream directly in your browser, or add a Debrid key in <button type="button" class="addon-stream-btn" style="padding:1px 6px;" onclick="openAddonModal()">⚙ Addons</button> to unlock instant unthrottled 4K/1080p HTTPS playback.';
         } else {
           notice.style.display = 'none';
         }
@@ -11913,7 +12406,8 @@
             <a href="vlc://${escapeHtml(s.url)}" target="_blank" rel="noopener" class="addon-stream-btn">VLC ↗</a>
           `
           : `
-            ${s.stremioLink ? `<a href="${escapeHtml(s.stremioLink)}" target="_blank" rel="noopener" class="addon-stream-btn primary">⚡ Stremio App</a>` : ''}
+            <button type="button" class="addon-stream-btn primary" onclick="streamTorrentByIndex(${s._idx})">▶ WebTorrent</button>
+            ${s.stremioLink ? `<a href="${escapeHtml(s.stremioLink)}" target="_blank" rel="noopener" class="addon-stream-btn">⚡ Stremio App</a>` : ''}
             ${s.magnet ? `<a href="${escapeHtml(s.magnet)}" class="addon-stream-btn">🧲 Magnet</a>` : ''}
             ${s.magnet ? `<button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy</button>` : ''}
           `;
@@ -12037,7 +12531,11 @@
 
       const lookupTasks = [];
       anyStreamAddons.forEach(addon => {
-        const base = String(addon.transportUrl).replace(/\/manifest\.json\/?$/i, '');
+        let transportUrl = addon.transportUrl;
+        if (addon.manifest?.id === 'com.stremio.torrentio.addon' && typeof getEffectiveTorrentioTransportUrl === 'function') {
+          transportUrl = getEffectiveTorrentioTransportUrl();
+        }
+        const base = String(transportUrl).replace(/\/manifest\.json\/?$/i, '');
         if (ttQueryId && addonSupportsStreamResource(addon, mediaType, 'tt')) {
           lookupTasks.push({ addon, url: `${base}/stream/${mediaType}/${encodeURIComponent(ttQueryId)}.json` });
         }
@@ -12073,6 +12571,9 @@
               cached: /⚡|cached|\[\+\]|\b(rd|tb|ad|pm|oc)\+/i.test(displayTitle),
               url: safeUrl,
               magnet,
+              infoHash: st?.infoHash || '',
+              fileIdx: Number.isFinite(st?.fileIdx) ? Number(st.fileIdx) : undefined,
+              sources: Array.isArray(st?.sources) ? st.sources : [],
               stremioLink,
               preflight: safeUrl ? 'unknown' : 'p2p',
               verifiedAt: 0,
@@ -13320,6 +13821,10 @@
         const dk = getDebridKeyValue();
         if (dk) snap.debridKey = dk;
       }
+      if (typeof getCustomTorrents === 'function') {
+        const ct = getCustomTorrents();
+        if (Array.isArray(ct) && ct.length) snap.customTorrents = ct;
+      }
       return snap;
     }
 
@@ -13499,6 +14004,11 @@
       if (scope.debrid && typeof remote.debridKey === 'string' && remote.debridKey) {
         if (isVaultUnlocked()) sessionData.debridKey = remote.debridKey;
         else localStorage.setItem('cineanime_debrid_key', remote.debridKey);
+      }
+
+      // 7. Custom Torrents & Magnets (Accessible Anywhere)
+      if (Array.isArray(remote.customTorrents) && typeof mergeCustomTorrents === 'function') {
+        mergeCustomTorrents(remote.customTorrents);
       }
 
       if (isVaultUnlocked()) persistUserData();
@@ -15660,6 +16170,7 @@
     (async () => {
       initNativeDialogs();
       initDynamicYearLabels();
+      initFsHudListeners();
       loadRemoteServerRegistry(true);
       await restoreTabVaultSession();
       hydrateWatchlistCache();
@@ -15671,6 +16182,7 @@
       renderHistory();
       renderContinueHomeStrip();
       renderWatchlist();
+      renderRecentCustomTorrents();
       updateBadges();
       refreshDropAlerts(false);
       await loadDynamicCatalog();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cineanime-shell-v11';
+const CACHE_NAME = 'cineanime-shell-v12';
 const CORE_PRECACHE_URLS = [
   './',
   './index.html',
@@ -10,7 +10,8 @@ const CORE_PRECACHE_URLS = [
 ];
 const OPTIONAL_PRECACHE_URLS = [
   './servers.json',
-  './vendor/hls.min.js'
+  './vendor/hls.min.js',
+  './vendor/webtorrent.min.js'
 ];
 
 self.addEventListener('install', (event) => {

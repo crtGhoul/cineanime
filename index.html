@@ -6286,9 +6286,9 @@
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
       // Universal Fortress Sandbox for all video players (CineSrc, VidZee, Zoko, Custom Mirrors):
-      // Grants scripts, same-origin, presentation (fullscreen/AirPlay), forms, and media pipelines
+      // Grants scripts, same-origin, presentation (fullscreen/AirPlay), and forms
       // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, downloads, and top redirects!
-      const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-encrypted-media';
+      const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
       if (iframe.getAttribute('sandbox') !== desired) {
         iframe.setAttribute('sandbox', desired);
       }
@@ -8029,10 +8029,10 @@
       const skipIntroBtn = document.getElementById('skipIntroBtn');
       if (floatingBtn) floatingBtn.classList.remove('active');
       if (skipIntroBtn) skipIntroBtn.textContent = '⏭ Skip Intro (+85s)';
-      if (!item || item.isMovieOrSeries || item.type === 'movie') return;
+      if (!item || item.type === 'movie') return;
+      showFloatingSkipBtn();
       const malId = item.idMal || item.malId;
       if (!malId || !/^\d+$/.test(String(malId))) {
-        showFloatingSkipBtn();
         return;
       }
 
@@ -8416,8 +8416,9 @@
       if (currentAnime.isMovieOrSeries) {
         if (badge) badge.innerText = currentAnime.type === 'movie' ? '🎬 Stremio Movie Core' : '📺 Stremio TV Core';
         if (toggle) toggle.style.display = 'none';
-        if (skipIntroBtn) skipIntroBtn.style.display = 'none';
+        if (skipIntroBtn) skipIntroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
         if (skipOutroBtn) skipOutroBtn.style.display = currentAnime.type === 'movie' ? 'none' : 'inline-flex';
+        if (currentAnime.type !== 'movie') showFloatingSkipBtn();
         const epMeta = currentAnime.seasonsMap?.[currentSeason]?.find(e => Number(e.ep) === Number(currentEpisode));
         const epNameSuffix = epMeta?.title ? ` • ${epMeta.title}` : '';
         const sLabel = currentSeason === 0 ? 'Specials' : `S${currentSeason}`;

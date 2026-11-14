@@ -2659,6 +2659,31 @@
       border-color: var(--accent);
       background: rgba(229, 9, 20, 0.08);
     }
+    .free-torrents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 0.55rem;
+    }
+    .free-torrent-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      transition: all 0.2s ease;
+    }
+    .free-torrent-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .stremio-repo-card:hover {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(99, 102, 241, 0.4) !important;
+      transform: translateY(-1px);
+    }
 
     .loading-spinner {
       display: inline-block;
@@ -4273,6 +4298,43 @@
           </div>
         </div>
 
+        <!-- Stremio Community Repositories & Catalogs -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.92rem; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+              <span>🌐 Stremio Addon Repositories</span>
+              <span style="font-size: 0.68rem; color: #3b82f6; background: rgba(59,130,246,0.15); padding: 2px 6px; border-radius: 4px;">Top 3 Catalogs</span>
+            </h4>
+            <span style="font-size: 0.72rem; color: var(--text-muted);">Browse 200+ Addons</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6rem;">
+            <!-- Repo 1: Stremio-Addons.net -->
+            <a href="https://stremio-addons.net/" target="_blank" rel="noopener noreferrer" class="stremio-repo-card" style="display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.65rem; text-decoration: none; color: inherit; transition: all 0.2s ease;">
+              <div style="font-size: 0.84rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
+                <span>Stremio-Addons.net</span>
+                <span style="font-size: 0.7rem; color: #3b82f6;">↗</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.35;">200+ Community addons, Torrentio, Debrid &amp; subtitle configs.</div>
+            </a>
+            <!-- Repo 2: ElfHosted Community Directory -->
+            <a href="https://elfhosted.com/guides/media/stream-from-stremio/" target="_blank" rel="noopener noreferrer" class="stremio-repo-card" style="display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.65rem; text-decoration: none; color: inherit; transition: all 0.2s ease;">
+              <div style="font-size: 0.84rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
+                <span>ElfHosted Directory</span>
+                <span style="font-size: 0.7rem; color: #10b981;">↗</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.35;">High-speed hosted addons, Comet, MediaFusion &amp; AIO streams.</div>
+            </a>
+            <!-- Repo 3: Official Stremio Web Catalog -->
+            <a href="https://app.strem.io/shell-v4.4/#/addons" target="_blank" rel="noopener noreferrer" class="stremio-repo-card" style="display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.65rem; text-decoration: none; color: inherit; transition: all 0.2s ease;">
+              <div style="font-size: 0.84rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
+                <span>Official Catalog</span>
+                <span style="font-size: 0.7rem; color: #a855f7;">↗</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; line-height: 1.35;">Official Stremio catalog with Cinemeta, YouTube, Public Domain.</div>
+            </a>
+          </div>
+        </div>
+
         <!-- Custom Addon URL Input -->
         <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem;">
           <div style="font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem;">➕ Add Any Custom Stremio Addon</div>
@@ -4862,6 +4924,20 @@
           <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">📁</div>
           <div style="font-size: 0.92rem; font-weight: 700; color: #fff;">Drop a .torrent file here or click to browse</div>
           <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.2rem;">Streams directly in your browser via WebTorrent (no upload to servers)</div>
+        </div>
+
+        <!-- Free Open Torrents & Test Media -->
+        <div style="margin: 0.9rem 0; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 10px; padding: 0.75rem 0.85rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.35rem;">
+            <div style="font-size: 0.84rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.35rem;">
+              <span>🌟 Free Open Torrents &amp; Test Media</span>
+              <span style="font-size: 0.65rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 1px 5px; border-radius: 4px;">Zero-Install P2P</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">1-Click Web Play or Drop .torrent File</span>
+          </div>
+          <div id="freeTorrentsGrid" class="free-torrents-grid">
+            <!-- Dynamically populated by renderFreeTorrentsGrid() -->
+          </div>
         </div>
 
         <div style="text-align: center; color: var(--text-muted); font-size: 0.78rem; margin: 0.85rem 0; position: relative;">
@@ -6679,17 +6755,59 @@
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     function isUnrestrictedPlayerUrl(rawUrl) {
-      return false; // Fortress Sandbox is unconditionally enforced on all embeds to block 100% of ads
+      const url = String(rawUrl || '');
+      if (!url || url === 'about:blank') return false;
+      if (localStorage.getItem('cineanime_unrestricted_sandbox') === '1') return true;
+      const lower = url.toLowerCase();
+      // External video embed providers that check and break when running in a sandboxed iframe:
+      if (lower.includes('player.vidzee.wtf') || lower.includes('vidzee') ||
+          lower.includes('cinesrc') || lower.includes('zokoanime') ||
+          lower.includes('smashy') || lower.includes('embed') || lower.includes('/stream/')) {
+        return true;
+      }
+      const ov = typeof getServerOverrides === 'function' ? getServerOverrides() : null;
+      if (ov && Array.isArray(ov.unrestrictedSandboxKeys)) {
+        for (const k of ov.unrestrictedSandboxKeys) {
+          const orig = typeof getEffectiveServerOrigin === 'function' ? getEffectiveServerOrigin(k) : '';
+          if (orig && url.startsWith(orig)) return true;
+        }
+      }
+      return false;
+    }
+
+    function togglePlayerSandboxMode() {
+      const current = localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
+      const next = !current;
+      localStorage.setItem('cineanime_unrestricted_sandbox', next ? '1' : '0');
+      const iframe = document.getElementById('playerIframe');
+      if (iframe) {
+        if (next) {
+          iframe.removeAttribute('sandbox');
+        } else {
+          ensureSandboxedPlayer(iframe, iframe.src);
+        }
+        if (iframe.src && iframe.src !== 'about:blank') {
+          const cur = iframe.src;
+          iframe.src = 'about:blank';
+          setTimeout(() => { iframe.src = cur; }, 80);
+        }
+      }
+      showAppToast(next ? '🔓 Embed Sandbox Disabled (Compatible Mode Active)' : '🛡️ Embed Sandbox Enabled (Strict Mode)');
     }
 
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
-      // Universal Fortress Sandbox for all video players (CineSrc, VidZee, Zoko, Custom Mirrors):
-      // Grants scripts, same-origin, presentation (fullscreen/AirPlay), and forms
-      // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, downloads, and top redirects!
-      const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
-      if (iframe.getAttribute('sandbox') !== desired) {
-        iframe.setAttribute('sandbox', desired);
+      const url = String(targetUrl || iframe.src || '');
+      if (isUnrestrictedPlayerUrl(url)) {
+        // Embed providers check for and refuse to play in sandboxed iframes
+        if (iframe.hasAttribute('sandbox')) {
+          iframe.removeAttribute('sandbox');
+        }
+      } else {
+        const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
+        if (iframe.getAttribute('sandbox') !== desired) {
+          iframe.setAttribute('sandbox', desired);
+        }
       }
     }
 
@@ -6725,7 +6843,15 @@
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
             if (m.attributeName === 'sandbox') {
-              ensureSandboxedPlayer(pIframe);
+              const curUrl = pIframe.src || '';
+              if (!isUnrestrictedPlayerUrl(curUrl)) {
+                const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
+                if (pIframe.getAttribute('sandbox') !== desired) {
+                  pIframe.setAttribute('sandbox', desired);
+                }
+              } else if (pIframe.hasAttribute('sandbox')) {
+                pIframe.removeAttribute('sandbox');
+              }
             }
           }
         });
@@ -8938,7 +9064,7 @@
         if (!theater || !theater.classList.contains('active') || isDirectVideoActive()) return;
 
         if (assist) {
-          assist.innerHTML = `<span class="pulse-dot"></span> Still loading? <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button>`;
+          assist.innerHTML = `<span class="pulse-dot"></span> Still loading or blocked? <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button> <button class="stream-assist-btn" onclick="togglePlayerSandboxMode()">🔓 Fix Sandbox Block</button>`;
           assist.style.display = 'flex';
         }
 
@@ -11851,7 +11977,14 @@
     async function playBestAvailableStream({ silentIfMissing = false } = {}) {
       const allDirects = currentAddonStreams.filter(s => !!s.url && !s._failedOnce);
       if (!allDirects.length) {
-        if (!silentIfMissing) showAppToast('No Direct HTTPS addon stream available for this episode yet.');
+        const topTorrent = currentAddonStreams.find(s => !s.url && (s.magnet || s.infoHash) && !s._failedOnce)
+          || currentAddonStreams.find(s => !s.url && (s.magnet || s.infoHash));
+        if (topTorrent) {
+          showAppToast('⚡ Direct HTTPS unavailable — streaming top source via WebTorrent…');
+          streamTorrentByIndex(topTorrent._idx);
+          return true;
+        }
+        if (!silentIfMissing) showAppToast('No direct or torrent addon stream available for this episode yet.');
         return false;
       }
 
@@ -12324,10 +12457,120 @@
       showAppToast(`⚡ Loading ${cleanTitle}...`);
     }
 
+    const FREE_PRESET_TORRENTS = [
+      {
+        key: 'bbb',
+        title: 'Big Buck Bunny (1080p 60fps)',
+        quality: '1080p FHD',
+        size: '276 MB',
+        hash: 'dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c',
+        desc: 'Blender Foundation open animation movie (60fps stereo)',
+        poster: 'https://images.metahub.space/poster/small/tt1254207/img',
+        backdrop: 'https://images.metahub.space/background/large/tt1254207/img',
+        magnet: 'magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny+1080p&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz',
+        torrentUrl: 'https://webtorrent.io/torrents/big-buck-bunny.torrent'
+      },
+      {
+        key: 'sintel',
+        title: 'Sintel (1080p 5.1 Surround)',
+        quality: '1080p FHD',
+        size: '129 MB',
+        hash: '08ada5a7a6183aae1e09d831df6748d566095a10',
+        desc: 'Blender Foundation fantasy open movie (Durian project)',
+        poster: 'https://images.metahub.space/poster/small/tt1727587/img',
+        backdrop: 'https://images.metahub.space/background/large/tt1727587/img',
+        magnet: 'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel+1080p&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz',
+        torrentUrl: 'https://webtorrent.io/torrents/sintel.torrent'
+      },
+      {
+        key: 'tears',
+        title: 'Tears of Steel (1080p VFX)',
+        quality: '1080p FHD',
+        size: '571 MB',
+        hash: '209c8226b299b308e24c4b0dc5514c2658205385',
+        desc: 'Blender VFX sci-fi open movie in dystopian Amsterdam',
+        poster: 'https://images.metahub.space/poster/small/tt2451044/img',
+        backdrop: 'https://images.metahub.space/background/large/tt2451044/img',
+        magnet: 'magnet:?xt=urn:btih:209c8226b299b308e24c4b0dc5514c2658205385&dn=Tears+of+Steel+1080p&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz',
+        torrentUrl: 'https://webtorrent.io/torrents/tears-of-steel.torrent'
+      },
+      {
+        key: 'cosmos',
+        title: 'Cosmos Laundromat (1080p)',
+        quality: '1080p FHD',
+        size: '210 MB',
+        hash: 'c9e15763f722f23e98a29decdfae341b98d53056',
+        desc: 'Blender dark comedy animation open movie (Gooseberry project)',
+        poster: 'https://images.metahub.space/poster/small/tt4957246/img',
+        backdrop: 'https://images.metahub.space/background/large/tt4957246/img',
+        magnet: 'magnet:?xt=urn:btih:c9e15763f722f23e98a29decdfae341b98d53056&dn=Cosmos+Laundromat+1080p&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz',
+        torrentUrl: 'https://webtorrent.io/torrents/cosmos-laundromat.torrent'
+      }
+    ];
+
+    function renderFreeTorrentsGrid() {
+      const container = document.getElementById('freeTorrentsGrid');
+      if (!container) return;
+      container.innerHTML = FREE_PRESET_TORRENTS.map((t, idx) => `
+        <div class="free-torrent-card">
+          <div style="min-width: 0; flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.15rem;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(t.title)}</span>
+              <span class="stream-pill-tag quality" style="font-size: 0.65rem; padding: 1px 4px;">${t.quality}</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(t.desc)} • ${t.size}</div>
+          </div>
+          <div style="display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0;">
+            <button type="button" class="addon-stream-btn primary" onclick="streamPresetFreeTorrent(${idx})" style="padding: 3px 8px; font-size: 0.74rem;">▶ Stream on Web</button>
+            <button type="button" class="addon-stream-btn" onclick="copyPresetTorrentMagnet(${idx})" title="Copy Magnet Link" style="padding: 3px 7px; font-size: 0.74rem;">🧲 Copy</button>
+            <a href="${escapeHtml(t.torrentUrl)}" target="_blank" rel="noopener noreferrer" download class="addon-stream-btn" title="Download .torrent file to test drag and drop" style="padding: 3px 7px; font-size: 0.74rem; text-decoration: none;">📥 .torrent</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function streamPresetFreeTorrent(idx) {
+      const item = FREE_PRESET_TORRENTS[idx];
+      if (!item) return;
+      closeTorrentModal();
+      const id = `preset:${item.key}`;
+      const customItem = {
+        id,
+        title: item.title,
+        type: 'movie',
+        isMovieOrSeries: true,
+        isCustomTorrent: true,
+        poster: item.poster || './icon-512.png',
+        backdrop: item.backdrop || './icon-512.png',
+        episodes: 1,
+        magnet: item.magnet
+      };
+      ANIME_CACHE.set(id, customItem);
+      currentAnime = customItem;
+      currentEpisode = 1;
+      currentSeason = 1;
+
+      const currentList = getCustomTorrents();
+      saveCustomTorrents([{ id, title: item.title, magnet: item.magnet, hash: item.hash, addedAt: Date.now() }, ...currentList.filter(x => x.id !== id)].slice(0, 30));
+
+      const theater = document.getElementById('theaterSection');
+      if (theater) theater.classList.add('active');
+      streamTorrentWithWebTorrent(item.magnet, item.title);
+      scrollToPlayer();
+      showAppToast(`⚡ Streaming ${item.title} via WebTorrent…`);
+    }
+
+    function copyPresetTorrentMagnet(idx) {
+      const item = FREE_PRESET_TORRENTS[idx];
+      if (!item) return;
+      copyStreamText(item.magnet, `🧲 ${item.title} magnet copied!`);
+    }
+
     function openTorrentModal() {
       const modal = document.getElementById('torrentModal');
       if (!modal) return;
       closeAllModalsExcept('torrentModal');
+      renderFreeTorrentsGrid();
       renderRecentCustomTorrents();
       initTorrentModalEvents();
       const debridKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
@@ -12526,37 +12769,55 @@
 
       const bestDirect = currentAddonStreams.find(s => s.url && !s._failedOnce && s.preflight !== 'failed')
         || currentAddonStreams.find(s => s.url && s.preflight !== 'failed');
+      const bestStream = bestDirect
+        || currentAddonStreams.find(s => !s._failedOnce && (s.magnet || s.infoHash || s.url))
+        || currentAddonStreams[0];
+
       if (bestBtn) {
-        if (bestDirect) {
+        if (bestStream) {
           bestBtn.style.display = 'inline-flex';
-          bestBtn.textContent = bestDirect.quality ? `▶ Best ${bestDirect.quality}` : '▶ Best Direct HD';
+          const qual = bestStream.quality ? getSourceQualityLabel(bestStream.quality) : 'HD';
+          bestBtn.textContent = bestStream.url ? `▶ Best ${qual}` : `▶ Stream Web ${qual}`;
+          bestBtn.onclick = () => playBestAvailableStream();
         } else {
           bestBtn.style.display = 'none';
         }
       }
 
       if (bestCard) {
-        if (bestDirect) {
+        if (bestStream) {
           bestCard.style.display = 'flex';
-          if (bestTitle) bestTitle.textContent = bestDirect.displayTitle || bestDirect.filename || 'Direct HTTPS Stream';
+          if (bestTitle) bestTitle.textContent = bestStream.displayTitle || bestStream.filename || (bestStream.url ? 'Direct HTTPS Stream' : 'WebTorrent P2P Stream');
           if (bestBadges) {
-            const pre = getStreamPreflightBadge(bestDirect);
+            const pre = getStreamPreflightBadge(bestStream);
             const badges = [];
-            badges.push(`<span class="stream-pill-tag">${escapeHtml(bestDirect.addonName)}</span>`);
-            if (bestDirect.quality) badges.push(`<span class="stream-pill-tag quality">${escapeHtml(getSourceQualityLabel(bestDirect.quality))}</span>`);
-            if (bestDirect.sourceTag) badges.push(`<span class="stream-pill-tag source">${escapeHtml(bestDirect.sourceTag)}</span>`);
-            if (bestDirect.codec) badges.push(`<span class="stream-pill-tag">${escapeHtml(bestDirect.codec)}</span>`);
-            if (bestDirect.audio) badges.push(`<span class="stream-pill-tag audio">${escapeHtml(bestDirect.audio)}</span>`);
-            if (bestDirect.cached) badges.push('<span class="stream-pill-tag cached">⚡ Cached</span>');
-            badges.push(`<span class="stream-pill-tag ${pre.cls}">${escapeHtml(pre.label)}</span>`);
+            badges.push(`<span class="stream-pill-tag">${escapeHtml(bestStream.addonName)}</span>`);
+            if (bestStream.quality) badges.push(`<span class="stream-pill-tag quality">${escapeHtml(getSourceQualityLabel(bestStream.quality))}</span>`);
+            if (bestStream.sourceTag) badges.push(`<span class="stream-pill-tag source">${escapeHtml(bestStream.sourceTag)}</span>`);
+            if (bestStream.codec) badges.push(`<span class="stream-pill-tag">${escapeHtml(bestStream.codec)}</span>`);
+            if (bestStream.audio) badges.push(`<span class="stream-pill-tag audio">${escapeHtml(bestStream.audio)}</span>`);
+            if (bestStream.cached) badges.push('<span class="stream-pill-tag cached">⚡ Cached</span>');
+            if (bestStream.url) {
+              badges.push(`<span class="stream-pill-tag ${pre.cls}">${escapeHtml(pre.label)}</span>`);
+            } else {
+              badges.push('<span class="stream-pill-tag p2p">P2P WebTorrent</span>');
+            }
             bestBadges.innerHTML = badges.join('');
           }
-          if (bestReason) bestReason.textContent = buildBestSourceReason(bestDirect);
+          if (bestReason) bestReason.textContent = buildBestSourceReason(bestStream);
           if (bestPlay) {
             bestPlay.disabled = false;
-            bestPlay.textContent = bestDirect.quality
-              ? `▶ Play Best ${getSourceQualityLabel(bestDirect.quality)}`
-              : '▶ Play Best Source';
+            if (bestStream.url) {
+              bestPlay.textContent = bestStream.quality
+                ? `▶ Play Best ${getSourceQualityLabel(bestStream.quality)}`
+                : '▶ Play Best Source';
+              bestPlay.onclick = () => playBestAvailableStream();
+            } else {
+              bestPlay.textContent = bestStream.quality
+                ? `▶ Stream on Web (${getSourceQualityLabel(bestStream.quality)})`
+                : '▶ Stream on Web (P2P)';
+              bestPlay.onclick = () => streamTorrentByIndex(bestStream._idx);
+            }
           }
         } else {
           bestCard.style.display = 'none';
@@ -12625,20 +12886,19 @@
           : '';
         const cardCls = [
           'addon-stream-card',
-          s === bestDirect ? 'best-pick' : '',
+          s === bestStream ? 'best-pick' : '',
           s.preflight === 'failed' ? 'failed-pick' : ''
         ].filter(Boolean).join(' ');
         const actions = s.url
           ? `
-            <button type="button" class="addon-stream-btn primary" onclick="playAddonStreamByIndex(${s._idx})">${rank === 1 ? '▶ Play Best' : '▶ Play Direct'}</button>
+            <button type="button" class="addon-stream-btn primary" onclick="playAddonStreamByIndex(${s._idx})">${rank === 1 ? '▶ Play in App' : '▶ Play in App'}</button>
             <button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy Link</button>
             <a href="vlc://${escapeHtml(s.url)}" target="_blank" rel="noopener" class="addon-stream-btn">VLC ↗</a>
           `
           : `
-            <button type="button" class="addon-stream-btn primary" onclick="streamTorrentByIndex(${s._idx})">▶ WebTorrent</button>
-            ${s.stremioLink ? `<a href="${escapeHtml(s.stremioLink)}" target="_blank" rel="noopener" class="addon-stream-btn">⚡ Stremio App</a>` : ''}
-            ${s.magnet ? `<a href="${escapeHtml(s.magnet)}" class="addon-stream-btn">🧲 Magnet</a>` : ''}
-            ${s.magnet ? `<button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">📋 Copy</button>` : ''}
+            <button type="button" class="addon-stream-btn primary" onclick="streamTorrentByIndex(${s._idx})">▶ Stream on Web</button>
+            ${s.magnet ? `<button type="button" class="addon-stream-btn" onclick="copyAddonMagnetByIndex(${s._idx})">🧲 Copy Magnet</button>` : ''}
+            ${s.magnet ? `<a href="${escapeHtml(s.magnet)}" class="addon-stream-btn">Client ↗</a>` : ''}
           `;
         return `
           <div class="${cardCls}">

@@ -1,6 +1,6 @@
 {
-  "updatedAt": 1794546600001,
-  "version": "1.1.0",
+  "updatedAt": 1794546600002,
+  "version": "1.1.1",
   "cinesrc": "https://cinesrc.st",
   "vidzee": "https://player.vidzee.wtf",
   "zoko": "https://zokoanime.video",
@@ -11,6 +11,5 @@
     "cinesrcTv": "{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true",
     "vidzeeMovie": "{origin}/embed/movie/{ref}",
     "vidzeeTv": "{origin}/embed/tv/{ref}/{s}/{e}"
-  },
-  "unrestrictedSandboxKeys": ["zoko"]
+  }
 }

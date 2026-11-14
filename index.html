@@ -599,25 +599,42 @@
       }
     }
 
-    /* Fullscreen Floating Controls HUD */
+    /* Fullscreen Floating Controls HUD & Sensor */
+    .fs-bottom-sensor {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 96px;
+      z-index: 100001;
+      background: transparent;
+      pointer-events: auto;
+    }
+    .player-container:fullscreen .fs-bottom-sensor,
+    .player-container.cinema-fullscreen .fs-bottom-sensor,
+    body.cinema-fs-open .fs-bottom-sensor {
+      display: block;
+    }
+
     .fs-hud-bar {
       display: none;
       position: absolute;
       bottom: max(20px, env(safe-area-inset-bottom));
       left: 50%;
-      transform: translateX(-50%) translateY(10px);
+      transform: translateX(-50%) translateY(0);
       width: min(94%, 680px);
-      z-index: 100001;
-      background: rgba(14, 15, 23, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 100002;
+      background: rgba(14, 15, 23, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 9999px;
-      padding: 0.42rem 0.85rem;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(99, 102, 241, 0.15);
+      padding: 0.45rem 0.95rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(229, 9, 20, 0.2);
       -webkit-backdrop-filter: blur(16px);
       backdrop-filter: blur(16px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s ease;
+      opacity: 0.45;
+      pointer-events: auto;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s ease, box-shadow 0.22s ease;
       align-items: center;
       justify-content: space-between;
       gap: 0.6rem;
@@ -635,10 +652,12 @@
     .player-container:fullscreen:hover .fs-hud-bar,
     .player-container.cinema-fullscreen:hover .fs-hud-bar,
     .fs-hud-bar:hover,
-    .fs-hud-bar:focus-within {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
+    .fs-hud-bar:focus-within,
+    body.tv-mode .fs-hud-bar {
+      opacity: 0.98 !important;
+      pointer-events: auto !important;
+      transform: translateX(-50%) translateY(0) !important;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.9), 0 0 28px rgba(229, 9, 20, 0.35) !important;
     }
 
     .fs-hud-meta {
@@ -731,8 +750,11 @@
     }
 
     .player-container:fullscreen .floating-skip-btn,
-    .player-container.cinema-fullscreen .floating-skip-btn {
-      bottom: 5.5rem;
+    .player-container.cinema-fullscreen .floating-skip-btn,
+    body.cinema-fs-open .floating-skip-btn {
+      bottom: 6.2rem;
+      right: 1.8rem;
+      z-index: 100005;
     }
 
     .player-iframe {
@@ -2950,32 +2972,42 @@
 
     .floating-skip-btn {
       position: absolute;
-      right: 1rem;
-      bottom: 4.5rem;
-      z-index: 25;
+      right: 1.25rem;
+      bottom: 5.5rem;
+      z-index: 100005;
       display: none;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.55rem 0.95rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      background: rgba(12, 12, 18, 0.88);
-      backdrop-filter: blur(8px);
+      gap: 0.5rem;
+      padding: 0.65rem 1.15rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: rgba(229, 9, 20, 0.94);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
       color: #fff;
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-weight: 800;
+      font-size: 0.92rem;
+      letter-spacing: 0.03em;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-      transition: transform 0.15s ease, background 0.15s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 16px rgba(229, 9, 20, 0.45);
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      pointer-events: auto;
     }
     .floating-skip-btn:hover,
     .floating-skip-btn:focus-visible {
-      background: #e50914;
-      border-color: #ff4d57;
-      transform: translateY(-2px);
+      background: #ff1f2d;
+      border-color: #ffffff;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.85), 0 0 24px rgba(229, 9, 20, 0.65);
     }
     .floating-skip-btn.active {
-      display: inline-flex;
+      display: inline-flex !important;
+    }
+    body.tv-mode .floating-skip-btn {
+      bottom: max(38px, env(safe-area-inset-bottom));
+      right: max(38px, env(safe-area-inset-right));
+      font-size: 1.05rem;
+      padding: 0.75rem 1.35rem;
     }
 
     .up-next-overlay {
@@ -3376,6 +3408,7 @@
             </div>
           </div>
           <button id="floatingSkipBtn" type="button" class="floating-skip-btn" onclick="triggerFloatingSkip()">⏭ Skip Intro</button>
+          <div id="fsBottomSensor" class="fs-bottom-sensor" aria-hidden="true"></div>
           <!-- Fullscreen Floating Controls HUD -->
           <div id="fsHudBar" class="fs-hud-bar" role="toolbar" aria-label="Fullscreen Controls">
             <div class="fs-hud-meta">
@@ -6068,9 +6101,8 @@
           });
           if (Object.keys(safeTemplates).length) next.templates = safeTemplates;
         }
-        if (Array.isArray(json.unrestrictedSandboxKeys)) {
-          next.unrestrictedSandboxKeys = json.unrestrictedSandboxKeys.filter(k => typeof k === 'string');
-        }
+        // Unrestricted sandbox keys disabled: fortress sandbox strictly enforced on all streams
+        delete next.unrestrictedSandboxKeys;
         next.updatedAt = Date.now();
         localStorage.setItem('cineanime_server_overrides_v1', JSON.stringify(next));
         if (!silent) showAppToast('🛰 Synced source domains from remote registry');
@@ -6248,37 +6280,17 @@
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     function isUnrestrictedPlayerUrl(rawUrl) {
-      const url = String(rawUrl || '');
-      if (!url) return false;
-      const zokoOrigin = getEffectiveServerOrigin('zoko');
-      if (zokoOrigin && url.startsWith(zokoOrigin)) return true;
-      if (url.includes('zokoanime.')) return true;
-      const ov = getServerOverrides();
-      if (Array.isArray(ov.unrestrictedSandboxKeys)) {
-        for (const k of ov.unrestrictedSandboxKeys) {
-          const orig = getEffectiveServerOrigin(k);
-          if (orig && url.startsWith(orig)) return true;
-        }
-      }
-      return false;
+      return false; // Fortress Sandbox is unconditionally enforced on all embeds to block 100% of ads
     }
 
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
-      const url = String(targetUrl || iframe.src || '');
-      if (isUnrestrictedPlayerUrl(url)) {
-        // Zoko's player relies on orientation locks and custom worker loops that fail inside sandboxed iframes on mobile
-        if (iframe.hasAttribute('sandbox')) {
-          iframe.removeAttribute('sandbox');
-        }
-      } else {
-        // Fortress Sandbox for CineSrc, VidZee, Custom Mirrors:
-        // Grants scripts, same-origin, presentation (fullscreen/AirPlay), and media pipelines
-        // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, and top redirects!
-        const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-encrypted-media';
-        if (iframe.getAttribute('sandbox') !== desired) {
-          iframe.setAttribute('sandbox', desired);
-        }
+      // Universal Fortress Sandbox for all video players (CineSrc, VidZee, Zoko, Custom Mirrors):
+      // Grants scripts, same-origin, presentation (fullscreen/AirPlay), forms, and media pipelines
+      // while STRICTLY PREVENTING window.open popups, rogue _blank ad tabs, downloads, and top redirects!
+      const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-encrypted-media';
+      if (iframe.getAttribute('sandbox') !== desired) {
+        iframe.setAttribute('sandbox', desired);
       }
     }
 
@@ -7974,16 +7986,40 @@
       }, 1000);
     }
 
-    function triggerFloatingSkip() {
+    let floatingSkipHideTimer = null;
+    function hideFloatingSkipBtn() {
       const btn = document.getElementById('floatingSkipBtn');
-      const vid = document.getElementById('directVideoPlayer');
-      const target = Number(btn?.dataset?.targetTime);
-      if (vid && isDirectVideoActive() && Number.isFinite(target) && target > (vid.currentTime || 0)) {
-        vid.currentTime = Math.min(vid.duration || target, target);
-        btn.classList.remove('active');
-        showAppToast(`⏭ Skipped to ${formatShortTime(vid.currentTime)}`);
-        return;
+      if (btn) btn.classList.remove('active');
+      if (floatingSkipHideTimer) {
+        clearTimeout(floatingSkipHideTimer);
+        floatingSkipHideTimer = null;
       }
+    }
+
+    function showFloatingSkipBtn(durationSec = 95) {
+      if (!currentAnime || currentAnime.type === 'movie') return;
+      const btn = document.getElementById('floatingSkipBtn');
+      if (!btn) return;
+
+      const op = (activeAniSkipSegments || []).find(s => s.skipType === 'op');
+      if (op && op.endTime) {
+        btn.textContent = `⏭ Skip OP (${formatShortTime(op.endTime)})`;
+        btn.dataset.targetTime = String(op.endTime);
+      } else {
+        btn.textContent = '⏭ Skip Intro (+85s)';
+        btn.dataset.targetTime = '85';
+      }
+
+      btn.classList.add('active');
+
+      if (floatingSkipHideTimer) clearTimeout(floatingSkipHideTimer);
+      const hideMs = Math.max(15000, ((op && op.endTime) ? (op.endTime + 5) : durationSec) * 1000);
+      floatingSkipHideTimer = setTimeout(() => {
+        hideFloatingSkipBtn();
+      }, hideMs);
+    }
+
+    function triggerFloatingSkip() {
       skipIntro();
     }
 
@@ -7995,12 +8031,18 @@
       if (skipIntroBtn) skipIntroBtn.textContent = '⏭ Skip Intro (+85s)';
       if (!item || item.isMovieOrSeries || item.type === 'movie') return;
       const malId = item.idMal || item.malId;
-      if (!malId || !/^\d+$/.test(String(malId))) return;
+      if (!malId || !/^\d+$/.test(String(malId))) {
+        showFloatingSkipBtn();
+        return;
+      }
 
       const token = ++latestSkipFetchToken;
       try {
         const res = await fetch(`https://api.aniskip.com/v2/skip-times/${encodeURIComponent(String(malId))}/${Math.max(1, Number(episode) || 1)}?types[]=op&types[]=ed&episodeLength=0`);
-        if (token !== latestSkipFetchToken || !res.ok) return;
+        if (token !== latestSkipFetchToken || !res.ok) {
+          showFloatingSkipBtn();
+          return;
+        }
         const json = await res.json();
         const results = Array.isArray(json?.results) ? json.results : [];
         activeAniSkipSegments = results
@@ -8015,7 +8057,10 @@
           skipIntroBtn.textContent = `⏭ Skip OP (${formatShortTime(op.startTime)}–${formatShortTime(op.endTime)})`;
         }
         if (typeof updateFsHud === 'function') updateFsHud();
-      } catch (_) {}
+        showFloatingSkipBtn();
+      } catch (_) {
+        showFloatingSkipBtn();
+      }
     }
 
     function bindDirectVideoEvents(vid) {
@@ -8042,8 +8087,8 @@
             floatingBtn.dataset.targetTime = String(hit.endTime);
             floatingBtn.textContent = hit.skipType === 'ed' ? '⏭ Skip Ending' : '⏭ Skip Opening';
             floatingBtn.classList.add('active');
-          } else {
-            floatingBtn.classList.remove('active');
+          } else if (t >= 95 && (!activeAniSkipSegments.length || !activeAniSkipSegments.some(s => t < s.endTime))) {
+            hideFloatingSkipBtn();
           }
         }
         const curKey = getEpisodeProgressKey(currentAnime, currentSeason, currentEpisode);
@@ -8554,7 +8599,7 @@
       if (fsHudHideTimer) clearTimeout(fsHudHideTimer);
       fsHudHideTimer = setTimeout(() => {
         container.classList.remove('fs-hud-visible');
-      }, 3500);
+      }, 5500);
     }
 
     function initFsHudListeners() {
@@ -8566,6 +8611,15 @@
           showFsHud();
         }, { passive: true });
       });
+      const sensor = document.getElementById('fsBottomSensor');
+      if (sensor && !sensor._fsSensorBound) {
+        sensor._fsSensorBound = true;
+        ['mouseenter', 'mousemove', 'touchstart', 'pointerenter', 'pointermove'].forEach(evt => {
+          sensor.addEventListener(evt, () => {
+            showFsHud();
+          }, { passive: true });
+        });
+      }
     }
 
     function syncFullscreenUi() {
@@ -8606,6 +8660,7 @@
     }
 
     function closeTheater() {
+      hideFloatingSkipBtn();
       if (activeWatchMarkTimer) {
         clearTimeout(activeWatchMarkTimer);
         activeWatchMarkTimer = null;
@@ -8641,22 +8696,64 @@
 
     function skipIntro() {
       const directVideo = document.getElementById('directVideoPlayer');
+      const op = (activeAniSkipSegments || []).find(s => s.skipType === 'op');
+
+      // 1. Direct Video Stream Active (HLS / MP4)
       if (directVideo && isDirectVideoActive() && Number.isFinite(directVideo.duration) && directVideo.duration > 0) {
         const t = directVideo.currentTime || 0;
-        const op = activeAniSkipSegments.find(s => s.skipType === 'op');
-        const target = op && t < op.endTime
+        const target = (op && t < op.endTime)
           ? Math.min(Math.max(0, directVideo.duration - 1), op.endTime)
           : Math.min(Math.max(0, directVideo.duration - 1), t + 85);
         directVideo.currentTime = target;
+        try { directVideo.play(); } catch (_) {}
         showAppToast(op && t < op.endTime ? `⏭ Skipped Opening (${formatShortTime(target)})` : `⏭ Skipped +85s (${formatShortTime(target)})`);
+        hideFloatingSkipBtn();
         return;
       }
-      const op = activeAniSkipSegments.find(s => s.skipType === 'op');
-      if (op) {
-        showAppToast(`⏭ Opening ends at ${formatShortTime(op.endTime)} (AniSkip) — use in-player Skip or play a Direct stream`);
-        return;
+
+      // 2. Embed Iframe Active (CineSrc, VidZee, Zoko, etc.)
+      const iframe = document.getElementById('playerIframe');
+      if (iframe && iframe.src && iframe.src !== 'about:blank') {
+        const targetSec = (op && op.endTime) ? Math.round(op.endTime) : 85;
+        try {
+          const u = new URL(iframe.src);
+          let prevStart = Number(u.searchParams.get('startAt') || u.searchParams.get('start') || u.searchParams.get('t') || 0);
+          let newTarget = Math.max(targetSec, prevStart + targetSec);
+          if (op && op.endTime && (!prevStart || prevStart < op.endTime)) {
+            newTarget = Math.round(op.endTime);
+          }
+
+          u.searchParams.set('startAt', String(newTarget));
+          u.searchParams.set('start', String(newTarget));
+          u.searchParams.set('t', String(newTarget));
+
+          // Post-message seeking for embedded player iframes that expose API
+          try {
+            const win = iframe.contentWindow;
+            if (win) {
+              win.postMessage({ event: 'seek', time: newTarget }, '*');
+              win.postMessage({ method: 'setCurrentTime', value: newTarget }, '*');
+              win.postMessage({ action: 'seek', value: newTarget }, '*');
+              win.postMessage({ type: 'player:seek', data: { time: newTarget } }, '*');
+              win.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [newTarget, true] }), '*');
+            }
+          } catch (_) {}
+
+          // Reload iframe with target timestamp parameter so player starts past intro
+          iframe.src = u.toString();
+          showAppToast(op && op.endTime ? `⏭ Skipped Opening to ${formatShortTime(newTarget)}` : `⏭ Skipped +85s to ${formatShortTime(newTarget)}`);
+          if (currentAnime) {
+            saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, newTarget, 1440, false);
+          }
+          hideFloatingSkipBtn();
+          return;
+        } catch (e) {
+          console.warn('Embed skip intro error:', e);
+        }
       }
-      showAppToast('⏭ Direct MP4/HLS streams support +85s skip — third-party embeds use in-player Skip controls');
+
+      showAppToast('⏭ Skipped Intro (+85s)');
+      hideFloatingSkipBtn();
     }
 
     function skipOutro() {

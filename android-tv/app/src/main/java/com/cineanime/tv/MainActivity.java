@@ -54,7 +54,6 @@ public class MainActivity extends Activity {
     private static final String OFFLINE_HOST = "offline.cineanime.local";
     private static final List<String> DEFAULT_MIRRORS = Arrays.asList(
             "https://crtghoul.github.io/cineanime/",
-            "https://velazquez-lab.pages.dev/cineanime/",
             "https://" + OFFLINE_HOST + "/"
     );
 

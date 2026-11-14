@@ -15,8 +15,7 @@ namespace CineAnime
         private WebView2? _webView;
         private readonly List<string> _mirrorUrls = new List<string>
         {
-            "https://crtghoul.github.io/cineanime/",
-            "https://velazquez-lab.pages.dev/cineanime/"
+            "https://crtghoul.github.io/cineanime/"
         };
         private int _mirrorIndex = 0;
 

@@ -828,15 +828,20 @@
 
     /* Theater Cinema Hub Tabs & Layout (NovaHD / Netflix Style) */
     .theater-hub-nav {
+      position: sticky;
+      top: var(--header-h, 0px);
+      z-index: 95;
+      background: #090a0f;
       display: flex;
       align-items: center;
       gap: 0.6rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 0.85rem 0 0.5rem 0;
-      margin-top: 0.85rem;
-      margin-bottom: 1.1rem;
+      padding: 0.6rem 0 0.5rem 0;
+      margin-top: 0.35rem;
+      margin-bottom: 0.85rem;
       overflow-x: auto;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
     .theater-hub-nav::-webkit-scrollbar {
       display: none;
@@ -2978,7 +2983,7 @@
 
     /* TV Remote, D-Pad Spatial Navigation & WCAG Focus-Visible Accessibility */
     html {
-      scroll-padding-top: 84px;
+      scroll-padding-top: var(--header-h, 84px);
     }
     .search-input {
       padding-right: 2.4rem;
@@ -3051,7 +3056,8 @@
       border-color: #ff4d58 !important;
       transform: translateY(-4px) scale(1.03);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      scroll-margin: 84px;
+      scroll-margin-top: var(--header-h, 84px);
+      scroll-margin: var(--header-h, 84px);
       z-index: 5;
     }
     .nav-btn,
@@ -3065,7 +3071,8 @@
     .schedule-day-tab,
     .load-more-btn,
     .addon-stream-btn {
-      scroll-margin: 84px;
+      scroll-margin-top: var(--header-h, 84px);
+      scroll-margin: var(--header-h, 84px);
     }
     body.tv-mode,
     body.tv-webview-mode {
@@ -3541,6 +3548,22 @@
         </div>
       </div>
 
+      <!-- Theater Cinema Hub Navigation Tabs (NovaHD / Netflix Style) - Directly reachable above player -->
+      <div class="theater-hub-nav" role="tablist" aria-label="Theater Navigation">
+        <button type="button" class="theater-hub-tab active" data-tab="episodes" onclick="switchTheaterTab('episodes', true)">
+          📺 Episodes <span id="theaterEpBadgeCount" class="hub-tab-badge">0</span>
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="sources" onclick="switchTheaterTab('sources', true)">
+          ⚡ Streams & Sources <span id="theaterSourceBadgeCount" class="hub-tab-badge">HD</span>
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="overview" onclick="switchTheaterTab('overview', true)">
+          ℹ️ Details & Trailer
+        </button>
+        <button type="button" class="theater-hub-tab" data-tab="related" onclick="switchTheaterTab('related', true)">
+          ✨ More Like This
+        </button>
+      </div>
+
       <div id="ambientGlowWrapper" class="ambient-glow-wrapper">
         <div id="ambientGlowCanvas" class="ambient-glow-canvas"></div>
         <div id="playerContainer" class="player-container">
@@ -3636,22 +3659,6 @@
           <button id="shareWatchBtn" type="button" class="ctrl-btn" onclick="copyCurrentWatchShareLink()" title="Copy direct shareable link to this title &amp; episode">🔗 Share</button>
           <button id="fullscreenBtn" class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         </div>
-      </div>
-
-      <!-- Theater Cinema Hub Navigation Tabs (NovaHD / Netflix Style) -->
-      <div class="theater-hub-nav" role="tablist" aria-label="Theater Navigation">
-        <button type="button" class="theater-hub-tab active" data-tab="episodes" onclick="switchTheaterTab('episodes')">
-          📺 Episodes <span id="theaterEpBadgeCount" class="hub-tab-badge">0</span>
-        </button>
-        <button type="button" class="theater-hub-tab" data-tab="sources" onclick="switchTheaterTab('sources')">
-          ⚡ Streams & Sources <span id="theaterSourceBadgeCount" class="hub-tab-badge">HD</span>
-        </button>
-        <button type="button" class="theater-hub-tab" data-tab="overview" onclick="switchTheaterTab('overview')">
-          ℹ️ Details & Trailer
-        </button>
-        <button type="button" class="theater-hub-tab" data-tab="related" onclick="switchTheaterTab('related')">
-          ✨ More Like This
-        </button>
       </div>
 
       <div class="theater-hub-content">
@@ -3759,8 +3766,8 @@
       <div class="hero-content">
         <div class="hero-badges">
           <span id="heroTypeBadge" class="badge badge-subdub">SUB & DUB</span>
-          <span id="heroRating" class="badge badge-rating">★ 8.5</span>
-          <span id="heroQuality" class="badge badge-quality">1080p FHD</span>
+          <span id="heroRating" class="badge badge-rating" style="display: none;"></span>
+          <span id="heroQuality" class="badge badge-quality" style="display: none;"></span>
           <span id="heroEpisodes" class="badge badge-subdub">12 EPISODES</span>
           <span id="heroNextBadge" class="badge badge-next-airing" style="display: none;"></span>
         </div>
@@ -5106,9 +5113,29 @@
     let activeAddonStreamRef = null;
     let activePlaybackHealth = null;
     let addonFailoverAttempts = 0;
+    let embedFailoverAttempts = 0;
+    let embedAutoAdvanceTimer = null;
     let activeStallTimer = null;
     const SOURCE_HEALTH_KEY = 'cineanime_source_health_v1';
     const SOURCE_MEMORY_KEY = 'cineanime_source_memory_v1';
+    const FALLBACK_POSTER_SVG = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Crect width='100%25' height='100%25' fill='%2318181b'/%3E%3Crect x='12' y='12' width='276' height='426' rx='8' fill='none' stroke='%2327272a' stroke-width='2'/%3E%3Ctext x='50%25' y='46%25' font-size='42' fill='%2352525b' text-anchor='middle' dominant-baseline='central'%3E%E2%96%B6%3C/text%3E%3Ctext x='50%25' y='58%25' font-size='14' font-weight='700' fill='%23a1a1aa' text-anchor='middle' font-family='sans-serif'%3ECineAnime%3C/text%3E%3C/svg%3E";
+
+    function handlePosterImgError(img) {
+      if (!img) return;
+      const cur = img.currentSrc || img.src || '';
+      if (cur.includes('live.metahub.space')) {
+        img.onerror = function() {
+          img.onerror = null;
+          img.src = FALLBACK_POSTER_SVG;
+          img.style.opacity = '1';
+        };
+        img.src = cur.replace('live.metahub.space', 'images.metahub.space');
+        return;
+      }
+      img.onerror = null;
+      img.src = FALLBACK_POSTER_SVG;
+      img.style.opacity = '1';
+    }
 
     function safeJsonParse(raw, fallback) {
       if (!raw || typeof raw !== 'string') return fallback;
@@ -5795,7 +5822,7 @@
       strip.classList.add('active');
       strip.innerHTML = `
         <div class="theater-info-left">
-          <img class="theater-info-poster" src="${item.poster}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'">
+          <img class="theater-info-poster" src="${item.poster}" alt="${escapeHtml(item.title)}" onerror="handlePosterImgError(this)">
           <div class="theater-info-body">
             <div style="font-weight: 800; font-size: 0.96rem; color: #fff;">${escapeHtml(item.title)}</div>
             <div class="theater-info-meta">
@@ -5944,11 +5971,40 @@
       const heroTypeBadge = document.getElementById('heroTypeBadge');
       const heroTrailerBtn = document.getElementById('heroTrailerBtn');
 
-      if (heroBg) heroBg.src = item.backdrop || item.poster;
+      if (heroBg) {
+        heroBg.onerror = function() {
+          const cur = heroBg.src || '';
+          if (cur.includes('live.metahub.space')) {
+            heroBg.src = cur.replace('live.metahub.space', 'images.metahub.space');
+          } else {
+            heroBg.onerror = null;
+            heroBg.style.opacity = '0.35';
+          }
+        };
+        heroBg.src = item.backdrop || item.poster;
+      }
       if (heroTitle) heroTitle.innerText = item.title;
       if (heroSynopsis) heroSynopsis.innerText = item.synopsis || '';
-      if (heroRating) heroRating.innerText = '★ ' + (item.rating || '8.5');
-      if (heroQuality) heroQuality.innerText = item.runtime || '1080p FHD';
+      if (heroRating) {
+        const rawRating = item.rating !== null && item.rating !== undefined ? String(item.rating).trim() : '';
+        if (rawRating && rawRating !== '0' && rawRating !== '0.0') {
+          heroRating.innerText = '★ ' + rawRating;
+          heroRating.style.display = 'inline-block';
+        } else {
+          heroRating.style.display = 'none';
+        }
+      }
+      if (heroQuality) {
+        const q = (typeof item.quality === 'string' && item.quality) ||
+                  (typeof item.resolution === 'string' && item.resolution) || '';
+        const match = q.trim().match(/^(4K|2160p|1440p|1080p|720p|480p)/i);
+        if (match) {
+          heroQuality.innerText = match[0].toUpperCase();
+          heroQuality.style.display = 'inline-block';
+        } else {
+          heroQuality.style.display = 'none';
+        }
+      }
       if (heroTypeBadge) {
         heroTypeBadge.innerText = item.isMovieOrSeries
           ? (item.type === 'movie' ? '🎬 MOVIE' : '📺 TV SERIES')
@@ -6500,6 +6556,29 @@
       }
     }
 
+    // Dynamic Sticky Header Height Observer for accurate scroll offsets
+    function updateHeaderHeightVar() {
+      const h = document.querySelector('header');
+      if (!h) return;
+      const rect = h.getBoundingClientRect();
+      const height = Math.round(rect.height);
+      if (height > 0) {
+        document.documentElement.style.setProperty('--header-h', `${height}px`);
+      }
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const headerEl = document.querySelector('header');
+        if (headerEl) {
+          new ResizeObserver(() => updateHeaderHeightVar()).observe(headerEl);
+        }
+        updateHeaderHeightVar();
+      });
+    }
+    window.addEventListener('resize', updateHeaderHeightVar, { passive: true });
+    window.addEventListener('orientationchange', updateHeaderHeightVar, { passive: true });
+    updateHeaderHeightVar();
+
     // 1. Permanently watch and ensure player iframe operates with optimal anti-ad sandbox
     window.addEventListener('DOMContentLoaded', () => {
       const pIframe = document.getElementById('playerIframe');
@@ -6863,7 +6942,7 @@
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
-            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
             <div class="card-rating">★ ${item.rating}</div>
             <div class="card-ep-badge">${epBadge}</div>
           </div>
@@ -7283,7 +7362,7 @@
           <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" data-season="${sNum}" onclick="setSeriesSeason(${sNum}, 1)">
             <div class="relation-thumb-wrap">
               <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-              <img class="relation-thumb" src="${thumb}" alt="${escapeHtml(label)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+              <img class="relation-thumb" src="${thumb}" alt="${escapeHtml(label)}" loading="lazy" onerror="handlePosterImgError(this)">
             </div>
             <div class="relation-body">
               <div class="relation-title" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
@@ -7355,7 +7434,7 @@
             <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" onclick="selectAnimeById('${rel.id}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${escapeHtml(rel.title)}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${escapeHtml(rel.title)}" loading="lazy" onerror="handlePosterImgError(this)">
               </div>
               <div class="relation-body">
                 <div class="relation-title" title="${escapeHtml(rel.title)}">${escapeHtml(rel.title)}</div>
@@ -7457,7 +7536,7 @@
             <div class="relation-card ${isCurrent ? 'current' : ''}" tabindex="0" role="button" aria-label="${safeRelTitle}" onclick="selectAnimeById('${safeRelId}', true)">
               <div class="relation-thumb-wrap">
                 <span class="relation-type-tag ${badgeClass}">${badgeLabel}</span>
-                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${safeRelTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                <img class="relation-thumb" src="${rel.backdrop || rel.poster}" alt="${safeRelTitle}" loading="lazy" onerror="handlePosterImgError(this)">
               </div>
               <div class="relation-body">
                 <div class="relation-title" title="${safeRelTitle}">${safeRelTitle}</div>
@@ -7658,6 +7737,9 @@
     }
 
     function setEpisode(ep) {
+      addonFailoverAttempts = 0;
+      embedFailoverAttempts = 0;
+      if (typeof cancelEmbedAutoAdvance === 'function') cancelEmbedAutoAdvance();
       currentEpisode = ep;
       const neededRange = Math.floor((ep - 1) / 50);
       if (neededRange !== activeEpisodeRange) {
@@ -8681,18 +8763,68 @@
       if (btn) btn.innerHTML = ambientGlowEnabled ? '✨ Glow ON' : '✨ Glow OFF';
     }
 
+    function getServerShortName(serverKey) {
+      if (serverKey === 'server1') return 'Server 1 (Primary HD)';
+      if (serverKey === 'server2') return 'Server 2 (Mirror)';
+      if (serverKey === 'server3') return 'Server 3 (HardSub)';
+      if (serverKey === 'server4') return 'Server 4 (Multi-Embed)';
+      return 'Next Server';
+    }
+
+    function cancelEmbedAutoAdvance() {
+      if (embedAutoAdvanceTimer) {
+        clearTimeout(embedAutoAdvanceTimer);
+        embedAutoAdvanceTimer = null;
+      }
+    }
+
     function startStreamAssistTimer() {
       const assist = document.getElementById('streamAssistPill');
       if (assist) assist.style.display = 'none';
       if (streamTimer) clearTimeout(streamTimer);
+      cancelEmbedAutoAdvance();
+      if (isDirectVideoActive()) return;
+
+      const serverOrder = ['server1', 'server2', 'server3', 'server4'];
+      const curIdx = serverOrder.indexOf(activeServer);
+      const nextServer = serverOrder[(curIdx + 1) % serverOrder.length];
+      const nextLabel = getServerShortName(nextServer);
+
+      // 8.5s timeout: check if cross-origin iframe is still loading / 404
       streamTimer = setTimeout(() => {
-        if (assist && document.getElementById('theaterSection').classList.contains('active')) {
+        const theater = document.getElementById('theaterSection');
+        if (!theater || !theater.classList.contains('active') || isDirectVideoActive()) return;
+
+        if (assist) {
+          assist.innerHTML = `<span class="pulse-dot"></span> Still loading? <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button>`;
           assist.style.display = 'flex';
         }
-      }, 6500);
+
+        // Auto-advance in 4.5s if user does not interact (total ~13s)
+        embedAutoAdvanceTimer = setTimeout(() => {
+          if (!theater || !theater.classList.contains('active') || isDirectVideoActive()) return;
+          if (embedFailoverAttempts < serverOrder.length) {
+            embedFailoverAttempts += 1;
+            showAppToast(`⚡ Still loading — auto-advancing to ${nextLabel}…`);
+            autoFallbackServer();
+          } else {
+            if (assist) assist.style.display = 'none';
+            switchTheaterTab('sources', true);
+            showAppToast('⚠ Embed server not responding — try an alternate stream below.');
+          }
+        }, 4500);
+      }, 8500);
+    }
+
+    function userTriggeredFallback(targetServer) {
+      cancelEmbedAutoAdvance();
+      embedFailoverAttempts += 1;
+      if (targetServer) switchServer(targetServer);
+      else autoFallbackServer();
     }
 
     function switchServer(serverKey) {
+      cancelEmbedAutoAdvance();
       activeAddonBingePref = null;
       activeServer = serverKey;
       document.querySelectorAll('.server-btn').forEach(b => {
@@ -8704,6 +8836,7 @@
     }
 
     function autoFallbackServer() {
+      cancelEmbedAutoAdvance();
       const current = activeServer;
       if (current === 'server1') switchServer('server2');
       else if (current === 'server2') switchServer('server3');
@@ -8713,13 +8846,22 @@
       if (assist) assist.style.display = 'none';
     }
 
-    function switchTheaterTab(tabName) {
+    function switchTheaterTab(tabName, shouldScroll = false) {
       document.querySelectorAll('.theater-hub-tab').forEach(b => {
         b.classList.toggle('active', b.dataset.tab === tabName);
       });
       document.querySelectorAll('.theater-tab-pane').forEach(p => {
         p.classList.toggle('active', p.id === `theaterTab_${tabName}`);
       });
+      if (shouldScroll) {
+        const pane = document.getElementById(`theaterTab_${tabName}`);
+        if (pane) {
+          const navH = document.querySelector('.theater-hub-nav')?.getBoundingClientRect().height || 44;
+          const headH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 84;
+          const targetY = pane.getBoundingClientRect().top + window.scrollY - headH - navH - 8;
+          window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+        }
+      }
     }
 
     function scrollRail(gridId, direction) {
@@ -8737,6 +8879,9 @@
     }
 
     function openTheater() {
+      addonFailoverAttempts = 0;
+      embedFailoverAttempts = 0;
+      if (typeof cancelEmbedAutoAdvance === 'function') cancelEmbedAutoAdvance();
       const section = document.getElementById('theaterSection');
       section.classList.add('active');
       switchTheaterTab('episodes');
@@ -8907,6 +9052,8 @@
       activeAddonStreamRef = null;
       activePlaybackHealth = null;
       addonFailoverAttempts = 0;
+      embedFailoverAttempts = 0;
+      if (typeof cancelEmbedAutoAdvance === 'function') cancelEmbedAutoAdvance();
       exitCinemaFullscreen();
       resetDirectVideoPlayer();
       const section = document.getElementById('theaterSection');
@@ -8924,7 +9071,11 @@
           return;
         }
       }
-      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (section) {
+        const headH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 84;
+        const targetY = section.getBoundingClientRect().top + window.scrollY - headH - 12;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+      }
     }
 
     function isDirectVideoActive() {
@@ -9864,7 +10015,7 @@
               <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                 ${fav ? '❤️' : '🤍'}
               </button>
-              <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+              <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
               <div class="release-ep-badge">${epLabel}</div>
               <div class="release-time-tag">⚡ ${agoText}</div>
             </div>
@@ -9886,7 +10037,7 @@
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
-            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
             <div class="release-ep-badge" style="background:#10b981;">${yrBadge}</div>
             <div class="release-time-tag">🎬 Feature Film</div>
           </div>
@@ -11572,20 +11723,34 @@
       activeAddonStreamRef._failedOnce = true;
       activeAddonStreamRef.preflight = 'failed';
 
-      if (addonFailoverAttempts < 2) {
-        const next = currentAddonStreams.find(s =>
-          s.url && s !== activeAddonStreamRef && !s._failedOnce && s.preflight !== 'failed'
-        );
-        if (next) {
-          addonFailoverAttempts += 1;
-          showAppToast(`⚠ ${reason === 'stall' ? 'Source stalled' : 'Source failed'} — switching to ${next.quality || 'another'} source…`);
-          playAddonStreamByIndex(next._idx, { failover: true });
-          return;
-        }
+      // 1. Try all remaining valid direct streams
+      const next = currentAddonStreams.find(s =>
+        s.url && s !== activeAddonStreamRef && !s._failedOnce && s.preflight !== 'failed'
+      );
+      if (next) {
+        addonFailoverAttempts += 1;
+        showAppToast(`⚠ ${reason === 'stall' ? 'Source stalled' : 'Source failed'} — switching to ${next.quality || 'another'} source…`);
+        playAddonStreamByIndex(next._idx, { failover: true });
+        return;
       }
 
+      // 2. All directs exhausted -> fall back to active server's next mirror (Server 1 -> 2 -> 3 -> 4)
+      const serverOrder = ['server1', 'server2', 'server3', 'server4'];
+      const curIdx = serverOrder.indexOf(activeServer);
+      const nextServer = serverOrder[(curIdx + 1) % serverOrder.length];
+      if (embedFailoverAttempts < serverOrder.length) {
+        embedFailoverAttempts += 1;
+        const nextLabel = getServerShortName ? getServerShortName(nextServer) : nextServer;
+        showAppToast(`⚠ Direct sources unavailable — switching to ${nextLabel}…`);
+        switchToEmbedPlayer();
+        switchServer(nextServer);
+        return;
+      }
+
+      // 3. Both directs and all embed mirrors exhausted -> open visible source list
       renderAddonStreamsList();
-      showAppToast('⚠ This source failed. Press Play Best or choose another source.');
+      switchTheaterTab('sources', true);
+      showAppToast('⚠ All direct sources and embed mirrors attempted. Please choose a source below.');
     }
 
     function playAddonStreamByIndex(idx, { failover = false } = {}) {
@@ -12084,7 +12249,7 @@
                 <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${safeId}" onclick="toggleFavorite(event, '${safeId}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   ${fav ? '❤️' : '🤍'}
                 </button>
-                <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
                 <div class="release-ep-badge">${escapeHtml(epText)}</div>
                 <div class="release-time-tag">⚡ ${escapeHtml(agoText)}</div>
               </div>
@@ -12128,7 +12293,7 @@
                   <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${safeId}" onclick="toggleFavorite(event, '${safeId}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     ${fav ? '❤️' : '🤍'}
                   </button>
-                  <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+                  <img class="card-poster" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
                   <div class="release-ep-badge">${escapeHtml(epText)}</div>
                   <div class="release-time-tag">⚡ ${escapeHtml(item.year || String(new Date().getFullYear()))} Airing</div>
                 </div>
@@ -14390,7 +14555,7 @@
           <div class="history-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="resumeAnime('${safeId}', ${epNum}, '${safeServer}', ${sNum}, '${safeTrack}')">
             <div class="history-card-thumb-wrap">
               <button class="history-remove-btn" onclick="removeHistoryItem(event, '${safeId}')" title="Remove from history">✕</button>
-              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}">
+              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}" onerror="handlePosterImgError(this)">
               ${progPill}
               <div class="history-progress-container">
                 <div class="history-progress-fill" style="width: ${percent}%;"></div>
@@ -14445,7 +14610,7 @@
         return `
           <div class="history-card" tabindex="0" role="button" aria-label="Resume ${safeTitle}" onclick="resumeAnime('${safeId}', ${epNum}, '${safeServer}', ${sNum}, '${safeTrack}')">
             <div class="history-card-thumb-wrap">
-              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}" loading="lazy">
+              <img class="history-card-thumb" src="${safeThumb}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
               <div class="history-progress-container">
                 <div class="history-progress-fill" style="width: ${percent}%;"></div>
               </div>
@@ -15063,7 +15228,7 @@
         const safePoster = escapeHtml(item.poster || '');
         return `
           <div class="schedule-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${safeId}', true, ${item.playableEp || 1}${seasonArg})">
-            <img class="schedule-thumb" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0.25'">
+            <img class="schedule-thumb" src="${safePoster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
             <div class="schedule-info">
               <div>
                 <div class="schedule-time-badge">⚡ ${escapeHtml(item.dayName || 'This Week')}</div>

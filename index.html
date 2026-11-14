@@ -2556,35 +2556,108 @@
       .best-source-play { flex: 1 1 auto; justify-content: center; }
     }
 
-    /* Cauldron Configurator Box in Stremio Addon Modal */
-    .cauldron-box {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(229, 9, 20, 0.08));
-      border: 1px solid rgba(139, 92, 246, 0.35);
+    /* Debrid Fast Connect & Addon Catalog */
+    .debrid-connect-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(139, 92, 246, 0.08));
+      border: 1px solid rgba(16, 185, 129, 0.3);
       border-radius: 12px;
-      padding: 1rem;
+      padding: 1rem 1.15rem;
       margin-bottom: 1.25rem;
     }
-    .cauldron-form-grid {
-      display: flex;
-      flex-direction: column;
+    .preset-addons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 0.75rem;
-      margin-top: 0.75rem;
     }
-    .cauldron-field {
+    .preset-addon-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      min-width: 0;
+      justify-content: space-between;
+      gap: 0.55rem;
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
-    .cauldron-field label {
-      font-size: 0.76rem;
+    .preset-addon-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .preset-addon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .preset-addon-title {
+      font-size: 0.88rem;
       font-weight: 700;
-      color: #d4d4d8;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
-    .cauldron-status {
-      font-size: 0.78rem;
-      color: #a1a1aa;
-      min-height: 1.1em;
+    .preset-addon-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #c4b5fd;
+      background: rgba(139, 92, 246, 0.15);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .preset-addon-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin: 0;
+      flex: 1;
+    }
+    .preset-addon-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    .preset-addon-status {
+      font-size: 0.74rem;
+      color: #10b981;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .addon-mini-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e4e4e7;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.72rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .addon-mini-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    /* Torrent Drop Zone */
+    .torrent-drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .torrent-drop-zone:hover, .torrent-drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(229, 9, 20, 0.08);
     }
 
     .loading-spinner {
@@ -4170,76 +4243,48 @@
 
   <!-- Stremio Addon Manager Modal -->
   <div id="addonModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" style="display: none;">
-    <div class="addon-modal-dialog">
+    <div class="addon-modal-dialog" style="max-width: 660px;">
       <div class="addon-modal-header">
         <div class="addon-modal-title">
-          <span>🧩 Stremio Addon Protocol Hub</span>
+          <span>🧩 Stremio Addons &amp; 4K Debrid</span>
         </div>
         <button class="addon-modal-close" aria-label="Close addon manager" onclick="closeAddonModal()">✕</button>
       </div>
       <div class="addon-modal-body">
-        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">
-          Connect official or community Stremio Addons by pasting their <code>manifest.json</code> or <code>stremio://</code> URL. Installed stream addons (like Cauldron) automatically resolve sources right inside Theater.
+        <p style="color: var(--text-muted); font-size: 0.86rem; line-height: 1.45; margin-bottom: 1.15rem;">
+          Connect official and community Stremio addons for verified sources, subtitle tracks, and anime catalogs. Add a Debrid key below to unlock instant 4K &amp; 1080p cached HTTPS playback.
         </p>
 
-        <!-- Featured Open-Source Cauldron Setup (wizaarddlabs/cauldron) -->
-        <div class="cauldron-box">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
-            <div>
-              <h4 style="font-size:0.95rem; color:#fff; margin-bottom:0.2rem;">🧙 Cauldron Torrent & Debrid Addon</h4>
-              <div style="font-size:0.77rem; color:#c4b5fd;">Free MIT open-source scraper (TPB, 1337x, YTS, Nyaa, EZTV, DMM) — works <strong>100% Free P2P</strong> or with optional Debrid for direct 4K HTTPS browser streams.</div>
-            </div>
-            <a href="https://github.com/wizaarddlabs/cauldron" target="_blank" rel="noopener noreferrer" class="addon-stream-btn">GitHub ↗</a>
+        <!-- 4K Debrid Fast Connect Card -->
+        <div id="debridFastConnectContainer" class="debrid-connect-card">
+          <!-- Dynamically populated by renderDebridFastConnectUi() -->
+        </div>
+
+        <!-- Verified Addons Catalog (1-Click Install) -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.92rem; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+              <span>⚡ Verified Community Addons</span>
+              <span style="font-size: 0.68rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px;">1-Click Ready</span>
+            </h4>
           </div>
-          <form id="cauldronSetupForm" class="cauldron-form-grid" aria-labelledby="cauldronSetupSubmit" onsubmit="submitCauldronSetup(event)">
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:0.65rem;">
-              <div class="cauldron-field">
-                <label for="cauldronProviderSelect">Playback Mode / Debrid Provider</label>
-                <select id="cauldronProviderSelect" name="provider" class="addon-text-input" onchange="onCauldronProviderChange()">
-                  <option value="p2p">None — 100% Free P2P (Needs Stremio App / Magnet)</option>
-                  <option value="realdebrid">Real-Debrid (Direct 4K HTTPS Streams)</option>
-                  <option value="torbox">TorBox (Direct HTTPS Streams)</option>
-                  <option value="alldebrid">AllDebrid (Direct HTTPS Streams)</option>
-                  <option value="premiumize">Premiumize (Direct HTTPS Streams)</option>
-                  <option value="offcloud">Offcloud (Direct HTTPS Streams)</option>
-                  <option value="torrin">Torrin (Direct HTTPS Streams)</option>
-                </select>
-              </div>
-              <div class="cauldron-field">
-                <label for="cauldronInstanceInput">Cauldron Instance URL</label>
-                <input type="url" id="cauldronInstanceInput" name="instance_url" class="addon-text-input" value="https://cauldron.forthewizards.uk" autocorrect="off" autocapitalize="none" spellcheck="false" required>
-              </div>
-            </div>
-            <div id="cauldronApiKeyWrap" class="cauldron-field" style="display:none;">
-              <label for="cauldronApiKeyInput">Debrid API Key (Encrypted inside your personal Cauldron URL)</label>
-              <input type="password" id="cauldronApiKeyInput" name="api_key" class="addon-text-input" placeholder="Paste your Real-Debrid / TorBox / AllDebrid API token" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-            </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-              <span id="cauldronFormStatus" class="cauldron-status" role="status" aria-live="polite">Ready — free public instance pre-selected.</span>
-              <button type="submit" id="cauldronSetupSubmit" class="addon-add-btn">✨ Install / Update Cauldron</button>
-            </div>
+          <div id="presetAddonsGrid" class="preset-addons-grid">
+            <!-- Dynamically populated by renderPresetAddonsGrid() -->
+          </div>
+        </div>
+
+        <!-- Custom Addon URL Input -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem;">➕ Add Any Custom Stremio Addon</div>
+          <form class="addon-input-group" onsubmit="event.preventDefault(); installAddonFromInput();" style="margin: 0;">
+            <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="Paste manifest.json or stremio:// URL" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <button type="submit" class="addon-add-btn" style="white-space: nowrap;">+ Add Addon</button>
           </form>
         </div>
 
-        <form class="addon-input-group" onsubmit="event.preventDefault(); installAddonFromInput();">
-          <input type="text" id="addonUrlInput" class="addon-text-input" placeholder="https://... or stremio://.../manifest.json" autocorrect="off" autocapitalize="none" spellcheck="false">
-          <button type="submit" class="addon-add-btn">+ Add Addon</button>
-        </form>
-
-        <div style="margin-top: 0.9rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.75rem 0.9rem;">
-          <div style="font-size: 0.78rem; font-weight: 700; color: #e4e4e7; margin-bottom: 0.45rem;">⚡ 1-Click Stremio Ecosystem Addons &amp; Configurators</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-            <button type="button" class="addon-stream-btn" onclick="installPresetAddon('https://opensubtitles-v3.strem.io/manifest.json')">+ 💬 OpenSubtitles v3</button>
-            <button type="button" class="addon-stream-btn" onclick="installPresetAddon('https://anime-kitsu.strem.fun/manifest.json')">+ 🎌 Anime Kitsu</button>
-            <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure Torrentio ↗</a>
-            <a href="https://comet.elfhosted.com/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure Comet ↗</a>
-            <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener noreferrer" class="addon-stream-btn allowed-link">⚙ Configure MediaFusion ↗</a>
-          </div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">Tip: Configure any Debrid/community addon above, copy its <code>manifest.json</code> URL here — or sign into your Stremio account below to sync all your addons &amp; library in 1 click!</div>
-        </div>
-
-        <div style="margin-top: 1.35rem;">
-          <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff;">Installed Addons</h4>
+        <!-- Installed Addons List -->
+        <div>
+          <h4 style="font-size: 0.92rem; margin-bottom: 0.65rem; color: #fff;">Installed Addons</h4>
           <div id="installedAddonsList" class="installed-addons-list">
             <!-- Rendered by JS -->
           </div>
@@ -4801,35 +4846,48 @@
 
   <!-- Add Torrent / Magnet Modal -->
   <div id="torrentModal" class="addon-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="torrentModalTitle" style="display: none;" onclick="if(event.target===this) closeTorrentModal()">
-    <div class="addon-modal-dialog" style="max-width: 640px;">
+    <div class="addon-modal-dialog" style="max-width: 660px;">
       <div class="addon-modal-header">
         <div>
-          <h3 id="torrentModalTitle" class="addon-modal-title">🧲 Add Magnet / Torrent Stream</h3>
-          <p class="addon-modal-subtitle">Paste any Magnet link, infohash, or direct media URL to stream instantly in CineAnime with zero install and sync across all your linked devices.</p>
+          <h3 id="torrentModalTitle" class="addon-modal-title">🧲 Add Torrent or Magnet Stream</h3>
+          <p class="addon-modal-subtitle">Stream any torrent, magnet link, or media URL directly in CineAnime with zero install and cross-device sync.</p>
         </div>
         <button type="button" class="addon-modal-close" onclick="closeTorrentModal()" aria-label="Close">✕</button>
       </div>
 
       <div class="addon-modal-body" style="padding: 1.25rem;">
+        <!-- Drag & Drop Zone for .torrent files -->
+        <div id="torrentDropZone" class="torrent-drop-zone" onclick="document.getElementById('torrentFileInput').click()">
+          <input type="file" id="torrentFileInput" accept=".torrent,application/x-bittorrent" style="display: none;" onchange="handleTorrentFileUpload(this.files)">
+          <div style="font-size: 1.75rem; margin-bottom: 0.35rem;">📁</div>
+          <div style="font-size: 0.92rem; font-weight: 700; color: #fff;">Drop a .torrent file here or click to browse</div>
+          <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.2rem;">Streams directly in your browser via WebTorrent (no upload to servers)</div>
+        </div>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.78rem; margin: 0.85rem 0; position: relative;">
+          <span style="background: #14141c; padding: 0 0.75rem; position: relative; z-index: 1;">OR PASTE LINK</span>
+          <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.08); z-index: 0;"></div>
+        </div>
+
         <form id="torrentStreamForm" onsubmit="handleTorrentSubmit(event)" style="display: flex; flex-direction: column; gap: 0.85rem;">
           <div>
-            <label for="torrentInput" style="display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">Magnet Link, InfoHash, or Direct Stream URL</label>
-            <textarea id="torrentInput" class="addon-text-input" rows="3" placeholder="magnet:?xt=urn:btih:... or 40-character infohash or https://...mp4" required style="resize: vertical; font-family: monospace; font-size: 0.82rem;"></textarea>
-            <div style="display: flex; justify-content: flex-end; margin-top: 0.35rem;">
-              <button type="button" class="addon-stream-btn" onclick="pasteTorrentFromClipboard()" style="font-size: 0.78rem;">📋 Paste from Clipboard</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label for="torrentInput" style="font-size: 0.82rem; font-weight: 700; color: #fff;">Magnet Link, InfoHash, or Direct Stream URL</label>
+              <button type="button" class="addon-stream-btn" onclick="pasteTorrentFromClipboard()" style="font-size: 0.75rem; padding: 2px 8px;">📋 Paste Clipboard</button>
             </div>
+            <textarea id="torrentInput" class="addon-text-input" rows="3" placeholder="magnet:?xt=urn:btih:... or 40-character infohash or https://...mp4" required style="resize: vertical; font-family: monospace; font-size: 0.82rem;"></textarea>
           </div>
 
           <div>
             <label for="torrentTitleInput" style="display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">Custom Title (Optional)</label>
-            <input type="text" id="torrentTitleInput" class="addon-text-input" placeholder="e.g. Bleach: Thousand-Year Blood War Ep 27 (Auto-detected from magnet if blank)">
+            <input type="text" id="torrentTitleInput" class="addon-text-input" placeholder="e.g. Bleach: Thousand-Year Blood War Ep 27 (Auto-detected if left blank)">
           </div>
 
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem;">
             <div id="torrentPlaybackMethod" style="font-size: 0.8rem; color: #a8a8b8;">
               <span id="torrentEngineNotice">⚡ In-Browser WebTorrent (P2P) + Debrid Supported</span>
             </div>
-            <button type="submit" id="playTorrentBtn" class="addon-add-btn" style="min-width: 140px;">▶ Play Stream Now</button>
+            <button type="submit" id="playTorrentBtn" class="addon-add-btn" style="min-width: 140px;">▶ Stream Now</button>
           </div>
         </form>
 
@@ -10489,177 +10547,244 @@
       }
     }
 
-    function onCauldronProviderChange() {
-      const sel = document.getElementById('cauldronProviderSelect');
-      const wrap = document.getElementById('cauldronApiKeyWrap');
-      const keyInput = document.getElementById('cauldronApiKeyInput');
-      if (!sel || !wrap) return;
-      const isDebrid = sel.value && sel.value !== 'p2p';
-      wrap.style.display = isDebrid ? 'flex' : 'none';
-      if (isDebrid && keyInput && !keyInput.value) {
-        const existingKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
-        if (existingKey) keyInput.value = existingKey;
-      }
-      if (keyInput) keyInput.removeAttribute('aria-invalid');
+    // --- 4K Debrid Accelerator & Preset Addons Catalog ---
+    function getDebridProvider() {
+      return localStorage.getItem('cineanime_debrid_provider') || 'realdebrid';
     }
 
-    async function provisionCauldronAddon({ instanceUrl = CAULDRON_DEFAULT_ORIGIN, provider = 'p2p', apiKey = '' } = {}) {
-      const safeInstance = normalizeSafeHttpUrl(instanceUrl);
-      if (!safeInstance) throw new Error('Enter a valid http:// or https:// Cauldron URL.');
-      const origin = new URL(safeInstance).origin;
+    function getDebridProviderName(code) {
+      const map = {
+        realdebrid: 'Real-Debrid',
+        torbox: 'TorBox',
+        alldebrid: 'AllDebrid',
+        premiumize: 'Premiumize',
+        debridlink: 'Debrid-Link'
+      };
+      return map[code] || 'Debrid';
+    }
 
-      const form = new URLSearchParams();
-      const cleanProvider = (provider && provider !== 'p2p') ? provider : 'p2p';
-      form.set('provider', cleanProvider);
-      if (cleanProvider !== 'p2p' && apiKey) {
-        form.set('api_key', apiKey.trim());
-      }
-      const modeLabel = cleanProvider === 'p2p' ? 'Free P2P' : cleanProvider.toUpperCase();
-      form.set('addon_name', `Cauldron (${modeLabel})`);
-
-      const res = await fetch(`${origin}/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: form.toString()
-      });
-      if (!res.ok) {
-        throw new Error(`Cauldron returned HTTP ${res.status}. Check your API key or instance URL.`);
-      }
-      const html = await res.text();
-      let manifestUrl = '';
-      const absMatch = html.match(/https?:\/\/[^"'\s<>]+\/[A-Za-z0-9_-]{8,}\/manifest\.json/i);
-      if (absMatch) {
-        manifestUrl = absMatch[0];
+    function setDebridConfig(provider, key) {
+      const cleanProvider = (provider || 'realdebrid').toLowerCase().trim();
+      const cleanKey = (key || '').trim();
+      localStorage.setItem('cineanime_debrid_provider', cleanProvider);
+      if (isVaultUnlocked()) {
+        sessionData.debridKey = cleanKey;
+        persistUserData();
       } else {
-        const relMatch = html.match(/\/([A-Za-z0-9_-]{8,})\/manifest\.json/i);
-        if (relMatch) manifestUrl = `${origin}/${relMatch[1]}/manifest.json`;
+        localStorage.setItem('cineanime_debrid_key', cleanKey);
       }
-      if (!manifestUrl) {
-        throw new Error('Could not parse generated Cauldron manifest URL.');
+      lastAddonStreamQueryKey = '';
+      addonStreamsCache.clear();
+      renderDebridFastConnectUi();
+      renderAddonsList();
+      const debridLabel = document.getElementById('debridStatusLabel');
+      if (debridLabel) debridLabel.style.display = cleanKey ? 'block' : 'none';
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (document.getElementById('theaterSection')?.classList.contains('active') && currentAnime) {
+        refreshTheaterAddonStreams(currentAnime, currentSeason, currentEpisode);
       }
-
-      const mRes = await fetch(manifestUrl);
-      if (!mRes.ok) throw new Error(`Manifest check failed (HTTP ${mRes.status}).`);
-      const manifest = await mRes.json();
-      if (!manifest?.id || !manifest?.name) {
-        throw new Error('Invalid manifest returned from Cauldron.');
-      }
-
-      let addons = getStoredAddons().filter(a => a?.manifest?.id !== manifest.id);
-      addons.push({
-        transportUrl: manifestUrl,
-        manifest,
-        cauldronMode: cleanProvider,
-        instanceOrigin: origin
-      });
-      localStorage.setItem('cineanime_cauldron_initialized', '1');
-      saveStoredAddons(addons);
-      return { manifestUrl, manifest, cleanProvider };
     }
 
-    let _cauldronBootFailedAt = 0;
-    let _cauldronBootError = '';
-
-    function ensureDefaultCauldronAddon(forceRetry = false) {
-      const initFlag = localStorage.getItem('cineanime_cauldron_initialized');
-      const hasCauldron = getStoredAddons().some(a => a?.manifest?.id === 'community.cauldron');
-      if (hasCauldron || initFlag === 'removed') return Promise.resolve(false);
-      if (initFlag === '1' && !hasCauldron) return Promise.resolve(false);
-      if (!forceRetry && _cauldronBootFailedAt && (Date.now() - _cauldronBootFailedAt) < 120000) {
-        return Promise.resolve(false);
+    function disconnectDebrid() {
+      if (isVaultUnlocked()) {
+        sessionData.debridKey = '';
+        persistUserData();
       }
-      if (_cauldronBootPromise) return _cauldronBootPromise;
-
-      _cauldronBootPromise = provisionCauldronAddon({
-        instanceUrl: CAULDRON_DEFAULT_ORIGIN,
-        provider: 'p2p',
-        apiKey: ''
-      }).then(() => {
-        _cauldronBootFailedAt = 0;
-        _cauldronBootError = '';
-        return true;
-      }).catch(err => {
-        _cauldronBootFailedAt = Date.now();
-        _cauldronBootError = err?.message || 'Bootstrap unavailable';
-        console.warn('Cauldron default P2P bootstrap skipped:', _cauldronBootError);
-        return false;
-      }).finally(() => {
-        _cauldronBootPromise = null;
-      });
-      return _cauldronBootPromise;
+      localStorage.removeItem('cineanime_debrid_key');
+      sessionStorage.removeItem('cineanime_debrid_key');
+      lastAddonStreamQueryKey = '';
+      addonStreamsCache.clear();
+      renderDebridFastConnectUi();
+      renderAddonsList();
+      const debridLabel = document.getElementById('debridStatusLabel');
+      if (debridLabel) debridLabel.style.display = 'none';
+      showAppToast('Disconnected Debrid account.');
+      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      if (document.getElementById('theaterSection')?.classList.contains('active') && currentAnime) {
+        refreshTheaterAddonStreams(currentAnime, currentSeason, currentEpisode);
+      }
     }
 
-    async function submitCauldronSetup(e) {
-      e.preventDefault();
-      const sel = document.getElementById('cauldronProviderSelect');
-      const urlInput = document.getElementById('cauldronInstanceInput');
-      const keyInput = document.getElementById('cauldronApiKeyInput');
-      const statusEl = document.getElementById('cauldronFormStatus');
-      const submitBtn = document.getElementById('cauldronSetupSubmit');
-      if (!sel || !urlInput) return;
-
-      const provider = sel.value || 'p2p';
-      const apiKey = (keyInput?.value || '').trim();
-      if (provider !== 'p2p' && !apiKey) {
-        if (keyInput) {
-          keyInput.setAttribute('aria-invalid', 'true');
-          keyInput.focus();
-        }
-        if (statusEl) statusEl.textContent = 'Enter your Debrid API key or switch back to Free P2P.';
+    function handleDebridFastConnect(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const provEl = document.getElementById('debridFastProvider');
+      const keyEl = document.getElementById('debridFastKey');
+      const provider = provEl?.value || 'realdebrid';
+      const key = (keyEl?.value || '').trim();
+      if (!key) {
+        showAppToast('Please enter your Debrid API token.');
         return;
       }
+      setDebridConfig(provider, key);
+      showAppToast(`✅ ${getDebridProviderName(provider)} connected! 4K streams ready.`);
+    }
 
-      if (keyInput) keyInput.removeAttribute('aria-invalid');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Connecting...';
-      }
-      if (statusEl) statusEl.textContent = 'Generating your Cauldron addon manifest...';
+    function renderDebridFastConnectUi() {
+      const container = document.getElementById('debridFastConnectContainer');
+      if (!container) return;
+      const key = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
+      const provider = getDebridProvider();
+      const providerName = getDebridProviderName(provider);
 
-      try {
-        const result = await provisionCauldronAddon({
-          instanceUrl: urlInput.value.trim(),
-          provider,
-          apiKey
-        });
-        if (provider !== 'p2p' && apiKey) {
-          if (typeof isVaultUnlocked === 'function' && isVaultUnlocked()) sessionData.debridKey = apiKey;
-          else localStorage.setItem('cineanime_debrid_key', apiKey);
-          const debridLabel = document.getElementById('debridStatusLabel');
-          if (debridLabel) debridLabel.style.display = 'block';
-        }
-        if (statusEl) {
-          statusEl.textContent = `✅ Connected ${result.manifest.name} (${result.cleanProvider === 'p2p' ? 'Free P2P Torrents' : result.cleanProvider.toUpperCase() + ' HTTPS'})`;
-        }
-        showAppToast(`✅ ${result.manifest.name} installed cleanly!`);
-      } catch (err) {
-        if (statusEl) statusEl.textContent = `❌ ${err.message}`;
-        showAppToast(`❌ Cauldron setup failed: ${err.message}`);
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '✨ Install / Update Cauldron';
-        }
+      if (key) {
+        const masked = key.length > 8 ? `••••••••${key.slice(-4)}` : '••••••••';
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span style="font-size:1.4rem;">⚡</span>
+              <div>
+                <div style="font-weight:700; color:#10b981; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span>${escapeHtml(providerName)} Connected</span>
+                  <span style="font-size:0.68rem; background:rgba(16,185,129,0.2); color:#34d399; padding:2px 6px; border-radius:4px;">4K Unlocked</span>
+                </div>
+                <div style="font-size:0.78rem; color:#a1a1aa; margin-top:0.15rem;">Key: <code>${escapeHtml(masked)}</code> • 4K/1080p cached streams prioritized automatically</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center;">
+              <button type="button" class="addon-stream-btn" onclick="disconnectDebrid()" style="padding:0.35rem 0.8rem; font-size:0.78rem;">Disconnect</button>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <div style="font-size:0.92rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+              <span>⚡ 4K Debrid Accelerator</span>
+              <span style="font-size:0.68rem; background:rgba(139,92,246,0.2); color:#c4b5fd; padding:2px 6px; border-radius:4px;">Optional</span>
+            </div>
+          </div>
+          <p style="font-size:0.78rem; color:#a1a1aa; margin-bottom:0.65rem; line-height:1.4;">
+            Connect your Real-Debrid, TorBox, or AllDebrid token to unlock instant, unbuffered 4K and 1080p cached streams directly in your browser.
+          </p>
+          <form id="debridFastConnectForm" onsubmit="handleDebridFastConnect(event)" style="display:flex; flex-direction:column; gap:0.5rem;">
+            <div style="display:grid; grid-template-columns: minmax(130px, 160px) 1fr auto; gap:0.5rem;">
+              <select id="debridFastProvider" class="addon-text-input" style="padding:0.45rem 0.6rem;">
+                <option value="realdebrid"${provider === 'realdebrid' ? ' selected' : ''}>Real-Debrid</option>
+                <option value="torbox"${provider === 'torbox' ? ' selected' : ''}>TorBox</option>
+                <option value="alldebrid"${provider === 'alldebrid' ? ' selected' : ''}>AllDebrid</option>
+                <option value="premiumize"${provider === 'premiumize' ? ' selected' : ''}>Premiumize</option>
+                <option value="debridlink"${provider === 'debridlink' ? ' selected' : ''}>Debrid-Link</option>
+              </select>
+              <input type="password" id="debridFastKey" class="addon-text-input" placeholder="Paste your API token / key..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" required style="padding:0.45rem 0.75rem;">
+              <button type="submit" class="addon-add-btn" style="white-space:nowrap; padding:0.45rem 1rem;">⚡ Connect</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); flex-wrap:wrap; gap:0.4rem;">
+              <span>Free P2P WebTorrent works out of the box. Debrid is optional for instant CDN caching.</span>
+              <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="allowed-link" style="color:#c4b5fd;">Get Real-Debrid API Key ↗</a>
+            </div>
+          </form>
+        `;
       }
     }
+
+    const POPULAR_ADDONS = [
+      {
+        id: 'com.stremio.torrentio.addon',
+        name: 'Torrentio',
+        badge: 'Torrents & 4K',
+        desc: 'High-speed torrent and debrid streams with automated 1080p/4K health scoring.',
+        url: 'https://torrentio.strem.fun/manifest.json',
+        icon: '⚡',
+        isDefault: true,
+        configUrl: 'https://torrentio.strem.fun/configure'
+      },
+      {
+        id: 'community.anime.kitsu',
+        name: 'Anime Kitsu',
+        badge: 'Anime Catalog',
+        desc: 'Dedicated Japanese sub & dub anime releases indexed directly from Kitsu.io.',
+        url: 'https://anime-kitsu.strem.fun/manifest.json',
+        icon: '🌸'
+      },
+      {
+        id: 'org.stremio.opensubtitlesv3',
+        name: 'OpenSubtitles v3',
+        badge: 'Subtitles',
+        desc: 'Multi-language synchronized subtitle tracks for all anime, movies, and TV series.',
+        url: 'https://opensubtitles-v3.strem.io/manifest.json',
+        icon: '💬'
+      },
+      {
+        id: 'tmdb-addon',
+        name: 'The Movie Database',
+        badge: 'Posters & Info',
+        desc: 'High-resolution artwork, official cast info, and trending movie/series catalogs.',
+        url: 'https://94c8cb9f702d-tmdb-addon.baby-beamup.club/manifest.json',
+        icon: '🎬'
+      },
+      {
+        id: 'org.stremio.cinemeta',
+        name: 'Cinemeta (Official)',
+        badge: 'Core Metadata',
+        desc: 'Official IMDb and TVDB catalog metadata powering search and recommendations.',
+        url: 'https://v3-cinemeta.strem.io/manifest.json',
+        icon: '🍿',
+        isCore: true
+      }
+    ];
+
+    function isAddonInstalled(id) {
+      const list = getStoredAddons();
+      return list.some(a => {
+        const mId = a?.manifest?.id || '';
+        return mId === id || (id === 'org.stremio.cinemeta' && mId === 'com.linvo.cinemeta');
+      });
+    }
+
+    function renderPresetAddonsGrid() {
+      const grid = document.getElementById('presetAddonsGrid');
+      if (!grid) return;
+      grid.innerHTML = POPULAR_ADDONS.map(addon => {
+        const installed = isAddonInstalled(addon.id);
+        let actionHtml = '';
+        if (installed) {
+          if (addon.isCore) {
+            actionHtml = '<span class="preset-addon-status">✅ Built-in</span>';
+          } else {
+            actionHtml = `
+              <span class="preset-addon-status">✅ Active</span>
+              <div style="display:flex; gap:0.35rem; align-items:center;">
+                ${addon.configUrl ? `<a href="${addon.configUrl}" target="_blank" rel="noopener noreferrer" class="addon-mini-btn" style="text-decoration:none;">⚙ Config</a>` : ''}
+                <button type="button" class="addon-mini-btn" onclick="deleteAddon('${escapeHtml(addon.id)}')">Remove</button>
+              </div>
+            `;
+          }
+        } else {
+          actionHtml = `
+            <button type="button" class="addon-stream-btn primary" onclick="installPresetAddon('${escapeHtml(addon.url)}')" style="padding:0.3rem 0.75rem; font-size:0.75rem;">+ 1-Click Install</button>
+          `;
+        }
+
+        return `
+          <div class="preset-addon-card">
+            <div class="preset-addon-header">
+              <div class="preset-addon-title">${addon.icon} ${escapeHtml(addon.name)}</div>
+              <span class="preset-addon-badge">${escapeHtml(addon.badge)}</span>
+            </div>
+            <p class="preset-addon-desc">${escapeHtml(addon.desc)}</p>
+            <div class="preset-addon-actions">
+              ${actionHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Cauldron Compatibility Stubs
+    function onCauldronProviderChange() {}
+    function submitCauldronSetup(e) { if (e && e.preventDefault) e.preventDefault(); }
+    async function provisionCauldronAddon() { return { manifest: { name: 'Addon' }, cleanProvider: 'p2p' }; }
+    function ensureDefaultCauldronAddon() { return Promise.resolve(false); }
 
     function openAddonModal() {
       const modal = document.getElementById('addonModal');
       if (!modal) return;
       closeAllModalsExcept('addonModal');
+      renderDebridFastConnectUi();
+      renderPresetAddonsGrid();
       renderAddonsList();
-      onCauldronProviderChange();
       captureModalOpener(modal, '.addon-modal-close, select, input, button');
       modal.style.display = 'flex';
-      ensureDefaultCauldronAddon().then(added => {
-        const statusEl = document.getElementById('cauldronFormStatus');
-        if (!statusEl) return;
-        if (added) {
-          statusEl.textContent = '✅ Free P2P Cauldron addon ready (zero Debrid key needed).';
-        } else if (_cauldronBootError && !getStoredAddons().some(a => a?.manifest?.id === 'community.cauldron')) {
-          statusEl.textContent = `⚠ Auto-setup unavailable (${_cauldronBootError}) — click Install / Update Cauldron to retry.`;
-        }
-      });
     }
 
     function closeAddonModal() {
@@ -10671,11 +10796,12 @@
 
     function describeInstalledAddon(addon) {
       const m = addon.manifest || {};
-      if (m.id === 'community.cauldron') {
-        const mode = addon.cauldronMode || 'p2p';
-        return mode === 'p2p'
-          ? 'Free Open-Source P2P Scraper (TPB, 1337x, YTS, Nyaa, EZTV, DMM) • Zero API Key Required'
-          : `Debrid Direct 4K HTTPS Resolver (${mode.toUpperCase()}) • Secret Config Token Protected`;
+      if (m.id === 'com.stremio.torrentio.addon') {
+        const key = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
+        const providerName = getDebridProviderName(getDebridProvider());
+        return key
+          ? `Torrentio Scraper • 4K/1080p Cached Streams Active via ${providerName}`
+          : 'Torrentio Scraper • Free P2P In-Browser WebTorrent Playback';
       }
       return m.description || addon.transportUrl || '';
     }
@@ -10686,24 +10812,25 @@
       if (!container) return;
 
       if (!list.length) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No custom addons installed.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No addons installed.</div>';
         return;
       }
 
       container.innerHTML = list.map(addon => {
         const m = addon.manifest || {};
-        const isDefault = m.id === 'org.stremio.cinemeta';
-        const isCauldron = m.id === 'community.cauldron';
-        const modeBadge = isCauldron
-          ? `<span style="font-size: 0.68rem; color: #c4b5fd; background: rgba(139,92,246,0.2); padding: 0.15rem 0.4rem; border-radius: 4px;">${addon.cauldronMode && addon.cauldronMode !== 'p2p' ? escapeHtml(addon.cauldronMode.toUpperCase()) : 'Free P2P'}</span>`
-          : '';
+        const isCore = m.id === 'org.stremio.cinemeta' || m.id === 'com.linvo.cinemeta';
+        const isTorrentio = m.id === 'com.stremio.torrentio.addon';
+        const isDebrid = isTorrentio && !!getDebridKeyValue();
+        const modeBadge = isDebrid
+          ? `<span style="font-size: 0.68rem; color: #34d399; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">4K Cached</span>`
+          : (isTorrentio ? `<span style="font-size: 0.68rem; color: #60a5fa; background: rgba(96,165,250,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">P2P Streams</span>` : '');
         return `
           <div class="addon-item-card">
             <div class="addon-item-info" style="min-width: 0; padding-right: 0.65rem;">
-              <h5>${isCauldron ? '🧙' : '📦'} ${escapeHtml(m.name || 'Unnamed Addon')} <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">v${escapeHtml(m.version || '1.0')}</span> ${modeBadge}</h5>
+              <h5>${isTorrentio ? '⚡' : '📦'} ${escapeHtml(m.name || 'Unnamed Addon')} <span style="font-size: 0.72rem; color: #10b981; background: rgba(16,185,129,0.15); padding: 0.15rem 0.4rem; border-radius: 4px;">v${escapeHtml(m.version || '1.0')}</span> ${modeBadge}</h5>
               <p>${escapeHtml(describeInstalledAddon(addon))}</p>
             </div>
-            ${isDefault ? '<span style="font-size:0.75rem; color:var(--text-muted);">Default</span>' : `<button type="button" class="addon-delete-btn" data-addon-id="${escapeHtml(m.id || '')}" onclick="deleteAddon(this.dataset.addonId)">Remove</button>`}
+            ${isCore ? '<span style="font-size:0.75rem; color:var(--text-muted);">Built-in</span>' : `<button type="button" class="addon-delete-btn" data-addon-id="${escapeHtml(m.id || '')}" onclick="deleteAddon(this.dataset.addonId)">Remove</button>`}
           </div>
         `;
       }).join('');
@@ -10729,12 +10856,13 @@
 
         let addons = getStoredAddons().filter(a => a?.manifest?.id !== manifest.id);
         addons.push({ transportUrl: manifestUrl, manifest });
-        if (manifest.id === 'community.cauldron') {
-          localStorage.setItem('cineanime_cauldron_initialized', '1');
+        if (manifest.id === 'com.stremio.torrentio.addon') {
+          localStorage.removeItem('cineanime_torrentio_removed');
         }
         saveStoredAddons(addons);
         if (typeof scheduleStremioAddonSync === 'function') scheduleStremioAddonSync();
         if (clearInputEl) clearInputEl.value = '';
+        renderPresetAddonsGrid();
         showAppToast(`✅ Installed Stremio Addon: ${manifest.name}`);
         return true;
       } catch (err) {
@@ -10749,8 +10877,14 @@
     }
 
     async function installPresetAddon(manifestUrl) {
+      if (manifestUrl.includes('torrentio')) {
+        localStorage.removeItem('cineanime_torrentio_removed');
+      }
       showAppToast('⏳ Connecting Stremio addon...');
-      await installAddonByUrl(manifestUrl, null);
+      const ok = await installAddonByUrl(manifestUrl, null);
+      if (ok) {
+        renderPresetAddonsGrid();
+      }
     }
 
     // --- Stremio Official Account Live Two-Way Sync & Add-on Bridge ---
@@ -11314,9 +11448,18 @@
       if (id === 'community.cauldron') {
         localStorage.setItem('cineanime_cauldron_initialized', 'removed');
       }
-      const addons = getStoredAddons().filter(a => a?.manifest?.id !== id);
+      if (id === 'com.stremio.torrentio.addon') {
+        localStorage.setItem('cineanime_torrentio_removed', '1');
+      }
+      const addons = getStoredAddons().filter(a => {
+        const mId = a?.manifest?.id;
+        if (mId === id) return false;
+        if (id === 'org.stremio.cinemeta' && mId === 'com.linvo.cinemeta') return false;
+        return true;
+      });
       saveStoredAddons(addons);
       if (typeof scheduleStremioAddonSync === 'function') scheduleStremioAddonSync();
+      renderPresetAddonsGrid();
       showAppToast('Removed Stremio addon.');
     }
 
@@ -11950,7 +12093,7 @@
       streamTorrentWithWebTorrent(targetMagnet, s.displayTitle, s.fileIdx);
     }
 
-    function streamTorrentWithWebTorrent(magnetOrHash, streamTitle = '', fileIdx = undefined) {
+    function streamTorrentWithWebTorrent(magnetOrTarget, streamTitle = '', fileIdx = undefined) {
       if (typeof WebTorrent === 'undefined') {
         showAppToast('WebTorrent library loading... please retry in a moment.');
         return;
@@ -11983,18 +12126,23 @@
         document.getElementById('playerTitle').innerText = streamTitle;
       }
 
-      let magnetUri = String(magnetOrHash || '').trim();
-      if (/^[a-fA-F0-9]{40}$/i.test(magnetUri)) {
-        magnetUri = `magnet:?xt=urn:btih:${magnetUri.toLowerCase()}&dn=${encodeURIComponent(streamTitle || 'CineAnime Stream')}`;
-      }
+      const isFile = typeof File !== 'undefined' && magnetOrTarget instanceof File;
+      let torrentTarget = magnetOrTarget;
+      let magnetUri = '';
 
-      WEBTORRENT_TRACKERS.forEach(tr => {
-        if (!magnetUri.includes(encodeURIComponent(tr)) && !magnetUri.includes(tr)) {
-          magnetUri += `&tr=${encodeURIComponent(tr)}`;
+      if (!isFile) {
+        magnetUri = String(magnetOrTarget || '').trim();
+        if (/^[a-fA-F0-9]{40}$/i.test(magnetUri)) {
+          magnetUri = `magnet:?xt=urn:btih:${magnetUri.toLowerCase()}&dn=${encodeURIComponent(streamTitle || 'CineAnime Stream')}`;
         }
-      });
-
-      if (vlcBtn) vlcBtn.href = magnetUri;
+        WEBTORRENT_TRACKERS.forEach(tr => {
+          if (!magnetUri.includes(encodeURIComponent(tr)) && !magnetUri.includes(tr)) {
+            magnetUri += `&tr=${encodeURIComponent(tr)}`;
+          }
+        });
+        torrentTarget = magnetUri;
+        if (vlcBtn) vlcBtn.href = magnetUri;
+      }
 
       if (statusPill) {
         statusPill.style.display = 'inline-block';
@@ -12015,10 +12163,26 @@
           if (statusPill) statusPill.textContent = '⚠ Swarm error';
         });
 
-        const torrent = client.add(magnetUri, {
+        const torrent = client.add(torrentTarget, {
           announce: WEBTORRENT_TRACKERS
         }, (t) => {
           activeWebTorrentTorrent = t;
+          if (t.magnetURI) {
+            if (vlcBtn) vlcBtn.href = t.magnetURI;
+            try {
+              const list = getCustomTorrents();
+              let updated = false;
+              list.forEach(item => {
+                if ((item.title === streamTitle || item.isFile) && !item.magnet) {
+                  item.magnet = t.magnetURI;
+                  item.hash = t.infoHash;
+                  updated = true;
+                }
+              });
+              if (updated) saveCustomTorrents(list);
+            } catch (_) {}
+          }
+
           let file = null;
           if (fileIdx !== undefined && t.files[fileIdx]) {
             file = t.files[fileIdx];
@@ -12097,16 +12261,81 @@
       renderRecentCustomTorrents();
     }
 
+    function initTorrentModalEvents() {
+      const dropZone = document.getElementById('torrentDropZone');
+      if (!dropZone || dropZone._initialized) return;
+      dropZone._initialized = true;
+
+      ['dragenter', 'dragover'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length) {
+          handleTorrentFileUpload(dt.files);
+        }
+      }, false);
+    }
+
+    function handleTorrentFileUpload(files) {
+      if (!files || !files.length) return;
+      const file = files[0];
+      if (!file.name.toLowerCase().endsWith('.torrent') && file.type !== 'application/x-bittorrent') {
+        showAppToast('Please drop or select a valid .torrent file.');
+        return;
+      }
+      const cleanTitle = file.name.replace(/\.torrent$/i, '');
+      closeTorrentModal();
+      const id = `torrent:file:${Date.now()}`;
+      const customItem = {
+        id,
+        title: cleanTitle,
+        type: 'movie',
+        isMovieOrSeries: true,
+        isCustomTorrent: true,
+        poster: './icon-512.png',
+        backdrop: './icon-512.png',
+        episodes: 1
+      };
+      ANIME_CACHE.set(id, customItem);
+      currentAnime = customItem;
+      currentEpisode = 1;
+      currentSeason = 1;
+
+      const currentList = getCustomTorrents();
+      saveCustomTorrents([{ id, title: cleanTitle, isFile: true, addedAt: Date.now() }, ...currentList.filter(x => x.title !== cleanTitle)].slice(0, 30));
+
+      document.getElementById('theaterSection').classList.add('active');
+      streamTorrentWithWebTorrent(file, cleanTitle);
+      scrollToPlayer();
+      showAppToast(`⚡ Loading ${cleanTitle}...`);
+    }
+
     function openTorrentModal() {
       const modal = document.getElementById('torrentModal');
       if (!modal) return;
       closeAllModalsExcept('torrentModal');
       renderRecentCustomTorrents();
+      initTorrentModalEvents();
       const debridKey = typeof getDebridKeyValue === 'function' ? getDebridKeyValue() : '';
       const methodEl = document.getElementById('torrentEngineNotice');
       if (methodEl) {
+        const providerName = getDebridProviderName(getDebridProvider());
         methodEl.innerHTML = debridKey
-          ? '<span style="color:#34d399; font-weight:700;">⚡ Debrid Active</span> — Instant unthrottled HTTPS playback'
+          ? `<span style="color:#34d399; font-weight:700;">⚡ ${escapeHtml(providerName)} Active</span> — Instant unthrottled 4K/1080p HTTPS playback`
           : '<span style="color:#60a5fa; font-weight:700;">🌐 WebTorrent Active</span> — Free P2P streaming in browser';
       }
       captureModalOpener(modal, '.addon-modal-close, textarea, input, button');
@@ -13107,16 +13336,9 @@
         if (input) input.focus();
         return;
       }
-
-      if (isVaultUnlocked()) {
-        sessionData.debridKey = val;
-        persistUserData();
-      } else {
-        localStorage.setItem('cineanime_debrid_key', val);
-      }
+      setDebridConfig(getDebridProvider(), val);
       const label = document.getElementById('debridStatusLabel');
       if (label) label.style.display = 'block';
-      if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
       showAppToast(isVaultUnlocked()
         ? '✅ 4K Debrid API key saved into your encrypted vault!'
         : '✅ 4K Debrid API key saved locally!');

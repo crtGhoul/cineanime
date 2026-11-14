@@ -6754,25 +6754,17 @@
     // ========================================================
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    function getDesiredPlayerSandbox(rawUrl) {
+      // Strict Mode (default): absolute lockdown, zero popups, zero redirects, zero ad tabs
+      // Compatible Mode (user-toggled via assist button): adds allow-popups for picky embed players, but NEVER allows escaping sandbox or top navigation
+      const isCompat = localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
+      return isCompat
+        ? 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups'
+        : 'allow-scripts allow-same-origin allow-forms allow-presentation';
+    }
+
     function isUnrestrictedPlayerUrl(rawUrl) {
-      const url = String(rawUrl || '');
-      if (!url || url === 'about:blank') return false;
-      if (localStorage.getItem('cineanime_unrestricted_sandbox') === '1') return true;
-      const lower = url.toLowerCase();
-      // External video embed providers that check and break when running in a sandboxed iframe:
-      if (lower.includes('player.vidzee.wtf') || lower.includes('vidzee') ||
-          lower.includes('cinesrc') || lower.includes('zokoanime') ||
-          lower.includes('smashy') || lower.includes('embed') || lower.includes('/stream/')) {
-        return true;
-      }
-      const ov = typeof getServerOverrides === 'function' ? getServerOverrides() : null;
-      if (ov && Array.isArray(ov.unrestrictedSandboxKeys)) {
-        for (const k of ov.unrestrictedSandboxKeys) {
-          const orig = typeof getEffectiveServerOrigin === 'function' ? getEffectiveServerOrigin(k) : '';
-          if (orig && url.startsWith(orig)) return true;
-        }
-      }
-      return false;
+      return localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
     }
 
     function togglePlayerSandboxMode() {
@@ -6781,33 +6773,21 @@
       localStorage.setItem('cineanime_unrestricted_sandbox', next ? '1' : '0');
       const iframe = document.getElementById('playerIframe');
       if (iframe) {
-        if (next) {
-          iframe.removeAttribute('sandbox');
-        } else {
-          ensureSandboxedPlayer(iframe, iframe.src);
-        }
+        ensureSandboxedPlayer(iframe, iframe.src);
         if (iframe.src && iframe.src !== 'about:blank') {
           const cur = iframe.src;
           iframe.src = 'about:blank';
           setTimeout(() => { iframe.src = cur; }, 80);
         }
       }
-      showAppToast(next ? '🔓 Embed Sandbox Disabled (Compatible Mode Active)' : '🛡️ Embed Sandbox Enabled (Strict Mode)');
+      showAppToast(next ? '🔓 Embed Compatibility Mode Active (allow-popups permitted inside sandbox)' : '🛡️ Strict Fortress Sandbox Active (all popups & ads blocked)');
     }
 
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
-      const url = String(targetUrl || iframe.src || '');
-      if (isUnrestrictedPlayerUrl(url)) {
-        // Embed providers check for and refuse to play in sandboxed iframes
-        if (iframe.hasAttribute('sandbox')) {
-          iframe.removeAttribute('sandbox');
-        }
-      } else {
-        const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
-        if (iframe.getAttribute('sandbox') !== desired) {
-          iframe.setAttribute('sandbox', desired);
-        }
+      const desired = getDesiredPlayerSandbox(targetUrl || iframe.src);
+      if (iframe.getAttribute('sandbox') !== desired) {
+        iframe.setAttribute('sandbox', desired);
       }
     }
 
@@ -6843,14 +6823,9 @@
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
             if (m.attributeName === 'sandbox') {
-              const curUrl = pIframe.src || '';
-              if (!isUnrestrictedPlayerUrl(curUrl)) {
-                const desired = 'allow-scripts allow-same-origin allow-forms allow-presentation';
-                if (pIframe.getAttribute('sandbox') !== desired) {
-                  pIframe.setAttribute('sandbox', desired);
-                }
-              } else if (pIframe.hasAttribute('sandbox')) {
-                pIframe.removeAttribute('sandbox');
+              const desired = getDesiredPlayerSandbox(pIframe.src);
+              if (pIframe.getAttribute('sandbox') !== desired) {
+                pIframe.setAttribute('sandbox', desired);
               }
             }
           }

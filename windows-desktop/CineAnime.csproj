@@ -43,6 +43,12 @@
     <Content Include="..\vendor\hls.min.js" Link="wwwroot\vendor\hls.min.js" Condition="Exists('..\vendor\hls.min.js')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\vendor\webtorrent.min.js" Link="wwwroot\vendor\webtorrent.min.js" Condition="Exists('..\vendor\webtorrent.min.js')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\sw.js" Link="wwwroot\sw.js" Condition="Exists('..\sw.js')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

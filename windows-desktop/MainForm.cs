@@ -172,22 +172,81 @@ namespace CineAnime
                 settings.IsStatusBarEnabled = false;
                 settings.AreDefaultContextMenusEnabled = true;
                 settings.IsWebMessageEnabled = true;
+                settings.AreDefaultScriptDialogsEnabled = false; // Prevent rogue alert()/confirm() loops from external embeds
+
+                _webView.CoreWebView2.PermissionRequested += (s, e) =>
+                {
+                    if (e.PermissionKind == CoreWebView2PermissionKind.Notifications ||
+                        e.PermissionKind == CoreWebView2PermissionKind.Geolocation)
+                    {
+                        e.State = CoreWebView2PermissionState.Deny;
+                        e.Handled = true;
+                    }
+                };
 
                 _webView.CoreWebView2.ContainsFullScreenElementChanged += (s, e) =>
                 {
                     HandleFullscreenToggle(_webView.CoreWebView2.ContainsFullScreenElement);
                 };
 
+                // Strictly block third-party embed ad popups and self-redirect loops
                 _webView.CoreWebView2.NewWindowRequested += (s, e) =>
                 {
+                    // 1. ALWAYS mark Handled = true to suppress internal new window creation
                     e.Handled = true;
-                    if (!string.IsNullOrWhiteSpace(e.Uri) && (e.Uri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || e.Uri.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+
+                    if (string.IsNullOrWhiteSpace(e.Uri)) return;
+
+                    Uri? targetUri;
+                    if (!Uri.TryCreate(e.Uri, UriKind.Absolute, out targetUri)) return;
+
+                    string host = targetUri.Host.ToLowerInvariant();
+                    string scheme = targetUri.Scheme.ToLowerInvariant();
+
+                    // If it's a self-link or mirror (crtghoul.github.io or offline.cineanime.local),
+                    // NEVER spawn an external browser window! Navigate internally if needed, or drop if duplicate.
+                    if (host == "crtghoul.github.io" || host == "offline.cineanime.local")
+                    {
+                        if (_webView.Source == null || !_webView.Source.ToString().Equals(e.Uri, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _webView.CoreWebView2.Navigate(e.Uri);
+                        }
+                        return;
+                    }
+
+                    // Strict whitelist of legitimate outbound community/developer resources
+                    bool isApprovedExternalHost = host == "ko-fi.com"
+                        || host.EndsWith(".ko-fi.com")
+                        || host == "github.com"
+                        || host == "codeberg.org"
+                        || host == "stremio-addons.net"
+                        || host == "elfhosted.com"
+                        || host == "app.strem.io"
+                        || host == "real-debrid.com";
+
+                    if (scheme == "vlc")
                     {
                         try
                         {
                             Process.Start(new ProcessStartInfo(e.Uri) { UseShellExecute = true });
                         }
                         catch { }
+                        return;
+                    }
+
+                    // Only launch external browser if it's explicitly user-initiated AND matches our strict whitelist
+                    if (isApprovedExternalHost && (e.IsUserInitiated || scheme == "https"))
+                    {
+                        try
+                        {
+                            Process.Start(new ProcessStartInfo(e.Uri) { UseShellExecute = true });
+                        }
+                        catch { }
+                    }
+                    else
+                    {
+                        // Defuse ad popups, tracking links, and arbitrary external redirects
+                        Debug.WriteLine($"[CineAnime Anti-Ad Shield] Blocked unauthorized desktop popup to: {e.Uri}");
                     }
                 };
 

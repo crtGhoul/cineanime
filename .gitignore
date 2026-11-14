@@ -13,4 +13,5 @@ Thumbs.db
 windows-desktop/bin/
 windows-desktop/obj/
 windows-desktop/publish/
+windows-desktop/publish-single/
 *.user

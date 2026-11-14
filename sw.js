@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cineanime-shell-v10';
+const CACHE_NAME = 'cineanime-shell-v11';
 const CORE_PRECACHE_URLS = [
   './',
   './index.html',

@@ -1,15 +1,20 @@
 {
-  "updatedAt": 1794680360130,
-  "version": "1.1.5",
+  "updatedAt": 1794765000000,
+  "version": "1.1.6",
+  "vidlink": "https://vidlink.pro",
+  "vidsrc": "https://vidsrc.to",
+  "twoembed": "https://2embed.cc",
   "cinesrc": "https://cinesrc.st",
-  "vidzee": "https://player.vidzee.wtf",
   "zoko": "https://zokoanime.video",
-  "smashy": "https://player.vidzee.wtf",
   "templates": {
     "zoko": "{origin}/stream/{path}/{e}/{track}?color=e50914&autoplay=1&asi=1&autonext=1",
+    "vidlinkMovie": "{origin}/movie/{ref}?primaryColor=e50914&secondaryColor=14141c&iconColor=ffffff",
+    "vidlinkTv": "{origin}/tv/{ref}/{s}/{e}?primaryColor=e50914&secondaryColor=14141c&iconColor=ffffff",
+    "vidsrcMovie": "{origin}/embed/movie/{ref}",
+    "vidsrcTv": "{origin}/embed/tv/{ref}/{s}/{e}",
+    "twoembedMovie": "{origin}/embed/{ref}",
+    "twoembedTv": "{origin}/embedtv/{ref}&s={s}&e={e}",
     "cinesrcMovie": "{origin}/embed/movie/{ref}?color=%23e50914&autoplay=true",
-    "cinesrcTv": "{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true",
-    "vidzeeMovie": "{origin}/embed/movie/{ref}",
-    "vidzeeTv": "{origin}/embed/tv/{ref}/{s}/{e}"
+    "cinesrcTv": "{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true"
   }
 }

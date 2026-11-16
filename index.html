@@ -4377,10 +4377,11 @@
           <summary>🛰 Custom Source Domains &amp; Remote Mirror Registry</summary>
           <p style="margin-top:0.45rem; line-height:1.45; color:#a8a8b8;">If an external source domain ever changes, override its base origin here (synced across devices via Live Sync) or point to a remote JSON config (`{ "server1": "https://...", "server2": "https://...", "server3": "https://...", "server4": "https://..." }`).</p>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.5rem; margin-top:0.65rem;">
-            <input type="url" id="overrideZokoInput" class="anilist-sync-input" placeholder="Server 1 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
-            <input type="url" id="overrideCineSrcInput" class="anilist-sync-input" placeholder="Movie/TV 1 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
-            <input type="url" id="overrideSmashyInput" class="anilist-sync-input" placeholder="Movie/TV 2 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
-            <input type="url" id="overrideVidZeeInput" class="anilist-sync-input" placeholder="Movie/TV 3 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideZokoInput" class="anilist-sync-input" placeholder="Anime Server 1 Origin (https://...)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideVidLinkInput" class="anilist-sync-input" placeholder="Movie/TV 1 Origin (https://vidlink.pro)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideVidSrcInput" class="anilist-sync-input" placeholder="Movie/TV 2 Origin (https://vidsrc.to)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideTwoEmbedInput" class="anilist-sync-input" placeholder="Movie/TV 3 Origin (https://2embed.cc)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <input type="url" id="overrideCineSrcInput" class="anilist-sync-input" placeholder="Movie/TV 4 Origin (https://cinesrc.st)" autocorrect="off" autocapitalize="none" spellcheck="false">
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.6rem; align-items:center;">
             <input type="url" id="overrideRegistryUrlInput" class="anilist-sync-input" style="flex:1 1 240px;" placeholder="Optional Remote Domains JSON URL (Gist / Worker)" autocorrect="off" autocapitalize="none" spellcheck="false">
@@ -5529,10 +5530,10 @@
       const hasCustomSmashy = Boolean(ov.smashy && !String(ov.smashy).includes('embed.smashystream.com'));
       const labels = isMovieOrSeries
         ? {
-            server1: '<span class="pulse-dot"></span> Server 1 (CineSrc 1080p)',
-            server2: '🛡️ Server 2 (VidZee 1080p)',
-            server3: '🎬 Server 3 (CineSrc IMDb)',
-            server4: hasCustomSmashy ? '⚡ Server 4 (Custom Mirror)' : '🚀 Server 4 (VidZee IMDb)'
+            server1: '<span class="pulse-dot"></span> Server 1 (VidLink 1080p • Ad-Free)',
+            server2: '🛡️ Server 2 (VidSrc 1080p)',
+            server3: '🎬 Server 3 (2Embed HD)',
+            server4: '⚡ Server 4 (CineSrc Mirror)'
           }
         : {
             server1: '<span class="pulse-dot"></span> Server 1 (Zoko 1080p)',
@@ -6463,17 +6464,22 @@
 
     const SERVER_DEFAULT_ORIGINS = {
       zoko: 'https://zokoanime.video',
-      smashy: 'https://player.vidzee.wtf',
-      cinesrc: 'https://cinesrc.st',
-      vidzee: 'https://player.vidzee.wtf'
+      vidlink: 'https://vidlink.pro',
+      vidsrc: 'https://vidsrc.to',
+      twoembed: 'https://2embed.cc',
+      cinesrc: 'https://cinesrc.st'
     };
 
     const SERVER_DEFAULT_TEMPLATES = {
       zoko: `{origin}/stream/{path}/{e}/{track}?${ZOKO_QUERY}`,
+      vidlinkMovie: '{origin}/movie/{ref}?primaryColor=e50914&secondaryColor=14141c&iconColor=ffffff',
+      vidlinkTv: '{origin}/tv/{ref}/{s}/{e}?primaryColor=e50914&secondaryColor=14141c&iconColor=ffffff',
+      vidsrcMovie: '{origin}/embed/movie/{ref}',
+      vidsrcTv: '{origin}/embed/tv/{ref}/{s}/{e}',
+      twoembedMovie: '{origin}/embed/{ref}',
+      twoembedTv: '{origin}/embedtv/{ref}&s={s}&e={e}',
       cinesrcMovie: '{origin}/embed/movie/{ref}?color=%23e50914&autoplay=true',
-      cinesrcTv: '{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true',
-      vidzeeMovie: '{origin}/embed/movie/{ref}',
-      vidzeeTv: '{origin}/embed/tv/{ref}/{s}/{e}'
+      cinesrcTv: '{origin}/embed/tv/{ref}?s={s}&e={e}&color=%23e50914&autoplay=true'
     };
 
     function getServerOverrides() {
@@ -6490,9 +6496,9 @@
     function getEffectiveServerOrigin(key) {
       const ov = getServerOverrides();
       const def = SERVER_DEFAULT_ORIGINS[key] || '';
-      const candidate = ov[key] ? normalizeOriginOverride(ov[key], def) : def;
-      if (key === 'smashy' && candidate.includes('embed.smashystream.com')) {
-        return getEffectiveServerOrigin('vidzee');
+      let candidate = ov[key] ? normalizeOriginOverride(ov[key], def) : def;
+      if (!candidate || candidate.includes('vidzee.wtf') || candidate.includes('smashystream.com')) {
+        return SERVER_DEFAULT_ORIGINS[key] || SERVER_DEFAULT_ORIGINS.vidlink;
       }
       return candidate;
     }
@@ -6514,9 +6520,10 @@
       const ov = getServerOverrides();
       const map = [
         ['overrideZokoInput', ov.zoko || ''],
+        ['overrideVidLinkInput', ov.vidlink || ''],
+        ['overrideVidSrcInput', ov.vidsrc || ''],
+        ['overrideTwoEmbedInput', ov.twoembed || ''],
         ['overrideCineSrcInput', ov.cinesrc || ''],
-        ['overrideSmashyInput', (ov.smashy && !String(ov.smashy).includes('embed.smashystream.com')) ? ov.smashy : ''],
-        ['overrideVidZeeInput', ov.vidzee || ''],
         ['overrideRegistryUrlInput', ov.registryUrl || '']
       ];
       map.forEach(([id, val]) => {
@@ -6559,14 +6566,16 @@
 
       try {
         const next = { ...ov };
-        ['zoko', 'cinesrc', 'smashy', 'vidzee'].forEach(k => {
+        ['zoko', 'vidlink', 'vidsrc', 'twoembed', 'cinesrc'].forEach(k => {
           const val = json[k] || json[k + 'Origin'];
           if (val && normalizeSafeHttpUrl(val)) {
             const origin = new URL(normalizeSafeHttpUrl(val)).origin;
-            if (k === 'smashy' && origin.includes('embed.smashystream.com')) return;
+            if (origin.includes('vidzee.wtf') || origin.includes('smashystream.com')) return;
             next[k] = origin;
           }
         });
+        delete next.vidzee;
+        delete next.smashy;
         if (json.templates && typeof json.templates === 'object') {
           const safeTemplates = {};
           Object.entries(json.templates).forEach(([tk, tv]) => {
@@ -6588,9 +6597,10 @@
       const next = { updatedAt: Date.now() };
       const fields = [
         ['zoko', 'overrideZokoInput'],
-        ['cinesrc', 'overrideCineSrcInput'],
-        ['smashy', 'overrideSmashyInput'],
-        ['vidzee', 'overrideVidZeeInput']
+        ['vidlink', 'overrideVidLinkInput'],
+        ['vidsrc', 'overrideVidSrcInput'],
+        ['twoembed', 'overrideTwoEmbedInput'],
+        ['cinesrc', 'overrideCineSrcInput']
       ];
       fields.forEach(([key, elId]) => {
         const raw = (document.getElementById(elId)?.value || '').trim();
@@ -6661,21 +6671,43 @@
       });
     }
 
-    function buildSmashyUrl(item, s, e, preferImdb = false) {
-      const ov = getServerOverrides();
-      const hasCustomSmashy = Boolean(ov.smashy && !String(ov.smashy).includes('embed.smashystream.com'));
-      if (!hasCustomSmashy) {
-        return buildVidZeeUrl(item, s, e, preferImdb);
-      }
-      const tmdb = isNumericId(item?.tmdbId) ? String(item.tmdbId).trim() : null;
-      const imdb = item?.imdbId || (String(item?.id || '').startsWith('tt') ? String(item.id).trim() : null);
-      const refParam = (preferImdb && imdb)
-        ? `imdb=${encodeURIComponent(imdb)}`
-        : (tmdb ? `tmdb=${encodeURIComponent(tmdb)}` : `imdb=${encodeURIComponent(imdb || item?.id || '')}`);
-      const origin = getEffectiveServerOrigin('smashy');
-      return item?.type === 'movie'
-        ? `${origin}/playere.php?${refParam}`
-        : `${origin}/playere.php?${refParam}&season=${s}&episode=${e}`;
+    function buildVidLinkUrl(item, s, e) {
+      if (!item) return 'about:blank';
+      const origin = getEffectiveServerOrigin('vidlink');
+      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const ref = tmdb || imdb;
+      if (!ref) return 'about:blank';
+
+      return item.type === 'movie'
+        ? formatServerTemplate('vidlinkMovie', { origin, ref })
+        : formatServerTemplate('vidlinkTv', { origin, ref, s, e });
+    }
+
+    function buildVidSrcUrl(item, s, e) {
+      if (!item) return 'about:blank';
+      const origin = getEffectiveServerOrigin('vidsrc');
+      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const ref = imdb || tmdb;
+      if (!ref) return 'about:blank';
+
+      return item.type === 'movie'
+        ? formatServerTemplate('vidsrcMovie', { origin, ref })
+        : formatServerTemplate('vidsrcTv', { origin, ref, s, e });
+    }
+
+    function buildTwoEmbedUrl(item, s, e) {
+      if (!item) return 'about:blank';
+      const origin = getEffectiveServerOrigin('twoembed');
+      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
+      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
+      const ref = imdb || tmdb;
+      if (!ref) return 'about:blank';
+
+      return item.type === 'movie'
+        ? formatServerTemplate('twoembedMovie', { origin, ref })
+        : formatServerTemplate('twoembedTv', { origin, ref, s, e });
     }
 
     function buildCineSrcUrl(item, s, e, preferImdb = false) {
@@ -6686,66 +6718,52 @@
       const ref = (preferImdb && imdb) ? imdb : (tmdb || imdb);
       if (!ref) return 'about:blank';
 
-      if (item.type === 'movie') {
-        return formatServerTemplate('cinesrcMovie', { origin, ref });
-      }
-      return formatServerTemplate('cinesrcTv', { origin, ref, s, e });
-    }
-
-    function buildVidZeeUrl(item, s, e, preferImdb = false) {
-      if (!item) return 'about:blank';
-      const origin = getEffectiveServerOrigin('vidzee');
-      const tmdb = isNumericId(item.tmdbId) ? String(item.tmdbId).trim() : null;
-      const imdb = item.imdbId || (String(item.id || '').startsWith('tt') ? String(item.id).trim() : null);
-      const ref = (preferImdb && imdb) ? imdb : (tmdb || imdb);
-      if (!ref) return 'about:blank';
-
       return item.type === 'movie'
-        ? formatServerTemplate('vidzeeMovie', { origin, ref })
-        : formatServerTemplate('vidzeeTv', { origin, ref, s, e });
+        ? formatServerTemplate('cinesrcMovie', { origin, ref })
+        : formatServerTemplate('cinesrcTv', { origin, ref, s, e });
     }
 
     const SERVERS = {
       server1: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, false);
+        if (item?.isMovieOrSeries) return buildVidLinkUrl(item, s, e);
         if (hasValidAnimeId(item)) {
           const track = currentTrack === 'dub' ? 'dub' : 'sub';
           const zoko = buildZokoUrl(item, e, track, false);
           if (zoko) return zoko;
         }
-        return buildCineSrcUrl(item, s, e, false);
+        return buildVidLinkUrl(item, s, e);
       },
       server2: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildVidZeeUrl(item, s, e, false);
+        if (item?.isMovieOrSeries) return buildVidSrcUrl(item, s, e);
         if (hasValidAnimeId(item)) {
           const track = currentTrack === 'dub' ? 'dub' : 'sub';
           const zoko = buildZokoUrl(item, e, track, true);
           if (zoko) return zoko;
         }
-        return buildVidZeeUrl(item, s, e, false);
+        return buildVidSrcUrl(item, s, e);
       },
       server3: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, true);
+        if (item?.isMovieOrSeries) return buildTwoEmbedUrl(item, s, e);
         if (hasValidAnimeId(item)) {
           // Server 3 = Zoko HardSub — 1080p subtitles burned into video (avoids ASS tag artifacts)
           const zoko = buildZokoUrl(item, e, 'hsub', false);
           if (zoko) return zoko;
         }
-        return buildVidZeeUrl(item, s, e, true);
+        return buildTwoEmbedUrl(item, s, e);
       },
       server4: (item, a, b) => {
         const { s, e } = resolveSeasonAndEp(a, b);
-        if (item?.isMovieOrSeries) return buildSmashyUrl(item, s, e, true);
+        if (item?.isMovieOrSeries) return buildCineSrcUrl(item, s, e, false);
         if (item?.imdbId || isNumericId(item?.tmdbId)) {
           return buildCineSrcUrl(item, s, e, false);
         }
         const track = currentTrack === 'dub' ? 'dub' : 'sub';
         const zoko = buildZokoUrl(item, e, track, true);
         if (zoko) return zoko;
-        return buildSmashyUrl(item, s, e, true);
+        return buildCineSrcUrl(item, s, e, false);
       }
     };
 
@@ -9007,10 +9025,10 @@
     }
 
     function getServerShortName(serverKey) {
-      if (serverKey === 'server1') return 'Server 1 (Primary HD)';
-      if (serverKey === 'server2') return 'Server 2 (Mirror)';
-      if (serverKey === 'server3') return 'Server 3 (HardSub)';
-      if (serverKey === 'server4') return 'Server 4 (Multi-Embed)';
+      if (serverKey === 'server1') return 'Server 1 (VidLink / Zoko)';
+      if (serverKey === 'server2') return 'Server 2 (VidSrc)';
+      if (serverKey === 'server3') return 'Server 3 (2Embed / HardSub)';
+      if (serverKey === 'server4') return 'Server 4 (CineSrc)';
       return 'Next Server';
     }
 
@@ -9039,7 +9057,9 @@
         if (!theater || !theater.classList.contains('active') || isDirectVideoActive()) return;
 
         if (assist) {
-          assist.innerHTML = `<span class="pulse-dot"></span> Still loading or blocked? <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button> <button class="stream-assist-btn" onclick="togglePlayerSandboxMode()">🔓 Fix Sandbox Block</button>`;
+          const hasDirect = currentAddonStreams.some(s => s.url || s.magnet || s.infoHash);
+          const directBtn = hasDirect ? `<button class="stream-assist-btn" style="background:#10b981; color:#fff;" onclick="playBestDirectAddonStream()">▶ Direct 1080p (Ad-Free)</button> ` : '';
+          assist.innerHTML = `<span class="pulse-dot"></span> Still loading? ${directBtn}<button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button> <button class="stream-assist-btn" onclick="togglePlayerSandboxMode()">🔓 Toggle Sandbox</button>`;
           assist.style.display = 'flex';
         }
 
@@ -9453,10 +9473,15 @@
         const trustedOrigins = new Set([
           activeIframeOrigin,
           getEffectiveServerOrigin('zoko'),
+          getEffectiveServerOrigin('vidlink'),
+          getEffectiveServerOrigin('vidsrc'),
+          getEffectiveServerOrigin('twoembed'),
           getEffectiveServerOrigin('cinesrc'),
-          getEffectiveServerOrigin('vidzee'),
-          getEffectiveServerOrigin('smashy'),
-          'https://zokoanime.video'
+          'https://zokoanime.video',
+          'https://vidlink.pro',
+          'https://vidsrc.to',
+          'https://2embed.cc',
+          'https://cinesrc.st'
         ].filter(Boolean));
         if (!trustedOrigins.has(e.origin)) return;
 
@@ -11909,7 +11934,7 @@
 
     function getAutoDirect1080pEnabled() {
       const prefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
-      return Boolean(prefs.autoDirect1080p);
+      return prefs.autoDirect1080p !== false;
     }
 
     function syncAutoDirect1080pUi() {
@@ -11923,7 +11948,7 @@
 
     function toggleAutoDirect1080p() {
       const curPrefs = typeof getPlaybackPrefs === 'function' ? getPlaybackPrefs() : {};
-      const nextVal = !Boolean(curPrefs.autoDirect1080p);
+      const nextVal = !(curPrefs.autoDirect1080p !== false);
       localStorage.setItem('cineanime_prefs', JSON.stringify({
         ...curPrefs,
         server: activeServer,
@@ -11944,8 +11969,12 @@
     }
 
     function findBestDirectAddonStream() {
-      const directs = currentAddonStreams.filter(s => !!s.url);
-      if (!directs.length) return null;
+      const directs = currentAddonStreams.filter(s => !!s.url && !s._failedOnce);
+      if (!directs.length) {
+        return currentAddonStreams.find(s => !s.url && (s.magnet || s.infoHash) && !s._failedOnce)
+          || currentAddonStreams.find(s => !s.url && (s.magnet || s.infoHash))
+          || null;
+      }
       return directs.find(s => s.quality === '1080P' || s.quality === '2160P' || s.quality === '1440P') || directs[0];
     }
 
@@ -12004,8 +12033,8 @@
     }
 
     function playBestDirectAddonStream(silentIfMissing = false) {
-      if (!currentAddonStreams.some(s => s.url)) {
-        if (!silentIfMissing) showAppToast('No Direct HTTPS addon stream available for this episode yet.');
+      if (!currentAddonStreams.some(s => s.url || s.magnet || s.infoHash)) {
+        if (!silentIfMissing) showAppToast('No direct or torrent addon stream available for this episode yet.');
         return false;
       }
       playBestAvailableStream({ silentIfMissing });

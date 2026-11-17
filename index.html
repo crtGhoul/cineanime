@@ -2287,6 +2287,15 @@
       border-radius: 6px !important;
       letter-spacing: 0.02em !important;
     }
+    .player-video.sub-size-normal::cue {
+      font-size: 1.15rem !important;
+    }
+    .player-video.sub-size-large::cue {
+      font-size: 1.55rem !important;
+    }
+    .player-video.sub-size-xlarge::cue {
+      font-size: 2.15rem !important;
+    }
     .stream-codec-banner {
       display: none;
       position: absolute;
@@ -2307,6 +2316,541 @@
     }
     .stream-codec-banner.active {
       display: flex;
+    }
+
+    /* ==================== STREMIO MEDIA PLAYER HUD & IN-PLAYER EXPERIENCE ==================== */
+    .stremio-hud {
+      position: absolute;
+      inset: 0;
+      z-index: 12;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .player-container.hud-active .stremio-hud,
+    .stremio-hud.visible,
+    .stremio-hud.locked {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .stremio-hud-top {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: linear-gradient(180deg, rgba(7, 7, 12, 0.92) 0%, rgba(7, 7, 12, 0.6) 70%, transparent 100%);
+      pointer-events: auto;
+    }
+    .stremio-hud-top-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+    .stremio-hud-meta {
+      min-width: 0;
+    }
+    .stremio-hud-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+    }
+    .stremio-hud-sub {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+    .stremio-hud-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(139, 92, 246, 0.25);
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      color: #ddd6fe;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .stremio-hud-top-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Center Double Tap & Splash Zone */
+    .stremio-hud-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      pointer-events: auto;
+    }
+    .stremio-hud-seek-tap {
+      width: 30%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .stremio-hud-play-splash {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .stremio-splash-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(10, 10, 16, 0.75);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+    .stremio-splash-icon.flash {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    .stremio-hud-ripple {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      background: rgba(10, 10, 16, 0.75);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .stremio-hud-ripple.flash {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Bottom HUD Bar & Controls */
+    .stremio-hud-bottom {
+      padding: 1.5rem 1.5rem 1.25rem;
+      background: linear-gradient(0deg, rgba(7, 7, 12, 0.95) 0%, rgba(7, 7, 12, 0.7) 65%, transparent 100%);
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .stremio-hud-timeline-wrap {
+      position: relative;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .stremio-hud-timeline {
+      position: relative;
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.22);
+      transition: height 0.15s ease;
+      overflow: visible;
+    }
+    .stremio-hud-timeline-wrap:hover .stremio-hud-timeline,
+    .stremio-hud-timeline-wrap.scrubbing .stremio-hud-timeline {
+      height: 8px;
+    }
+    .stremio-hud-buffered {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.38);
+      border-radius: 3px;
+      pointer-events: none;
+      transition: width 0.2s ease;
+    }
+    .stremio-hud-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #ff334b, #a855f7);
+      border-radius: 3px;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(255, 51, 75, 0.5);
+    }
+    .stremio-hud-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transform: translate(-50%, -50%) scale(0);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.6), 0 0 12px rgba(168, 85, 247, 0.8);
+      transition: transform 0.15s ease;
+      pointer-events: none;
+    }
+    .stremio-hud-timeline-wrap:hover .stremio-hud-thumb,
+    .stremio-hud-timeline-wrap.scrubbing .stremio-hud-thumb {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .stremio-hud-preview-pill {
+      position: absolute;
+      top: -30px;
+      left: 0%;
+      transform: translateX(-50%);
+      background: rgba(15, 15, 22, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .stremio-hud-timeline-wrap:hover .stremio-hud-preview-pill {
+      opacity: 1;
+    }
+
+    .stremio-hud-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .stremio-hud-row-left,
+    .stremio-hud-row-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .stremio-hud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f4f4f5;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      backdrop-filter: blur(10px);
+    }
+    .stremio-hud-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.28);
+      transform: translateY(-1px);
+    }
+    .stremio-hud-btn.primary {
+      background: #ff334b;
+      border-color: #ff334b;
+      color: #fff;
+      padding: 0.45rem 0.9rem;
+    }
+    .stremio-hud-btn.primary:hover {
+      background: #ff1f2d;
+    }
+    .stremio-hud-btn.highlight {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #34d399;
+    }
+    .stremio-hud-btn.icon-only {
+      padding: 0.4rem 0.55rem;
+    }
+    .stremio-hud-time {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #d4d4d8;
+      font-variant-numeric: tabular-nums;
+      margin: 0 0.3rem;
+    }
+    .stremio-hud-vol-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .stremio-hud-vol-slider {
+      width: 70px;
+      height: 4px;
+      accent-color: #ff334b;
+      cursor: pointer;
+    }
+
+    /* Subtitle Popover */
+    .stremio-hud-menu-wrap {
+      position: relative;
+    }
+    .stremio-hud-popover {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 0;
+      background: rgba(18, 18, 26, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 0.85rem;
+      min-width: 250px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .stremio-popover-header {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.4rem;
+    }
+    .stremio-popover-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .stremio-popover-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stremio-popover-select {
+      background: #0d0d14;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.78rem;
+    }
+    .stremio-sync-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .stremio-sync-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.25rem 0.55rem;
+      border-radius: 5px;
+      font-size: 0.74rem;
+      cursor: pointer;
+    }
+    .stremio-sync-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .stremio-sync-val {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #d4d4d8;
+      min-width: 38px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .stremio-popover-upload-btn {
+      display: block;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #d4d4d8;
+      cursor: pointer;
+    }
+    .stremio-popover-upload-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* In-Player Slide-Out Drawer (Episodes & Sources) */
+    .stremio-hud-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 340px;
+      max-width: 85%;
+      background: rgba(13, 13, 20, 0.95);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -8px 0 28px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+    }
+    .stremio-hud-drawer.active {
+      transform: translateX(0%);
+    }
+    .stremio-hud-drawer-header {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stremio-hud-drawer-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .stremio-hud-drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      scrollbar-gutter: stable;
+    }
+    .stremio-drawer-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.65rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      cursor: pointer;
+      color: #e4e4e7;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .stremio-drawer-item:hover,
+    .stremio-drawer-item:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(168, 85, 247, 0.4);
+      transform: translateX(-2px);
+    }
+    .stremio-drawer-item.active {
+      background: rgba(168, 85, 247, 0.18);
+      border-color: rgba(168, 85, 247, 0.6);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Resolving Stremio Addons Card */
+    .stremio-resolving-card {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background: radial-gradient(circle at 50% 50%, rgba(20, 20, 32, 0.98), #09090d);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+      text-align: center;
+    }
+    .stremio-resolving-card.active {
+      display: flex;
+    }
+    .stremio-resolving-spinner {
+      width: 52px;
+      height: 52px;
+      border: 3px solid rgba(255, 255, 255, 0.12);
+      border-top-color: #ff334b;
+      border-right-color: #a855f7;
+      border-radius: 50%;
+      animation: stremioSpin 0.9s linear infinite;
+    }
+    @keyframes stremioSpin {
+      to { transform: rotate(360deg); }
+    }
+    .stremio-resolving-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .stremio-resolving-sub {
+      font-size: 0.85rem;
+      color: #a1a1aa;
+      max-width: 440px;
+      line-height: 1.45;
+    }
+    .stremio-resolving-actions {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    /* TV Mode Scaling for Stremio Player */
+    body.tv-mode .stremio-hud-top {
+      padding: 1.75rem 2.5rem;
+    }
+    body.tv-mode .stremio-hud-bottom {
+      padding: 2rem 2.5rem 1.85rem;
+    }
+    body.tv-mode .stremio-hud-title {
+      font-size: 1.4rem;
+    }
+    body.tv-mode .stremio-hud-sub {
+      font-size: 1.05rem;
+    }
+    body.tv-mode .stremio-hud-btn {
+      padding: 0.65rem 1.1rem;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      min-height: 44px;
+    }
+    body.tv-mode .stremio-hud-time {
+      font-size: 1.05rem;
+    }
+    body.tv-mode .stremio-hud-drawer {
+      width: 440px;
+    }
+    body.tv-mode .stremio-drawer-item {
+      padding: 0.9rem 1.2rem;
+      font-size: 1.05rem;
     }
 
     .addon-streams-section {
@@ -3692,7 +4236,140 @@
             referrerpolicy="no-referrer"
             src="about:blank"
           ></iframe>
-          <video id="directVideoPlayer" class="player-video" controls autoplay playsinline webkit-playsinline></video>
+          <video id="directVideoPlayer" class="player-video" autoplay playsinline webkit-playsinline></video>
+          
+          <!-- Stremio Resolving State Card -->
+          <div id="stremioResolvingCard" class="stremio-resolving-card">
+            <div class="stremio-resolving-spinner"></div>
+            <div class="stremio-resolving-title">Resolving Stremio Addon Streams…</div>
+            <div class="stremio-resolving-sub">Checking Torrentio, Cauldron & Stremio Addons for 1080p / 4K direct streams</div>
+            <div class="stremio-resolving-actions">
+              <button type="button" class="addon-stream-btn" onclick="switchToEmbedPlayer()">Skip to Web Player</button>
+            </div>
+          </div>
+
+          <!-- Stremio Player Custom HUD -->
+          <div id="stremioPlayerHud" class="stremio-hud" aria-label="Stremio Media Player Controls">
+            <!-- Top Bar -->
+            <div class="stremio-hud-top">
+              <div class="stremio-hud-top-left">
+                <button type="button" class="stremio-hud-btn icon-only" onclick="exitCinemaFullscreen()" title="Back / Exit (Esc)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="stremio-hud-meta">
+                  <div id="stremioHudTitle" class="stremio-hud-title">CineAnime</div>
+                  <div id="stremioHudEpisode" class="stremio-hud-sub">S1:Ep 1</div>
+                </div>
+                <span id="stremioHudQualityBadge" class="stremio-hud-badge">1080P FHD</span>
+              </div>
+              <div class="stremio-hud-top-right">
+                <button type="button" class="stremio-hud-btn" onclick="toggleDirectPiP()" title="Picture-in-Picture">🖼 PiP</button>
+                <button type="button" class="stremio-hud-btn" onclick="toggleCinemaFullscreen()" title="Fullscreen (F)">⛶ Fullscreen</button>
+              </div>
+            </div>
+
+            <!-- Center Double Tap & Splash Zone -->
+            <div class="stremio-hud-center">
+              <div class="stremio-hud-seek-tap left" onclick="stremioHudSeek(-10)" title="Rewind 10s">
+                <div id="stremioHudRippleLeft" class="stremio-hud-ripple">⏪ 10s</div>
+              </div>
+              <div class="stremio-hud-play-splash" onclick="toggleDirectPlayPause()">
+                <div id="stremioHudSplashIcon" class="stremio-splash-icon">▶</div>
+              </div>
+              <div class="stremio-hud-seek-tap right" onclick="stremioHudSeek(10)" title="Forward 10s">
+                <div id="stremioHudRippleRight" class="stremio-hud-ripple">10s ⏩</div>
+              </div>
+            </div>
+
+            <!-- Bottom HUD Bar & Timeline -->
+            <div class="stremio-hud-bottom">
+              <div id="stremioHudTimelineContainer" class="stremio-hud-timeline-wrap">
+                <div id="stremioHudPreviewPill" class="stremio-hud-preview-pill">00:00</div>
+                <div id="stremioHudTimeline" class="stremio-hud-timeline">
+                  <div id="stremioHudBuffered" class="stremio-hud-buffered"></div>
+                  <div id="stremioHudProgress" class="stremio-hud-progress"></div>
+                  <div id="stremioHudThumb" class="stremio-hud-thumb"></div>
+                </div>
+              </div>
+
+              <div class="stremio-hud-row">
+                <div class="stremio-hud-row-left">
+                  <button type="button" id="stremioHudPlayBtn" class="stremio-hud-btn primary" onclick="toggleDirectPlayPause()" title="Play / Pause (Space)">
+                    <span id="stremioHudPlayIcon">▶</span>
+                  </button>
+                  <button type="button" class="stremio-hud-btn" onclick="changeEpisode(-1)" title="Previous Episode (Shift+Left)">⏮</button>
+                  <button type="button" class="stremio-hud-btn" onclick="stremioHudSeek(-10)" title="Rewind 10s (Left Arrow)">-10s</button>
+                  <button type="button" class="stremio-hud-btn" onclick="stremioHudSeek(10)" title="Forward 10s (Right Arrow)">+10s</button>
+                  <button type="button" class="stremio-hud-btn" onclick="changeEpisode(1)" title="Next Episode (Shift+Right)">⏭</button>
+                  <span id="stremioHudTime" class="stremio-hud-time">00:00 / 00:00</span>
+
+                  <div class="stremio-hud-vol-wrap">
+                    <button type="button" id="stremioHudVolBtn" class="stremio-hud-btn icon-only" onclick="toggleDirectMute()" title="Mute (M)">🔊</button>
+                    <input type="range" id="stremioHudVolSlider" class="stremio-hud-vol-slider" min="0" max="1" step="0.05" value="1" oninput="setDirectVolume(this.value)">
+                  </div>
+                </div>
+
+                <div class="stremio-hud-row-right">
+                  <button type="button" id="stremioHudSkipBtn" class="stremio-hud-btn highlight" onclick="triggerFloatingSkip()" style="display:none;" title="Skip Intro (S)">⏭ Skip Intro</button>
+
+                  <!-- Subtitles Menu Button & Popover -->
+                  <div class="stremio-hud-menu-wrap">
+                    <button type="button" id="stremioHudSubMenuBtn" class="stremio-hud-btn" onclick="toggleStremioHudSubMenu()" title="Subtitles & Audio (C)">💬 CC</button>
+                    <div id="stremioHudSubMenu" class="stremio-hud-popover" style="display:none;">
+                      <div class="stremio-popover-header">Subtitles & Audio</div>
+                      <div class="stremio-popover-section">
+                        <label class="stremio-popover-label">Track:</label>
+                        <select id="stremioHudSubSelect" class="stremio-popover-select" onchange="selectSubtitleTrack(this.value)">
+                          <option value="">Off</option>
+                        </select>
+                      </div>
+                      <div class="stremio-popover-section">
+                        <label class="stremio-popover-label">Sync Delay:</label>
+                        <div class="stremio-sync-group">
+                          <button type="button" class="stremio-sync-btn" onclick="shiftSubtitleOffset(-0.5)">-0.5s</button>
+                          <span id="stremioHudSubOffsetVal" class="stremio-sync-val">0.0s</span>
+                          <button type="button" class="stremio-sync-btn" onclick="shiftSubtitleOffset(0.5)">+0.5s</button>
+                          <button type="button" class="stremio-sync-btn reset" onclick="shiftSubtitleOffset(-activeSubtitleOffsetSec)">Reset</button>
+                        </div>
+                      </div>
+                      <div class="stremio-popover-section">
+                        <label class="stremio-popover-label">Text Size:</label>
+                        <div class="stremio-sync-group">
+                          <button type="button" class="stremio-sync-btn" onclick="setSubtitleSize('normal')">A</button>
+                          <button type="button" class="stremio-sync-btn" onclick="setSubtitleSize('large')">A+</button>
+                          <button type="button" class="stremio-sync-btn" onclick="setSubtitleSize('xlarge')">A++</button>
+                        </div>
+                      </div>
+                      <div class="stremio-popover-section">
+                        <label class="stremio-popover-upload-btn">
+                          📄 Load .SRT / .VTT File
+                          <input type="file" accept=".srt,.vtt,text/vtt,application/x-subrip" style="display:none;" onchange="handleCustomSubtitleUpload(this)">
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Speed -->
+                  <button type="button" id="stremioHudSpeedBtn" class="stremio-hud-btn" onclick="cycleDirectSpeed()" title="Speed">1.0x</button>
+
+                  <!-- Episodes Drawer Button -->
+                  <button type="button" id="stremioHudEpDrawerBtn" class="stremio-hud-btn" onclick="toggleStremioHudDrawer('episodes')" title="In-Player Episodes">📑 Episodes</button>
+
+                  <!-- Sources Drawer Button -->
+                  <button type="button" id="stremioHudSourcesDrawerBtn" class="stremio-hud-btn" onclick="toggleStremioHudDrawer('sources')" title="In-Player Sources">⚡ Sources</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- In-Player Slide-Out Drawer -->
+            <div id="stremioHudDrawer" class="stremio-hud-drawer">
+              <div class="stremio-hud-drawer-header">
+                <span id="stremioHudDrawerTitle" class="stremio-hud-drawer-title">Episodes</span>
+                <button type="button" class="stremio-hud-btn icon-only" onclick="closeStremioHudDrawer()" title="Close Drawer">✕</button>
+              </div>
+              <div id="stremioHudDrawerContent" class="stremio-hud-drawer-content"></div>
+            </div>
+          </div>
           <div id="streamCodecBanner" class="stream-codec-banner">
             <span id="streamCodecMessage">Browser cannot decode this MKV/HEVC stream directly. Open in VLC / Stremio or switch back to Server 1–4.</span>
             <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
@@ -8124,7 +8801,7 @@
       document.getElementById('trackSubBtn').classList.toggle('active', track === 'sub');
       document.getElementById('trackDubBtn').classList.toggle('active', track === 'dub');
       savePlaybackPrefs();
-      updatePlayerUrl();
+      updatePlayerUrl({ explicitServer: true });
     }
 
     // --- Direct HLS / MP4 Player, Subtitles (OpenSubtitles + Local SRT/VTT), PiP, Progress & AniSkip ---
@@ -8407,7 +9084,14 @@
     async function selectSubtitleTrack(val) {
       activeSubtitleOffsetSec = 0;
       const offLabel = document.getElementById('subOffsetLabel');
+      const hudOffLabel = document.getElementById('stremioHudSubOffsetVal');
       if (offLabel) offLabel.textContent = '0.0s';
+      if (hudOffLabel) hudOffLabel.textContent = '0.0s';
+      const nativeSelect = document.getElementById('subtitleSelect');
+      const hudSelect = document.getElementById('stremioHudSubSelect');
+      if (nativeSelect && nativeSelect.value !== String(val ?? '')) nativeSelect.value = String(val ?? '');
+      if (hudSelect && hudSelect.value !== String(val ?? '')) hudSelect.value = String(val ?? '');
+
       if (val === '' || val === null || val === undefined) {
         activeSubtitleVttRaw = '';
         clearDirectSubtitleTracks();
@@ -8468,10 +9152,11 @@
     function shiftSubtitleOffset(delta) {
       activeSubtitleOffsetSec = Math.round((activeSubtitleOffsetSec + delta) * 10) / 10;
       const offLabel = document.getElementById('subOffsetLabel');
-      if (offLabel) {
-        const sign = activeSubtitleOffsetSec > 0 ? '+' : '';
-        offLabel.textContent = `${sign}${activeSubtitleOffsetSec.toFixed(1)}s`;
-      }
+      const hudOffLabel = document.getElementById('stremioHudSubOffsetVal');
+      const sign = activeSubtitleOffsetSec > 0 ? '+' : '';
+      const text = `${sign}${activeSubtitleOffsetSec.toFixed(1)}s`;
+      if (offLabel) offLabel.textContent = text;
+      if (hudOffLabel) hudOffLabel.textContent = text;
       if (activeSubtitleVttRaw) {
         attachVttToDirectVideo(activeSubtitleVttRaw, 'Synced Subtitles', 'en');
       }
@@ -8699,6 +9384,377 @@
       }
     }
 
+    let stremioHudHideTimer = null;
+    let isStremioScrubbing = false;
+    let activeStremioDrawer = null;
+
+    function wakeStremioHud() {
+      const hud = document.getElementById('stremioPlayerHud');
+      const container = document.getElementById('playerContainer');
+      const vid = document.getElementById('directVideoPlayer');
+      if (!isDirectVideoActive() || !hud) return;
+      hud.classList.add('visible');
+      if (container) container.classList.add('hud-active');
+      if (stremioHudHideTimer) clearTimeout(stremioHudHideTimer);
+      if (vid && !vid.paused && !activeStremioDrawer && !isStremioSubMenuOpen() && !isStremioScrubbing) {
+        stremioHudHideTimer = setTimeout(() => {
+          if (vid && !vid.paused && !activeStremioDrawer && !isStremioSubMenuOpen() && !isStremioScrubbing) {
+            hud.classList.remove('visible');
+            if (container) container.classList.remove('hud-active');
+          }
+        }, 3500);
+      }
+    }
+
+    function showStremioHud() {
+      wakeStremioHud();
+    }
+
+    function isStremioSubMenuOpen() {
+      const m = document.getElementById('stremioHudSubMenu');
+      return !!(m && m.style.display !== 'none');
+    }
+
+    function toggleStremioHudSubMenu() {
+      const menu = document.getElementById('stremioHudSubMenu');
+      if (!menu) return;
+      const isOpen = menu.style.display !== 'none';
+      if (isOpen) {
+        closeStremioHudSubMenu();
+      } else {
+        closeStremioHudDrawer();
+        menu.style.display = 'flex';
+        syncStremioHudSubSelect();
+        wakeStremioHud();
+      }
+    }
+
+    function closeStremioHudSubMenu() {
+      const menu = document.getElementById('stremioHudSubMenu');
+      if (menu) menu.style.display = 'none';
+    }
+
+    function syncStremioHudSubSelect() {
+      const subSelect = document.getElementById('stremioHudSubSelect');
+      const nativeSelect = document.getElementById('subtitleSelect');
+      if (!subSelect) return;
+      subSelect.innerHTML = '<option value="">Subtitles: Off</option>' + (currentSubtitlesList || []).map((s, idx) =>
+        `<option value="${idx}">${escapeHtml(s.label || `Track ${idx + 1}`)}</option>`
+      ).join('');
+      if (nativeSelect && nativeSelect.value !== undefined) {
+        subSelect.value = nativeSelect.value;
+      }
+      const offLabel = document.getElementById('stremioHudSubOffsetVal');
+      if (offLabel) {
+        const sign = activeSubtitleOffsetSec > 0 ? '+' : '';
+        offLabel.textContent = `${sign}${activeSubtitleOffsetSec.toFixed(1)}s`;
+      }
+    }
+
+    function setSubtitleSize(size = 'normal') {
+      const vid = document.getElementById('directVideoPlayer');
+      if (!vid) return;
+      vid.classList.remove('sub-size-normal', 'sub-size-large', 'sub-size-xlarge');
+      vid.classList.add(`sub-size-${size}`);
+      try { localStorage.setItem('cineanime_sub_size', size); } catch (_) {}
+      showAppToast(`Subtitles: ${size.toUpperCase()}`);
+    }
+
+    function toggleDirectPlayPause() {
+      const vid = document.getElementById('directVideoPlayer');
+      const splash = document.getElementById('stremioHudSplashIcon');
+      if (!vid) return;
+      if (vid.paused) {
+        vid.play().catch(() => {});
+        if (splash) {
+          splash.textContent = '▶';
+          splash.classList.remove('flash');
+          void splash.offsetWidth;
+          splash.classList.add('flash');
+          setTimeout(() => splash.classList.remove('flash'), 500);
+        }
+      } else {
+        vid.pause();
+        if (splash) {
+          splash.textContent = '⏸';
+          splash.classList.remove('flash');
+          void splash.offsetWidth;
+          splash.classList.add('flash');
+          setTimeout(() => splash.classList.remove('flash'), 500);
+        }
+      }
+      wakeStremioHud();
+    }
+
+    function stremioHudSeek(delta) {
+      const vid = document.getElementById('directVideoPlayer');
+      if (!vid) return;
+      const cur = vid.currentTime || 0;
+      const dur = Number.isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 0;
+      vid.currentTime = Math.max(0, Math.min(dur || 1e9, cur + delta));
+      const ripple = delta < 0
+        ? document.getElementById('stremioHudRippleLeft')
+        : document.getElementById('stremioHudRippleRight');
+      if (ripple) {
+        ripple.classList.remove('flash');
+        void ripple.offsetWidth;
+        ripple.classList.add('flash');
+        setTimeout(() => ripple.classList.remove('flash'), 550);
+      }
+      showAppToast(delta < 0 ? `⏪ ${delta}s` : `⏩ +${delta}s`);
+      wakeStremioHud();
+    }
+
+    function toggleDirectMute() {
+      const vid = document.getElementById('directVideoPlayer');
+      const volBtn = document.getElementById('stremioHudVolBtn');
+      const slider = document.getElementById('stremioHudVolSlider');
+      if (!vid) return;
+      vid.muted = !vid.muted;
+      if (volBtn) volBtn.textContent = vid.muted ? '🔇' : (vid.volume > 0.5 ? '🔊' : '🔉');
+      if (slider && vid.muted) slider.value = '0';
+      else if (slider) slider.value = String(vid.volume);
+      showAppToast(vid.muted ? '🔇 Muted' : '🔊 Unmuted');
+      wakeStremioHud();
+    }
+
+    function setDirectVolume(val) {
+      const vid = document.getElementById('directVideoPlayer');
+      const volBtn = document.getElementById('stremioHudVolBtn');
+      if (!vid) return;
+      const num = Math.max(0, Math.min(1, Number(val) || 0));
+      vid.volume = num;
+      vid.muted = num <= 0.01;
+      if (volBtn) volBtn.textContent = vid.muted ? '🔇' : (num > 0.5 ? '🔊' : '🔉');
+      wakeStremioHud();
+    }
+
+    const PLAYBACK_SPEEDS = [1.0, 1.25, 1.5, 2.0, 0.75];
+    let currentSpeedIdx = 0;
+
+    function cycleDirectSpeed() {
+      const vid = document.getElementById('directVideoPlayer');
+      const btn = document.getElementById('stremioHudSpeedBtn');
+      if (!vid) return;
+      currentSpeedIdx = (currentSpeedIdx + 1) % PLAYBACK_SPEEDS.length;
+      const spd = PLAYBACK_SPEEDS[currentSpeedIdx];
+      vid.playbackRate = spd;
+      if (btn) btn.textContent = `${spd.toFixed(spd % 1 === 0 ? 1 : 2)}x`;
+      showAppToast(`⚡ Speed: ${spd}x`);
+      wakeStremioHud();
+    }
+
+    function toggleStremioHudDrawer(drawerType) {
+      if (activeStremioDrawer === drawerType) {
+        closeStremioHudDrawer();
+        return;
+      }
+      closeStremioHudSubMenu();
+      activeStremioDrawer = drawerType;
+      const drawer = document.getElementById('stremioHudDrawer');
+      const titleEl = document.getElementById('stremioHudDrawerTitle');
+      if (drawer) drawer.classList.add('active');
+      if (drawerType === 'episodes') {
+        if (titleEl) titleEl.textContent = '📑 Episodes';
+        renderStremioHudEpisodes();
+      } else if (drawerType === 'sources') {
+        if (titleEl) titleEl.textContent = '⚡ Sources & Streams';
+        renderStremioHudSources();
+      }
+      wakeStremioHud();
+    }
+
+    function closeStremioHudDrawer() {
+      activeStremioDrawer = null;
+      const drawer = document.getElementById('stremioHudDrawer');
+      if (drawer) drawer.classList.remove('active');
+      wakeStremioHud();
+    }
+
+    function renderStremioHudEpisodes() {
+      const content = document.getElementById('stremioHudDrawerContent');
+      if (!content || !currentAnime) return;
+      if (currentAnime.type === 'movie') {
+        content.innerHTML = `
+          <div class="stremio-drawer-item active">
+            <div>
+              <div style="font-weight:800; font-size:0.9rem;">🎬 Full Feature Film</div>
+              <div style="font-size:0.75rem; color:#a1a1aa; margin-top:2px;">${escapeHtml(currentAnime.title)}</div>
+            </div>
+            <span class="stream-pill-tag uhd">MOVIE</span>
+          </div>`;
+        return;
+      }
+
+      const totalEps = getEffectiveEpisodeCount(currentAnime, currentEpisode);
+      const curEp = Number(currentEpisode) || 1;
+      let html = '';
+
+      if (currentAnime.isMovieOrSeries && Array.isArray(currentAnime.seasonNumbers) && currentAnime.seasonNumbers.length > 1) {
+        html += `<div style="display:flex; gap:0.4rem; overflow-x:auto; padding-bottom:0.4rem; margin-bottom:0.4rem;">`;
+        currentAnime.seasonNumbers.forEach(sNum => {
+          const isCurS = Number(sNum) === Number(currentSeason);
+          html += `<button type="button" class="addon-stream-btn ${isCurS ? 'primary' : ''}" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="setSeriesSeason(${sNum}, 1); renderStremioHudEpisodes();">S${sNum}</button>`;
+        });
+        html += `</div>`;
+      }
+
+      const seasonEps = currentAnime.seasonsMap?.[Number(currentSeason)];
+      for (let i = 1; i <= totalEps; i++) {
+        const isCurrent = i === curEp;
+        const epMeta = seasonEps?.find(e => Number(e.ep) === i);
+        const epTitle = epMeta?.title ? escapeHtml(epMeta.title) : `Episode ${i}`;
+        const isWatched = isEpisodeWatched ? isEpisodeWatched(currentAnime.id, i, currentSeason) : false;
+        html += `
+          <div class="stremio-drawer-item ${isCurrent ? 'active' : ''}" onclick="setEpisode(${i}); closeStremioHudDrawer();">
+            <div style="min-width:0;">
+              <div style="font-size:0.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${isCurrent ? '▶ ' : ''}Ep ${i}: ${epTitle}</div>
+              <div style="font-size:0.72rem; color:#a1a1aa; margin-top:2px;">${isWatched ? '✔ Watched' : 'Unwatched'}</div>
+            </div>
+            ${isCurrent ? '<span class="stream-pill-tag cached" style="font-size:0.65rem;">PLAYING</span>' : ''}
+          </div>`;
+      }
+      content.innerHTML = html;
+    }
+
+    function renderStremioHudSources() {
+      const content = document.getElementById('stremioHudDrawerContent');
+      if (!content) return;
+      if (!currentAddonStreams || !currentAddonStreams.length) {
+        content.innerHTML = `
+          <div style="color:#a1a1aa; font-size:0.82rem; padding:1rem; text-align:center;">
+            No direct streams found.<br>
+            <button type="button" class="addon-stream-btn primary" style="margin-top:0.75rem;" onclick="switchToEmbedPlayer(); closeStremioHudDrawer();">Switch to Web Player</button>
+          </div>`;
+        return;
+      }
+
+      let html = '';
+      currentAddonStreams.forEach((s, idx) => {
+        const isCurrent = s === activeAddonStreamRef;
+        const q = s.quality || '1080P';
+        const isTorrent = !s.url && (s.magnet || s.infoHash);
+        const addonName = escapeHtml(s.addonName || 'Stremio Addon');
+        const badgeCls = q === '2160P' ? 'uhd' : (s.cached ? 'cached' : (isTorrent ? 'p2p' : ''));
+        html += `
+          <div class="stremio-drawer-item ${isCurrent ? 'active' : ''}" onclick="${isTorrent ? `streamTorrentByIndex(${s._idx})` : `playAddonStreamByIndex(${s._idx})`}; closeStremioHudDrawer();">
+            <div style="min-width:0; flex:1;">
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:3px;">
+                <span class="stream-pill-tag ${badgeCls}">${q}</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#ddd;">${addonName}</span>
+                ${s.preflight === 'verified' ? '<span style="font-size:0.65rem; color:#34d399;">✅</span>' : ''}
+              </div>
+              <div style="font-size:0.73rem; color:#a1a1aa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${escapeHtml(s.displayTitle || s.filename || 'Direct Stream')}
+              </div>
+            </div>
+            ${isCurrent ? '<span class="stream-pill-tag cached" style="font-size:0.65rem;">ACTIVE</span>' : ''}
+          </div>`;
+      });
+      content.innerHTML = html;
+    }
+
+    function updateStremioHudMetadata(streamLabel = '') {
+      const titleEl = document.getElementById('stremioHudTitle');
+      const epEl = document.getElementById('stremioHudEpisode');
+      const badgeEl = document.getElementById('stremioHudQualityBadge');
+      if (!currentAnime) return;
+      if (titleEl) titleEl.textContent = currentAnime.title || 'CineAnime';
+      if (epEl) {
+        if (currentAnime.type === 'movie') {
+          epEl.textContent = currentAnime.year ? `Movie (${currentAnime.year})` : 'Movie';
+        } else {
+          const s = currentSeason === 0 ? 'Specials' : `S${currentSeason}`;
+          const epMeta = currentAnime.seasonsMap?.[currentSeason]?.find(e => Number(e.ep) === Number(currentEpisode));
+          const epName = epMeta?.title ? ` • ${epMeta.title}` : '';
+          epEl.textContent = `${s}:Ep ${currentEpisode}${epName}`;
+        }
+      }
+      if (badgeEl) {
+        const stream = activeAddonStreamRef;
+        const q = stream?.quality || extractStreamQuality(streamLabel) || '1080P FHD';
+        badgeEl.textContent = q;
+      }
+      syncStremioHudSubSelect();
+    }
+
+    function initStremioHud() {
+      const container = document.getElementById('playerContainer');
+      const hud = document.getElementById('stremioPlayerHud');
+      const vid = document.getElementById('directVideoPlayer');
+      const timelineWrap = document.getElementById('stremioHudTimelineContainer');
+      const previewPill = document.getElementById('stremioHudPreviewPill');
+      const progressEl = document.getElementById('stremioHudProgress');
+      const bufferedEl = document.getElementById('stremioHudBuffered');
+      const thumbEl = document.getElementById('stremioHudThumb');
+      const timeText = document.getElementById('stremioHudTime');
+      const playIcon = document.getElementById('stremioHudPlayIcon');
+
+      if (!container || !hud || !vid) return;
+
+      container.addEventListener('mousemove', wakeStremioHud);
+      container.addEventListener('touchstart', wakeStremioHud, { passive: true });
+      container.addEventListener('click', (e) => {
+        if (e.target.closest('#stremioHudDrawer') || e.target.closest('#stremioHudSubMenu') || e.target.closest('.stremio-hud-btn')) return;
+        if (activeStremioDrawer) closeStremioHudDrawer();
+        if (isStremioSubMenuOpen()) closeStremioHudSubMenu();
+      });
+
+      vid.addEventListener('play', () => {
+        if (playIcon) playIcon.textContent = '⏸';
+        wakeStremioHud();
+      });
+      vid.addEventListener('pause', () => {
+        if (playIcon) playIcon.textContent = '▶';
+        wakeStremioHud();
+      });
+
+      function seekToPos(clientX) {
+        if (!timelineWrap) return;
+        const rect = timelineWrap.getBoundingClientRect();
+        const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const dur = Number.isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 0;
+        if (dur > 0) {
+          vid.currentTime = pos * dur;
+          if (progressEl) progressEl.style.width = `${pos * 100}%`;
+          if (thumbEl) thumbEl.style.left = `${pos * 100}%`;
+          if (timeText) timeText.textContent = `${formatShortTime(pos * dur)} / ${formatShortTime(dur)}`;
+        }
+      }
+
+      if (timelineWrap) {
+        timelineWrap.addEventListener('mousedown', (e) => {
+          isStremioScrubbing = true;
+          timelineWrap.classList.add('scrubbing');
+          seekToPos(e.clientX);
+          const onMove = (ev) => seekToPos(ev.clientX);
+          const onUp = () => {
+            isStremioScrubbing = false;
+            timelineWrap.classList.remove('scrubbing');
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+            wakeStremioHud();
+          };
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        });
+
+        timelineWrap.addEventListener('mousemove', (e) => {
+          if (!previewPill) return;
+          const rect = timelineWrap.getBoundingClientRect();
+          const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          const dur = Number.isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 0;
+          previewPill.style.left = `${pos * 100}%`;
+          previewPill.textContent = formatShortTime(pos * dur);
+        });
+      }
+
+      try {
+        const savedSubSize = localStorage.getItem('cineanime_sub_size') || 'normal';
+        setSubtitleSize(savedSubSize);
+      } catch (_) {}
+    }
+
     function bindDirectVideoEvents(vid) {
       if (!vid || directListenersBound) return;
       directListenersBound = true;
@@ -8716,17 +9772,53 @@
           lastProgressWriteAt = now;
           saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, t, d, false);
         }
+
+        // Sync Stremio HUD Timeline
+        if (!isStremioScrubbing) {
+          const pct = d > 0 ? (t / d) * 100 : 0;
+          const progressEl = document.getElementById('stremioHudProgress');
+          const thumbEl = document.getElementById('stremioHudThumb');
+          const timeText = document.getElementById('stremioHudTime');
+          if (progressEl) progressEl.style.width = `${pct}%`;
+          if (thumbEl) thumbEl.style.left = `${pct}%`;
+          if (timeText) timeText.textContent = `${formatShortTime(t)} / ${formatShortTime(d)}`;
+
+          if (d > 0 && vid.buffered.length > 0) {
+            const bufEl = document.getElementById('stremioHudBuffered');
+            if (bufEl) {
+              for (let i = vid.buffered.length - 1; i >= 0; i--) {
+                if (vid.buffered.start(i) <= t) {
+                  const bufEnd = vid.buffered.end(i);
+                  bufEl.style.width = `${Math.min(100, (bufEnd / d) * 100)}%`;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
         const floatingBtn = document.getElementById('floatingSkipBtn');
-        if (floatingBtn) {
-          const hit = activeAniSkipSegments.find(seg => t >= seg.startTime && t < seg.endTime - 1);
-          if (hit) {
+        const hudSkipBtn = document.getElementById('stremioHudSkipBtn');
+        const hit = activeAniSkipSegments.find(seg => t >= seg.startTime && t < seg.endTime - 1);
+        if (hit) {
+          if (floatingBtn) {
             floatingBtn.dataset.targetTime = String(hit.endTime);
             floatingBtn.textContent = hit.skipType === 'ed' ? '⏭ Skip Ending' : '⏭ Skip Opening';
             floatingBtn.classList.add('active');
-          } else if (t >= 95 && (!activeAniSkipSegments.length || !activeAniSkipSegments.some(s => t < s.endTime))) {
+          }
+          if (hudSkipBtn) {
+            hudSkipBtn.textContent = hit.skipType === 'ed' ? '⏭ Skip ED' : '⏭ Skip OP';
+            hudSkipBtn.style.display = 'inline-flex';
+          }
+        } else {
+          if (t >= 95 && (!activeAniSkipSegments.length || !activeAniSkipSegments.some(s => t < s.endTime))) {
             hideFloatingSkipBtn();
           }
+          if (hudSkipBtn && t >= 95) {
+            hudSkipBtn.style.display = 'none';
+          }
         }
+
         const curKey = getEpisodeProgressKey(currentAnime, currentSeason, currentEpisode);
         if (d > 60 && (d - t) <= 15 && hasNextEpisodeAvailable() && upNextDismissedForEpKey !== curKey && !upNextTimer) {
           startUpNextCountdown(10);
@@ -8735,6 +9827,7 @@
       vid.addEventListener('playing', () => {
         clearActiveStallTimer();
         noteActiveStreamPlaying();
+        wakeStremioHud();
       });
       vid.addEventListener('waiting', () => {
         if (!activePlaybackHealth || activePlaybackHealth.recorded || activePlaybackHealth.failed) armActiveStallTimer(vid);
@@ -8750,6 +9843,7 @@
         if ((vid.currentTime || 0) >= 5) {
           saveEpisodeProgress(currentAnime, currentSeason, currentEpisode, vid.currentTime, vid.duration, true);
         }
+        wakeStremioHud();
       });
       vid.addEventListener('ended', () => {
         if (!currentAnime) return;
@@ -8764,23 +9858,41 @@
         if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
         if (e.code === 'Space') {
           e.preventDefault();
-          if (vid.paused) vid.play().catch(() => {});
-          else vid.pause();
+          toggleDirectPlayPause();
         } else if (e.code === 'ArrowLeft') {
           e.preventDefault();
-          vid.currentTime = Math.max(0, (vid.currentTime || 0) - 10);
-          showAppToast('⏪ -10s');
+          stremioHudSeek(-10);
         } else if (e.code === 'ArrowRight') {
           e.preventDefault();
-          vid.currentTime = Math.min(vid.duration || vid.currentTime, (vid.currentTime || 0) + 10);
-          showAppToast('⏩ +10s');
+          stremioHudSeek(10);
+        } else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+          wakeStremioHud();
         } else if (e.code === 'KeyM') {
           e.preventDefault();
-          vid.muted = !vid.muted;
-          showAppToast(vid.muted ? '🔇 Muted' : '🔊 Unmuted');
+          toggleDirectMute();
         } else if (e.code === 'KeyF') {
           e.preventDefault();
           toggleFullscreen();
+        } else if (e.code === 'KeyC') {
+          e.preventDefault();
+          toggleStremioHudSubMenu();
+        } else if (e.code === 'KeyS') {
+          e.preventDefault();
+          triggerFloatingSkip();
+        } else if (e.code === 'KeyN' || (e.shiftKey && e.code === 'ArrowRight')) {
+          e.preventDefault();
+          changeEpisode(1);
+        } else if (e.code === 'KeyP' || (e.shiftKey && e.code === 'ArrowLeft')) {
+          e.preventDefault();
+          changeEpisode(-1);
+        } else if (e.code === 'Escape') {
+          if (activeStremioDrawer) {
+            e.preventDefault();
+            closeStremioHudDrawer();
+          } else if (isStremioSubMenuOpen()) {
+            e.preventDefault();
+            closeStremioHudSubMenu();
+          }
         }
       });
     }
@@ -8789,6 +9901,21 @@
       cancelUpNextCountdown(false);
       clearActiveStallTimer();
       clearDirectSubtitleTracks();
+      closeStremioHudDrawer();
+      closeStremioHudSubMenu();
+      const hud = document.getElementById('stremioPlayerHud');
+      if (hud) hud.classList.remove('visible', 'locked');
+      const container = document.getElementById('playerContainer');
+      if (container) container.classList.remove('hud-active');
+      const resolvingCard = document.getElementById('stremioResolvingCard');
+      if (resolvingCard) resolvingCard.classList.remove('active');
+      const prog = document.getElementById('stremioHudProgress');
+      const buf = document.getElementById('stremioHudBuffered');
+      const thumb = document.getElementById('stremioHudThumb');
+      if (prog) prog.style.width = '0%';
+      if (buf) buf.style.width = '0%';
+      if (thumb) thumb.style.left = '0%';
+
       if (typeof stopWebTorrent === 'function') stopWebTorrent();
       if (activeHlsInstance) {
         try { activeHlsInstance.destroy(); } catch (_) {}
@@ -8832,7 +9959,7 @@
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
         b.classList.toggle('active', b.dataset.server === activeServer);
       });
-      updatePlayerUrl();
+      updatePlayerUrl({ explicitServer: true });
     }
 
     function copyCurrentDirectStreamUrl() {
@@ -8849,6 +9976,7 @@
       resetDirectVideoPlayer();
       const iframe = document.getElementById('playerIframe');
       const vid = document.getElementById('directVideoPlayer');
+      const resolvingCard = document.getElementById('stremioResolvingCard');
       const codecBanner = document.getElementById('streamCodecBanner');
       const vlcBtn = document.getElementById('streamCodecVlcBtn');
       const badge = document.getElementById('playerCoreBadge');
@@ -8856,6 +9984,8 @@
       const qSelect = document.getElementById('hlsQualitySelect');
       if (!vid) return;
 
+      if (resolvingCard) resolvingCard.classList.remove('active');
+      vid.removeAttribute('controls');
       bindDirectVideoEvents(vid);
       if (streamTimer) clearTimeout(streamTimer);
       const assist = document.getElementById('streamAssistPill');
@@ -8876,6 +10006,8 @@
       if (currentAnime) {
         document.getElementById('playerTitle').innerText = `${currentAnime.title} • ${streamLabel}`;
       }
+      updateStremioHudMetadata(streamLabel);
+      showStremioHud();
 
       const tryRestorePosition = () => {
         const saved = getSavedEpisodeProgress(currentAnime, currentSeason, currentEpisode);
@@ -9020,7 +10152,7 @@
       }, dwellMs);
     }
 
-    function updatePlayerUrl() {
+    function updatePlayerUrl(opts = {}) {
       resetDirectVideoPlayer();
       upNextDismissedForEpKey = '';
       const getUrl = SERVERS[activeServer] || SERVERS.server1;
@@ -9028,10 +10160,26 @@
       const savedProg = getSavedEpisodeProgress(currentAnime, currentSeason, currentEpisode);
       const url = appendEmbedStartAt(baseUrl, savedProg);
       const iframe = document.getElementById('playerIframe');
-      ensureSandboxedPlayer(iframe, url);
-      iframe.style.display = 'block';
-      iframe.src = url;
-      scheduleAutoWatchedAfterPlayback();
+      const resolvingCard = document.getElementById('stremioResolvingCard');
+
+      const isExplicitServer = Boolean(opts?.explicitServer);
+      const autoDirect = getAutoDirect1080pEnabled();
+
+      if (isExplicitServer || !autoDirect) {
+        if (resolvingCard) resolvingCard.classList.remove('active');
+        ensureSandboxedPlayer(iframe, url);
+        iframe.style.display = 'block';
+        iframe.src = url;
+        startStreamAssistTimer();
+        scheduleAutoWatchedAfterPlayback();
+      } else {
+        // Stremio-first mode: show resolving card, avoid loading embed iframe upfront
+        if (iframe) {
+          iframe.src = 'about:blank';
+          iframe.style.display = 'none';
+        }
+        if (resolvingCard) resolvingCard.classList.add('active');
+      }
 
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
         b.classList.toggle('active', b.dataset.server === activeServer);
@@ -9183,7 +10331,7 @@
         b.classList.toggle('active', b.dataset.server === serverKey);
       });
       savePlaybackPrefs();
-      updatePlayerUrl();
+      updatePlayerUrl({ explicitServer: true });
       if (currentAnime) saveWatchHistory(currentAnime, currentEpisode, activeServer);
     }
 
@@ -9380,6 +10528,7 @@
       }
       if (active) {
         initFsHudListeners();
+      initStremioHud();
         updateFsHud();
         showFsHud();
       } else if (container) {
@@ -9441,7 +10590,7 @@
 
     function isDirectVideoActive() {
       const directVideo = document.getElementById('directVideoPlayer');
-      return !!(directVideo && directVideo.style.display !== 'none' && directVideo.currentSrc);
+      return !!(directVideo && directVideo.style.display !== 'none' && (directVideo.currentSrc || directVideo.src));
     }
 
     function skipIntro() {
@@ -12887,7 +14036,13 @@
 
       closeTorrentModal();
       document.getElementById('theaterSection').classList.add('active');
-      streamTorrentWithWebTorrent(cleanMagnet, title);
+      if (stremioEngineStatus.online && hash) {
+        const engineUrl = `${getStremioEngineUrl()}/${hash}/0`;
+        showAppToast(`⚡ Streaming via Stremio Engine (${hash.slice(0, 8)})...`);
+        playDirectStreamUrl(engineUrl, `${title} • Stremio Engine`);
+      } else {
+        streamTorrentWithWebTorrent(cleanMagnet, title);
+      }
       scrollToPlayer();
     }
 
@@ -12913,7 +14068,13 @@
         currentEpisode = 1;
         currentSeason = 1;
         document.getElementById('theaterSection').classList.add('active');
-        streamTorrentWithWebTorrent(item.magnet || item.hash, item.title);
+        if (stremioEngineStatus.online && item.hash) {
+          const engineUrl = `${getStremioEngineUrl()}/${item.hash}/0`;
+          showAppToast(`⚡ Streaming via Stremio Engine (${item.hash.slice(0, 8)})...`);
+          playDirectStreamUrl(engineUrl, `${item.title || 'Custom Stream'} • Stremio Engine`);
+        } else {
+          streamTorrentWithWebTorrent(item.magnet || item.hash, item.title);
+        }
       }
       scrollToPlayer();
     }
@@ -13178,6 +14339,22 @@
         currentAddonStreams = [];
         if (statusEl) statusEl.textContent = 'External stream ID unavailable for this title — use Server 1–4 above.';
         if (grid) grid.innerHTML = '';
+        const resolvingCard = document.getElementById('stremioResolvingCard');
+        const iframe = document.getElementById('playerIframe');
+        if (resolvingCard && resolvingCard.classList.contains('active')) {
+          resolvingCard.classList.remove('active');
+          if (iframe && (iframe.src === 'about:blank' || iframe.style.display === 'none')) {
+            const getUrl = SERVERS[activeServer] || SERVERS.server1;
+            const baseUrl = getUrl(currentAnime, currentSeason, currentEpisode);
+            const savedProg = getSavedEpisodeProgress(currentAnime, currentSeason, currentEpisode);
+            const url = appendEmbedStartAt(baseUrl, savedProg);
+            ensureSandboxedPlayer(iframe, url);
+            iframe.style.display = 'block';
+            iframe.src = url;
+            startStreamAssistTimer();
+            scheduleAutoWatchedAfterPlayback();
+          }
+        }
         return;
       }
 
@@ -13202,7 +14379,7 @@
         }
         if (getAutoDirect1080pEnabled()) {
           const best = findBestDirectAddonStream();
-          if (best && (best.quality === '1080P' || best.quality === '2160P' || best.quality === '1440P' || !best.quality)) {
+          if (best) {
             lastAutoLaunchedEpisodeKey = epAutoKey;
             playBestDirectAddonStream(true);
           }
@@ -13322,6 +14499,24 @@
       }
       renderAddonStreamsList();
       maybeTriggerAuto1080p();
+
+      const resolvingCard = document.getElementById('stremioResolvingCard');
+      const iframe = document.getElementById('playerIframe');
+      if (!isDirectVideoActive() && resolvingCard && resolvingCard.classList.contains('active')) {
+        resolvingCard.classList.remove('active');
+        if (iframe && (iframe.src === 'about:blank' || iframe.style.display === 'none')) {
+          const getUrl = SERVERS[activeServer] || SERVERS.server1;
+          const baseUrl = getUrl(currentAnime, currentSeason, currentEpisode);
+          const savedProg = getSavedEpisodeProgress(currentAnime, currentSeason, currentEpisode);
+          const url = appendEmbedStartAt(baseUrl, savedProg);
+          ensureSandboxedPlayer(iframe, url);
+          iframe.style.display = 'block';
+          iframe.src = url;
+          startStreamAssistTimer();
+          scheduleAutoWatchedAfterPlayback();
+          showAppToast('No direct addon streams found for this episode — loaded Web Player.');
+        }
+      }
     }
 
     // --- Live Simulcast & Newly Released Episodes Feed (Kitsu High-Speed Core) ---
@@ -16865,6 +18060,7 @@
       initNativeDialogs();
       initDynamicYearLabels();
       initFsHudListeners();
+      initStremioHud();
       syncSandboxToggleUi();
       if (localStorage.getItem('cineanime_tv_mode_force') === '1') {
         document.body.classList.add('tv-mode');

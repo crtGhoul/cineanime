@@ -130,7 +130,12 @@ namespace CineAnime
                     "WebView2Data"
                 );
 
-                var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+                var envOptions = new CoreWebView2EnvironmentOptions
+                {
+                    AdditionalBrowserArguments = "--enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --enable-hardware-overlays --autoplay-policy=no-user-gesture-required --disable-features=PreloadMediaEngagementData"
+                };
+
+                var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, envOptions);
 
                 _webView = new WebView2
                 {
@@ -165,7 +170,8 @@ namespace CineAnime
                         offlineFolder,
                         CoreWebView2HostResourceAccessKind.Allow
                     );
-                    _mirrorUrls.Add("https://offline.cineanime.local/index.html");
+                    // Prioritize ultra-fast local SSD bundle first for maximum PC smoothness
+                    _mirrorUrls.Insert(0, "https://offline.cineanime.local/index.html");
                 }
 
                 var settings = _webView.CoreWebView2.Settings;

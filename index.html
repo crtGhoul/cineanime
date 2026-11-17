@@ -3622,6 +3622,7 @@
       <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
       <button id="alertsBellBtn" type="button" class="nav-btn alerts-bell-btn" onclick="openAlertsDialog()" title="Episode Drop Alerts">🔔 Alerts<span id="alertsBadgeCount" class="alerts-badge-count">0</span></button>
       <button id="shortcutsBtn" type="button" class="nav-btn" onclick="openShortcutsDialog()" title="Keyboard &amp; TV Remote Shortcuts (?)">⌨ ?</button>
+      <button id="tvModeNavBtn" type="button" class="nav-btn" onclick="toggleTvMode()" title="Toggle Comcast TV / 10-ft Remote Control Mode">📺 TV Mode</button>
       <button id="syncNavBtn" class="nav-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History"><span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync</button>
       <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
       <button id="addTorrentNavBtn" class="nav-btn" onclick="openTorrentModal()" title="Add Magnet or Torrent Stream to Watch Anywhere">🧲 Add Torrent</button>
@@ -3653,6 +3654,7 @@
           <button class="server-btn" data-server="server2">🚀 Server 2 (AniList Mirror)</button>
           <button class="server-btn" data-server="server3">🔤 Server 3 (HardSub)</button>
           <button class="server-btn" data-server="server4">⚡ Server 4 (Multi-Embed HD)</button>
+          <button id="sandboxShieldBtn" class="server-btn" onclick="togglePlayerSandboxMode()" title="Toggle Sandbox / Embed Compatibility Mode">🛡️ Sandbox: Strict</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
@@ -4390,13 +4392,33 @@
           </div>
         </details>
 
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size: 0.82rem; color: var(--text-muted);">
-            Local Stremio Engine (<code>127.0.0.1:11470</code>)
+        <!-- Stremio Streaming Engine (Port 11470) & Comcast TV LAN Bridge -->
+        <div class="anilist-sync-box" style="margin-top: 1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <div style="font-weight:600; font-size:0.92rem; display:flex; align-items:center; gap:0.4rem;">
+                ⚡ Stremio Streaming Server Engine (Port 11470)
+                <span id="stremioEngineStatusBadge" class="shield-pill" style="font-size:0.7rem; background:rgba(255,255,255,0.06);">Checking...</span>
+              </div>
+              <p id="stremioEngineStatusText" style="margin-top:0.3rem; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+                Connect to Stremio's native engine on your PC or home network for instant high-speed torrent streaming with zero sandbox issues.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center;">
+              <button type="button" class="ctrl-btn" onclick="checkStremioEngineHealth(true)">⚡ Test Engine</button>
+              <a href="https://web.stremio.com" target="_blank" rel="noopener noreferrer" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+                Stremio Web ↗
+              </a>
+            </div>
           </div>
-          <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" class="server-btn" style="text-decoration:none; font-size: 0.8rem; padding: 0.4rem 0.85rem;">
-            Open Stremio Web ↗
-          </a>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.65rem; align-items:center;">
+            <input type="url" id="stremioEngineUrlInput" class="anilist-sync-input" style="flex:1 1 240px;" placeholder="http://127.0.0.1:11470 (or http://192.168.x.x:11470 for Comcast TV)" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <button type="button" class="ctrl-btn" onclick="saveStremioEngineUrlFromInput()">💾 Save Engine URL</button>
+            <button type="button" class="ctrl-btn" onclick="resetStremioEngineUrl()">↺ Reset (127.0.0.1:11470)</button>
+          </div>
+          <div style="margin-top:0.5rem; font-size:0.76rem; color:#888899; line-height:1.35;">
+            💡 <strong>Comcast TV &amp; LAN Tip:</strong> When watching on Comcast TV / Smart TV, run Stremio on your PC and enter your PC's LAN IP (e.g. <code>http://192.168.1.150:11470</code>) to stream all torrents over Wi-Fi with hardware acceleration and zero sandbox blocks!
+          </div>
         </div>
       </div>
     </div>
@@ -6771,24 +6793,65 @@
     // FORTRESS AD-BLOCKER, ANTI-POPUP & ANTI-DOWNLOAD SHIELD
     // ========================================================
     const IS_APPLE_DEVICE = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isDesktopApp = typeof window !== 'undefined' && Boolean(window.chrome && window.chrome.webview);
 
     function getDesiredPlayerSandbox(rawUrl) {
-      // Strict Mode (default): absolute lockdown, zero popups, zero redirects, zero ad tabs
-      // Compatible Mode (user-toggled via assist button): adds allow-popups for picky embed players, but NEVER allows escaping sandbox or top navigation
-      const isCompat = localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
-      return isCompat
-        ? 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups'
-        : 'allow-scripts allow-same-origin allow-forms allow-presentation';
+      // 1. In Windows Desktop Shell (WebView2), all popups and unwhitelisted redirects are ALREADY strictly blocked in C# at the process level
+      if (isDesktopApp) {
+        return null;
+      }
+      // 2. Unrestricted Mode (mode === '2'): removes sandbox attribute completely so embed scrapers don't throw "Please disable sandbox"
+      const mode = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
+      if (mode === '2' || mode === 'unrestricted') {
+        return null;
+      }
+      // 3. Compatible Mode (mode === '1'): adds allow-popups for picky embed players, but NEVER allows escaping sandbox or top navigation
+      if (mode === '1' || mode === 'compat') {
+        return 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups';
+      }
+      // 4. Strict Mode (default): absolute lockdown
+      return 'allow-scripts allow-same-origin allow-forms allow-presentation';
     }
 
     function isUnrestrictedPlayerUrl(rawUrl) {
-      return localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
+      const mode = localStorage.getItem('cineanime_unrestricted_sandbox');
+      return mode === '2' || mode === '1' || isDesktopApp;
     }
 
-    function togglePlayerSandboxMode() {
-      const current = localStorage.getItem('cineanime_unrestricted_sandbox') === '1';
-      const next = !current;
-      localStorage.setItem('cineanime_unrestricted_sandbox', next ? '1' : '0');
+    function syncSandboxToggleUi() {
+      const btn = document.getElementById('sandboxShieldBtn');
+      if (!btn) return;
+      if (isDesktopApp) {
+        btn.textContent = '⚡ Desktop Ad Shield';
+        btn.title = 'Protected by Windows Desktop Shell (WebView2 C# popup barrier)';
+        return;
+      }
+      const mode = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
+      if (mode === '2') {
+        btn.textContent = '🔓 Sandbox: OFF';
+        btn.title = 'Sandbox attribute removed for embed compatibility';
+      } else if (mode === '1') {
+        btn.textContent = '🔓 Sandbox: Popups';
+        btn.title = 'Popups allowed inside sandbox';
+      } else {
+        btn.textContent = '🛡️ Sandbox: Strict';
+        btn.title = 'Strict sandbox active — all popups blocked';
+      }
+    }
+
+    function togglePlayerSandboxMode(forceMode = null) {
+      const cur = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
+      let next = '0';
+      if (forceMode !== null) {
+        next = String(forceMode);
+      } else if (cur === '0') {
+        next = '1';
+      } else if (cur === '1') {
+        next = '2';
+      } else {
+        next = '0';
+      }
+      localStorage.setItem('cineanime_unrestricted_sandbox', next);
       const iframe = document.getElementById('playerIframe');
       if (iframe) {
         ensureSandboxedPlayer(iframe, iframe.src);
@@ -6798,14 +6861,35 @@
           setTimeout(() => { iframe.src = cur; }, 80);
         }
       }
-      showAppToast(next ? '🔓 Embed Compatibility Mode Active (allow-popups permitted inside sandbox)' : '🛡️ Strict Fortress Sandbox Active (all popups & ads blocked)');
+      syncSandboxToggleUi();
+      if (next === '2') {
+        showAppToast('🔓 Sandbox Disabled: Third-party embed restriction removed (Anti-popup shield active)');
+      } else if (next === '1') {
+        showAppToast('🔓 Compatible Sandbox: Popups allowed inside sandbox');
+      } else {
+        showAppToast('🛡️ Strict Sandbox: All popups, embeds & ad tabs locked down');
+      }
+    }
+
+    function toggleTvMode() {
+      const isTv = document.body.classList.toggle('tv-mode');
+      localStorage.setItem('cineanime_tv_mode_force', isTv ? '1' : '0');
+      const btn = document.getElementById('tvModeNavBtn');
+      if (btn) btn.textContent = isTv ? '📺 TV Mode: ON' : '📺 TV Mode';
+      showAppToast(isTv ? '📺 Comcast / 10-ft TV Mode Activated (D-Pad & Remote Optimized)' : '🖥️ Standard Desktop / Mobile Mode Activated');
     }
 
     function ensureSandboxedPlayer(iframe, targetUrl) {
       if (!iframe) return;
       const desired = getDesiredPlayerSandbox(targetUrl || iframe.src);
-      if (iframe.getAttribute('sandbox') !== desired) {
-        iframe.setAttribute('sandbox', desired);
+      if (desired === null) {
+        if (iframe.hasAttribute('sandbox')) {
+          iframe.removeAttribute('sandbox');
+        }
+      } else {
+        if (iframe.getAttribute('sandbox') !== desired) {
+          iframe.setAttribute('sandbox', desired);
+        }
       }
     }
 
@@ -6835,6 +6919,7 @@
     // 1. Permanently watch and ensure player iframe operates with optimal anti-ad sandbox
     window.addEventListener('DOMContentLoaded', () => {
       if (typeof initFsHudListeners === 'function') initFsHudListeners();
+      syncSandboxToggleUi();
       const pIframe = document.getElementById('playerIframe');
       if (pIframe) {
         ensureSandboxedPlayer(pIframe);
@@ -6842,7 +6927,11 @@
           for (const m of mutations) {
             if (m.attributeName === 'sandbox') {
               const desired = getDesiredPlayerSandbox(pIframe.src);
-              if (pIframe.getAttribute('sandbox') !== desired) {
+              if (desired === null) {
+                if (pIframe.hasAttribute('sandbox')) {
+                  pIframe.removeAttribute('sandbox');
+                }
+              } else if (pIframe.getAttribute('sandbox') !== desired) {
                 pIframe.setAttribute('sandbox', desired);
               }
             }
@@ -9058,8 +9147,8 @@
 
         if (assist) {
           const hasDirect = currentAddonStreams.some(s => s.url || s.magnet || s.infoHash);
-          const directBtn = hasDirect ? `<button class="stream-assist-btn" style="background:#10b981; color:#fff;" onclick="playBestDirectAddonStream()">▶ Direct 1080p (Ad-Free)</button> ` : '';
-          assist.innerHTML = `<span class="pulse-dot"></span> Still loading? ${directBtn}<button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button> <button class="stream-assist-btn" onclick="togglePlayerSandboxMode()">🔓 Toggle Sandbox</button>`;
+          const directBtn = hasDirect ? `<button class="stream-assist-btn" style="background:#10b981; color:#fff;" onclick="playBestDirectAddonStream()">▶ Direct 1080p (No Sandbox)</button> ` : '';
+          assist.innerHTML = `<span class="pulse-dot"></span> "Disable Sandbox" or loading? ${directBtn}<button class="stream-assist-btn" onclick="togglePlayerSandboxMode('2')">🔓 Remove Sandbox</button> <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button>`;
           assist.style.display = 'flex';
         }
 
@@ -12213,6 +12302,110 @@
       }
     }
 
+    // --- Stremio Streaming Server Engine (Port 11470) Core ---
+    let stremioEngineStatus = {
+      online: false,
+      version: '',
+      peers: 0,
+      downloadSpeed: 0,
+      lastChecked: 0
+    };
+
+    function getStremioEngineUrl() {
+      const custom = (localStorage.getItem('cineanime_stremio_server') || '').trim();
+      return custom ? custom.replace(/\/+$/, '') : 'http://127.0.0.1:11470';
+    }
+
+    function saveStremioEngineUrlFromInput() {
+      const input = document.getElementById('stremioEngineUrlInput');
+      const val = (input?.value || '').trim();
+      if (val) {
+        localStorage.setItem('cineanime_stremio_server', val);
+        showAppToast(`⚡ Stremio Engine URL saved: ${val}`);
+      } else {
+        localStorage.removeItem('cineanime_stremio_server');
+        showAppToast('⚡ Stremio Engine URL reset to default (127.0.0.1:11470)');
+      }
+      checkStremioEngineHealth(true);
+    }
+
+    function resetStremioEngineUrl() {
+      localStorage.removeItem('cineanime_stremio_server');
+      const input = document.getElementById('stremioEngineUrlInput');
+      if (input) input.value = 'http://127.0.0.1:11470';
+      showAppToast('⚡ Stremio Engine URL reset to default (127.0.0.1:11470)');
+      checkStremioEngineHealth(true);
+    }
+
+    async function checkStremioEngineHealth(notify = false) {
+      const base = getStremioEngineUrl();
+      const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(() => ctrl.abort(), 2000) : null;
+      try {
+        const res = await fetch(`${base}/stats.json`, ctrl ? { signal: ctrl.signal } : undefined);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        stremioEngineStatus = {
+          online: true,
+          version: data?.engineVersion || data?.version || '4.4',
+          peers: Number(data?.totalPeers || data?.peers || 0),
+          downloadSpeed: Number(data?.downloadSpeed || 0),
+          lastChecked: Date.now()
+        };
+        updateStremioEngineUi();
+        if (notify) showAppToast(`⚡ Stremio Engine Online at ${base} (v${stremioEngineStatus.version})`);
+        return true;
+      } catch (err) {
+        stremioEngineStatus = {
+          online: false,
+          version: '',
+          peers: 0,
+          downloadSpeed: 0,
+          lastChecked: Date.now()
+        };
+        updateStremioEngineUi();
+        if (notify) showAppToast(`⚪ Stremio Engine offline at ${base}. Run Stremio / Stremio Service to enable.`);
+        return false;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
+
+    function updateStremioEngineUi() {
+      const badge = document.getElementById('stremioEngineStatusBadge');
+      const input = document.getElementById('stremioEngineUrlInput');
+      const statusText = document.getElementById('stremioEngineStatusText');
+      if (input && !input.value) {
+        input.value = getStremioEngineUrl();
+      }
+      if (statusText) {
+        if (stremioEngineStatus.online) {
+          statusText.innerHTML = `<span style="color:#10b981; font-weight:600;">● Online</span> (v${stremioEngineStatus.version || '4.4'}) — Local High-Speed BitTorrent Engine Active`;
+        } else {
+          statusText.innerHTML = `<span style="color:#a8a8b8;">○ Offline</span> — Start Stremio on PC / enter LAN IP for Comcast TV`;
+        }
+      }
+      if (badge) {
+        if (stremioEngineStatus.online) {
+          badge.style.background = 'rgba(16,185,129,0.18)';
+          badge.style.color = '#34d399';
+          badge.style.borderColor = 'rgba(16,185,129,0.4)';
+          badge.textContent = `Online (v${stremioEngineStatus.version || '4.4'})`;
+        } else {
+          badge.style.background = 'rgba(255,255,255,0.06)';
+          badge.style.color = 'var(--text-muted)';
+          badge.style.borderColor = 'rgba(255,255,255,0.1)';
+          badge.textContent = 'Offline';
+        }
+      }
+    }
+
+    function extractInfoHashFromMagnet(magnet) {
+      if (!magnet || typeof magnet !== 'string') return '';
+      const m = magnet.match(/xt=urn:btih:([a-fA-F0-9]{40}|[a-zA-Z2-7]{32})/i);
+      return m ? m[1].toLowerCase() : '';
+    }
+
     function formatBytesRate(bytes) {
       if (!bytes || bytes <= 0) return '0 KB/s';
       if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB/s`;
@@ -12222,12 +12415,27 @@
     function streamTorrentByIndex(idx) {
       const s = currentAddonStreams[idx];
       if (!s) return;
-      const targetMagnet = s.magnet || (s.infoHash ? sanitizeMagnetUrl(s.infoHash, s.sources, s.displayTitle) : '');
-      if (!targetMagnet) {
-        showAppToast('No valid magnet link or infohash found for this stream.');
+      const cleanHash = s.infoHash || (s.magnet ? extractInfoHashFromMagnet(s.magnet) : '');
+      const fileIdx = Number.isFinite(s.fileIdx) ? s.fileIdx : 0;
+
+      // 1. If Stremio Engine is online (locally on PC or over LAN on Comcast TV):
+      if (stremioEngineStatus.online && cleanHash) {
+        const engineUrl = `${getStremioEngineUrl()}/${cleanHash}/${fileIdx}`;
+        showAppToast(`⚡ Streaming via Stremio Engine (${cleanHash.slice(0, 8)})...`);
+        playDirectStreamUrl(engineUrl, `${s.quality || '1080p'} • Stremio Engine`);
+        const badge = document.getElementById('playerCoreBadge');
+        if (badge) badge.innerText = '⚡ Stremio Engine (11470)';
         return;
       }
-      streamTorrentWithWebTorrent(targetMagnet, s.displayTitle, s.fileIdx);
+
+      // 2. If WebTorrent is available, fallback to in-browser WebTorrent:
+      const targetMagnet = s.magnet || (cleanHash ? sanitizeMagnetUrl(cleanHash, s.sources, s.displayTitle) : '');
+      if (targetMagnet) {
+        streamTorrentWithWebTorrent(targetMagnet, s.displayTitle, s.fileIdx);
+        return;
+      }
+
+      showAppToast('No valid magnet link, infohash, or Stremio stream found.');
     }
 
     function streamTorrentWithWebTorrent(magnetOrTarget, streamTitle = '', fileIdx = undefined) {
@@ -16657,7 +16865,14 @@
       initNativeDialogs();
       initDynamicYearLabels();
       initFsHudListeners();
+      syncSandboxToggleUi();
+      if (localStorage.getItem('cineanime_tv_mode_force') === '1') {
+        document.body.classList.add('tv-mode');
+        const tvBtn = document.getElementById('tvModeNavBtn');
+        if (tvBtn) tvBtn.textContent = '📺 TV Mode: ON';
+      }
       loadRemoteServerRegistry(true);
+      checkStremioEngineHealth(false);
       await restoreTabVaultSession();
       hydrateWatchlistCache();
       applyPlaybackPrefsUi();
@@ -16682,6 +16897,8 @@
           || (window.screen.width >= 1280 && window.screen.height >= 720 && ('ontouchstart' in window === false) && navigator.maxTouchPoints === 0 && !window.matchMedia('(pointer: fine)').matches);
         if (isTvEnv) {
           document.body.classList.add('tv-mode');
+          const tvBtn = document.getElementById('tvModeNavBtn');
+          if (tvBtn) tvBtn.textContent = '📺 TV Mode: ON';
           setTimeout(() => {
             const initialFocus = document.querySelector('.hero-banner .btn-primary, #searchInput, .anime-card');
             if (initialFocus) {

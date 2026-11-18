@@ -394,6 +394,156 @@
       display: none !important;
     }
 
+    /* ========================================================
+       STREMIO MASTER HEADER & NAVIGATION
+       ======================================================== */
+    header.stremio-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(9, 9, 13, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.6rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 64px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+      transition: background 0.3s ease;
+    }
+
+    .stremio-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .stremio-nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .stremio-nav-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      padding: 0.42rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .stremio-nav-tab:hover,
+    .stremio-nav-tab:focus-visible,
+    .stremio-nav-tab.tv-focused {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .stremio-nav-tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.25), rgba(168, 85, 247, 0.25));
+      border-color: rgba(229, 9, 20, 0.55);
+      box-shadow: 0 0 14px rgba(229, 9, 20, 0.3);
+    }
+
+    .stremio-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      line-height: 1.2;
+    }
+
+    .stremio-header-center {
+      flex: 1 1 340px;
+      max-width: 460px;
+      min-width: 180px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .stremio-header-center .search-bar-container {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+    }
+
+    .stremio-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    .stremio-tool-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 0.42rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .stremio-tool-btn:hover,
+    .stremio-tool-btn:focus-visible,
+    .stremio-tool-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .stremio-tool-btn.icon-only {
+      padding: 0.42rem 0.55rem;
+      position: relative;
+    }
+
+    /* Red Watch Progress Bar on Posters (Netflix / Stremio Signature) */
+    .card-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 5;
+      overflow: hidden;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .card-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e50914, #ff2e3a);
+      box-shadow: 0 0 10px rgba(229, 9, 20, 0.9);
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+
     /* Cover Resolution Quality Badges (Reddit Wishlist: Shows on cover if HD / 4K) */
     .card-quality-badge {
       position: absolute;
@@ -1735,9 +1885,9 @@
       }
     }
 
-    /* Filter Tabs Bar */
+    /* Filter Tabs Bar (Consolidated into Stremio Master Header Navigation) */
     .filter-tabs-bar {
-      display: flex;
+      display: none !important;
       align-items: center;
       gap: 0.75rem;
       margin-bottom: 1.5rem;
@@ -4293,32 +4443,81 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <a href="./" class="brand">
-      <div class="brand-icon">▶</div>
-      <div class="brand-title">Cine<span>Anime</span></div>
-    </a>
+  <!-- Stremio-Style Master Header Navigation -->
+  <header class="stremio-header">
+    <div class="stremio-header-left">
+      <a href="./" class="brand" title="CineAnime Discover">
+        <div class="brand-icon">▶</div>
+        <div class="brand-title">Cine<span>Anime</span></div>
+      </a>
 
-    <div class="search-bar-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" aria-label="Search anime, movies, TV shows" placeholder="Search anime, movies, TV shows..." autocomplete="off">
-      <button id="clearSearchBtn" type="button" class="search-clear-btn" aria-label="Clear search" title="Clear search" onclick="clearSearchResults()" style="display: none;">✕</button>
+      <!-- Primary Stremio Core Tabs -->
+      <nav class="stremio-nav-tabs" role="tablist" aria-label="Main Navigation">
+        <button type="button" class="stremio-nav-tab active" data-tab="all" onclick="switchTab('all')" title="Discover Top Hits & Anime">
+          <span class="stremio-tab-icon">🎬</span> Discover
+        </button>
+        <button type="button" class="stremio-nav-tab" data-tab="movies" id="headerMoviesTabBtn" onclick="switchTab('movies')" title="Movies Catalog">
+          <span class="stremio-tab-icon">🍿</span> Movies
+        </button>
+        <button type="button" class="stremio-nav-tab" data-tab="series" id="headerSeriesTabBtn" onclick="switchTab('series')" title="TV Shows & Series Catalog">
+          <span class="stremio-tab-icon">📺</span> Series
+        </button>
+        <button type="button" class="stremio-nav-tab" data-tab="watchlist" id="headerWatchlistTabBtn" onclick="switchTab('watchlist')" title="My Saved Library">
+          <span class="stremio-tab-icon">⭐</span> Library <span id="headerWatchlistBadge" class="stremio-badge">0</span>
+        </button>
+        <button type="button" class="stremio-nav-tab" data-tab="history" id="headerHistoryTabBtn" onclick="switchTab('history')" title="Continue Watching History">
+          <span class="stremio-tab-icon">🕒</span> Continue <span id="headerHistoryBadge" class="stremio-badge">0</span>
+        </button>
+        <button type="button" class="stremio-nav-tab" data-tab="schedule" id="headerScheduleTabBtn" onclick="switchTab('schedule')" title="Airing Broadcast Schedule">
+          <span class="stremio-tab-icon">📅</span> Airing
+        </button>
+      </nav>
     </div>
 
-    <div class="nav-actions">
-      <button id="pwaInstallBtn" class="nav-btn" onclick="triggerPwaInstall()" style="border-color: rgba(229, 9, 20, 0.4); background: rgba(229, 9, 20, 0.12);">📲 Install App</button>
-      <button class="nav-btn" onclick="openAddonModal()">🧩 Stremio Addons</button>
-      <button class="nav-btn" onclick="switchTab('movies')">🎬 Movies</button>
-      <button id="alertsBellBtn" type="button" class="nav-btn alerts-bell-btn" onclick="openAlertsDialog()" title="Episode Drop Alerts">🔔 Alerts<span id="alertsBadgeCount" class="alerts-badge-count">0</span></button>
-      <button id="shortcutsBtn" type="button" class="nav-btn" onclick="openShortcutsDialog()" title="Keyboard &amp; TV Remote Shortcuts (?)">⌨ ?</button>
-      <button id="tvModeNavBtn" type="button" class="nav-btn" onclick="toggleTvMode()" title="Toggle Comcast TV / 10-ft Remote Control Mode">📺 TV Mode</button>
-      <button id="syncNavBtn" class="nav-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History"><span id="syncNavDot" class="sync-live-dot"></span>🔗 Sync</button>
-      <button id="authBtn" class="nav-btn" onclick="handleAuthClick()">👤 Sign In</button>
-      <button id="addTorrentNavBtn" class="nav-btn" onclick="openTorrentModal()" title="Add Magnet or Torrent Stream to Watch Anywhere">🧲 Add Torrent</button>
-      <button id="settingsBtn" type="button" class="nav-btn" onclick="openSettingsModal()" title="Settings, About, Downloads & Support">⚙️ Settings</button>
-      <button class="nav-btn primary" onclick="scrollToPlayer()">
-        ⚡ Watch Online
+    <div class="stremio-header-center">
+      <div class="search-bar-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" aria-label="Search movies, series, anime" placeholder="Search movies, series, anime (Ctrl+K)..." autocomplete="off">
+        <button id="clearSearchBtn" type="button" class="search-clear-btn" aria-label="Clear search" title="Clear search" onclick="clearSearchResults()" style="display: none;">✕</button>
+      </div>
+    </div>
+
+    <div class="stremio-header-right">
+      <button id="addTorrentNavBtn" class="stremio-tool-btn" onclick="openTorrentModal()" title="Add Magnet or Torrent Stream to Watch Instantly">
+        <span class="tool-icon">🧲</span>
+        <span class="tool-text">Add Torrent</span>
+      </button>
+      <button id="addonNavBtn" class="stremio-tool-btn" onclick="openAddonModal()" title="Manage Stremio Addons & Debrid">
+        <span class="tool-icon">🧩</span>
+        <span class="tool-text">Addons</span>
+      </button>
+      <button id="tvModeNavBtn" class="stremio-tool-btn" onclick="toggleTvMode()" title="Toggle Comcast TV Remote Mode">
+        <span class="tool-icon">📺</span>
+        <span class="tool-text">TV Mode</span>
+      </button>
+      <button id="alertsBellBtn" type="button" class="stremio-tool-btn icon-only alerts-bell-btn" onclick="openAlertsDialog()" title="Episode Drop Alerts">
+        🔔<span id="alertsBadgeCount" class="alerts-badge-count">0</span>
+      </button>
+      <button id="shortcutsBtn" type="button" class="stremio-tool-btn icon-only" onclick="openShortcutsDialog()" title="Keyboard & TV Remote Shortcuts (?)">
+        ⌨
+      </button>
+      <button id="syncNavBtn" class="stremio-tool-btn" onclick="openSyncModal()" title="Link Devices & Sync Watch History">
+        <span id="syncNavDot" class="sync-live-dot"></span>
+        <span class="tool-icon">🔗</span>
+        <span class="tool-text">Sync</span>
+      </button>
+      <button id="authBtn" class="stremio-tool-btn" onclick="handleAuthClick()" title="Sign In / Encryption Vault">
+        <span class="tool-icon">👤</span>
+        <span class="tool-text">Account</span>
+      </button>
+      <button id="settingsBtn" type="button" class="stremio-tool-btn icon-only" onclick="openSettingsModal()" title="Settings, Downloads & Support">
+        ⚙️
+      </button>
+      <button id="pwaInstallBtn" class="stremio-tool-btn pwa-install" onclick="triggerPwaInstall()" style="display: none;" title="Install Progressive Web App">
+        📲 Install
+      </button>
+      <button class="stremio-tool-btn primary" onclick="scrollToPlayer()" style="background: var(--accent); color: #fff; border-color: var(--accent);" title="Scroll to Active Player">
+        ⚡ Player
       </button>
     </div>
   </header>
@@ -8137,6 +8336,26 @@
             <img class="card-poster" src="${item.poster}" alt="${safeTitle}" loading="lazy" onerror="handlePosterImgError(this)">
             <div class="card-rating">★ ${item.rating}</div>
             <div class="card-ep-badge">${epBadge}</div>
+            ${(() => {
+              try {
+                const historyList = getWatchHistory();
+                const hItem = historyList && historyList.find(h => String(h.id) === String(item.id));
+                if (hItem) {
+                  let pct = 0;
+                  if (hItem.currentTime && hItem.duration && hItem.duration > 0) {
+                    pct = Math.min(100, Math.max(5, Math.round((hItem.currentTime / hItem.duration) * 100)));
+                  } else if (hItem.episode && item.episodes && item.episodes > 1) {
+                    pct = Math.min(100, Math.max(8, Math.round((hItem.episode / item.episodes) * 100)));
+                  } else if (hItem.episode) {
+                    pct = 40;
+                  }
+                  if (pct > 0) {
+                    return `<div class="card-progress-bar"><div class="card-progress-fill" style="width: ${pct}%;"></div></div>`;
+                  }
+                }
+              } catch (_) {}
+              return '';
+            })()}
           </div>
           <div class="card-info">
             <div class="card-title" title="${safeTitle}">${safeTitle}</div>
@@ -15022,6 +15241,18 @@
     // Keyboard Shortcuts for TV / Remote (Escape handled uniformly by __cineHandleTvBack)
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.isContentEditable) return;
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        const s = document.getElementById('searchInput');
+        if (s) { s.focus(); s.select(); }
+        return;
+      }
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const s = document.getElementById('searchInput');
+        if (s) { s.focus(); s.select(); }
+        return;
+      }
       if (e.key === '?') { e.preventDefault(); openShortcutsDialog(); return; }
       if (e.key === 'ArrowRight' && e.shiftKey) changeEpisode(1);
       if (e.key === 'ArrowLeft' && e.shiftKey) changeEpisode(-1);
@@ -17606,6 +17837,10 @@
       const activeBtn = document.querySelector(`.filter-tab[data-tab="${tab}"]`);
       if (activeBtn) activeBtn.classList.add('active');
 
+      document.querySelectorAll('.stremio-nav-tab').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+      });
+
       const historySection = document.getElementById('historySection');
       const watchlistSection = document.getElementById('watchlistSection');
       const searchSection = document.getElementById('searchSection');
@@ -17976,8 +18211,12 @@
       const watchlist = getWatchlist();
       const hBadge = document.getElementById('historyBadgeCount');
       const wBadge = document.getElementById('watchlistBadgeCount');
+      const headerHBadge = document.getElementById('headerHistoryBadge');
+      const headerWBadge = document.getElementById('headerWatchlistBadge');
       if (hBadge) hBadge.innerText = history.length;
       if (wBadge) wBadge.innerText = watchlist.length;
+      if (headerHBadge) headerHBadge.innerText = history.length;
+      if (headerWBadge) headerWBadge.innerText = watchlist.length;
 
       const authBtn = document.getElementById('authBtn');
       if (authBtn) {

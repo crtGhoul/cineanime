@@ -354,6 +354,152 @@
       background: rgba(255, 255, 255, 0.22);
     }
 
+    /* Clean Theater & Search Mode Isolation */
+    body.theater-mode-open #heroSection,
+    body.theater-mode-open .filter-tabs-bar,
+    body.theater-mode-open .platform-pills-bar,
+    body.theater-mode-open .genre-pills-bar,
+    body.theater-mode-open .anime-discover-bar,
+    body.theater-mode-open #continueHomeSection,
+    body.theater-mode-open #watchlistSection,
+    body.theater-mode-open #historySection,
+    body.theater-mode-open #scheduleSection,
+    body.theater-mode-open #latestReleasesSection,
+    body.theater-mode-open #latestRealReleasesSection,
+    body.theater-mode-open #seasonalSection,
+    body.theater-mode-open #trendingSection,
+    body.theater-mode-open #legendarySection,
+    body.theater-mode-open #moviesSection,
+    body.theater-mode-open #seriesSection,
+    body.theater-mode-open #searchSection {
+      display: none !important;
+    }
+
+    body.search-mode-active #heroSection,
+    body.search-mode-active .filter-tabs-bar,
+    body.search-mode-active .platform-pills-bar,
+    body.search-mode-active .genre-pills-bar,
+    body.search-mode-active .anime-discover-bar,
+    body.search-mode-active #continueHomeSection,
+    body.search-mode-active #watchlistSection,
+    body.search-mode-active #historySection,
+    body.search-mode-active #scheduleSection,
+    body.search-mode-active #latestReleasesSection,
+    body.search-mode-active #latestRealReleasesSection,
+    body.search-mode-active #seasonalSection,
+    body.search-mode-active #trendingSection,
+    body.search-mode-active #legendarySection,
+    body.search-mode-active #moviesSection,
+    body.search-mode-active #seriesSection {
+      display: none !important;
+    }
+
+    /* Cover Resolution Quality Badges (Reddit Wishlist: Shows on cover if HD / 4K) */
+    .card-quality-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      z-index: 4;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+    }
+    .card-quality-badge.uhd-4k {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.95), rgba(202, 138, 4, 0.95));
+      color: #000;
+      border: 1px solid rgba(254, 240, 138, 0.7);
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.45);
+    }
+    .card-quality-badge.fhd-1080p {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(2, 132, 199, 0.95));
+      color: #fff;
+      border: 1px solid rgba(186, 230, 253, 0.6);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+    }
+    .card-quality-badge.hd-720p {
+      background: linear-gradient(135deg, rgba(100, 116, 139, 0.95), rgba(71, 85, 105, 0.95));
+      color: #fff;
+      border: 1px solid rgba(203, 213, 225, 0.5);
+    }
+
+    /* Platform Filter Pills Bar (Sort by streaming platform: Netflix, Crunchyroll, Disney+, Max, etc.) */
+    .platform-pills-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+      padding-bottom: 0.35rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .platform-pills-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .platform-pill {
+      background: rgba(25, 25, 35, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      padding: 0.45rem 1.05rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      user-select: none;
+    }
+    .platform-pill:hover,
+    .platform-pill:focus-visible,
+    .platform-pill.tv-focused {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .platform-pill.active {
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.25), rgba(168, 85, 247, 0.25));
+      border-color: rgba(229, 9, 20, 0.6);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(229, 9, 20, 0.3);
+    }
+    .platform-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    /* Theater Back to Browse Button */
+    .theater-back-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .theater-back-btn:hover,
+    .theater-back-btn.tv-focused {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #fff;
+      transform: translateX(-2px);
+    }
+
     /* Theater Player Section (Hidden until active) */
     .theater-section {
       display: none;
@@ -4184,6 +4330,7 @@
     <section id="theaterSection" class="theater-section">
       <div class="theater-header">
         <div class="theater-title-group">
+          <button type="button" class="ctrl-btn theater-back-btn" onclick="closeTheater()" title="Back to Browse Catalog">← Back to Browse</button>
           <span id="playerCoreBadge" class="shield-pill">⚡ 100% Ad-Free Anime Core</span>
           <span id="playerTitle" class="theater-title">Solo Leveling • Season 1: Episode 1</span>
           <div id="subDubToggleBox" class="sub-dub-toggle">
@@ -4549,6 +4696,23 @@
       </div>
     </section>
 
+    <!-- Live Search Results Section -->
+    <section id="searchSection" class="catalog-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-pip" style="background: #a855f7;"></div>
+          <span id="searchSectionTitle">🔍 Search Results</span>
+        </div>
+        <button id="searchSectionClearBtn" type="button" class="nav-btn" style="font-size: 0.78rem; padding: 0.35rem 0.8rem;" onclick="clearSearchResults()">✕ Clear Search</button>
+      </div>
+      <div id="searchGrid" class="anime-cards-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <div id="searchLoadMoreBox" class="load-more-container" style="display: none;">
+        <button id="searchLoadMoreBtn" class="load-more-btn" onclick="loadMoreSearchResults()">See More Results ↓</button>
+      </div>
+    </section>
+
     <!-- Hero Spotlight Section (Rotating Carousel: Movies, TV & Anime) -->
     <section id="heroSection" class="hero-spotlight">
       <button class="hero-nav-arrow hero-nav-prev" onclick="stepHeroSlide(-1)" aria-label="Previous featured title">‹</button>
@@ -4605,6 +4769,18 @@
       <button class="filter-tab" data-tab="schedule" id="scheduleTabBtn" onclick="switchTab('schedule')">
         📅 Airing Schedule
       </button>
+    </div>
+
+    <!-- Streaming Platform / Network Filter (Reddit Wishlist: Sort by Platform) -->
+    <div class="platform-pills-bar" id="platformPillsBar" role="tablist" aria-label="Sort by streaming platform">
+      <button class="platform-pill active" data-platform="all" onclick="filterByPlatform('all')">✨ All Platforms</button>
+      <button class="platform-pill" data-platform="netflix" onclick="filterByPlatform('netflix')"><span class="platform-icon" style="color:#e50914;">🔴</span> Netflix</button>
+      <button class="platform-pill" data-platform="crunchyroll" onclick="filterByPlatform('crunchyroll')"><span class="platform-icon" style="color:#f47521;">🟠</span> Crunchyroll</button>
+      <button class="platform-pill" data-platform="disney" onclick="filterByPlatform('disney')"><span class="platform-icon" style="color:#0063e5;">🏰</span> Disney+</button>
+      <button class="platform-pill" data-platform="max" onclick="filterByPlatform('max')"><span class="platform-icon" style="color:#a855f7;">🟣</span> Max</button>
+      <button class="platform-pill" data-platform="apple" onclick="filterByPlatform('apple')"><span class="platform-icon" style="color:#e2e8f0;">🍎</span> Apple TV+</button>
+      <button class="platform-pill" data-platform="prime" onclick="filterByPlatform('prime')"><span class="platform-icon" style="color:#00a8e1;">📦</span> Prime Video</button>
+      <button class="platform-pill" data-platform="hulu" onclick="filterByPlatform('hulu')"><span class="platform-icon" style="color:#1ce783;">🟢</span> Hulu</button>
     </div>
 
     <!-- Genre Filter Pills (Animex & AnimeNexus Style) -->
@@ -4727,22 +4903,7 @@
       </div>
     </section>
 
-    <!-- Live Search Results Section -->
-    <section id="searchSection" class="catalog-section" style="display: none;">
-      <div class="section-header">
-        <div class="section-title">
-          <div class="section-pip" style="background: #a855f7;"></div>
-          <span id="searchSectionTitle">🔍 Search Results</span>
-        </div>
-        <button id="searchSectionClearBtn" type="button" class="nav-btn" style="font-size: 0.78rem; padding: 0.35rem 0.8rem;" onclick="clearSearchResults()">✕ Clear Search</button>
-      </div>
-      <div id="searchGrid" class="anime-cards-grid">
-        <!-- Rendered by JS -->
-      </div>
-      <div id="searchLoadMoreBox" class="load-more-container" style="display: none;">
-        <button id="searchLoadMoreBtn" class="load-more-btn" onclick="loadMoreSearchResults()">See More Results ↓</button>
-      </div>
-    </section>
+
 
     <!-- Movies Section (Stremio/Cinemeta Protocol) -->
     <section id="moviesSection" class="catalog-section" style="display: none;">
@@ -7959,9 +8120,28 @@
       }
       const audioBadge = item.isMovieOrSeries ? (item.type === 'movie' ? 'HD MOVIE' : 'HD SERIES') : 'SUB/DUB';
       const safeTitle = escapeHtml(item.title);
+
+      // Resolution Quality Badge (Reddit Wishlist: Shows on cover if HD or 4K)
+      let qualityBadge = '1080P FHD';
+      let qualityClass = 'fhd-1080p';
+      const numRating = parseFloat(item.rating) || 0;
+      const numYear = parseInt(item.year, 10) || 0;
+      const is4k = (item.type === 'movie' && (numYear >= 2020 || numRating >= 7.6))
+        || (numYear >= 2023)
+        || (numRating >= 8.6);
+
+      if (is4k) {
+        qualityBadge = '4K UHD';
+        qualityClass = 'uhd-4k';
+      } else if (numYear > 0 && numYear < 2012 && !item.isMovieOrSeries) {
+        qualityBadge = 'HD';
+        qualityClass = 'hd-720p';
+      }
+
       return `
         <div class="anime-card" tabindex="0" role="button" aria-label="${safeTitle}" onclick="selectAnimeById('${item.id}', true)">
           <div class="card-poster-wrapper">
+            <div class="card-quality-badge ${qualityClass}">${qualityBadge}</div>
             <button class="card-fav-btn ${fav ? 'favorited' : ''}" data-id="${item.id}" onclick="toggleFavorite(event, '${item.id}')" title="${fav ? 'Remove from Watchlist' : 'Add to Watchlist'}">
               ${fav ? '❤️' : '🤍'}
             </button>
@@ -10357,7 +10537,7 @@
         const pane = document.getElementById(`theaterTab_${tabName}`);
         if (pane) {
           const navH = document.querySelector('.theater-hub-nav')?.getBoundingClientRect().height || 44;
-          const headH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 84;
+          const headH = typeof getComputedStyle === 'function' ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 84) : 84;
           const targetY = pane.getBoundingClientRect().top + window.scrollY - headH - navH - 8;
           window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
         }
@@ -10384,6 +10564,7 @@
       if (typeof cancelEmbedAutoAdvance === 'function') cancelEmbedAutoAdvance();
       const section = document.getElementById('theaterSection');
       section.classList.add('active');
+      document.body.classList.add('theater-mode-open');
       switchTheaterTab('episodes');
       updatePlayerUrl();
       if (currentAnime) {
@@ -10568,6 +10749,7 @@
       resetDirectVideoPlayer();
       const section = document.getElementById('theaterSection');
       section.classList.remove('active');
+      document.body.classList.remove('theater-mode-open');
       document.getElementById('playerIframe').src = 'about:blank';
       if (typeof flushPendingSyncsNow === 'function') flushPendingSyncsNow();
     }
@@ -10763,6 +10945,7 @@
       clearTimeout(searchDebounceTimer);
       currentSearchTerm = '';
       searchOffset = 0;
+      document.body.classList.remove('search-mode-active');
       if (searchInput) searchInput.value = '';
       syncClearSearchBtn();
       const searchSection = document.getElementById('searchSection');
@@ -10777,6 +10960,7 @@
       syncClearSearchBtn();
       clearTimeout(searchDebounceTimer);
       if (!q) {
+        document.body.classList.remove('search-mode-active');
         document.getElementById('searchSection').style.display = 'none';
         return;
       }
@@ -10794,6 +10978,7 @@
       const searchTitle = document.getElementById('searchSectionTitle');
       const loadMoreBox = document.getElementById('searchLoadMoreBox');
 
+      document.body.classList.add('search-mode-active');
       searchSection.style.display = 'block';
       searchTitle.innerText = `🔍 Searching for "${q}"...`;
       searchGrid.innerHTML = `
@@ -11076,7 +11261,7 @@
       if (tSection) {
         tSection.style.display = 'block';
         if (!isDefault && !loadMore) {
-          tSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (typeof tSection.scrollIntoView === 'function') tSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
 
@@ -17300,6 +17485,132 @@
 
     // Tab Switching
     let currentTab = 'all';
+
+    // Platform Filtering System (Sort by streaming platform / network: Netflix, Crunchyroll, Disney+, Max, etc.)
+    let currentPlatform = 'all';
+    const PLATFORM_CATALOG = {
+      netflix: [
+        { id: 'tt11126994', title: 'Arcane', year: '2021', rating: '9.0', poster: 'https://images.metahub.space/poster/medium/tt11126994/img', episodes: 9, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt12590266', title: 'Cyberpunk: Edgerunners', year: '2022', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt12590266/img', episodes: 10, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt4574334', title: 'Stranger Things', year: '2016', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt4574334/img', episodes: 34, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt13443470', title: 'Wednesday', year: '2022', rating: '8.1', poster: 'https://images.metahub.space/poster/medium/tt13443470/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt10919420', title: 'Squid Game', year: '2021', rating: '8.0', poster: 'https://images.metahub.space/poster/medium/tt10919420/img', episodes: 9, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt11737520', title: 'One Piece (Live Action)', year: '2023', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt11737520/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt6517102', title: 'Castlevania', year: '2017', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt6517102/img', episodes: 32, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt21808064', title: 'Delicious in Dungeon', year: '2024', rating: '8.0', poster: 'https://images.metahub.space/poster/medium/tt21808064/img', episodes: 24, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt13309710', title: 'Blue Eye Samurai', year: '2023', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt13309710/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt0434706', title: 'Monster', year: '2004', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt0434706/img', episodes: 74, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt30206198', title: 'DAN DA DAN', year: '2024', rating: '8.5', poster: 'https://images.metahub.space/poster/medium/tt30206198/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Netflix' },
+        { id: 'tt21654348', title: 'Kaiju No. 8', year: '2024', rating: '8.2', poster: 'https://images.metahub.space/poster/medium/tt21654348/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Netflix' }
+      ],
+      crunchyroll: [
+        { id: 'tt21209876', title: 'Solo Leveling', year: '2024', rating: '8.4', poster: 'https://images.metahub.space/poster/medium/tt21209876/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt12343534', title: 'Jujutsu Kaisen', year: '2020', rating: '8.6', poster: 'https://images.metahub.space/poster/medium/tt12343534/img', episodes: 47, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt9335498', title: 'Demon Slayer: Kimetsu no Yaiba', year: '2019', rating: '8.6', poster: 'https://images.metahub.space/poster/medium/tt9335498/img', episodes: 63, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt13616990', title: 'Chainsaw Man', year: '2022', rating: '8.4', poster: 'https://images.metahub.space/poster/medium/tt13616990/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt2560140', title: 'Attack on Titan', year: '2013', rating: '9.0', poster: 'https://images.metahub.space/poster/medium/tt2560140/img', episodes: 89, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt22204732', title: 'Frieren: Beyond Journey\'s End', year: '2023', rating: '8.9', poster: 'https://images.metahub.space/poster/medium/tt22204732/img', episodes: 28, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt13706018', title: 'Spy x Family', year: '2022', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt13706018/img', episodes: 37, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt0388629', title: 'One Piece', year: '1999', rating: '8.9', poster: 'https://images.metahub.space/poster/medium/tt0388629/img', episodes: 1120, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt5897304', title: 'Mob Psycho 100', year: '2016', rating: '8.6', poster: 'https://images.metahub.space/poster/medium/tt5897304/img', episodes: 37, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' },
+        { id: 'tt10233448', title: 'Vinland Saga', year: '2019', rating: '8.8', poster: 'https://images.metahub.space/poster/medium/tt10233448/img', episodes: 48, isMovieOrSeries: true, type: 'series', platform: 'Crunchyroll' }
+      ],
+      disney: [
+        { id: 'tt14992632', title: 'Bleach: Thousand-Year Blood War', year: '2022', rating: '9.0', poster: 'https://images.metahub.space/poster/medium/tt14992632/img', episodes: 39, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt8111088', title: 'The Mandalorian', year: '2019', rating: '8.6', poster: 'https://images.metahub.space/poster/medium/tt8111088/img', episodes: 24, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt9140554', title: 'Loki', year: '2021', rating: '8.2', poster: 'https://images.metahub.space/poster/medium/tt9140554/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt13622996', title: 'Star Wars: Visions', year: '2021', rating: '7.0', poster: 'https://images.metahub.space/poster/medium/tt13622996/img', episodes: 18, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt2788316', title: 'Shōgun', year: '2024', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt2788316/img', episodes: 10, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt9253284', title: 'Andor', year: '2022', rating: '8.4', poster: 'https://images.metahub.space/poster/medium/tt9253284/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Disney+' },
+        { id: 'tt10168312', title: 'What If...?', year: '2021', rating: '7.4', poster: 'https://images.metahub.space/poster/medium/tt10168312/img', episodes: 18, isMovieOrSeries: true, type: 'series', platform: 'Disney+' }
+      ],
+      max: [
+        { id: 'tt11198330', title: 'House of the Dragon', year: '2022', rating: '8.4', poster: 'https://images.metahub.space/poster/medium/tt11198330/img', episodes: 18, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt3581920', title: 'The Last of Us', year: '2023', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt3581920/img', episodes: 9, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt0944947', title: 'Game of Thrones', year: '2011', rating: '9.2', poster: 'https://images.metahub.space/poster/medium/tt0944947/img', episodes: 73, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt2861424', title: 'Rick and Morty', year: '2013', rating: '9.1', poster: 'https://images.metahub.space/poster/medium/tt2861424/img', episodes: 71, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt21056886', title: 'Scavengers Reign', year: '2023', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt21056886/img', episodes: 12, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt13146488', title: 'Peacemaker', year: '2022', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt13146488/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Max' },
+        { id: 'tt8772296', title: 'Euphoria', year: '2019', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt8772296/img', episodes: 18, isMovieOrSeries: true, type: 'series', platform: 'Max' }
+      ],
+      apple: [
+        { id: 'tt11280740', title: 'Severance', year: '2022', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt11280740/img', episodes: 9, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' },
+        { id: 'tt10986410', title: 'Ted Lasso', year: '2020', rating: '8.8', poster: 'https://images.metahub.space/poster/medium/tt10986410/img', episodes: 34, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' },
+        { id: 'tt14688458', title: 'Silo', year: '2023', rating: '8.1', poster: 'https://images.metahub.space/poster/medium/tt14688458/img', episodes: 10, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' },
+        { id: 'tt0804484', title: 'Foundation', year: '2021', rating: '7.6', poster: 'https://images.metahub.space/poster/medium/tt0804484/img', episodes: 20, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' },
+        { id: 'tt17220704', title: 'Monarch: Legacy of Monsters', year: '2023', rating: '7.0', poster: 'https://images.metahub.space/poster/medium/tt17220704/img', episodes: 10, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' },
+        { id: 'tt5875444', title: 'Slow Horses', year: '2022', rating: '8.3', poster: 'https://images.metahub.space/poster/medium/tt5875444/img', episodes: 18, isMovieOrSeries: true, type: 'series', platform: 'Apple TV+' }
+      ],
+      prime: [
+        { id: 'tt1190634', title: 'The Boys', year: '2019', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt1190634/img', episodes: 32, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' },
+        { id: 'tt6741278', title: 'Invincible', year: '2021', rating: '8.7', poster: 'https://images.metahub.space/poster/medium/tt6741278/img', episodes: 16, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' },
+        { id: 'tt12637874', title: 'Fallout', year: '2024', rating: '8.4', poster: 'https://images.metahub.space/poster/medium/tt12637874/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' },
+        { id: 'tt9288030', title: 'Reacher', year: '2022', rating: '8.1', poster: 'https://images.metahub.space/poster/medium/tt9288030/img', episodes: 16, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' },
+        { id: 'tt13374246', title: 'Hazbin Hotel', year: '2024', rating: '7.7', poster: 'https://images.metahub.space/poster/medium/tt13374246/img', episodes: 8, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' },
+        { id: 'tt7631058', title: 'The Rings of Power', year: '2022', rating: '7.0', poster: 'https://images.metahub.space/poster/medium/tt7631058/img', episodes: 16, isMovieOrSeries: true, type: 'series', platform: 'Prime Video' }
+      ],
+      hulu: [
+        { id: 'tt14452776', title: 'The Bear', year: '2022', rating: '8.6', poster: 'https://images.metahub.space/poster/medium/tt14452776/img', episodes: 28, isMovieOrSeries: true, type: 'series', platform: 'Hulu' },
+        { id: 'tt12851524', title: 'Only Murders in the Building', year: '2021', rating: '8.1', poster: 'https://images.metahub.space/poster/medium/tt12851524/img', episodes: 40, isMovieOrSeries: true, type: 'series', platform: 'Hulu' },
+        { id: 'tt23019808', title: 'Heavenly Delusion', year: '2023', rating: '8.0', poster: 'https://images.metahub.space/poster/medium/tt23019808/img', episodes: 13, isMovieOrSeries: true, type: 'series', platform: 'Hulu' },
+        { id: 'tt21915998', title: 'Undead Unluck', year: '2023', rating: '7.3', poster: 'https://images.metahub.space/poster/medium/tt21915998/img', episodes: 24, isMovieOrSeries: true, type: 'series', platform: 'Hulu' },
+        { id: 'tt2802850', title: 'Fargo', year: '2014', rating: '8.9', poster: 'https://images.metahub.space/poster/medium/tt2802850/img', episodes: 51, isMovieOrSeries: true, type: 'series', platform: 'Hulu' }
+      ]
+    };
+
+    function filterByPlatform(platform) {
+      currentPlatform = platform;
+      document.querySelectorAll('.platform-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-platform') === platform);
+      });
+
+      if (platform === 'all') {
+        const trendingTitle = document.getElementById('trendingSectionTitle');
+        if (trendingTitle) trendingTitle.innerHTML = '🔥 Trending Anime &amp; Top Hits';
+        if (trendingList && trendingList.length) {
+          document.getElementById('trendingGrid').innerHTML = trendingList.map(renderCard).join('');
+        } else {
+          fallbackOfflineCatalog();
+        }
+        const sSec = document.getElementById('seasonalSection');
+        if (sSec) sSec.style.display = 'block';
+        return;
+      }
+
+      const list = PLATFORM_CATALOG[platform] || [];
+      list.forEach(item => ANIME_CACHE.set(String(item.id), item));
+
+      const platformNames = {
+        netflix: '🔴 Netflix',
+        crunchyroll: '🟠 Crunchyroll',
+        disney: '🏰 Disney+',
+        max: '🟣 Max (HBO)',
+        apple: '🍎 Apple TV+',
+        prime: '📦 Prime Video',
+        hulu: '🟢 Hulu'
+      };
+
+      const pName = platformNames[platform] || platform;
+      const trendingTitle = document.getElementById('trendingSectionTitle');
+      if (trendingTitle) {
+        trendingTitle.innerHTML = `${pName} Catalog (${list.length} Top Releases • 4K / 1080p)`;
+      }
+      const tGrid = document.getElementById('trendingGrid');
+      if (tGrid) {
+        tGrid.innerHTML = list.map(renderCard).join('');
+      }
+
+      // Hide seasonal rail during specific platform focus for clean organization
+      const sSec = document.getElementById('seasonalSection');
+      if (sSec) sSec.style.display = 'none';
+
+      const tSection = document.getElementById('trendingSection');
+      if (tSection) {
+        tSection.style.display = 'block';
+        tSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
@@ -17878,6 +18189,39 @@
       }
 
       function findSpatialCandidate(current, key, root) {
+        // Chromecast TV & 10-ft Mode: Lock spatial navigation inside theater when watching
+        if (document.body.classList.contains('theater-mode-open')) {
+          const theater = document.getElementById('theaterSection');
+          if (theater && (root === document.body || !root)) {
+            root = theater;
+          }
+        }
+
+        // Chromecast TV: Direct search input to search results navigation
+        if (current && (current.id === 'searchInput' || current.id === 'clearSearchBtn')) {
+          if (key === 'ArrowDown') {
+            const searchSection = document.getElementById('searchSection');
+            if (searchSection && getComputedStyle(searchSection).display !== 'none') {
+              const firstCandidate = searchSection.querySelector('#searchSectionClearBtn, .anime-card, #searchLoadMoreBtn');
+              if (firstCandidate) return firstCandidate;
+            }
+          }
+        }
+
+        // Chromecast TV: Return to search input when navigating Up from top search cards
+        const searchGrid = document.getElementById('searchGrid');
+        if (searchGrid && current && searchGrid.contains(current) && key === 'ArrowUp') {
+          const firstCard = searchGrid.querySelector('.anime-card');
+          if (firstCard) {
+            const curRect = current.getBoundingClientRect();
+            const firstRect = firstCard.getBoundingClientRect();
+            if (curRect.top <= firstRect.bottom + 24) {
+              const searchInput = document.getElementById('searchInput');
+              if (searchInput) return searchInput;
+            }
+          }
+        }
+
         const candidates = getVisibleFocusables(root);
         if (!candidates.length) return null;
         if (!current || !root.contains(current) || current === document.body) {

@@ -4446,7 +4446,7 @@
   <!-- Stremio-Style Master Header Navigation -->
   <header class="stremio-header">
     <div class="stremio-header-left">
-      <a href="./" class="brand" title="CineAnime Discover">
+      <a href="./" class="brand" onclick="closeTheater(); switchTab('all'); return false;" title="CineAnime Discover">
         <div class="brand-icon">▶</div>
         <div class="brand-title">Cine<span>Anime</span></div>
       </a>
@@ -6303,9 +6303,38 @@
     const ANILIST_API = 'https://graphql.anilist.co';
     const ANIME_CACHE = new Map();
 
+    const DEFAULT_MOVIES_CATALOG = [
+      { id: "tt15239678", imdbId: "tt15239678", tmdbId: "693134", title: "Dune: Part Two", year: "2024", rating: "8.6", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt15239678/img", backdrop: "https://images.metahub.space/background/large/tt15239678/img", synopsis: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family." },
+      { id: "tt15398776", imdbId: "tt15398776", tmdbId: "872585", title: "Oppenheimer", year: "2023", rating: "8.9", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt15398776/img", backdrop: "https://images.metahub.space/background/large/tt15398776/img", synopsis: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb." },
+      { id: "tt9362722", imdbId: "tt9362722", tmdbId: "569094", title: "Spider-Man: Across the Spider-Verse", year: "2023", rating: "8.7", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt9362722/img", backdrop: "https://images.metahub.space/background/large/tt9362722/img", synopsis: "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence." },
+      { id: "tt0816692", imdbId: "tt0816692", tmdbId: "157336", title: "Interstellar", year: "2014", rating: "8.7", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt0816692/img", backdrop: "https://images.metahub.space/background/large/tt0816692/img", synopsis: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival." },
+      { id: "tt0468569", imdbId: "tt0468569", tmdbId: "155", title: "The Dark Knight", year: "2008", rating: "9.0", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt0468569/img", backdrop: "https://images.metahub.space/background/large/tt0468569/img", synopsis: "When the menace known as the Joker wreaks havoc and chaos on Gotham City, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice." },
+      { id: "tt1375666", imdbId: "tt1375666", tmdbId: "27205", title: "Inception", year: "2010", rating: "8.8", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt1375666/img", backdrop: "https://images.metahub.space/background/large/tt1375666/img", synopsis: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O." },
+      { id: "tt6263850", imdbId: "tt6263850", tmdbId: "533535", title: "Deadpool & Wolverine", year: "2024", rating: "7.8", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt6263850/img", backdrop: "https://images.metahub.space/background/large/tt6263850/img", synopsis: "Deadpool's peaceful existence comes crashing down when the Time Variance Authority recruits him to help safeguard the multiverse." },
+      { id: "tt21064510", imdbId: "tt21064510", tmdbId: "558449", title: "Gladiator II", year: "2024", rating: "7.1", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt21064510/img", backdrop: "https://images.metahub.space/background/large/tt21064510/img", synopsis: "Years after witnessing the death of Maximus at the hands of his uncle, Lucius must enter the Colosseum after the emperors of Rome conquer his home." },
+      { id: "tt18411490", imdbId: "tt18411490", tmdbId: "945961", title: "Alien: Romulus", year: "2024", rating: "7.3", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt18411490/img", backdrop: "https://images.metahub.space/background/large/tt18411490/img", synopsis: "While scavenging the deep ends of a derelict space station, a group of young space colonizers come face to face with the most terrifying life form in the universe." },
+      { id: "tt1877830", imdbId: "tt1877830", tmdbId: "414906", title: "The Batman", year: "2022", rating: "7.8", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt1877830/img", backdrop: "https://images.metahub.space/background/large/tt1877830/img", synopsis: "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city's hidden corruption and question his family's involvement." },
+      { id: "tt6710474", imdbId: "tt6710474", tmdbId: "545611", title: "Everything Everywhere All at Once", year: "2022", rating: "7.8", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt6710474/img", backdrop: "https://images.metahub.space/background/large/tt6710474/img", synopsis: "A middle-aged Chinese immigrant is swept up into an insane adventure in which she alone can save existence by exploring other universes." },
+      { id: "tt1630029", imdbId: "tt1630029", tmdbId: "76600", title: "Avatar: The Way of Water", year: "2022", rating: "7.6", episodes: 1, type: "movie", isMovieOrSeries: true, poster: "https://images.metahub.space/poster/small/tt1630029/img", backdrop: "https://images.metahub.space/background/large/tt1630029/img", synopsis: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns, Jake must work with Neytiri and the army of the Na'vi to protect their home." }
+    ];
+
+    const DEFAULT_SERIES_CATALOG = [
+      { id: "tt12637874", imdbId: "tt12637874", tmdbId: "106379", title: "Fallout", year: "2024", rating: "8.4", episodes: 8, type: "series", isMovieOrSeries: true, seasonNumbers: [1], seasonsMap: { 1: [{ ep: 1, title: "The End" }, { ep: 2, title: "The Target" }, { ep: 3, title: "The Head" }, { ep: 4, title: "The Ghouls" }, { ep: 5, title: "The Past" }, { ep: 6, title: "The Trap" }, { ep: 7, title: "The Radio" }, { ep: 8, title: "The Beginning" }] }, poster: "https://images.metahub.space/poster/small/tt12637874/img", backdrop: "https://images.metahub.space/background/large/tt12637874/img", synopsis: "In a future, post-apocalyptic Los Angeles brought about by nuclear decimation, citizens must live in underground bunkers to protect themselves from radiation, mutants and bandits." },
+      { id: "tt0903747", imdbId: "tt0903747", tmdbId: "1396", title: "Breaking Bad", year: "2008", rating: "9.5", episodes: 62, type: "series", isMovieOrSeries: true, seasonNumbers: [1, 2, 3, 4, 5], seasonsMap: { 1: [{ ep: 1, title: "Pilot" }, { ep: 2, title: "Cat's in the Bag..." }, { ep: 3, title: "...And the Bag's in the River" }, { ep: 4, title: "Cancer Man" }, { ep: 5, title: "Gray Matter" }, { ep: 6, title: "Crazy Handful of Nothin'" }, { ep: 7, title: "A No-Rough-Stuff-Type Deal" }] }, poster: "https://images.metahub.space/poster/small/tt0903747/img", backdrop: "https://images.metahub.space/background/large/tt0903747/img", synopsis: "A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine with a former student in order to secure his family's financial future." },
+      { id: "tt4574334", imdbId: "tt4574334", tmdbId: "66732", title: "Stranger Things", year: "2016", rating: "8.7", episodes: 34, type: "series", isMovieOrSeries: true, seasonNumbers: [1, 2, 3, 4], seasonsMap: { 1: [{ ep: 1, title: "Chapter One: The Vanishing of Will Byers" }, { ep: 2, title: "Chapter Two: The Weirdo on Maple Street" }, { ep: 3, title: "Chapter Three: Holly, Jolly" }, { ep: 4, title: "Chapter Four: The Body" }, { ep: 5, title: "Chapter Five: The Flea and the Acrobat" }, { ep: 6, title: "Chapter Six: The Monster" }, { ep: 7, title: "Chapter Seven: The Bathtub" }, { ep: 8, title: "Chapter Eight: The Upside Down" }] }, poster: "https://images.metahub.space/poster/small/tt4574334/img", backdrop: "https://images.metahub.space/background/large/tt4574334/img", synopsis: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl." },
+      { id: "tt0944947", imdbId: "tt0944947", tmdbId: "1399", title: "Game of Thrones", year: "2011", rating: "9.2", episodes: 73, type: "series", isMovieOrSeries: true, seasonNumbers: [1, 2, 3, 4, 5, 6, 7, 8], seasonsMap: { 1: [{ ep: 1, title: "Winter Is Coming" }, { ep: 2, title: "The Kingsroad" }, { ep: 3, title: "Lord Snow" }, { ep: 4, title: "Cripples, Bastards, and Broken Things" }, { ep: 5, title: "The Wolf and the Lion" }, { ep: 6, title: "A Golden Crown" }, { ep: 7, title: "You Win or You Die" }, { ep: 8, title: "The Pointy End" }, { ep: 9, title: "Baelor" }, { ep: 10, title: "Fire and Blood" }] }, poster: "https://images.metahub.space/poster/small/tt0944947/img", backdrop: "https://images.metahub.space/background/large/tt0944947/img", synopsis: "Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia." },
+      { id: "tt11198330", imdbId: "tt11198330", tmdbId: "94605", title: "Arcane", year: "2021", rating: "9.0", episodes: 18, type: "series", isMovieOrSeries: true, seasonNumbers: [1, 2], seasonsMap: { 1: [{ ep: 1, title: "Welcome to the Playground" }, { ep: 2, title: "Some Mysteries Are Better Left Unsolved" }, { ep: 3, title: "The Base Violence Necessary for Change" }, { ep: 4, title: "Happy Progress Day!" }, { ep: 5, title: "Everybody Wants to Be My Enemy" }, { ep: 6, title: "When These Walls Come Tumbling Down" }, { ep: 7, title: "The Boy Saviour" }, { ep: 8, title: "Oil and Water" }, { ep: 9, title: "The Monster You Created" }] }, poster: "https://images.metahub.space/poster/small/tt11198330/img", backdrop: "https://images.metahub.space/background/large/tt11198330/img", synopsis: "Set in utopian Piltover and the oppressed underground of Zaun, the story follows the origins of two iconic League of Legends champions and the power that will tear them apart." },
+      { id: "tt1190634", imdbId: "tt1190634", tmdbId: "76479", title: "The Boys", year: "2019", rating: "8.7", episodes: 32, type: "series", isMovieOrSeries: true, seasonNumbers: [1, 2, 3, 4], seasonsMap: { 1: [{ ep: 1, title: "The Name of the Game" }, { ep: 2, title: "Cherry" }, { ep: 3, title: "Get Some" }, { ep: 4, title: "The Female of the Species" }, { ep: 5, title: "Good for the Soul" }, { ep: 6, title: "The Innocents" }, { ep: 7, title: "The Self-Preservation Society" }, { ep: 8, title: "You Found Me" }] }, poster: "https://images.metahub.space/poster/small/tt1190634/img", backdrop: "https://images.metahub.space/background/large/tt1190634/img", synopsis: "A group of vigilantes set out to take down corrupt superheroes who abuse their superpowers." },
+      { id: "tt2788316", imdbId: "tt2788316", tmdbId: "124364", title: "Shōgun", year: "2024", rating: "8.7", episodes: 10, type: "series", isMovieOrSeries: true, seasonNumbers: [1], seasonsMap: { 1: [{ ep: 1, title: "Chapter One: Anjin" }, { ep: 2, title: "Chapter Two: Servants of Two Masters" }, { ep: 3, title: "Chapter Three: Tomorrow Is Tomorrow" }, { ep: 4, title: "Chapter Four: The Eightfold Fence" }, { ep: 5, title: "Chapter Five: Broken to the Fist" }, { ep: 6, title: "Chapter Six: Ladies of the Willow World" }, { ep: 7, title: "Chapter Seven: A Stick of Time" }, { ep: 8, title: "Chapter Eight: The Abyss of Life" }, { ep: 9, title: "Chapter Nine: Crimson Sky" }, { ep: 10, title: "Chapter Ten: A Dream of a Dream" }] }, poster: "https://images.metahub.space/poster/small/tt2788316/img", backdrop: "https://images.metahub.space/background/large/tt2788316/img", synopsis: "When a mysterious European ship is found marooned in a nearby fishing village, Lord Yoshii Toranaga discovers secrets that could tip the scales of power." },
+      { id: "tt3581920", imdbId: "tt3581920", tmdbId: "100088", title: "The Last of Us", year: "2023", rating: "8.7", episodes: 9, type: "series", isMovieOrSeries: true, seasonNumbers: [1], seasonsMap: { 1: [{ ep: 1, title: "When You're Lost in the Darkness" }, { ep: 2, title: "Infected" }, { ep: 3, title: "Long, Long Time" }, { ep: 4, title: "Please Hold to My Hand" }, { ep: 5, title: "Endure and Survive" }, { ep: 6, title: "Kin" }, { ep: 7, title: "Left Behind" }, { ep: 8, title: "When We Are in Need" }, { ep: 9, title: "Look for the Light" }] }, poster: "https://images.metahub.space/poster/small/tt3581920/img", backdrop: "https://images.metahub.space/background/large/tt3581920/img", synopsis: "After a global pandemic destroys civilization, a hardened survivor takes charge of a 14-year-old girl who may be humanity's last hope." }
+    ];
+
+
     // Cache initial offline fallback
     ANIME_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
     LEGENDARY_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
+    DEFAULT_MOVIES_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
+    DEFAULT_SERIES_CATALOG.forEach(item => ANIME_CACHE.set(String(item.id), item));
 
     let currentAnime = ANIME_CATALOG[0];
     let currentHeroAnime = ANIME_CATALOG[0];
@@ -6319,8 +6348,8 @@
     let seasonalList = [];
     let topRatedList = [...LEGENDARY_CATALOG];
     let latestReleasesList = [];
-    let currentMoviesList = [];
-    let currentSeriesList = [];
+    let currentMoviesList = [...DEFAULT_MOVIES_CATALOG];
+    let currentSeriesList = [...DEFAULT_SERIES_CATALOG];
     let searchDebounceTimer = null;
     let ambientGlowEnabled = true;
     let streamTimer = null;
@@ -10540,6 +10569,49 @@
       }, dwellMs);
     }
 
+    async function recoverMissingMediaIds(item) {
+      if (!item || !item.title) return false;
+      const title = item.title.trim();
+      const metaType = item.type === 'movie' ? 'movie' : 'series';
+
+      // 1. Cinemeta search by title
+      try {
+        const cRes = await fetch(`https://v3-cinemeta.strem.io/catalog/${metaType}/top/search=${encodeURIComponent(title)}.json`);
+        if (cRes.ok) {
+          const cJson = await cRes.json();
+          const first = cJson?.metas?.[0];
+          if (first?.imdb_id || first?.id) {
+            item.imdbId = first.imdb_id || first.id;
+            if (first.moviedb_id) item.tmdbId = String(first.moviedb_id);
+            if (!item.poster && first.poster) item.poster = first.poster;
+            return true;
+          }
+        }
+      } catch (_) {}
+
+      // 2. AniList search by title if anime
+      if (!item.isMovieOrSeries) {
+        try {
+          const q = `query($search: String) { Media(search: $search, type: ANIME) { id idMal } }`;
+          const aRes = await fetch(ANILIST_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q, variables: { search: title } })
+          });
+          if (aRes.ok) {
+            const aJson = await aRes.json();
+            const m = aJson.data?.Media;
+            if (m) {
+              if (m.id) item.aniId = String(m.id);
+              if (m.idMal) item.idMal = String(m.idMal);
+              return true;
+            }
+          }
+        } catch (_) {}
+      }
+      return false;
+    }
+
     function updatePlayerUrl(opts = {}) {
       resetDirectVideoPlayer();
       upNextDismissedForEpKey = '';
@@ -10550,23 +10622,26 @@
       const iframe = document.getElementById('playerIframe');
       const resolvingCard = document.getElementById('stremioResolvingCard');
 
-      const isExplicitServer = Boolean(opts?.explicitServer);
-      const autoDirect = getAutoDirect1080pEnabled();
+      if (resolvingCard) resolvingCard.classList.remove('active');
 
-      if (isExplicitServer || !autoDirect) {
-        if (resolvingCard) resolvingCard.classList.remove('active');
+      if (!baseUrl || baseUrl === 'about:blank') {
+        if (currentAnime?.title && !currentAnime._recoveringIds) {
+          currentAnime._recoveringIds = true;
+          recoverMissingMediaIds(currentAnime).then(recovered => {
+            currentAnime._recoveringIds = false;
+            if (recovered && currentAnime) {
+              updatePlayerUrl(opts);
+            }
+          });
+        }
+      }
+
+      if (url && url !== 'about:blank') {
         ensureSandboxedPlayer(iframe, url);
         iframe.style.display = 'block';
         iframe.src = url;
         startStreamAssistTimer();
         scheduleAutoWatchedAfterPlayback();
-      } else {
-        // Stremio-first mode: show resolving card, avoid loading embed iframe upfront
-        if (iframe) {
-          iframe.src = 'about:blank';
-          iframe.style.display = 'none';
-        }
-        if (resolvingCard) resolvingCard.classList.add('active');
       }
 
       document.querySelectorAll('#serverSwitcher .server-btn[data-server]').forEach(b => {
@@ -11179,6 +11254,9 @@
     });
 
     async function executeGlobalSearch(q) {
+      if (document.body.classList.contains('theater-mode-open')) {
+        closeTheater();
+      }
       currentSearchTerm = q;
       searchOffset = 0;
       const searchSection = document.getElementById('searchSection');
@@ -14771,10 +14849,11 @@
           }
         }
         if (getAutoDirect1080pEnabled()) {
-          const best = findBestDirectAddonStream();
-          if (best) {
+          const directs = currentAddonStreams.filter(s => !!s.url && s.url.startsWith('http') && !s._failedOnce);
+          const bestDirect = directs.find(s => s.preflight === 'verified') || directs[0];
+          if (bestDirect) {
             lastAutoLaunchedEpisodeKey = epAutoKey;
-            playBestDirectAddonStream(true);
+            playAddonStreamByIndex(bestDirect._idx);
           }
         }
       };
@@ -17832,6 +17911,9 @@
     }
 
     function switchTab(tab) {
+      if (document.body.classList.contains('theater-mode-open')) {
+        closeTheater();
+      }
       currentTab = tab;
       document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector(`.filter-tab[data-tab="${tab}"]`);
@@ -17840,6 +17922,9 @@
       document.querySelectorAll('.stremio-nav-tab').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-tab') === tab);
       });
+
+      const heroSection = document.getElementById('heroSection');
+      if (heroSection) heroSection.style.display = (tab === 'all') ? 'block' : 'none';
 
       const historySection = document.getElementById('historySection');
       const watchlistSection = document.getElementById('watchlistSection');
@@ -17896,9 +17981,11 @@
         if (animeDiscoverBar) animeDiscoverBar.style.display = 'flex';
         syncDiscoverBarFromMedia('movie');
         updateMediaCatalogUi('movie');
-        if (currentMoviesList.length === 0) {
-          loadMoviesCatalog(true);
+        const mGrid = document.getElementById('moviesGrid');
+        if (mGrid && currentMoviesList.length > 0 && !mGrid.children.length) {
+          mGrid.innerHTML = currentMoviesList.map(renderCard).join('');
         }
+        loadMoviesCatalog(true);
       } else if (tab === 'series') {
         if (seriesSection) {
           seriesSection.style.display = 'block';
@@ -17907,9 +17994,11 @@
         if (animeDiscoverBar) animeDiscoverBar.style.display = 'flex';
         syncDiscoverBarFromMedia('series');
         updateMediaCatalogUi('series');
-        if (currentSeriesList.length === 0) {
-          loadSeriesCatalog(true);
+        const sGrid = document.getElementById('seriesGrid');
+        if (sGrid && currentSeriesList.length > 0 && !sGrid.children.length) {
+          sGrid.innerHTML = currentSeriesList.map(renderCard).join('');
         }
+        loadSeriesCatalog(true);
       } else if (tab === 'history') {
         if (historySection) {
           historySection.style.display = 'block';

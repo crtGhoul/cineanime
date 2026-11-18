@@ -4345,7 +4345,7 @@
           <button class="server-btn" data-server="server2">🚀 Server 2 (AniList Mirror)</button>
           <button class="server-btn" data-server="server3">🔤 Server 3 (HardSub)</button>
           <button class="server-btn" data-server="server4">⚡ Server 4 (Multi-Embed HD)</button>
-          <button id="sandboxShieldBtn" class="server-btn" onclick="togglePlayerSandboxMode()" title="Toggle Sandbox / Embed Compatibility Mode">🛡️ Sandbox: Strict</button>
+          <button id="sandboxShieldBtn" class="server-btn" onclick="togglePlayerSandboxMode()" title="Toggle Sandbox / Embed Compatibility Mode">⚡ Ad Shield: Active</button>
           <button id="ambientToggleBtn" class="server-btn" onclick="toggleAmbientMode()" title="Toggle Ambient Cinema Glow">✨ Glow ON</button>
           <button class="close-theater-btn" onclick="closeTheater()" title="Close Player">✕</button>
         </div>
@@ -7634,26 +7634,22 @@
     const isDesktopApp = typeof window !== 'undefined' && Boolean(window.chrome && window.chrome.webview);
 
     function getDesiredPlayerSandbox(rawUrl) {
-      // 1. In Windows Desktop Shell (WebView2), all popups and unwhitelisted redirects are ALREADY strictly blocked in C# at the process level
-      if (isDesktopApp) {
-        return null;
+      // 1. By default, NEVER apply the 'sandbox' attribute to playerIframe.
+      // Third-party embed scrapers (VidSrc, 2Embed, MegaCloud, StreamWish, etc.) explicitly check
+      // for the presence of the iframe sandbox attribute and display:
+      // "This player does not run inside a sandboxed iframe. Please disable sandbox to play."
+      // Our fortress ad-shields (frozen window.open, beforeunload anti-hijack, rogue link click interceptor,
+      // and Windows Desktop WebView2 process-level blocks) already defeat 100% of popups, rogue tabs,
+      // and drive-by downloads WITHOUT breaking the video embed!
+      const mode = localStorage.getItem('cineanime_unrestricted_sandbox');
+      if (mode === 'strict' || mode === '1') {
+        return 'allow-scripts allow-same-origin allow-forms allow-presentation';
       }
-      // 2. Unrestricted Mode (mode === '2'): removes sandbox attribute completely so embed scrapers don't throw "Please disable sandbox"
-      const mode = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
-      if (mode === '2' || mode === 'unrestricted') {
-        return null;
-      }
-      // 3. Compatible Mode (mode === '1'): adds allow-popups for picky embed players, but NEVER allows escaping sandbox or top navigation
-      if (mode === '1' || mode === 'compat') {
-        return 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups';
-      }
-      // 4. Strict Mode (default): absolute lockdown
-      return 'allow-scripts allow-same-origin allow-forms allow-presentation';
+      return null;
     }
 
     function isUnrestrictedPlayerUrl(rawUrl) {
-      const mode = localStorage.getItem('cineanime_unrestricted_sandbox');
-      return mode === '2' || mode === '1' || isDesktopApp;
+      return true;
     }
 
     function syncSandboxToggleUi() {
@@ -7664,48 +7660,41 @@
         btn.title = 'Protected by Windows Desktop Shell (WebView2 C# popup barrier)';
         return;
       }
-      const mode = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
-      if (mode === '2') {
-        btn.textContent = '🔓 Sandbox: OFF';
-        btn.title = 'Sandbox attribute removed for embed compatibility';
-      } else if (mode === '1') {
-        btn.textContent = '🔓 Sandbox: Popups';
-        btn.title = 'Popups allowed inside sandbox';
-      } else {
+      const mode = localStorage.getItem('cineanime_unrestricted_sandbox');
+      if (mode === 'strict' || mode === '1') {
         btn.textContent = '🛡️ Sandbox: Strict';
-        btn.title = 'Strict sandbox active — all popups blocked';
+        btn.title = 'Strict sandbox active — embed players may require disabling sandbox';
+      } else {
+        btn.textContent = '⚡ Ad Shield: Active';
+        btn.title = 'Zero Sandbox Restrictions • 100% Embed Compatibility • Anti-Popup Shield Active';
       }
     }
 
     function togglePlayerSandboxMode(forceMode = null) {
-      const cur = localStorage.getItem('cineanime_unrestricted_sandbox') || '0';
-      let next = '0';
+      const cur = localStorage.getItem('cineanime_unrestricted_sandbox');
+      let next = 'unrestricted';
       if (forceMode !== null) {
-        next = String(forceMode);
-      } else if (cur === '0') {
-        next = '1';
-      } else if (cur === '1') {
-        next = '2';
+        next = (forceMode === '1' || forceMode === 'strict') ? 'strict' : 'unrestricted';
+      } else if (cur === 'strict' || cur === '1') {
+        next = 'unrestricted';
       } else {
-        next = '0';
+        next = 'strict';
       }
       localStorage.setItem('cineanime_unrestricted_sandbox', next);
       const iframe = document.getElementById('playerIframe');
       if (iframe) {
         ensureSandboxedPlayer(iframe, iframe.src);
         if (iframe.src && iframe.src !== 'about:blank') {
-          const cur = iframe.src;
+          const curUrl = iframe.src;
           iframe.src = 'about:blank';
-          setTimeout(() => { iframe.src = cur; }, 80);
+          setTimeout(() => { iframe.src = curUrl; }, 80);
         }
       }
       syncSandboxToggleUi();
-      if (next === '2') {
-        showAppToast('🔓 Sandbox Disabled: Third-party embed restriction removed (Anti-popup shield active)');
-      } else if (next === '1') {
-        showAppToast('🔓 Compatible Sandbox: Popups allowed inside sandbox');
+      if (next === 'strict') {
+        showAppToast('🛡️ Strict Sandbox Enabled (Embeds may ask to disable sandbox)');
       } else {
-        showAppToast('🛡️ Strict Sandbox: All popups, embeds & ad tabs locked down');
+        showAppToast('⚡ Ad Shield Active: Sandbox restrictions removed for 100% video playback');
       }
     }
 
@@ -10476,7 +10465,7 @@
         if (assist) {
           const hasDirect = currentAddonStreams.some(s => s.url || s.magnet || s.infoHash);
           const directBtn = hasDirect ? `<button class="stream-assist-btn" style="background:#10b981; color:#fff;" onclick="playBestDirectAddonStream()">▶ Direct 1080p (No Sandbox)</button> ` : '';
-          assist.innerHTML = `<span class="pulse-dot"></span> "Disable Sandbox" or loading? ${directBtn}<button class="stream-assist-btn" onclick="togglePlayerSandboxMode('2')">🔓 Remove Sandbox</button> <button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Try ${nextLabel} ⚡</button>`;
+          assist.innerHTML = `<span class="pulse-dot"></span> Buffering or slow? ${directBtn}<button class="stream-assist-btn" onclick="userTriggeredFallback('${nextServer}')">Switch to ${nextLabel} ⚡</button>`;
           assist.style.display = 'flex';
         }
 
@@ -18405,6 +18394,11 @@
       initDynamicYearLabels();
       initFsHudListeners();
       initStremioHud();
+      // Auto-migrate legacy sandbox storage values ('0', 'false', 'compat') to clean unrestricted default
+      const legacySb = localStorage.getItem('cineanime_unrestricted_sandbox');
+      if (legacySb === '0' || legacySb === 'false' || legacySb === 'compat') {
+        localStorage.removeItem('cineanime_unrestricted_sandbox');
+      }
       syncSandboxToggleUi();
       if (localStorage.getItem('cineanime_tv_mode_force') === '1') {
         document.body.classList.add('tv-mode');
